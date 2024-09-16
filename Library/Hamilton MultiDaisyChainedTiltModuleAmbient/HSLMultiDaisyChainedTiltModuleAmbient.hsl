@@ -1,0 +1,367 @@
+// ===========================================================================
+// Interface of the daisy chained Tilt-Module library 
+//
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+// ===========================================================================
+//
+// Modification History
+//		2008-10-08, V1.0: Ruedi Vogel:
+//       - created, based on Daisy Chhained Tilt Module Ambient V1.2
+// 
+// ===========================================================================
+
+#ifndef __HSLMultiDaisyChainedTiltModuleAmbient_hsl__
+#define __HSLMultiDaisyChainedTiltModuleAmbient_hsl__	1
+
+#ifndef __HSLStrLib_hsl__
+#include "HSLStrLib.hsl"
+#endif
+#ifndef __HSLMultiDaisyChainCommunication_hsl__
+#include "HSLMultiDaisyChainCommunication.hsl"
+#endif
+
+
+namespace HSLMultiDaisyChainedTiltModuleAmbient
+{
+	/*********************************************************************
+	*
+	* Exported return constants
+	*
+	*********************************************************************/
+	
+	const static variable CMD_START   ( 1 );
+	const static variable CMD_COMPLET ( 2 );
+	const static variable CMD_ERROR   ( 5 );   // to prevent suspicious Phoenix error messages
+	const static variable CMD_PROGRESS( 4 );
+	const static variable CMD_ERRCOMPL( 5 );
+
+	const variable TRACE_LEVEL_NONE   ( 0 );
+	const variable TRACE_LEVEL_NORMAL ( 1 );
+   const variable TRACE_LEVEL_FULL   ( 2 );
+   const variable HSL_FALSE          ( hslFalse );
+   const variable HSL_TRUE           ( hslTrue );
+   
+	const variable ERROR_NONE                                         (  0 );
+	const variable ERROR_INIT_NOT_FOUND                               (  1 );
+	const variable ERROR_STEP_LOST                                    (  2 );
+	const variable ERROR_NOT_INITIALIZED                              (  3 );
+	const variable ERROR_PARALLEL_ERROR                               (  4 );
+	const variable ERROR_STEPPER_MOTOR_HW_DEFECTIVE                   (  5 );
+	const variable ERROR_PRM_OUT_OF_RANGE                             (  6 );
+	const variable ERROR_CMD_UNKNOWN                                  (  7 );
+	const variable ERROR_UNKNOWN_ERROR_CODE                           (  8 );
+
+	const static string ERROR_MSG_NONE                                ( "No error." );
+	const static string ERROR_MSG_INIT_NOT_FOUND                      ( "Init position not found!" );
+	const static string ERROR_MSG_STEP_LOST                           ( "Steps lost (overload)!" );
+	const static string ERROR_MSG_NOT_INITIALIZED                     ( "Drive not initialized!" );
+	const static string ERROR_MSG_PARALLEL_ERROR                      ( "Parallel functions not allowed!" );
+	const static string ERROR_MSG_STEPPER_MOTOR_HW_DEFECTIVE          ( "Stepper motor power amp defective!" );
+	const static string ERROR_MSG_PRM_OUT_OF_RANGE                    ( HSLMultiDaisyChainCommunication::ERROR_MSG_PARAMETER_OUT_OF_RANGE );
+	const static string ERROR_MSG_CMD_UNKNOWN                         ( "Unknown command!" );
+	const static string ERROR_MSG_UNKNOWN_ERROR_CODE                  ( "Unknown error code!" );
+
+
+	/*********************************************************************
+	*
+	* Module globale constants/variables
+	*
+	*********************************************************************/
+
+	static global variable HSLMultiDaisyChainedTiltModuleAmbient_TrcLvl( TRACE_LEVEL_NORMAL );
+
+
+	/*********************************************************************
+	*
+	* Declarations
+	*
+	*********************************************************************/
+
+	function InitializeCommunication( variable iSystemID, variable iComPort, variable iTraceLevel, variable iSimulate ) variable;
+	function InitializeTiltModuleAmbient( variable iSystemID, variable iModuleName ) variable;
+	function TerminateTiltModuleAmbient( variable iSystemID, variable iModuleName ) void;	
+   function TerminateCommunication( variable iSystemID ) void;
+
+	function MoveToPosition( variable iSystemID, variable iModuleName, variable iAngle ) variable;
+	function EvaluateErrorMessage( variable iErrorCode ) string;
+
+
+	/*********************************************************************
+	*
+	* Implementations
+	*
+	*********************************************************************/
+
+	function InitializeCommunication( variable iSystemID, variable iComPort, variable iTraceLevel, variable iSimulate ) variable
+	{
+		variable errCode;
+
+
+		HSLMultiDaisyChainedTiltModuleAmbient_TrcLvl = iTraceLevel;
+		if( TRACE_LEVEL_NONE < HSLMultiDaisyChainedTiltModuleAmbient_TrcLvl ) FormatTrace(GetFunctionName(), "()", CMD_START, " Initialize communication port for system #", iSystemID, " on COM", iComPort );
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+		if(( 1 > iSystemID ) || ( 4 < iSystemID ))
+		{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, " Parameter system ID #", iSystemID, " out of range [1..4]!" );
+			return( ERROR_PRM_OUT_OF_RANGE );
+		}
+		if(( 1 > iComPort) || ( 255 < iComPort ))
+		{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, " Parameter comPort #", iComPort, " out of range [1..255]!" );
+			return( ERROR_PRM_OUT_OF_RANGE );
+		}
+
+		// -------------------------------------------------------------------------
+		// initialize communication port
+		// -------------------------------------------------------------------------
+      errCode = HSLMultiDaisyChainCommunication::InitializeMultiDaisyChainCommPort( iSystemID, iComPort, iTraceLevel, iSimulate );
+	   if( ERROR_NONE != errCode )
+   	{
+	   	FormatTrace( GetFunctionName(), "()", CMD_ERROR, "<InitializeMultiDaisyChainCommPort()> for system #", iSystemID, " failed! (Error code = ", errCode, ", error message = ", EvaluateErrorMessage( errCode ), ")" );
+         HSLMultiDaisyChainCommunication::TerminateMultiDaisyChainCommPort( iSystemID );
+         return( errCode );
+	   }
+
+		if( TRACE_LEVEL_NONE < HSLMultiDaisyChainedTiltModuleAmbient_TrcLvl ) FormatTrace( GetFunctionName(), "()", CMD_COMPLET );
+		return( ERROR_NONE );
+   }
+
+
+
+	function InitializeTiltModuleAmbient( variable iSystemID, variable iModuleName ) variable
+	{
+		variable command;
+		variable response;
+		variable errCode;
+
+		
+		if( TRACE_LEVEL_NONE < HSLMultiDaisyChainedTiltModuleAmbient_TrcLvl ) FormatTrace(GetFunctionName(), "()", CMD_START, " Initialize tilt module ambient <", iModuleName, "> on system #", iSystemID );
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+		if(( 1 > iSystemID) || ( 4 < iSystemID ))
+		{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, " Parameter stystem ID #", iSystemID, " out of range [1..4]!" );
+			return( ERROR_PRM_OUT_OF_RANGE );
+		}
+
+		// -------------------------------------------------------------------------
+		// reset and initialize tilt module (with configuring timeouts)
+		// -------------------------------------------------------------------------
+      command  = "EI,SI,RF";
+      response = iModuleName + "RFer00rf Tilt module ambient simulation";
+      errCode = HSLMultiDaisyChainCommunication::InitializeMultiDaisyChainModule( iSystemID, iModuleName, command, response );
+	   if( HSLMultiDaisyChainCommunication::ERROR_NONE != errCode )
+   	{
+	   	FormatTrace( GetFunctionName(), "()", HSLMultiDaisyChainCommunication::CMD_ERROR, "<InitializeMultiDaisyChainModule()> for tilt module ambient <", iModuleName, "> on system #", iSystemID, " failed! (Error code = ", errCode, ", error message = ", HSLMultiDaisyChainCommunication::EvaluateCommErrorMessage( errCode ), ")" );
+         HSLMultiDaisyChainCommunication::TerminateMultiDaisyChainModule( iSystemID, iModuleName, "PO" );
+         return( errCode );
+	   }
+
+		if( TRACE_LEVEL_NONE < HSLMultiDaisyChainedTiltModuleAmbient_TrcLvl ) FormatTrace( GetFunctionName(), "()", CMD_COMPLET );
+		return( ERROR_NONE );
+	}
+
+
+	
+	function TerminateTiltModuleAmbient( variable iSystemID, variable iModuleName ) void
+	{
+		variable command;
+		variable response;
+		variable errCode;
+
+
+		if( TRACE_LEVEL_NONE < HSLMultiDaisyChainedTiltModuleAmbient_TrcLvl ) FormatTrace(GetFunctionName(), "()", CMD_START, " Module <", iModuleName, "> on system #", iSystemID );
+
+		// -------------------------------------------------------------------------
+		// check parameter(s)
+		// -------------------------------------------------------------------------
+		if(( 1 > iSystemID ) || ( 4 < iSystemID ))
+		{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, " Parameter system ID #", iSystemID, " out of range [1..4]!" );
+			return;
+		}
+
+		// -------------------------------------------------------------------------
+		// transmit "GP0", Go to horizontal position, before "PO", power off, command
+		// -------------------------------------------------------------------------
+      errCode = HSLMultiDaisyChainCommunication::TerminateMultiDaisyChainModule( iSystemID, iModuleName, "GP0,PO" );
+		if( ERROR_NONE != errCode ) 
+      {
+         FormatTrace( GetFunctionName(), "()", CMD_ERROR, " Terminating tilt module ambient failed! (System #", iSystemID, ", module <", iModuleName, ">)" );
+         return;
+      }
+
+		if( TRACE_LEVEL_NONE < HSLMultiDaisyChainedTiltModuleAmbient_TrcLvl ) FormatTrace( GetFunctionName(), "()", CMD_COMPLET );
+		return;
+	}
+
+
+
+   function TerminateCommunication( variable iSystemID ) void
+   {
+      variable errCode;
+
+
+		if( TRACE_LEVEL_NONE < HSLMultiDaisyChainedTiltModuleAmbient_TrcLvl ) FormatTrace(GetFunctionName(), "()", CMD_START, " System #", iSystemID );
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+		if(( 1 > iSystemID ) || ( 4 < iSystemID ))
+		{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, " Parameter system ID #", iSystemID, " out of range [1..4]!" );
+			return;
+		}
+
+		// -------------------------------------------------------------------------
+		// close communication port
+		// -------------------------------------------------------------------------
+      errCode = HSLMultiDaisyChainCommunication::TerminateMultiDaisyChainCommPort( iSystemID );
+		if( HSLMultiDaisyChainCommunication::ERROR_NONE != errCode )
+		{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, " <TerminateMultiDaisyChainCommPort()> to system #", iSystemID, "> failed! (Communication error code = ", errCode, ", error message = ", HSLMultiDaisyChainCommunication::EvaluateCommErrorMessage( errCode ), ")" );
+         return;
+		}
+
+		if( TRACE_LEVEL_NONE < HSLMultiDaisyChainedTiltModuleAmbient_TrcLvl ) FormatTrace( GetFunctionName(), "()", CMD_COMPLET );
+		return;
+   }
+
+
+
+	function MoveToPosition( variable iSystemID, variable iModuleName, variable iAngle ) variable
+	{
+		variable command;
+		variable response;
+		variable errCode;
+
+
+		if( TRACE_LEVEL_NONE < HSLMultiDaisyChainedTiltModuleAmbient_TrcLvl ) FormatTrace(GetFunctionName(), "()", CMD_START, " Move tilt module ambient <", iModuleName, "> on system #", iSystemID, " to position: angle = ", iAngle );
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+		if(( 1 > iSystemID ) || ( 4 < iSystemID ))
+		{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, " Parameter system ID #", iSystemID, " out of range [1..4]!" );
+			return( ERROR_PRM_OUT_OF_RANGE );
+		}
+		if(( 0 > iAngle) || ( 10 < iAngle ))
+		{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, " Parameter angle = ", iAngle, " out of range [0..10]!" );
+			return( ERROR_PRM_OUT_OF_RANGE );
+		}
+
+		// -------------------------------------------------------------------------
+		// Start waste pump by setting pump power to 100% and then start it.
+		// -------------------------------------------------------------------------
+		command   = "GP" + IStr( iAngle );
+		response  = iModuleName + "GPer00";
+		errCode = HSLMultiDaisyChainCommunication::DaisyChainedTxRxCommandList( iSystemID, iModuleName, command, response );
+		if( ERROR_NONE != errCode )
+		{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, " Moving tilt module failed! (System #", iSystemID, ", module <", iModuleName, ">, DaisyChainedTxRxCommandList(", command, "), response = <", response, ">)" );
+         return( errCode );
+		}
+
+		if( TRACE_LEVEL_NONE < HSLMultiDaisyChainedTiltModuleAmbient_TrcLvl ) FormatTrace( GetFunctionName(), "()", CMD_COMPLET );
+		return( ERROR_NONE );
+	}
+
+
+
+	function EvaluateErrorMessage( variable iErrorCode ) string
+	{
+           if( iErrorCode <  ERROR_NONE                       ) return( HSLMultiDaisyChainCommunication::EvaluateCommErrorMessage( iErrorCode ));
+      else if( iErrorCode == ERROR_NONE                       ) return( ERROR_MSG_NONE );
+   	else if( iErrorCode == ERROR_INIT_NOT_FOUND             ) return( ERROR_MSG_INIT_NOT_FOUND );
+   	else if( iErrorCode == ERROR_STEP_LOST                  ) return( ERROR_MSG_STEP_LOST );
+   	else if( iErrorCode == ERROR_NOT_INITIALIZED            ) return( ERROR_MSG_NOT_INITIALIZED );
+   	else if( iErrorCode == ERROR_PARALLEL_ERROR             ) return( ERROR_MSG_PARALLEL_ERROR );
+   	else if( iErrorCode == ERROR_STEPPER_MOTOR_HW_DEFECTIVE ) return( ERROR_MSG_STEPPER_MOTOR_HW_DEFECTIVE );
+   	else if( iErrorCode == ERROR_PRM_OUT_OF_RANGE           ) return( ERROR_MSG_PRM_OUT_OF_RANGE );
+   	else if( iErrorCode == ERROR_CMD_UNKNOWN                ) return( ERROR_MSG_CMD_UNKNOWN );
+   	else                                                      return( ERROR_MSG_UNKNOWN_ERROR_CODE );
+	}
+
+
+
+}	//end namespace 
+
+
+/*
+
+private function DisplayErrorAndTerminate( variable iSystemId, variable iModuleId, variable iErrorCode ) void 
+{
+   dialog   d1;
+   variable errMsg;
+
+   if( HSLMultiDaisyChainedTiltModuleAmbient::ERROR_NONE != iErrorCode )
+   {
+      errMsg = HSLMultiDaisyChainedTiltModuleAmbient::EvaluateErrorMessage( iErrorCode );
+      d1.SetOutput( "Module <", iModuleId, "> on system #", iSystemId, " failed!\nError code = ", iErrorCode, ": ", errMsg );
+      d1.ShowOutput( "Error raised!", hslOKOnly | hslInformation | hslDefButton1, hslInfinite );
+
+	   HSLMultiDaisyChainedTiltModuleAmbient::TerminateTiltModuleAmbient( iSystemId, iModuleId );
+   	HSLMultiDaisyChainedTiltModuleAmbient::TerminateCommunication( iSystemId );
+      abort;
+   }
+   return;
+}
+
+
+variable errCode;
+variable mySystemID( 1 );
+variable myModule( "TM" );
+variable myComPort( 3 );
+variable myAngle( 10 );
+
+timer    timer1;
+variable loopCounter1;
+
+
+method main( ) void
+{
+   // initialize communication and tilt module ambient
+	errCode = HSLMultiDaisyChainedTiltModuleAmbient::InitializeCommunication( mySystemID,
+	                                                                          myComPort,
+				          		  	   								                    HSLMultiDaisyChainedTiltModuleAmbient::TRACE_LEVEL_FULL,
+						             									                    HSLMultiDaisyChainedTiltModuleAmbient::HSL_FALSE );
+   DisplayErrorAndTerminate( mySystemID, myModule, errCode );
+	errCode = HSLMultiDaisyChainedTiltModuleAmbient::InitializeTiltModuleAmbient( mySystemID, myModule );
+   DisplayErrorAndTerminate( mySystemID, myModule, errCode );
+
+	// move tilt module ambient to 10° and do something within 10sec
+	errCode = HSLMultiDaisyChainedTiltModuleAmbient::MoveToPosition( mySystemID, myModule, myAngle );
+   DisplayErrorAndTerminate( mySystemID, myModule, errCode );
+
+	timer1.SetTimer( 10 );
+	timer1.WaitTimer( hslTrue, hslFalse );
+
+	for( loopCounter1 = 0; loopCounter1 < 5; loopCounter1++ )
+	{
+		// decrease tilt module ambient in 1°steps
+		myAngle--;
+		errCode = HSLMultiDaisyChainedTiltModuleAmbient::MoveToPosition( mySystemID, myModule, myAngle );
+      DisplayErrorAndTerminate( mySystemID, myModule, errCode );
+
+		// do something within 10sec
+		timer1.SetTimer( 10 );
+		timer1.WaitTimer( hslTrue, hslFalse );
+	}
+
+   // terminate tilt module ambient and communication
+	HSLMultiDaisyChainedTiltModuleAmbient::TerminateTiltModuleAmbient( mySystemID, myModule );
+	HSLMultiDaisyChainedTiltModuleAmbient::TerminateCommunication( mySystemID );
+}
+*/
+
+
+#endif
+// $$author=BHuf$$valid=1$$time=2020-12-02 09:26$$checksum=d1039331$$length=083$$

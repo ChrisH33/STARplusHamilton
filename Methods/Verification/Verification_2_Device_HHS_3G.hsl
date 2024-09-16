@@ -1,0 +1,1393 @@
+/***************************************************************************************************
+*  Method     : Verification_2_Device_HHS_3G.hsl
+*  Copyright by HAMILTON Bonaduz AG, CH-7402 Bonaduz
+****************************************************************************************************
+*			 
+*  Description : Method for Device Verification of :					
+*						-	Hamilton Heater Shaker 3G  (p/n 10143439 ... )
+*					Not used for temperature and shaker funktion verification				
+* ==================================================================================================
+*  ATTENTION: Change this HSL only with HSL Editor of SW Version 4.2!
+*              (Note: This library must run from SW-version 4.2 on)
+* ==================================================================================================
+*  Modification History:
+* ----------------------
+*  Rev 1.0  2022-12-07 Erich Caflisch  / Module Version : 01 / ECO11008587  
+*              New implementation of device verification Hamilton Heater Shaker 3G
+*
+*****************************************************************************************************/ 
+
+//================================
+// deactivate for release version
+//-------------------------------
+//
+//device ML_STAR("C:\\Program Files\\Hamilton\\Methods\\Verification\\Verification_Star.lay");
+
+// -----------------------------------------------------------------------------
+// Included libraries
+// -----------------------------------------------------------------------------
+
+	#ifndef __HslVerToolsLib_hsl__
+	#include "HslVerToolsLib.hs_"
+	#endif
+
+	#ifndef __HSLVerDevice_PT_hs___
+	#include "HSLVerDevice_PT.hs_"
+	#endif
+
+	#ifndef __HSLDevLib_hsl__
+	#include "HSLDevLib.hsl"
+	#endif
+
+	#ifndef __HSLStrLib_hsl__
+	#include "HSLStrLib.hsl"
+	#endif
+
+   #ifndef __HSLTrcLib_hs__
+   #include "HSLTrcLib.hsl"
+   #endif
+
+
+namespace D_VER
+{
+	variable moduleVersion("01");				// verification subversion of this library	
+
+	variable processSummaryState;
+	variable Device_LibraryIncluded(hslFalse);
+   variable arrSelectedDeviceID[];
+   variable arrSelectedIndex[];
+
+
+	variable librariesIncluded(hslFalse);
+
+	//------------------------------------------------------------------------------
+	private function includeLibrary() variable
+	//------------------------------------------------------------------------------
+   {
+		variable fileToInclude;
+		variable libraryName, labDeviceType ;
+      variable HSLMTecLibType(hslFalse);
+
+		object fso;  // file system object
+
+		if (fso.IsNull()) fso.CreateObject("Scripting.FileSystemObject");
+
+		if(Device_LibraryIncluded) return(hslTrue); //"HHS 3G" library already included
+		
+
+	   onerror goto IncludeError;
+
+		// include corresponding library, if installed
+      //"C:\Program Files (x86)\HAMILTON\Library\HamiltonHeaterShaker3GFieldVerification\HamiltonHeaterShaker3GFieldVerification.hsl"
+      libraryName = "HamiltonHeaterShaker3GFieldVerification\\HamiltonHeaterShaker3GFieldVerification.hsl";
+      fileToInclude = libraryName;      // used in the error-handler below
+      Trace("Test: ----  Requested HSL Library: \"", fileToInclude, "\" try to included....");
+      << fileToInclude;
+
+	   onerror goto 0;
+
+      Device_LibraryIncluded 			= hslTrue;
+
+      //Trace("Test: Requested HSL Library: \"", fileToInclude, "\" included!");
+
+	   return(hslTrue);
+
+	   IncludeError:
+	   {
+	      Trace("Test: Requested HSL Library: \"", libraryName, "\" not installed.");
+		   return(hslFalse);
+	   }
+	} // -- end of function "includeLibrary"
+
+   
+	//------------------------------------------------------------------------------
+	private function splitTimeInMinutesAndSeconds(variable timeInSeconds) variable
+	//------------------------------------------------------------------------------
+   {
+		variable seconds(0), minutes(0);
+      variable output("");
+
+			timeInSeconds = VerTool::convertToInteger(timeInSeconds);
+ 			minutes = Floor(timeInSeconds / 60.0);	
+         seconds = timeInSeconds - 60 * minutes;
+
+         output = StrConcat2("00",seconds);
+         output = StrRight(output,2);
+         output = StrConcat4(minutes,":",output,"");
+
+      return(output);
+
+	} // -- end of function "includeLibrary"
+
+	//------------------------------------------------------------------------------
+	function verificationNotImplementedDialog() //variable
+	//------------------------------------------------------------------------------
+	{
+		variable dialogTitle;
+      variable warning;
+      variable pictureFile("");			// picture file name (in subdirectory "..\\Methods\Verification\Pictures\""
+
+		dialogTitle       = LdT("Device Verification HHS 3G");
+      warning           = LdT("Verification execution will aborted.");
+      pictureFile 		= "Not_Implemented.jpg";
+		VerTool::NewTextLine(1,"===  " + LdT("VERIFICATION NOT IMPLEMENTED!") +  "====");
+		VerTool::NewTextLine(0," ");
+		VerTool::NewTextLine(0," ");
+		VerTool::NewTextLine(0,LdT("Installed Software Version:") + "  " + VerDef::SWReleaseVersion);
+      VerTool::NewTextLine(0," ");
+		VerTool::NewTextLine(0," ");
+      VerTool::NewTextLine(0,LdT("The corresponding library installation was not properly executed."));
+      VerTool::NewTextLine(0," ");
+		VerTool::NewTextLine(0," ");
+      VerTool::NewTextLine(0,LdT("Note") + ":" + LdT("Execute verification installations again or"));
+      VerTool::NewTextLine(0,"             " + LdT("remove HHS 3G device(s) from modifiy decklayout."));
+	
+
+		VerTool::DialogInfoData(dialogTitle, pictureFile, VerDef::dialogText,warning, hslOKOnly, 1,"","","");
+
+      abort;
+
+	}  // -- end of function "VerificationNotImplementedDialog"
+
+	//------------------------------------------------------------------------------
+	function DevicesNotPresentDialog() //variable
+	//------------------------------------------------------------------------------
+	{
+		variable dialogTitle;
+      variable warning;
+      variable pictureFile("");			// picture file name (in subdirectory "..\\Methods\Verification\Pictures\""
+
+		dialogTitle       = LdT("Device Verification HHS 3G");
+      warning           = LdT("Verification execution will aborted.");
+      pictureFile 		= "Not_Implemented.jpg";
+		VerTool::NewTextLine(1,"===  " + LdT("Not all defined devices CONNECTED!") +  "====");
+		VerTool::NewTextLine(0," ");
+		VerTool::NewTextLine(0," ");
+      VerTool::NewTextLine(0," ");
+		VerTool::NewTextLine(0," ");
+      VerTool::NewTextLine(0,LdT("Note") + ":" + LdT("Check connection to devices or"));
+      VerTool::NewTextLine(0,"             " + LdT("remove HHS 3G device(s) from modifiy decklayout."));
+	
+
+		VerTool::DialogInfoData(dialogTitle, pictureFile, VerDef::dialogText,warning, hslOKOnly, 1,"","","");
+
+      abort;
+
+	}  // -- end of function "DevicesNotPresentDialog"
+
+   //------------------------------------------------------------------------------
+	function initialize_Devices(device& ML_STAR, variable allDevices) variable
+	//------------------------------------------------------------------------------
+	{
+		//variable labDeviceType;
+		variable index; 
+		variable targetTemperature;
+      variable SW_version(""), labwareID, modAddress(""),tempText("");
+      variable fltAmbientTemperature(0.0);
+      variable returnValue;
+      variable executionError(0);
+      variable strNodeName, strCommunicationAddress, intDeviceNumber;
+
+      //Trace("Test:  Initialize_Shaker_Devices: 	D_VAR::arrAction.GetSize() =>",D_VAR::arrAction.GetSize(),"<  VerDef::numberOfDeviceSites==>",VerDef::numberOfDeviceSites,"<==");	
+      //VerTool::TraceArray(" --- Shaker_Verification Initialisation: D_VAR::arrAction ----", D_VAR::arrAction);
+		if(( D_VAR::arrAction.GetSize() == 0) || (VerDef::numberOfDeviceSites == 0)) return(hslTrue);
+      
+      includeLibrary();		
+
+      SW_version = VerDef::SWReleaseVersion + VerDef::FVK2_ReleaseVersion;
+		StrReplace(SW_version ,"%s1",moduleVersion);
+      fltAmbientTemperature = FVal(VerTool::FormatNumber_PointAsDecimal(RPD::temperature,1));
+
+      //Trace("Test:  Initialize_Shaker_Devices: VerDef::SimulationModeDevices ==>", VerDef::SimulationModeDevices);
+      //   if( VerDef::SimulationModeDevices > 0) VerDef::SimulationModeDevices = hslTrue;
+      //   else                                   VerDef::SimulationModeDevices = hslFalse;
+      //Trace("Test:  Initialize_Shaker_Devices: VerDef::SimulationModeDevices new==>", VerDef::SimulationModeDevices);
+
+
+      //      function Initialize(device& ML_STAR, 
+      //                         variable i_strInstrumentName,
+      //                         variable i_strInstrumentSerialNumber,
+      //                         variable i_strUserSoftwareVersion,
+      //                         variable i_strLocation,
+      //                         variable i_strOperatorName,
+      //                         variable i_strReasonOfVerfication,
+      //                         variable i_fltAmbientTemperature,
+      //                         variable i_blnSimulate) variable
+
+      // Initialize device library
+      returnValue = HamiltonHeaterShaker3G::FieldVerification::Initialize( ML_STAR, VerDef::InstrumentName, VerDef::InstrumentSerialNo, SW_version, RPD::laboratoryName,
+                                                                              RPD::operatorName, RPD::verifcationReason, fltAmbientTemperature, VerDef::SimulationModeDevices);
+		for( index = 0; index < D_VAR::arrAction.GetSize(); index++)
+		{
+			modAddress  = D_VAR::arrModAddress.GetAt(index);
+         labwareID   = D_VAR::arrLabwareID.GetAt(index);
+			if( modAddress < 0 ) 
+			{ // HHS on STAR
+				modAddress = -1 * modAddress;
+				if(( modAddress == 1 ) || ( modAddress == 2 ))
+				{
+					strNodeName = StrConcat2("T", modAddress); // "T1" or "T2"
+               strCommunicationAddress = "" ;            //(empty string)
+				}
+				else   executionError++; // execution error
+         }
+         else
+			{ //HHS on extra USB
+
+				if(( modAddress >= 1 ) && ( modAddress <= 8 ))
+				{  
+               strNodeName = StrConcat2("T", modAddress); // "T0" ... "T7" , address corrected in class library
+               strCommunicationAddress = "00" ;            // default USB serial number)
+				}
+				else   executionError++; // execution error
+			}
+   		if(executionError > 0)
+   		{
+   			tempText = LdT("Command execution parameter of ´HHS 3G´ ( Lab ID: '%s2') out of range!");
+   			StrReplace(tempText,"%s2",labwareID);
+   			FormatTrace( LdT("Device Verification HHS 3G"), LdT("Start temperature control"),VerDef::CMD_ERRCOMPL, tempText);
+
+   			abort;
+   		}
+         if(allDevices || (D_VAR::arrAction.GetAt(index) > 0) )
+         {
+            //Trace("Test: initialize_Devices: AddHhsDevice ==> strNodeName =>",strNodeName ,"> strCommunicationAddress =>",strCommunicationAddress," < intDeviceNumber =>",intDeviceNumber);
+            returnValue = HamiltonHeaterShaker3G::FieldVerification::AddHhsDevice(strNodeName, strCommunicationAddress, intDeviceNumber);
+            //Trace("Test: initialize_Devices: AddHhsDevice ==> returnValue =>",returnValue ,"<==");
+            if(!returnValue) executionError++; // execution error
+            D_VAR::arrDeviceID.SetAt(index, intDeviceNumber);
+         }
+		} // end of loop
+      
+      if(executionError > 0)  return(hslFalse);
+      else                    return(hslTrue);
+	}  // -- end of function "initialize_Devices"
+
+		
+  //------------------------------------------------------------------------------
+	private function displayDeviceFeatures(variable xmode) variable
+	//------------------------------------------------------------------------------
+	{ 
+		variable pictureFile("");			// picture file name (in subdirectory "..\\Methods\Verification\Pictures\""
+		variable dialogTitle("");			//	dialog titel information
+		variable index, deviceNumber(0),APE_AdapterNumber(0), noSmartAdapterNumber(0), lowTempNumber(0), outsideTempRangeNumber(0);
+      variable setTemperature(0.0), minTemperature(0.0), testTemperature("");
+      variable lineText("");
+      variable warning(""), response(""),inputDescription, inputRemarks, inputValue;
+      variable buttonSelection, defaultButton(2), returnValue;	
+      variable verificationStatus;
+
+//		onerror goto executionFailed;
+//		err.Clear();
+
+      // get "critical" data, which does not allow proper verification execution
+      minTemperature = RPD::temperature + 5.0 ; // mimimal set temperature must be 5°C above ambient temperature 
+      if(minTemperature < 30) minTemperature = 30;  // mimimal set temperature must be at least 30°C
+      //minTemperature = FVal(VerTool::FormatNumber_PointAsDecimal(RPD::temperature + 5.0,1)); // mimimal set temperature must be 5°C above ambient temperature
+      for(index = 0; index < D_VAR::arrAction.GetSize(); index++)
+		{	
+			if(D_VAR::arrAction.GetAt(index) > 0)
+			{
+            deviceNumber++;
+            D_VAR::arrSmartAdapterStatus.SetAt(index, StrConcat2(D_VAR::arrSmartAdapterStatus.GetAt(index),""));
+            if(IVal(D_VAR::arrSmartAdapterStatus.GetAt(index)) < 1)  noSmartAdapterNumber++;
+
+            setTemperature = FVal(StrConcat2(D_VAR::arrSetValue.GetAt(index),""));
+            if(setTemperature < 70)                                              lowTempNumber++;
+            
+            if((setTemperature < minTemperature) || (setTemperature > 105) )     outsideTempRangeNumber++;
+
+            //Trace("Test: Set temperature at index ==>",index, "   ==>", setTemperature,"°C  Min.Temp =>",minTemperature," lowTempNumber =>",lowTempNumber, " outside range number =>",outsideTempRangeNumber);
+         }
+		} // end of device loop
+      //Trace("Test: DisplayDeviceFeatures:. deviceNumber ==>",deviceNumber, "   noSmartAdapterNumber ==>", noSmartAdapterNumber , " outside range number =>",outsideTempRangeNumber);
+
+      if(deviceNumber < 1) return(hslFalse); // nothing to displayed and set
+      
+      dialogTitle 		= LdT("Device Verification HHS 3G:");
+		inputDescription	= "";
+		inputRemarks		= "";
+		inputValue			= "";
+      buttonSelection 	= hslYesNo;
+      defaultButton		= 2 ; // no as default button
+		pictureFile 		= "DeviceVerificationFeatures.jpg"; 
+
+      if(noSmartAdapterNumber > 0) 
+      {
+         VerTool::NewTextLine(1, LdT("No ´Smart Adapter´ detected on following selected device(s):"));
+         VerTool::NewTextLine(0," ");
+         for(index = 0; index < D_VAR::arrAction.GetSize(); index++)
+   		{	
+   			if(D_VAR::arrAction.GetAt(index) > 0)
+   			{
+               if(IVal(D_VAR::arrSmartAdapterStatus.GetAt(index)) < 1)
+   			   {
+   					lineText	= StrConcat8("- ",D_VAR::arrDescription.GetAt(index), LdT(" with SN "), D_VAR::arrSerialNumber.GetAt(index),
+													" (", VerTool::convertXYcoordToTrackSite(D_VAR::arrDeckPosition.GetAt(index)),"","" );
+                  lineText	= StrConcat2(lineText, ")");
+                  VerTool::NewTextLine(0, lineText);
+                  VerTool::NewTextLine(0," ");
+               }
+            }
+         } // end of device loop
+
+         VerTool::NewTextLine(0," ");
+         VerTool::NewTextLine(0, LdT("Press 'OK' to stop the verification."));
+         VerTool::NewTextLine(0, "    " + LdT(" Turn off instrument and fix device(s)."));
+         buttonSelection 	= hslOKOnly;
+         defaultButton		= hslOK;
+         pictureFile       = "DeviceVerificationFeaturesWithoutSmartAdapter.jpg";
+         warning           = LdT("ATTENTION:") + " " + LdT("Mount ´Smart Adapter´ (and remove APE adapter) before start device verification again!");
+ 		   
+         VerTool::DialogInfoData(dialogTitle, pictureFile, VerDef::dialogText, warning, buttonSelection, defaultButton, 
+																									inputDescription, inputRemarks, inputValue);
+         abort;
+      }
+         
+      warning = LdT("ATTENTION:") + " " + LdT("All APE Adapter must be removed from devices before device verification started!");
+      warning = warning + VerDef::CRLF + "   " + LdT("Press 'Cancel' to stop the verification.");
+
+  		VerTool::NewTextLine(1, LdT("Following selceted devices are:"));
+      VerTool::NewTextLine(0," ");
+		for(index = 0; index < D_VAR::arrAction.GetSize(); index++)
+		{	
+			if(D_VAR::arrAction.GetAt(index) > 0)
+			{
+            lineText = "- " ;
+            lineText = StrConcat4(lineText , D_VAR::arrDescription.GetAt(index), LdT(" with SN "), D_VAR::arrSerialNumber.GetAt(index) );
+            testTemperature = VerTool::FormatNumber_PointAsDecimal(D_VAR::arrSetValue.GetAt(index),1);
+            if(FVal(StrConcat2(D_VAR::arrSetValue.GetAt(index),"")) <= 0) lineText = StrConcat4(lineText, " @ °C ", LdT("not set"), ""); 
+            else                                                          lineText = StrConcat4(lineText, " @ ", testTemperature,"°C"); 
+            VerTool::NewTextLine(0, lineText);
+            lineText = D_VAR::arrAPE_AdapterDescr.GetAt(index);
+            if(StrGetLength(lineText) > 0) 
+            {
+               APE_AdapterNumber++;
+               VerTool::NewTextLine(0, "         " + LdT("with APE adapter of type ´" + lineText + "'"));
+            }
+            else                           VerTool::NewTextLine(0, "         " + LdT("No APE adapter"));
+           //Trace("Test: Set temperature at index ==>",index, "   ==>", FVal(StrConcat2(D_VAR::arrSetValue.GetAt(index),""))," lowTempNumber =>",lowTempNumber);
+         }
+		} // end of device loop
+
+      if( outsideTempRangeNumber > 0)
+      {           
+         buttonSelection 	= hslOKCancel;	
+         defaultButton		= 1 ; // OK as default button
+         inputDescription  = LdT("Outside temperature acceptance range are");
+        	inputRemarks   	= LdT("HHS 3G devices.");
+         if( outsideTempRangeNumber == 1)
+         {
+            inputDescription  = LdT("Outside temperature acceptance range is");
+        		inputRemarks   	= LdT("HHS 3G device.");
+         }
+	      inputValue			= StrConcat2(outsideTempRangeNumber, "");
+         VerTool::NewTextLine(0," ");
+         VerTool::NewTextLine(0, LdT("Press 'OK' to set new verification temperature value."));
+
+      }
+      else
+      {
+         if( lowTempNumber > 0)
+         {           
+            inputDescription  = LdT("Verification Temperatures below 70°C result in extended processing times caused by cooling down phase at");
+           	inputRemarks   	= LdT("HHS 3G devices.");
+            if( lowTempNumber == 1)
+            {
+           		inputRemarks   	= LdT("HHS 3G device.");
+            }
+   	      inputValue			= StrConcat2(lowTempNumber, "");
+         }
+         buttonSelection 	= hslYesNoCancel;	
+         defaultButton		= 2 ; // no as default button
+         
+         VerTool::NewTextLine(0," ");
+         VerTool::NewTextLine(0, LdT("Press 'Yes' to set new test temperature values."));
+		   VerTool::NewTextLine(0, LdT("Press 'No' to keep defined temperature values."));
+      }
+      if(APE_AdapterNumber > 0) pictureFile 	= "DeviceVerificationFeaturesWithAPE_Adapter.jpg";
+
+ 		returnValue = VerTool::DialogInfoData(dialogTitle, pictureFile, VerDef::dialogText, warning, buttonSelection, defaultButton, 
+																									inputDescription, inputRemarks, inputValue);
+   	if (returnValue == hslCancel)                               abort;
+      if ((returnValue == hslOK) && (outsideTempRangeNumber > 0)) return(hslTrue);
+		if (returnValue == hslYes) 	                              return(hslTrue);
+      if (returnValue == hslNo) 	                                 return(hslFalse);
+      
+      return(hslFalse);
+
+		// ------------------------------------------------------			
+		executionFailed:
+		{
+			err.Clear();
+			resume next;
+		}
+   } // -- end of function "displayDeviceFeatures"
+
+   //------------------------------------------------------------------------------
+	private function showNewTestTemperatureDialog(variable index) variable
+	//------------------------------------------------------------------------------
+	{
+		
+		variable pictureFile("");			// picture file name (in subdirectory "..\\Methods\Verification\Pictures\""
+		variable dialogTitle("");			//	dialog titel information
+      variable warning(""), response(""),lineText(""),inputDescription, inputRemarks, inputValueText,inputValue;
+      variable minTemperature(0.0), strMinTemperature(""), strAmbientTemperature("");
+      variable returnValue;	
+
+		onerror goto executionFailed;
+		err.Clear();
+      dialogTitle 		= LdT("Device Verification HHS 3G:");
+		
+		//inputValueText		= StrConcat2(D_VAR::arrSetValue.GetAt(index),"");
+      inputValueText    = VerTool::FormatNumber_PointAsDecimal(D_VAR::arrSetValue.GetAt(index),1);
+      inputValue        = FVal(inputValueText);
+
+		pictureFile 		= "DeviceSetTemperature.jpg"; 
+      //minTemperature    = VerTool::FormatNumber_PointAsDecimal(RPD::temperature + 5.0, 1); // mimimal set temperature must be 5°C above ambient temperature
+      minTemperature    = RPD::temperature + 5.0 ; // mimimal set temperature must be 5°C above ambient temperature
+      if(minTemperature < 30) minTemperature = 30; // mimimal set temperature must be at least 30°C
+      strMinTemperature = VerTool::FormatNumber_PointAsDecimal(minTemperature, 1);
+      inputDescription	= LdT("Set new value") + " ==>"; 
+		inputRemarks		= StrConcat4(LdT("Range: ") , strMinTemperature , "°C ... 105.0°C ","");
+      if((inputValue < minTemperature) || (inputValue > 105) )
+                                 {warning = StrConcat4(LdT("ATTENTION:") , " " , LdT("Temperature value is out of range") , " !"); }  
+      else if(inputValue < 70)  warning = StrConcat4(LdT("Note:") , " " , LdT("Verification Temperatures below 70°C result in extended processing times caused by cooling down phase.") , "");                                   
+      if(inputValue <=0 ) 
+      {
+         inputValueText = "90";
+         warning = StrConcat4(LdT("ATTENTION:") , " " , LdT("No temperature value is stored on device, i.e. default value of 90°C is proposed") , ".");
+      }
+		VerTool::NewTextLine(1, LdT("Set new Verification Temperature Value:"));
+		VerTool::NewTextLine(0," -------------------------------------------");
+		VerTool::NewTextLine(0," ");
+		VerTool::NewTextLine(0, LdT("for following HHS 3G device"));
+  		VerTool::NewTextLine(0," ");      
+      VerTool::NewTextLine(0, StrConcat4(" - ", D_VAR::arrDescription.GetAt(index), LdT(" with SN "), D_VAR::arrSerialNumber.GetAt(index)));
+		lineText	= StrConcat4("          (", VerTool::convertXYcoordToTrackSite(D_VAR::arrDeckPosition.GetAt(index))," )","" );
+ 		VerTool::NewTextLine(0,lineText);
+      if(minTemperature > 30)
+      {
+     		VerTool::NewTextLine(0," ");
+     		VerTool::NewTextLine(0," ");
+			VerTool::NewTextLine(0,LdT("Note:"));
+          strAmbientTemperature = VerTool::FormatNumber_PointAsDecimal(RPD::temperature, 1);
+         VerTool::NewTextLine(0,LdT("Lowest value > 5 (°C) ambient temperature (of ") + strAmbientTemperature + "°C).");
+      }
+
+     while(hslTrue)
+		{	
+                  
+         returnValue = VerTool::DialogInfoData(dialogTitle, pictureFile, VerDef::dialogText, warning, hslOKOnly, 1, 
+																									inputDescription, inputRemarks, inputValueText);
+         inputValue = FVal(inputValueText);
+          
+         if((inputValue < minTemperature) || (inputValue > 105) )
+         {
+            warning = StrConcat4(LdT("ATTENTION:") , " " , LdT("Temperature value is out of range") , " !");           
+         }
+         else
+         {
+            D_VAR::arrSetValue.SetAt(index, StrConcat2(inputValue,""));
+            //Trace("Test: Set temeprature for ", D_VAR::arrDescription.GetAt(index), LdT(" with SN "), D_VAR::arrSerialNumber.GetAt(index)," is ",D_VAR::arrSetValue.GetAt(index)," °C");
+            return(hslTrue);
+         }
+         
+ //        if (returnValue == hslCancel) abort;
+		} // end of dialog loop	
+      
+      return(hslFalse);
+      
+      // ------------------------------------------------------			
+		executionFailed:
+		{
+			err.Clear();
+			resume next;
+		}
+   } // -- end of function "showNewTestTemperatureDialog"
+
+	//------------------------------------------------------------------------------
+	function getProcessDataFromAllDevices() variable
+	//------------------------------------------------------------------------------
+   {
+      variable index;
+      variable remainingDays, xminimumRemainingDays, processedDate, expiryDate, dateOkay, remarks;
+      variable verInterval(0);
+      variable requestedAction(0), processStatus(0), processedState(""), serialNo, setTemperature, adapterStatus, intDeviceNumber;
+      variable summaryStatus, summaryRemainingDays, summaryAction;
+      variable returnValue, strText(""), errorCounter(0);
+		variable dialogTitle(""), skipDialog (1);
+		dialog 	userDlg;
+      timer    timeClock;
+
+      //Trace("Test:  getProcessDataFromAllDevices: 	D_VAR::arrAction.GetSize() =>",D_VAR::arrAction.GetSize(),"<  VerDef::numberOfDeviceSites==>",VerDef::numberOfDeviceSites,"<==");	
+
+		if(( D_VAR::arrAction.GetSize() == 0) || (VerDef::numberOfDeviceSites == 0)) return(hslTrue);
+
+      if( !includeLibrary() ) return(hslFalse);
+
+      summaryStatus 			= PS::successful;
+		summaryRemainingDays = 9999;	
+      summaryAction        = 0;
+      verInterval          = VerDef::setVerifyInterval;	
+	
+		//onerror goto ProcessingError;
+      skipDialog = 1;
+      if(VerDef::SimulationModeDevices)
+      {
+         userDlg.SetInputSize(1);
+         userDlg.SetInputField( 0, "Skip  simulated device inputs (yes = 1) ==>:", hslInteger, skipDialog);
+         userDlg.ShowInput( "Define simulated input mode of HHS 3G devices:" , 5);
+         skipDialog = userDlg.GetInputField( 0 );
+      }
+
+		for( index = 0; index < D_VAR::arrAction.GetSize(); index++)
+		{
+         intDeviceNumber = D_VAR::arrDeviceID.GetAt(index);
+         if(!HamiltonHeaterShaker3G::FieldVerification::GetHhsVerificationStatus(intDeviceNumber, processedDate, processedState)) 
+         {  errorCounter++;
+            Trace("Test: GetHhsVerificationStatus : intDeviceNumber =",intDeviceNumber,"  errorCounter ==>",errorCounter,"  processedDate ==>", processedDate,"  processedState ==>", processedState,"<==");
+         }
+         if(!HamiltonHeaterShaker3G::FieldVerification::GetLastVerificationTemperature(intDeviceNumber, setTemperature)) 
+         {  errorCounter++;
+            Trace("Test: GetLastVerificationTemperature : intDeviceNumber =",intDeviceNumber,"  errorCounter ==>",errorCounter,"  setTemperature ==>", setTemperature,"<==");
+         }         
+         if(!HamiltonHeaterShaker3G::FieldVerification::GetHhsSerialNumber(intDeviceNumber, serialNo)) errorCounter++;                  
+         {  errorCounter++;
+            Trace("Test: GetHhsSerialNumber : intDeviceNumber =",intDeviceNumber,"  errorCounter ==>",errorCounter,"  serialNo ==>", serialNo,"<==");
+         }         
+         if(!HamiltonHeaterShaker3G::FieldVerification::GetHhsSmartAdapterPresence(intDeviceNumber, adapterStatus))      
+         {  errorCounter++;
+            Trace("Test: GetHhsSmartAdapterPresence : errorCounter ==>",errorCounter,"  adapterStatus ==>", adapterStatus,"<==");
+         }
+                  //if(!HamiltonHeaterShaker3G::FieldVerification::GetLastVerificationTemperature(intDeviceNumber, setTemperature)) errorCounter++;
+
+         if(VerDef::SimulationModeDevices) 
+         { 	// overwrite C# simulate data
+            processedDate = D_VAR::arrExpiryDate.GetAt(index);
+            processedState= IVal(StrConcat2(D_VAR::arrStatus.GetAt(index),""));
+            //serialNo       = D_VAR::arrSerialNumber.GetAt(index);
+            adapterStatus  = 1;//D_VAR::arrSmartAdapterStatus.GetAt(index);
+            setTemperature = D_VAR::arrSetValue.GetAt(index); 
+            if(skipDialog < 1)  
+            { // manually simulated values
+            	userDlg.SetInputSize( 5);
+               userDlg.SetInputField( 0, "Define status (0 or 1) ==>:", hslString, StrConcat2(processedState,""));
+            	userDlg.SetInputField( 1, "Define verification processed date ==>:", hslString, StrConcat2(processedDate,"")); 
+               userDlg.SetInputField( 2, "Define serial number ==>:", hslString, StrConcat2(serialNo,""));
+               userDlg.SetInputField( 3, "Define test temperature (30 until 105) ==>:", hslString, StrConcat2(setTemperature,""));
+               userDlg.SetInputField( 4, "Define smart adapter status (0 or 1) ==>:", hslString, StrConcat2(adapterStatus,""));
+            	userDlg.ShowInput( "Define simulated device execution features of:" + D_VAR::arrDescription.GetAt(index), 5);
+               processedState = IVal(userDlg.GetInputField( 0 ));
+               processedDate  = userDlg.GetInputField( 1 );
+               serialNo       = userDlg.GetInputField( 2 );
+               setTemperature = FVal(userDlg.GetInputField( 3 ));
+               adapterStatus  = IVal(userDlg.GetInputField( 4 ));
+            }
+         }
+
+         //Trace("Test: processedState ==>",processedState ,"<  processedDate ==>",processedDate,"< verInterval ==>",verInterval,"<==");
+			remainingDays	= VerTool::ValidateDate(processedDate, verInterval, expiryDate, dateOkay, remarks);
+         //Trace("Test: Remaining days =>",remainingDays,"<==");
+
+			requestedAction 	= 0;
+			processStatus 		= VerDef::valid;
+			if (remainingDays < 0) 
+			{
+				requestedAction	= 1;
+				processStatus 		= VerDef::failed;
+				//remarks				= VerDef::invalid;
+				summaryStatus 		= PS::failed;
+			}
+			if (processedState == PS::failed) 
+			{
+				requestedAction 	= 1;
+				processStatus 		= VerDef::failed;
+				remarks	      	= VerDef::failed;
+				summaryStatus 		= PS::failed;
+			}
+         if(adapterStatus < 1) remarks = LdT("Smart Adapter not installed");
+
+         D_VAR::arrStatus.SetAt(index, processedState);
+			D_VAR::arrStatusText.SetAt(index,   processStatus);	
+ 			D_VAR::arrExpiryDate.SetAt(index,   expiryDate);
+			D_VAR::arrSerialNumber.SetAt(index, serialNo); 
+         D_VAR::arrInputRemarks.SetAt(index, remarks);
+         D_VAR::arrAction.SetAt(index, 		requestedAction);
+         //Trace("Test: getProcessDataFromAllDevices: setTemperature ==>",setTemperature ,"<  converted ==>",FVal(setTemperature),"< FStr(FVal(setTemperature),hslFalse,1) ==>",FStr(FVal(setTemperature),hslTrue,1),"<==");
+         D_VAR::arrSetValue.SetAt(index, 		setTemperature);
+
+         D_VAR::arrSmartAdapterStatus.SetAt(index,adapterStatus);
+
+			// check for lowest value of remaining days
+			if (summaryRemainingDays > remainingDays) summaryRemainingDays = remainingDays;
+         if (summaryStatus == PS::failed)   
+         {       
+            summaryAction        = 1;
+            PID::summaryStatus 	= PS::failed;
+         }
+		}
+      
+      // terminate device (HHS3G) communication
+      returnValue = HamiltonHeaterShaker3G::FieldVerification::AbortVerification();
+      //Trace("Test: getProcessDataFromAllDevices --> AbortVerification after any execution ending ==>",returnValue);                                                                                            
+      timeClock.SetTimer( 3 ); 
+      timeClock.WaitTimer( hslFalse, hslFalse );
+      HamiltonHeaterShaker3G::FieldVerification::Terminate();
+
+      // Update device summary informations
+		processedDate 	= GetDate("%Y-%m-%d");
+		//processedTime	= GetTime("%H:%M");
+		verInterval 	= 0;
+		serialNo			= VerDef::notDefined;
+
+
+		VerTool::ValidateDate(processedDate , summaryRemainingDays, expiryDate, dateOkay, remarks);	
+		VerTool::UpdateVerificationInformation(1,StrConcat2(PID::General, PID::DeviceSummary), summaryStatus, verInterval, GetTime("%H:%M"), serialNo, expiryDate);
+
+      index = PID::doDevice_Verification - 1;  // zero based index
+      if (summaryStatus == PS::failed) summaryStatus = VerDef::failed;
+      else                             summaryStatus = VerDef::valid;
+      if (PID::summaryRemainingDays > summaryRemainingDays) PID::summaryRemainingDays = summaryRemainingDays;
+      //Trace("Test: Update device summary information at index =>",index, "<  processSummaryStatus =>",summaryStatus ,"<  summaryRemainingDays ==>",summaryRemainingDays,"< expiryDate ==>",expiryDate,"<==");
+
+		G_VAR::arrStatus.SetAt(index,       summaryStatus);
+		G_VAR::arrRemainingDays.SetAt(index, summaryRemainingDays );
+		//G_VAR::arrExpiryDate.SetAt(index, StrConcat2(expiryDate,""));
+      G_VAR::arrExpiryDate.SetAt(index, expiryDate);
+		G_VAR::arrInputRemarks.SetAt(index, StrConcat2(remarks,""));
+		G_VAR::arrAction.SetAt(index,       summaryAction);
+
+      return(hslTrue);  
+   }  // -- end of function "getProcessDataFromAllDevices"
+
+	//------------------------------------------------------------------------------
+   // Starts a parallel thread to check if abort is finished
+	//------------------------------------------------------------------------------
+   private function _WaitForAbortIsCompletedAsync()
+   {
+      variable intThreadId (-1);
+      intThreadId = Fork("_CheckIfAbortFinishedForAllDevices");
+      return (intThreadId);
+   }
+
+	//------------------------------------------------------------------------------
+	private function lets_do_Device_Verification() variable
+   // executed by the external programm  'Hamilton.HamiltonHeaterShaker3G.FieldVerification'
+	//------------------------------------------------------------------------------
+	{ 
+		variable labwareID, errorCode, deviceVerificationAborted(hslFalse);
+		variable userResponse, returnValue;
+		variable index;
+		variable dialogDelay, triggerTime, time(0);
+		variable pictureFile("");			// picture file name (in subdirectory "..\\Methods\Verification\Pictures\""
+		variable dialogTitle(""), dialogInfoText;			//	dialog titel information
+		variable warning(""), inputDescription(""), inputRemarks(""), inputValue("");	
+		variable tempText(""), timeText("");
+      variable lowTempNumber(0);
+   	variable arrProcessStatus[];
+      variable selectedIndex, arrStrHhsSerialNumbers[], arrStrHhsCurrentSteps[], arrStrHhsCurrentStepsStatus[];
+      variable blnIsAborted,blnFinished;
+      variable intDeviceNumber, strLastVerificationDate, intVerificationResult, intVerificationReturnCode, strDescription("");
+      variable expiryDate, dateOkay, remarks;
+      variable buttonSelection(hslOKCancel);
+      variable intThreadId(-1);
+      dialog 	testDlg;
+		timer 	timeClock;
+
+      if(VerDef::SimulationModeDevices)   triggerTime	= 	dialogDelay	= 5;
+      else                                triggerTime	= 	dialogDelay	= 10;
+
+		dialogTitle 		= LdT("Device Verification HHS 3G:");
+
+		//inputRemarks		= "[ " + LdT("minutes") + " : " + LdT("seconds") + " ]";
+		pictureFile 		= "ExecuteDeviceVerification.jpg";
+		dialogInfoText		= LdT("Verification process of the device(s) in progress") + " ....";
+      
+      arrProcessStatus.SetSize(D_VAR::arrAction.GetSize());
+
+      for( index = 0; index < D_VAR::arrAction.GetSize(); index++) 
+      {
+			if(D_VAR::arrAction.GetAt(index) > 0) 
+         {
+            if(FVal(StrConcat2(D_VAR::arrSetValue.GetAt(index),""))<70) lowTempNumber++;
+            arrProcessStatus.SetAt(index, 10); // process not started yet
+         }
+         else arrProcessStatus.SetAt(index, D_VAR::arrStatus.GetAt(index));
+      }
+      if(lowTempNumber >0) 
+      {
+        warning = LdT("ATTENTION:") + VerDef::CRLF  + LdT("Verification temperature < 70°C requires more processing time!");
+      }
+
+      timeClock.SetTimer( hslInfinite );
+ 
+      // start device verification by the external programm 
+
+      returnValue = HamiltonHeaterShaker3G::FieldVerification::StartVerification(arrSelectedDeviceID);
+
+      time				= timeClock.GetElapsedTime( );  // current time in seconds 
+      userResponse   = hslOK;    
+
+      //VerTool::TraceArray("Test: lets_do_Device_Verification: -- arrSelectedDeviceID ----", arrSelectedDeviceID);
+      //VerTool::TraceArray("Test: lets_do_Device_Verification: -- arrSelectedIndex ----", arrSelectedIndex);
+
+      while(hslTrue)
+		{
+         selectedIndex   = -1; 
+         returnValue = HamiltonHeaterShaker3G::FieldVerification::GetFieldVerificationStatus(arrStrHhsSerialNumbers, arrStrHhsCurrentSteps, 
+                                                                                               arrStrHhsCurrentStepsStatus, blnIsAborted, blnFinished);
+         //Trace("Test: lets_do_Device_Verification --> GetFieldVerificationStatus: returnValue==>",returnValue,"  blnIsAborted ==>", blnIsAborted, "  blnFinished ==>", blnFinished);                                                                                            
+         //VerTool::TraceArray("Test: lets_do_Device_Verification: -- arrStrHhsSerialNumbers ----", arrStrHhsSerialNumbers);
+         //VerTool::TraceArray("Test: lets_do_Device_Verification: -- arrStrHhsCurrentSteps ----", arrStrHhsCurrentSteps);
+         //VerTool::TraceArray("Test: lets_do_Device_Verification: -- arrStrHhsCurrentStepsStatus ----", arrStrHhsCurrentStepsStatus);
+         if(VerDef::SimulationModeDevices) 
+         { 	// manually simulated values input, display for only 1 s
+         	testDlg.SetInputSize( 2);
+            testDlg.SetInputField( 0, "blnIsAborted (0 or 1) ==>:", hslString, StrConcat2(blnIsAborted,""));
+         	testDlg.SetInputField( 1, "blnFinished (0 or 1) ==>:", hslString, StrConcat2(blnFinished,"")); 
+         	testDlg.ShowInput( "Overwrite GetFieldVerificationStatus values for simulation:" , 1);
+            blnIsAborted = IVal(testDlg.GetInputField( 0 ));
+            blnFinished = IVal(testDlg.GetInputField( 1 ));
+         }
+         
+         if(blnFinished) break; // end of dialog display
+
+         Trace("Test 2: waitForResultDialog: => userResponse =>",userResponse,"<==  blnIsAborted ==>", blnIsAborted, "<==");
+			if(userResponse == hslCancel || blnIsAborted ) 
+         {  // display last status in final dialog (without time out
+            deviceVerificationAborted = hslTrue;
+            triggerTime = dialogDelay = 0;
+            inputValue                = "";
+            buttonSelection           = hslOKOnly;
+            warning = LdT("Hint:") + VerDef::CRLF  + "   " + LdT("More details of process termination see in logfile.");
+            warning = warning + VerDef::CRLF  + "   " + LdT("No change of devices processing status and time stamp are stored.");
+
+   			if( blnIsAborted ) 
+            { // additional information for abort verification
+               returnValue = HamiltonHeaterShaker3G::FieldVerification::GetVerificationResult(intVerificationResult, intVerificationReturnCode, strDescription);
+               if(VerDef::SimulationModeDevices) 
+               { 	// manually simulated abort text
+                  strDescription = "Placeholder for ´Abort description text´";
+               	testDlg.SetInputSize( 1);
+                  testDlg.SetInputField( 0, "Abort information text ==>:", hslString, strDescription);
+               	testDlg.ShowInput( "Overwrite GetVerificationResult text for simulation:" , hslInfinite);
+                  strDescription = testDlg.GetInputField( 0 );
+               }
+            }
+            else{
+
+               returnValue = HamiltonHeaterShaker3G::FieldVerification::AbortVerification();
+               //Trace("Test: lets_do_Device_Verification --> AbortVerification returnValue==>",returnValue);  
+               
+               // If abort by user, start parallel action to wait until abort is finished for all devices
+               intThreadId = _WaitForAbortIsCompletedAsync();
+            }
+
+      		//inputRemarks		= "[ " + LdT("minutes") + " : " + LdT("seconds") + " ]";
+      		pictureFile 		= "AbortedDeviceVerification.jpg";
+      		VerTool::NewTextLine(1, LdT("Device verification aborted !"));
+           	VerTool::NewTextLine(0," -------------------------------------------");
+            VerTool::NewTextLine(0," ");
+            if(userResponse == hslCancel) VerTool::NewTextLine(0, LdT("Verification processing canceled by user."));
+            else                          VerTool::NewTextLine(0, LdT("Verification processing aborted by device error."));
+            VerTool::NewTextLine(0," ");
+           	VerTool::NewTextLine(0," -------------------------------------------");
+     			VerTool::NewTextLine(0,LdT("Following devices stopped at following processing status") + ":");
+   			VerTool::NewTextLine(0," ");
+
+         
+         }
+         else
+         {
+
+            time				= Ceiling(timeClock.GetElapsedTime( ));  // current time in seconds      
+            timeText       = splitTimeInMinutesAndSeconds(time);
+         			
+   			VerTool::NewTextLine(1, dialogInfoText);
+   			VerTool::NewTextLine(0," -------------------------------------------");
+   			VerTool::NewTextLine(0," " + LdT("Executed process time is ")+ timeText + "  " + "[" + LdT("minutes") + ":" + LdT("seconds") + "]");
+            VerTool::NewTextLine(0," ");
+   			VerTool::NewTextLine(0, "   - " + LdT("Press 'OK' to refresh display."));	
+   			VerTool::NewTextLine(0,"   - " + LdT("Press 'Cancel' to stop device verification") + ".");				
+   			VerTool::NewTextLine(0," -------------------------------------------");
+   			VerTool::NewTextLine(0,LdT("Following devices are in verification processing steps") + ":");
+   			VerTool::NewTextLine(0," ");
+         }
+			for(index = 0; index < D_VAR::arrAction.GetSize(); index++)
+			{
+            if(D_VAR::arrAction.GetAt(index) > 0)
+				{ // basic information  C# programm
+					errorCode 	 = VerDef::notDefined;
+               selectedIndex++;
+               //Trace("Test: lets_do_Device_Verification --> selectedIndex ==>",selectedIndex); 
+
+               tempText	= StrConcat4("- SN " ,arrStrHhsSerialNumbers.GetAt(selectedIndex)," ", arrStrHhsCurrentSteps.GetAt(selectedIndex));
+					tempText	= StrConcat4(tempText, ":", arrStrHhsCurrentStepsStatus.GetAt(selectedIndex),"");							              
+					VerTool::NewTextLine(0, tempText);
+               //Trace("Test: lets_do_Device_Verification --> NewTextLine ==>",tempText); 
+				}
+			}
+         if( strDescription != "")
+			//if( blnIsAborted ) 
+         { // additional information for abort verification
+           	VerTool::NewTextLine(0," ");
+            VerTool::NewTextLine(0," -------------------------------------------");
+     			VerTool::NewTextLine(0,LdT("Additional abort information") + ":");
+   			VerTool::NewTextLine(0,"  " + strDescription);
+         }
+         
+         // If canceled by the user, wait until abort is done for all devíces
+         if (userResponse == hslCancel){
+            returnValue = Join(intThreadId, 200 );
+            if(returnValue == 0)
+            {
+               Trace();
+            }
+         }
+
+  	      //Trace("Test 1: waitForResultDialog start: time =>",timeText,"<  dialogDelay =>",dialogDelay,"<  triggerTime =>",triggerTime,"<==");
+			VerTool::SetDialogTimer(triggerTime, dialogDelay);
+ 			userResponse   = VerTool::DialogInfoData(dialogTitle, pictureFile, VerDef::dialogText, warning, buttonSelection, 1, 
+																								                 inputDescription, inputRemarks, inputValue);																					
+         //Trace("Test 2: waitForResultDialog: => userResponse =>",userResponse,"<==");
+			if(deviceVerificationAborted ) 
+         {  
+         //returnValue = HamiltonHeaterShaker3G::FieldVerification::AbortVerification();
+         //Trace("Test: lets_do_Device_Verification --> AbortVerification returnValue==>",returnValue);  
+         //timeClock.SetTimer( 3 ); 
+         //timeClock.WaitTimer( hslFalse, hslFalse );                                                                                       
+            return(hslFalse);		
+         }
+		} // end of loop
+
+       // get verification status at end of processing      
+      selectedIndex = -1;
+      for( index = 0; index < D_VAR::arrAction.GetSize(); index++)
+      {
+         if(D_VAR::arrAction.GetAt(index) > 0)
+         {
+            selectedIndex++;
+            intDeviceNumber = arrSelectedDeviceID.GetAt(selectedIndex);
+            returnValue = HamiltonHeaterShaker3G::FieldVerification::GetHhsVerificationStatus(intDeviceNumber, strLastVerificationDate, intVerificationResult);
+            //Trace("Test: lets_do_Device_Verification result at index ==>",index," intDeviceNumber ==>",intDeviceNumber,"  strLastVerificationDate ==>",strLastVerificationDate,"  intVerificationResult ==>",intVerificationResult); 
+			   if(intVerificationResult == PS::successful)  D_VAR::arrStatus.SetAt(index, PS::successful);
+            else if(intVerificationResult == PS::failed) D_VAR::arrStatus.SetAt(index, PS::failed);
+            else                                        D_VAR::arrStatus.SetAt(index, PS::open);   // not finish verification = > no change of status
+            if(D_VAR::arrStatus.GetAt(index) != PS::open)  
+            {  
+               VerTool::ValidateDate(strLastVerificationDate , VerDef::setVerifyInterval, expiryDate, dateOkay, remarks);	
+               D_VAR::arrExpiryDate.SetAt(index, expiryDate);
+            }
+         }  
+      }
+      return(hslTrue);			
+	}  // -- end of function "lets_do_Device_Verification"
+
+	//------------------------------------------------------------------------------
+   // 
+	//------------------------------------------------------------------------------
+   private function _CheckIfAbortFinishedForAllDevices()
+   {
+      variable arrStrHhsSerialNumbers[];
+      variable arrStrHhsCurrentSteps[];
+      variable arrStrHhsCurrentStepsStatus[];
+      variable blnIsAborted;
+      variable blnFinished;
+      variable returnValue;
+      timer hdlWaitTimer;
+
+      while(hslTrue){
+         
+         hdlWaitTimer.SetTimer(2);
+
+         returnValue = HamiltonHeaterShaker3G::FieldVerification::GetFieldVerificationStatus(arrStrHhsSerialNumbers, arrStrHhsCurrentSteps, arrStrHhsCurrentStepsStatus, blnIsAborted, blnFinished);
+         if(blnIsAborted) break;
+
+         hdlWaitTimer.WaitTimer( hslFalse, hslFalse );
+      }
+   }
+
+	//------------------------------------------------------------------------------
+
+	//------------------------------------------------------------------------------
+	private function endDeviceVerification(variable& summaryState ) 
+	//------------------------------------------------------------------------------
+	{
+		variable pictureFile("");			// picture file name (in subdirectory "..\\Methods\Verification\Pictures\""
+		variable dialogTitle("");			//	dialog titel information
+      variable lineText ("");
+		variable warning(""), response(""),inputDescription, inputRemarks, inputValue;
+      variable index, APEadapterNumber(0);	
+      variable xverificationStatus(PS::successful);
+      variable returnValue;
+      variable intVerificationResult;          //the result of the verification; see VerificationResult; 
+                                               //    if failed and o_intVerificationReturnCode==Success then detailed errors are given in the following out parameters 
+      variable intVerificationReturnCode;      // the verification return code; see namespace VerificationReturnCode
+      variable strDescription;                 // a description for the return code/error
+      variable arrStrFailedHhsSerialNumbers[]; // the serial numbers of HHS devices where verification stages failed; empty if all HHS verifications were passed
+      variable arrStrFailedStages[];           // the failed stages (steps) of failed devices
+      
+      variable verInterval, expiryDate, dateOkay, remarks, remainingDays;
+      variable processedDate, processedStatus, intDeviceNumber;
+      variable processID, testTemperature;
+      variable summaryRemainingDays;
+		dialog 	userDlg;
+
+		onerror goto executionFailed;
+		err.Clear();
+		
+      // Get the verification result, Call this when GetVerificationStatus returned that verification was aborted or finshed
+
+      HamiltonHeaterShaker3G::FieldVerification::GetVerificationResult(intVerificationResult, intVerificationReturnCode, strDescription);
+
+      //Trace("Test: endDeviceVerification --> GetVerificationResult: intVerificationResult==>",intVerificationResult,
+      //                      "  intVerificationReturnCode ==>", intVerificationReturnCode, "  strDescription ==>", strDescription);
+      //VerTool::TraceArray("Test: endDeviceVerification: -- arrStrFailedHhsSerialNumbers ----", arrStrFailedHhsSerialNumbers);
+      //VerTool::TraceArray("Test: endDeviceVerification: -- arrStrFailedStages ----", arrStrFailedStages);
+
+      // --- evaluate updated device status and remaining days
+      summaryState 			= PS::successful;
+		summaryRemainingDays = 9999;	
+      	
+		for( index = 0; index < D_VAR::arrAction.GetSize(); index++)
+		{
+         intDeviceNumber = D_VAR::arrDeviceID.GetAt(index);
+         expiryDate      = D_VAR::arrExpiryDate.GetAt(index);
+         processedStatus = D_VAR::arrStatus.GetAt(index);
+         // get (or set) process date of executed device
+         if(D_VAR::arrAction.GetAt(index) > 0)
+			{
+            verInterval          = -1* VerDef::setVerifyInterval;
+				VerTool::ValidateDate(expiryDate, verInterval, processedDate, dateOkay, remarks);
+				D_VAR::arrExpiryDate.SetAt(index, expiryDate);
+            if(VerDef::SimulationModeDevices) 
+            { // simulated values
+            	userDlg.SetInputSize( 2);
+               userDlg.SetInputField( 0, "Define status (0 or 1) ==>:", hslString, StrConcat2(processedStatus,""));
+            	userDlg.SetInputField( 1, "Define verification processed date ==>:", hslString, processedDate); // process date stored in file  
+            	userDlg.ShowInput( "Define simulated device execution features of:" + D_VAR::arrDescription.GetAt(index) + LdT(" with SN ")+ D_VAR::arrSerialNumber.GetAt(index), 5);
+               processedStatus = IVal(userDlg.GetInputField( 0 ));
+               D_VAR::arrStatus.SetAt(index,processedStatus);
+               processedDate   = userDlg.GetInputField( 1 );
+               VerTool::ValidateDate(processedDate , VerDef::setVerifyInterval, expiryDate , dateOkay, remarks);
+               D_VAR::arrExpiryDate.SetAt(index, expiryDate);
+            }
+         }
+         // get number of APE adapter
+         lineText = D_VAR::arrAPE_AdapterDescr.GetAt(index);
+         //Trace("Test: endDeviceVerification --> at index =>",index,"  lineText ==>",lineText);
+         if((D_VAR::arrAction.GetAt(index) > 0) && (StrGetLength(lineText) > 0)) APEadapterNumber++;
+ 
+   		// check for lowest value of remaining days
+         //Trace("Test: processedState at index ==>",index,"  processedStatus  ==>",processedStatus,"  expiry date ==>",  expiryDate,"<==");
+			remainingDays	= VerTool::ValidateDate(expiryDate, 0, expiryDate, dateOkay, remarks);
+         //Trace("Test: Remaining days =>",remainingDays,"<==");
+			if (summaryRemainingDays > remainingDays) summaryRemainingDays = remainingDays;
+			if (processedStatus == PS::failed)        summaryState         = PS::failed;
+         
+         processID            = PID::Device + D_VAR::arrLabwareID.GetAt(index);
+         testTemperature      = D_VAR::arrSetValue.GetAt(index);
+         //Trace("Test: Evaluate Device Summary ----  processID =>",processID,"< device processedStatus ==>",processedStatus,"< processedDate ==>",processedDate,"< verificationInterval ==>",VerDef::setVerifyInterval,"<==");
+         // store device data in config file
+         if((D_VAR::arrAction.GetAt(index) > 0) && (processedStatus > PS::open))
+			{
+            VerTool::UpdateVerificationInformation(0, processID, processedStatus, VerDef::setVerifyInterval , D_VAR::arrSerialNumber.GetAt(index), testTemperature, processedDate);
+         }           
+		} // end of for loop
+
+      VerTool::UpdateVerificationInformation(1, VerDef::KeySave,"", "", "","", ""); // write configuration data to coresponding file
+   
+      // display end dialog with individual device status
+      //------------------------------------------------------------------------------  
+		dialogTitle 		= LdT("End of Device Verification HHS 3G:");
+		inputDescription	= "";
+		inputRemarks		= "";
+		inputValue			= "";
+		pictureFile 		= "EndOfDeviceVerification.jpg"; 
+		VerTool::NewTextLine(1, LdT("End of Device Verification HHS 3G:"));
+		VerTool::NewTextLine(0," -------------------------------------------");
+		VerTool::NewTextLine(0," ");
+      
+  		for(index = 0; index < D_VAR::arrAction.GetSize(); index++)
+		{
+         lineText = StrConcat4("  - SN ", D_VAR::arrSerialNumber.GetAt(index),"  Expiry date: ", D_VAR::arrExpiryDate.GetAt(index)); 
+         lineText = StrConcat2(lineText,"  Status = ");
+         remainingDays	= VerTool::ValidateDate(D_VAR::arrExpiryDate.GetAt(index), 0, expiryDate, dateOkay, remarks);
+          
+         if( D_VAR::arrStatus.GetAt(index) == PS::successful)
+         {
+            if (remainingDays < 0)  lineText = StrConcat2(lineText, "expired");
+            else                    lineText = StrConcat2(lineText, "passed");//VerDef::passed);
+         }
+         else                       lineText = StrConcat2(lineText, "failed"); //VerDef::failed);
+
+         VerTool::NewTextLine(0, lineText);
+         VerTool::NewTextLine(0," ");
+         //Trace("Test: End dialog at index ==>",index,"  D_VAR::arrStatus.GetAt(index) =>",D_VAR::arrStatus.GetAt(index),"  remainingDays =>",remainingDays,"  lineText  ==>",lineText,"<==");
+       }        	
+ 
+ 
+      if( summaryRemainingDays < 0)   summaryState = PS::failed;
+		if( summaryState == PS::failed )
+		{
+         warning = LdT("Note:") + " " + LdT("Device Verification HHS 3G failed!");
+			pictureFile 		= "EndOfFailedDeviceVerification.jpg";		
+		}
+      else
+   	{
+         warning = LdT("Note:") + " " + LdT("Device Verification HHS 3G was successful!");
+			pictureFile 		= "EndOfDeviceVerification.jpg";		
+		}
+		warning = warning + VerDef::CRLF + LdT("ATTENTION:") + " " + LdT("Surface can still be very hot!");
+
+
+		VerTool::DialogInfoData(dialogTitle, pictureFile, VerDef::dialogText, warning, hslOKOnly, 1, 
+																									inputDescription, inputRemarks, inputValue);
+		return(summaryState);
+		
+		// ------------------------------------------------------			
+		executionFailed:
+		{
+			err.Clear();
+			resume next;
+		}
+	}  // -- end of function "endDeviceVerification"	
+
+	//-----------------------------------------------------------------------------------------------------
+	function showReportFile( variable fileAndPath) variable
+	//-----------------------------------------------------------------------------------------------------
+	{
+		variable program, executableProgram(""), tempText(""),traceSource;
+		variable retVal;
+      const variable keyAcrobatReader("AcrobatReaderExecFile");	// AcrobatReader (ExecutableProgram)
+      variable prop2,prop3, sn, date,lcd,lcb;
+		timer 	shortDelay;
+		object fso;  // file system object
+
+		if (fso.IsNull()) fso.CreateObject("Scripting.FileSystemObject");
+		traceSource = GetFunctionName() + ": ";
+		// open pdf file with acrobat reader
+      //Trace("Test: ", traceSource,":  File =>", fileAndPath,"<===");
+      
+
+		if (fso.FileExists(fileAndPath)) 
+		{		
+			VerTool::GetVerificationInformation(keyAcrobatReader,executableProgram,prop2,prop3, sn, date,lcd,lcb);
+			if (executableProgram == "") return(hslFalse);
+
+			fileAndPath = "\"" + fileAndPath + "\"";
+			if (StrFind(executableProgram,"\"") == 0 )	program = StrConcat4(executableProgram , " ", fileAndPath,"");
+			else														program = StrConcat4("\"",executableProgram , "\" ", fileAndPath);
+
+			shortDelay.SetTimer( 1 );
+			shortDelay.WaitTimer( hslFalse, hslFalse );
+         //Trace (GetFunctionName(), ": execute command  =>",program,"<==");
+			retVal = Shell(program,hslShow, hslAsynchronous);	
+			if (retVal == 0)
+				{
+					string errorMessage;
+					errorMessage = "Failed to start program '%s1'";
+					StrReplace(errorMessage , "%s1", program);
+					MessageBox(errorMessage, "ERROR", hslError);
+					return(hslFalse);
+				}
+			shortDelay.SetTimer( 1 );
+			shortDelay.WaitTimer( hslFalse, hslFalse );
+		}
+		else
+		{
+			tempText = LdT("Open file '%s1' failed!");
+			StrReplace(tempText,"%s1", fileAndPath );
+			FormatTrace(traceSource, LdT("Open file"), VerDef::CMD_ERRCOMPL, tempText ); 
+			return(hslFalse);
+		}
+		return(hslTrue);
+	}  // ---  end of function "ShowReportFile"
+
+	//------------------------------------------------------------------------------
+	private function showInstallationReport(variable summaryState ) 
+	// show APE adapter information if installed on HHS 3G devices
+	//------------------------------------------------------------------------------
+	{
+		variable baseReportRow(23);
+		variable deviceNo, rowNo;
+		variable deviceName, labwareID, serialNo, deckPosition, deckTrackSlot;
+		variable SW_version("");
+      variable APEadapterNumber(0);
+		variable lineText("");
+
+
+      // check for selected devices with APE adapter
+		for( deviceNo = 0; deviceNo < D_VAR::arrAction.GetSize(); deviceNo++)
+		{
+         lineText = D_VAR::arrAPE_AdapterDescr.GetAt(deviceNo);
+         if((D_VAR::arrAction.GetAt(deviceNo) > 0) && (StrGetLength(lineText) > 0)) APEadapterNumber++;
+      }
+      if(APEadapterNumber == 0) return; // no APE adapter to re-install
+
+
+	   RPD::reportTemplateFileName = "Report_DeviceInstall_Ver"; // Report_DeviceInstall_VerEnu.xls
+      VerTool::CreateReportFile(RPD::reportTemplateFileName);
+
+ 		// ---  add general data
+		VerTool::WriteCell(3, 4,	VerDef::InstrumentName); 	 			// cell C4: instrument name 
+		VerTool::WriteCell(3, 5,	VerDef::InstrumentSerialNo); 			// cell C5: instrument serial no	
+		SW_version = VerDef::SWReleaseVersion + VerDef::FVK2_ReleaseVersion;
+		StrReplace(SW_version ,"%s1",moduleVersion);
+		VerTool::WriteCell(3, 6, 	SW_version );								// cell C6: user software version
+		VerTool::WriteCell(3, 7,	RPD::laboratoryName); 					// cell C7: laboratory name / location
+		VerTool::WriteCell(3, 8,	RPD::operatorName); 						// cell C8: operator name
+		VerTool::WriteCell(3, 9,	RPD::verifcationReason); 				// cell C9: reason for verification
+		VerTool::WriteCell(7, 4, 	GetDate("%Y-%m-%d"));					// cell G4: processed date
+		VerTool::WriteCell(7, 5, 	GetTime("%H:%M"));						// cell G5: processed time
+
+		VerTool::WriteCell( 7, 7, VerTool::FormatNumber_PointAsDecimal(RPD::temperature,1));	// cell H7: temperature
+
+		VerTool::WriteCell(3, 10, 	RPD::pdfReportFileName);	// cell C10:  pdf file information close to "header"
+
+      if(summaryState == PS::successful)  VerTool::WriteCell( 4, 13, VerDef::valid); 		//	cell D13: valid summary status  displayed
+      else                                VerTool::WriteCell( 4, 13, VerDef::failed);     //	cell D13: failed summary status  displayed
+
+      //		Trace("Test: ----  Get layout infomation of all installed devices ---");
+		for(deviceNo = 0; deviceNo < D_VAR::arrLabwareID.GetSize(); deviceNo++)
+		{ // data of individual devices
+
+			labwareID 	= D_VAR::arrLabwareID.GetAt(deviceNo);
+			deviceName 	= D_VAR::arrDescription.GetAt(deviceNo);
+			serialNo		= StrConcat2(D_VAR::arrSerialNumber.GetAt(deviceNo), "");
+
+			deckPosition = D_VAR::arrDeckPosition.GetAt(deviceNo);     
+         deckTrackSlot = VerTool::convertXYcoordToTrackSite(D_VAR::arrDeckPosition.GetAt(deviceNo));
+
+         //Trace("test: ----  processID =>",processID,"< processedDate ==>",processedDate,"<==");
+	
+	      rowNo = baseReportRow + deviceNo* 2;
+
+         // device name
+			VerTool::WriteCell( 2, rowNo, deviceName);   //  cell B23: Description
+         VerTool::WriteCell( 3, rowNo, serialNo);     //  cell C23: Serieal No.
+
+         // APE adapter info
+         lineText = D_VAR::arrAPE_AdapterDescr.GetAt(deviceNo);
+         
+         VerTool::WriteCell( 4, rowNo, lineText);      //  cell D23: APE Adapter Type
+
+         // Position info
+         VerTool::WriteCell( 5, rowNo, deckTrackSlot);  //  cell E23: X-Slot No / Y-Site No
+         VerTool::WriteCell( 7, rowNo, deckPosition);   //  cell G23: X-Position [mm] / Y-Position [mm]]
+
+         if((D_VAR::arrAction.GetAt(deviceNo) > 0) && (StrGetLength(lineText) > 0)) 
+         {
+            VerTool::WriteCell( 1, rowNo, "X");  //  cell A23: selected device
+            // for cell background change
+            VerTool::WriteCell( 10, rowNo, "X");             //  cell J23: selected device
+            VerTool::WriteCell( 11, rowNo, deviceName);      //  cell K23: Description
+            VerTool::WriteCell( 12, rowNo, serialNo);        //  cell L23: Serieal No.
+            VerTool::WriteCell( 13, rowNo, lineText);        //  cell M23: APE Adapter Type
+            VerTool::WriteCell( 14, rowNo, deckTrackSlot);   //  cell N23: X-Slot No / Y-Site No
+            VerTool::WriteCell( 15, rowNo, deckPosition);    //  cell O23: X-Position [mm] / Y-Position [mm]]
+         }
+
+		} // end of single device information loops
+
+		RPD::reportFile.Close();
+
+      // Generate pdf file
+		//------------------------------------------------------------------------------
+		VerTool::GeneratePDF_File();
+
+		return;
+
+	} // -- end of function "showInstallationReport"
+
+//==============================================================================
+// main functions
+//==============================================================================
+
+	//-----------------------------------------------------------------------------------------------------
+	//function GetProcessDataFromDevices(variable layoutFileName )
+   function GetProcessDataFromDevices(device& ML_STAR)
+	//-----------------------------------------------------------------------------------------------------
+	// Get process data from all HHS 3G devices on deck: i.e.'time stamp' 1(= Process date9  and 'processedState' 
+	//
+	// RETURN		none
+	//-----------------------------------------------------------------------------------------------------
+	{
+      variable allDevices(hslTrue);
+
+		if(( D_VAR::arrAction.GetSize() == 0) || (VerDef::numberOfDeviceSites == 0)) return;
+
+       //Trace("Test: Start function ´initialize_Devices' ");
+
+      if(!initialize_Devices(ML_STAR, allDevices ))
+      {
+         DevicesNotPresentDialog();
+         abort;
+      }
+
+
+      // Trace("Test: End function ´initialize_Devices' ");
+      // VerTool::TraceArray("Test: GetProcessDataFromDevices: --- D_VAR::arrModAddress----",D_VAR::arrModAddress);
+      // VerTool::TraceArray("Test: GetProcessDataFromDevices: --- D_VAR::arrDeviceID----",D_VAR::arrDeviceID);
+
+      if(!getProcessDataFromAllDevices())
+      {
+         DevicesNotPresentDialog();
+         abort;
+      }
+
+
+      Trace("VerDef::numberOfDeviceSites =>",VerDef::numberOfDeviceSites,"<  PID::doDevice_Verification  =>",PID::doDevice_Verification ,"<==");
+
+      //VerTool::TraceArray("Test: GetProcessDataFromDevices: --- D_VAR::arrDescription ----", D_VAR::arrDescription);
+      //VerTool::TraceArray("Test: GetProcessDataFromDevices: --- D_VAR::arrSetValue ----", D_VAR::arrSetValue);
+      //VerTool::TraceArray("Test: GetProcessDataFromDevices: --- D_VAR::arrAction----",D_VAR::arrAction);
+      //VerTool::TraceArray("Test: GetProcessDataFromDevices: --- D_VAR::arrStatus----",D_VAR::arrStatus);
+      //VerTool::TraceArray("Test: GetProcessDataFromDevices: --- D_VAR::arrStatusText----",D_VAR::arrStatusText);
+      //VerTool::TraceArray("Test: GetProcessDataFromDevices: --- D_VAR::arrSerialNumber----",D_VAR::arrSerialNumber);
+
+      //VerTool::TraceArray("Test: GetProcessDataFromDevices: --- D_VAR::arrInputRemarks----",D_VAR::arrInputRemarks);
+      //VerTool::TraceArray("Test: GetProcessDataFromDevices: --- D_VAR::arrExpiryDate----",D_VAR::arrExpiryDate);
+
+     	//VerTool::TraceArray(" --- G_VAR::arrDescription ----", G_VAR::arrDescription);
+		//VerTool::TraceArray(" --- G_VAR::arrAction ----", G_VAR::arrAction);
+      //VerTool::TraceArray(" --- G_VAR::arrExpiryDate ----", G_VAR::arrExpiryDate);
+
+	}  // -- end of function "GetProcessDataFromDevices"
+
+	//-----------------------------------------------------------------------------------------------------
+	function CheckAndSetDevices()
+	//-----------------------------------------------------------------------------------------------------
+	// Check presence of adapter and if requested set new target temperature 
+	//
+	// RETURN		none
+	//-----------------------------------------------------------------------------------------------------
+	{
+      variable index; 
+  
+      if(displayDeviceFeatures(1))  // return value true if new test temperatures is requested
+      {
+ 	      for( index = 0; index < D_VAR::arrAction.GetSize(); index++)
+		   {
+            if(D_VAR::arrAction.GetAt(index) > 0) showNewTestTemperatureDialog(index);    
+         }
+	   }
+      //Trace("VerDef::numberOfDeviceSites =>",VerDef::numberOfDeviceSites,"<  PID::doDevice_Verification  =>",PID::doDevice_Verification ,"<==");
+
+      //VerTool::TraceArray("Test: CheckAndSetDevices: --- D_VAR::arrDescription ----", D_VAR::arrDescription);
+      //VerTool::TraceArray("Test: CheckAndSetDevices: --- D_VAR::arrSetValue ----", D_VAR::arrSetValue);
+      //VerTool::TraceArray("Test: CheckAndSetDevices: --- D_VAR::arrAction----",D_VAR::arrAction);
+      //VerTool::TraceArray("Test: CheckAndSetDevices: --- D_VAR::arrStatus----",D_VAR::arrStatus);
+      //VerTool::TraceArray("Test: CheckAndSetDevices: --- D_VAR::arrInputRemarks----",D_VAR::arrInputRemarks);
+     
+      //VerTool::TraceArray("Test: CheckAndSetDevices: --- D_VAR::arrExpiryDate----",D_VAR::arrExpiryDate);
+
+     	//VerTool::TraceArray("Test: CheckAndSetDevices:  --- G_VAR::arrDescription ----", G_VAR::arrDescription);
+		//VerTool::TraceArray("Test: CheckAndSetDevices:  --- G_VAR::arrAction ----", G_VAR::arrAction);
+      //VerTool::TraceArray("Test: CheckAndSetDevices:  --- G_VAR::arrExpiryDate ----", G_VAR::arrExpiryDate);
+
+	}  // -- end of function "SetAndCheckDevices"
+
+
+
+	//------------------------------------------------------------------------------
+	function Device_Verification(device& starDevice)
+	//------------------------------------------------------------------------------
+	{
+		variable index, amountOfDevices;
+		variable processState;
+      variable allDevices(hslFalse);
+      variable fileName("");
+      variable strText("");
+      variable deviceID, processID, singleDeviceStatus, verificationInterval , processedTime, testTemperature, processedDate;
+      variable strReportDirectory; // the target directory --> system folder
+      variable strFileNameFormat;  // the format of the report file name, format Report_HHS3G_Ver_{}_#yyyyMMddhhmm# where {} will be replaced with the serial number of the instrument and the string within ## is used to format the C# DateTime instance; if empty then default "Report_HHS3G_Ver_{}_#yyyyMMddhhmm#" is used 
+      variable strReportFilePath;  // the absolute path to the generated report path
+      variable returnValue;
+      timer    timeClock;
+
+		if(VerDef::isIVD )	RPD::reportTemplateFileName ="Report_Device_IVD_Ver";	// Report_Device_IVD_VerEnu.xls
+		else						RPD::reportTemplateFileName ="Report_Device_Ver";		// Report_Device_VerEnu.xls
+
+      strReportDirectory = GetSystemPath();
+      strFileNameFormat  = StrConcat2(RPD::reportTemplateFileName,"_{}_#yyyyMMddHHmm#");
+      
+      fileName = StrConcat8(RPD::reportTemplateFileName ,"_", VerDef::InstrumentSerialNo,"_", GetDate("%Y%m%d"), GetTime("%H%M"),"","");
+		RPD::reportFileName 	= StrConcat4(GetSystemPath(),"\\" , fileName,".pdf");
+
+      //VerTool::TraceArray(" --- Device Verification Activation: D_VAR::arrAction ----", D_VAR::arrAction);
+  
+      // initalize device verification control
+		//Trace("Test: Device_Verification: Start function ´initialize_Devices' ");
+      initialize_Devices(starDevice, allDevices);
+          
+      // check & display selected device status again
+      //checkDeviceStatus();
+
+      // Preparation steps:  ,...
+      arrSelectedDeviceID.SetSize(0);
+      arrSelectedIndex.SetSize(0);
+      //VerTool::TraceArray("Test:change status to integer: --- D_VAR::arrStatus ----", D_VAR::arrStatus);
+		for( index = 0; index < D_VAR::arrAction.GetSize(); index++) 
+      {
+         // change status to integer,
+         strText = StrConcat2(D_VAR::arrStatus.GetAt(index), "");
+
+         if((strText == VerDef::valid) || (IVal(strText) == PS::successful))  D_VAR::arrStatus.SetAt(index, PS::successful);
+         else                                                                 D_VAR::arrStatus.SetAt(index, PS::failed);
+         //Trace("Test: Device_Verification : strText ==>",strText,"  D_VAR::arrStatus.GetAt(index) ==>", D_VAR::arrStatus.GetAt(index),"<==");
+         if(D_VAR::arrAction.GetAt(index) > 0 )
+         { // array of selected device ID 
+            deviceID = D_VAR::arrDeviceID.GetAt(index);
+            arrSelectedDeviceID.AddAsLast( deviceID );
+            arrSelectedIndex.AddAsLast( index );
+            // save test temperature values on devices
+            testTemperature = FVal(StrConcat2(D_VAR::arrSetValue.GetAt(index),""));
+            //testTemperature = VerTool::convertToFloat(D_VAR::arrSetValue.GetAt(index));
+            //Trace("Test: Device_Verification : SetHhsVerificationTemperature: deviceID ==>",deviceID,"  testTemperature ==>",testTemperature,"<=="); 
+            HamiltonHeaterShaker3G::FieldVerification::SetHhsVerificationTemperature(deviceID,testTemperature);              
+         }
+       }
+      //VerTool::TraceArray("Test:Device_Verification: End of change status to integer: --- D_VAR::arrStatus ----", D_VAR::arrStatus);
+      //VerTool::TraceArray("Test:Device_Verification: --- arrSelectedDeviceID ----", arrSelectedDeviceID);
+
+      // perform device verification processing steps and display execution status in a dialog
+		if(!lets_do_Device_Verification()) 
+      {
+         HamiltonHeaterShaker3G::FieldVerification::Terminate();
+         //Trace("Test: Device_Verification --> Abort during verification processing: PID::summaryRemainingDays ==>",PID::summaryRemainingDays);      
+         return; // aborted or canceled processing causes no further action
+      }
+		// end of device verification
+		//------------------------------------------------------------------------------
+		endDeviceVerification(processState); 
+			
+		//  generate pdf file
+		//------------------------------------------------------------------------------
+      returnValue = HamiltonHeaterShaker3G::FieldVerification::GenerateReportFile(strReportDirectory, strFileNameFormat, VerDef::isIVD, strReportFilePath);
+      //Trace("Test: Device_Verification ---> GenerateReportFile:  strReportDirectory =>",strReportDirectory,"< strFileNameFormat ==>",strFileNameFormat,"< blnIsIvdReport ==>",VerDef::isIVD,"<==");
+      //Trace("Test: Device_Verification ===> GenerateReportFile:  returnValue ==>",returnValue,"  strReportFilePath ==>",strReportFilePath,"<==");
+
+      HamiltonHeaterShaker3G::FieldVerification::Terminate();
+
+      // store process summary date on ML-STAR instrument
+      VerTool::StoreProcessDataOnInstrument(PID::DeviceSummary, processState, starDevice );
+
+      RPD::reportFileName = strReportFilePath; 
+
+		// ShowPDF_File();
+		showReportFile( RPD::reportFileName); 
+  
+  		// Show Installation Report File();
+		showInstallationReport(processState); 
+        
+		return;
+
+	}  // -- end of function "Device_Verification"
+
+
+} // end of namespace D_VER
+//==============================================================================
+
+// $$author=HAMILTON$$valid=1$$time=2023-07-04 15:14$$checksum=7a4e3bf5$$length=085$$

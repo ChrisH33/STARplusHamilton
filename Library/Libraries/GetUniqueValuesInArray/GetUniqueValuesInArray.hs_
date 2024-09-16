@@ -1,0 +1,19 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 6/22/2016 10:40:41 AM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace GETUNIQUEVALUESINARRAY {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function GetUniqueValuesInArray( variable & i_arrayOfValues[], variable & o_arrayOfUniqueValues[], variable & o_numberOfUniqueValues ) void { }
+function RemoveDuplicatedPositionIDsFromSequence( sequence i_seqOriginal, sequence & o_seqWithUniquePositions, variable & o_numberOfUniquePositions ) void { }
+function Sequence_Sort( sequence & i_seq, sequence ref_seq ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=IEUser$$valid=0$$time=2016-06-22 10:40$$checksum=5b29d528$$length=083$$

@@ -1,0 +1,932 @@
+// ===========================================================================
+// Communication Library to the Thermo Cytomats
+//
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+// ===========================================================================
+//
+// Modification History
+//		2010-01-20, V0.0: Frank Jablonsky, created
+//    2011-01-17, V0.1: Frank Jablonsky, additional check of response of cytomat on error case in 
+//                      function TxRxCommand() error fixt markt as FIXED0001 
+//    2011-09-28, V1.1: Frank Jablonsky, inserted bs error flag check in the intitialisation routine
+//    2012-03-06, V1.2: Frank Jablonsky added the comand to stop slow movement of the Carusel for Cytomat C24, C48, C6000
+//    2012-05-03, V1.3: Frank Jablonsky added the comand to get error/warning state in case of set error/warning flag
+// ===========================================================================
+
+#pragma once
+
+#ifndef __HSLStrLib_hsl__
+#include "HSLStrLib.hsl"
+#endif
+
+#ifndef __HSL_THERMO_CYTOMATCOMANDS_hsl__
+#include "HSLCytomat\\ThermoCytomatComands.hs_"
+#endif
+
+namespace HSLThermoCytomatComport
+{
+	/*********************************************************************
+	*
+	* Exported return constants
+	*
+	*********************************************************************/
+	
+	const static variable CMD_START   ( 1 );
+	const static variable CMD_COMPLET ( 2 );
+	const static variable CMD_ERROR   ( 5 );   // to prevent suspicious Phoenix error messages
+	const static variable CMD_PROGRESS( 4 );
+	const static variable CMD_ERRCOMPL( 5 );
+
+   const variable HSL_FALSE          ( hslFalse );
+   const variable HSL_TRUE           ( hslTrue );
+
+   const static variable ReadWriteTimeout(1);
+   const static variable SendCommandInterval(0.2);
+
+   const variable Maximal_Ports(12);
+
+	/*********************************************************************
+	*
+	* Module globale constants/variables
+	*
+	*********************************************************************/
+
+   static global variable HSLThermoCytomatComport_FirmwareVersion("");
+
+   static global file     arrHSLThermoCytomatComport_comPortFile[](Maximal_Ports);
+   static global variable arrHSLThermoCytomatComport_comPort[](Maximal_Ports);
+   static global variable arrHSLThermoCytomatComport_comBuffer[](Maximal_Ports);
+   static global event    arrHSLThermoCytomatComport_criticalSection[](Maximal_Ports);
+
+	/*********************************************************************
+	*
+	* Declarations
+	*
+	*********************************************************************/
+
+	function SetPort( variable iComPort, variable iComSettings, variable iTraceLevel, variable iSimulate, variable iCarusel ) variable;
+	function Terminate( variable iComPort ) variable;	
+
+   function ProcessCommand( variable iComPort,variable iTransfer , variable iTraceLevel , variable iCommand , variable iCheckBusy , variable& oResponse) variable;
+
+   function GetFirmware(variable iComPort, variable& oFirmware) variable;
+
+   static function InitOnInternalCytomatError(variable iComPort,variable iTransfer, variable & oCountError)variable;
+   static function TxRxReset( variable iComPort, variable& oResponse) variable;
+   static function TxRxCommand( variable iComPort, variable iTransfer, variable iCommand, variable & oResponse ) variable;
+
+   static function GetFilehandleID(variable iComPort, variable & oHandleID ,variable & oNextEmpty) variable;
+	
+	/*********************************************************************
+	*
+	* Implementations
+	*
+	*********************************************************************/
+
+	function SetPort( variable iComPort,variable iComSettings, variable iTraceLevel, variable iSimulate, variable iCarusel  ) variable
+	{
+		variable command;
+		variable parameter;
+		variable response;
+      variable openComport("");
+		variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable fileHandleID(-1);
+      variable NextEmpty(0);
+
+		
+		// Activate error handler
+		onerror goto Unexpected;
+
+      if(iSimulate == hslTrue)
+      {
+        return(HSLCytomatGlobalCommands::ERROR_NONE ); 
+      }
+
+      errCode = GetFilehandleID(iComPort, fileHandleID , NextEmpty);
+      if((errCode != HSLCytomatGlobalCommands::ERROR_NONE ) || (fileHandleID < 0))
+      {
+         arrHSLThermoCytomatComport_comPort.SetAt(NextEmpty,iComPort);
+         fileHandleID = NextEmpty;
+         arrHSLThermoCytomatComport_comBuffer.SetAt(NextEmpty,"");
+      }
+
+      arrHSLThermoCytomatComport_criticalSection[fileHandleID].SetEvent();
+
+      // -------------------------------------------------------------------------
+   	// initialize communication port
+   	// -------------------------------------------------------------------------
+   	arrHSLThermoCytomatComport_comPortFile[fileHandleID].SetDelimiter( hslAsciiText );
+   	if( 0 == arrHSLThermoCytomatComport_comPortFile[fileHandleID].AddField( 1, arrHSLThermoCytomatComport_comBuffer.ElementAt(fileHandleID), hslString ))
+   	{
+         arrHSLThermoCytomatComport_criticalSection[fileHandleID].SetEvent(); 
+         arrHSLThermoCytomatComport_comPort.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_criticalSection.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_comPortFile.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_comBuffer.RemoveElementAt(fileHandleID);
+   		return( HSLCytomatGlobalCommands::ERROR_COM_FUNCTION_FAILED );
+   	}
+
+   	// -------------------------------------------------------------------------
+   	// Open port
+   	// -------------------------------------------------------------------------
+      openComport = "COM" + IStr(iComPort) + " " + iComSettings;
+      
+      if(0 == arrHSLThermoCytomatComport_comPortFile[fileHandleID].Open(openComport,hslWrite))
+      {
+          arrHSLThermoCytomatComport_comPort.RemoveElementAt(fileHandleID);
+          arrHSLThermoCytomatComport_criticalSection.RemoveElementAt(fileHandleID);
+          arrHSLThermoCytomatComport_comPortFile.RemoveElementAt(fileHandleID);
+          arrHSLThermoCytomatComport_comBuffer.RemoveElementAt(fileHandleID);
+          return( HSLCytomatGlobalCommands::ERROR_COM_FUNCTION_FAILED );
+      }
+
+         // Reconfigure Timeouts to normal settings
+   	   // Timeout settings for timeout within HSL-functions <file::ReadRecord> and 
+   		// <file::WriteString>
+   		// These settings are used by the function <SetCommTimeouts>.
+   		// For more information see HSL Reference (document e253518b)
+   		// -------------------------------------------------------------------------
+   		{
+   			variable ReadIntervalTimeout( hslInfinite );			   // maximum time between read chars
+   			variable ReadTotalTimeoutMultiplier( hslInfinite );	// mutiplier of characters
+   			variable ReadTotalTimeoutConstant( ReadWriteTimeout );	      // constant in seconds
+   			variable WriteTotalTimeoutMultiplier( 0.000 );			// mutiplier of characters 
+   			variable WriteTotalTimeoutConstant( ReadWriteTimeout );			   // constant in seconds
+   			if( 0 == SetCommTimeouts( arrHSLThermoCytomatComport_comPortFile[fileHandleID]))
+   			{
+               arrHSLThermoCytomatComport_comPort.RemoveElementAt(fileHandleID);
+               arrHSLThermoCytomatComport_criticalSection.RemoveElementAt(fileHandleID);
+               arrHSLThermoCytomatComport_comPortFile.RemoveElementAt(fileHandleID);
+               arrHSLThermoCytomatComport_comBuffer.RemoveElementAt(fileHandleID);
+   				return( HSLCytomatGlobalCommands::ERROR_COM_FUNCTION_FAILED );
+   			}
+   		}
+
+		// -------------------------------------------------------------------------
+		// reset comport (with configuring timeouts)
+		// -------------------------------------------------------------------------
+		errCode = TxRxReset( iComPort, response );
+		if( HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+		{
+         arrHSLThermoCytomatComport_comPort.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_criticalSection.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_comPortFile.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_comBuffer.RemoveElementAt(fileHandleID);
+			return( errCode );
+		}
+
+      errCode = TxRxCommand(iComPort,0, HSLCytomatGlobalCommands::ResetCytomatError(), response);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         return(errCode);
+      }
+
+		// -------------------------------------------------------------------------
+		// request firmware version
+		// -------------------------------------------------------------------------
+      errCode = ProcessCommand(iComPort, 0, iTraceLevel, HSLCytomatGlobalCommands::GetCommandFirmware(), HSL_TRUE , HSLThermoCytomatComport_FirmwareVersion );
+      if(HSLCytomatGlobalCommands::ERROR_NONE != errCode)
+      {
+         arrHSLThermoCytomatComport_comPort.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_criticalSection.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_comPortFile.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_comBuffer.RemoveElementAt(fileHandleID);
+			return( errCode );
+      }
+
+      // -------------------------------------------------------------------------
+		// stop slow rotation of carusel
+		// -------------------------------------------------------------------------
+      if(iCarusel == HSL_TRUE)
+      {
+         errCode = ProcessCommand(iComPort, 0, iTraceLevel, HSLCytomatGlobalCommands::GetCommandKarouselStopSlowMovement(), HSL_TRUE , response );
+
+         if(HSLCytomatGlobalCommands::ERROR_NONE != errCode)
+         {
+            arrHSLThermoCytomatComport_comPort.RemoveElementAt(fileHandleID);
+            arrHSLThermoCytomatComport_criticalSection.RemoveElementAt(fileHandleID);
+            arrHSLThermoCytomatComport_comPortFile.RemoveElementAt(fileHandleID);
+            arrHSLThermoCytomatComport_comBuffer.RemoveElementAt(fileHandleID);
+   			return( errCode );
+         }     
+      }
+
+ 		// -------------------------------------------------------------------------
+		// initialize Cytomat
+		// -------------------------------------------------------------------------
+      errCode = ProcessCommand(iComPort, 0, iTraceLevel, HSLCytomatGlobalCommands::GetCommandInitialize(), HSL_TRUE , response );
+      if(HSLCytomatGlobalCommands::ERROR_NONE != errCode)
+      {
+         arrHSLThermoCytomatComport_comPort.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_criticalSection.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_comPortFile.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_comBuffer.RemoveElementAt(fileHandleID);
+			return( errCode );
+      }    
+
+
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,0, iTraceLevel, HSLCytomatGlobalCommands::GetCommandBusy(), HSL_FALSE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         arrHSLThermoCytomatComport_comPort.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_criticalSection.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_comPortFile.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_comBuffer.RemoveElementAt(fileHandleID);
+			return( errCode );  
+      }   
+
+
+      errCode = HSLCytomatGlobalCommands::CheckErrorBit(response);
+      if(errCode == HSL_TRUE)
+      {
+         arrHSLThermoCytomatComport_comPort.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_criticalSection.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_comPortFile.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_comBuffer.RemoveElementAt(fileHandleID);
+         errCode = HSLCytomatGlobalCommands::ERROR_UNKNOWN;
+         return(errCode);
+      }
+
+      arrHSLThermoCytomatComport_criticalSection[fileHandleID].SetEvent(); 
+  
+      return(errCode);
+
+      Unexpected:
+		{
+         arrHSLThermoCytomatComport_comPort.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_criticalSection.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_comPortFile.RemoveElementAt(fileHandleID);
+         arrHSLThermoCytomatComport_comBuffer.RemoveElementAt(fileHandleID);
+			return( HSLCytomatGlobalCommands::ERROR_UNEXPECTED_TXRX );
+		}
+
+	}
+
+
+	
+	function Terminate( variable iComPort ) variable
+	{
+  
+		variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable fileHandleID(-1);
+      variable NextEmpty(0);
+
+      errCode = GetFilehandleID(iComPort, fileHandleID, NextEmpty);
+
+   	// -------------------------------------------------------------------------
+   	// close comm. port
+   	// -------------------------------------------------------------------------
+
+      arrHSLThermoCytomatComport_criticalSection[fileHandleID].WaitEvent(hslInfinite);
+
+   	arrHSLThermoCytomatComport_comPortFile[fileHandleID].RemoveFields();
+   	if( 0 != arrHSLThermoCytomatComport_comPortFile[fileHandleID].Close())
+   	{
+         arrHSLThermoCytomatComport_criticalSection[fileHandleID].SetEvent();
+   		return( HSLCytomatGlobalCommands::ERROR_COM_FUNCTION_FAILED );
+   	}
+      
+      arrHSLThermoCytomatComport_criticalSection[fileHandleID].SetEvent();
+      arrHSLThermoCytomatComport_comPort.SetAt(fileHandleID,0);
+      arrHSLThermoCytomatComport_comBuffer.SetAt(fileHandleID,"");
+
+      return( HSLCytomatGlobalCommands::ERROR_NONE );
+	}
+
+
+   function ProcessCommand( variable iComPort , variable iTransfer ,variable iTraceLevel, variable iCommand , variable iCheckBusy , variable& oResponse) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable responseState("");
+      variable response("bs 01");
+      variable oldError;
+      variable countError(0);
+      variable flagBreak(0);
+      timer    waitCommand;
+
+
+      if(iCheckBusy == HSL_TRUE)
+      {
+         countError = 0;
+         response = "bs 01";
+         oldError = "";
+
+         while( HSLCytomatGlobalCommands::CheckBusyBit(response))
+         {
+
+               errCode = TxRxCommand(iComPort,iTransfer, HSLCytomatGlobalCommands::GetCommandBusy() , response);
+               if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+               {
+                  countError++;
+                  // FIXED0001 if(countError >= HSLCytomatGlobalCommands::RepeatAskForBusy)
+                  if((countError >= HSLCytomatGlobalCommands::RepeatAskForBusy) || (StrGetLength(oResponse) <= 0))
+                  {
+                     if(StrGetLength(oResponse) <= 0)
+                     {
+                        errCode = HSLCytomatGlobalCommands::ERROR_UNEXPECTED_TXRX ;
+                     }
+                     return(errCode);
+                  }
+               }
+               
+               HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandBusy() + " Response: " + response ,2);         
+
+               // Error of Cytomat
+            
+               // Error of Cytomat, ignore er 34 because the position of the handler is allready reached
+               if(StrFind(response,"er ") >= 0 && !(StrFind(response,"er 34") >= 0))
+               {
+                  HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandBusy() + " Response: " + response ,iTraceLevel);
+
+
+                  if((countError >= HSLCytomatGlobalCommands::RepeatAskForBusy) && (oldError == response))
+                  {
+                     // Cytomat error occured
+                     StrReplace(response, "er ", "");
+                     errCode = HSLCytomatGlobalCommands::GetCytomatError(response);
+                     if(errCode != HSLCytomatGlobalCommands::ERROR_DEVICE_BUSY)
+                     {
+                        oResponse =  response;
+                        return(errCode);
+                     }
+                  }
+                  else
+                  {
+                     if(oldError == response)
+                     {
+                        countError++;
+                     }
+                     else
+                     {
+                        oldError = response;
+                        countError = 1;
+                     }
+                     
+                  }
+               }
+               else
+               {
+                  countError = 0;
+               }
+
+               // Command returns which answer with no bs
+
+               
+
+               if(StrFind(response, "ve " ) >= 0)
+               {
+                  StrReplace(response, "ve ", "");
+               }
+
+               if(StrFind(response, "ok ") >= 0)
+               {
+                  StrReplace(response, "ok ", "" );
+               }
+
+               //check errorbit set before command was send
+               if(StrFind(response,"bs ") >= 0)
+               {
+                  if(HSLCytomatGlobalCommands::CheckWarningBit(response) == hslTrue)
+                  {
+                     HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandBusy() + " Response: " + response ,iTraceLevel);
+
+                     // get warning register and trace response
+                     TxRxCommand(iComPort,iTransfer, HSLCytomatGlobalCommands::GetCommandWarningState() , responseState);
+                     HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandWarningState() + " Response: " + responseState ,iTraceLevel);
+
+                     // get action register and trace response
+                     // TxRxCommand(iComPort,iTransfer, HSLCytomatGlobalCommands::GetCommandActionState() , responseState);
+                     // HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandActionState() + " Response: " + responseState ,iTraceLevel);
+                  }
+                     
+                  if(HSLCytomatGlobalCommands::CheckErrorBit(response) == hslTrue)
+                  {
+                     HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandBusy() + " Response: " + response ,iTraceLevel);
+
+
+                     // get warning register and trace response
+                     TxRxCommand(iComPort,iTransfer, HSLCytomatGlobalCommands::GetCommandErrorState() , responseState);
+                     HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandErrorState() + " Response: " + responseState ,iTraceLevel);
+
+                     // get action register and trace response
+                     // TxRxCommand(iComPort,iTransfer, HSLCytomatGlobalCommands::GetCommandActionState() , responseState);
+                     // HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandActionState() + " Response: " + responseState ,iTraceLevel);
+                  
+                     errCode = InitOnInternalCytomatError(iComPort , iTransfer, countError);
+                     if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+                     {
+                        countError++;
+                        // FIXED0001 if(countError >= HSLCytomatGlobalCommands::RepeatAskForBusy)
+                        if((countError >= HSLCytomatGlobalCommands::RepeatAskForBusy) || (StrGetLength(oResponse) <= 0))
+                        {
+                           if(StrGetLength(oResponse) <= 0)
+                           {
+                              errCode = HSLCytomatGlobalCommands::ERROR_UNEXPECTED_TXRX ;
+                           }
+                           return(errCode);
+                        }
+                     }
+                  }
+               }
+               waitCommand.SetTimer(SendCommandInterval);
+               waitCommand.WaitTimer(hslFalse,hslFalse);
+
+         }
+      }
+      countError = 0;
+      flagBreak = 0;
+      oldError = "";
+      while( flagBreak == 0 )
+      {
+         errCode = TxRxCommand(iComPort,iTransfer,iCommand,response);
+         if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+         {
+            return(errCode);
+         }  
+
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + iCommand + " Response: " + response ,iTraceLevel);
+       
+         
+         oResponse =  response;
+
+         // Error of Cytomat, ignore er 34 because the position of the handler is allready reached
+         if(StrFind(response,"er ") >= 0 && !(StrFind(response,"er 34") >= 0))
+         {                
+              if((countError >= HSLCytomatGlobalCommands::RepeatAskForBusy) && (oldError == response))
+              {
+                  // Cytomat error occured
+                  StrReplace(response, "er ", "");
+                  errCode = HSLCytomatGlobalCommands::GetCytomatError(response);
+                  if(errCode != HSLCytomatGlobalCommands::ERROR_DEVICE_BUSY)
+                  {
+                     oResponse =  response;
+                     return(errCode);
+                  }
+               }
+               else
+               {
+                  if(oldError == response)
+                  {
+                     countError++;
+                  }
+                  else
+                  {
+                     oldError = response;
+                     countError = 1;
+                  }
+                     
+               }
+         }
+         else
+         {
+            flagBreak = 1;
+            countError = 0;
+         }
+
+         // Command returns which answer with no bs
+
+         if(StrFind(response, "ve " ) >= 0)
+         {
+            StrReplace(response, "ve ", "");
+            oResponse =  response;
+         }
+
+         if(StrFind(response, "ok ") >= 0)
+         {
+            StrReplace(response, "ok ", "" );
+            oResponse =  response;
+         }
+      }
+
+      if(iCheckBusy == HSL_TRUE)
+      {
+         countError = 0;
+         response = "bs 01";
+         oldError = "";
+         while( HSLCytomatGlobalCommands::CheckBusyBit(response))
+         {
+            errCode = TxRxCommand(iComPort, iTransfer,HSLCytomatGlobalCommands::GetCommandBusy() , response);
+            if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+            {
+               countError++;
+               // FIXED0001 if(countError >= HSLCytomatGlobalCommands::RepeatAskForBusy)
+               if((countError >= HSLCytomatGlobalCommands::RepeatAskForBusy) || (StrGetLength(oResponse) <= 0))
+               {
+                  return(errCode);
+               }
+            }
+      
+            HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandBusy() + " Response: " + response ,2);
+
+            if(HSLCytomatGlobalCommands::CheckWarningBit(response) == hslTrue)
+            {
+               HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandBusy() + " Response: " + response ,iTraceLevel);
+
+               // get warning register and trace response
+               TxRxCommand(iComPort,iTransfer, HSLCytomatGlobalCommands::GetCommandWarningState() , responseState);
+               HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandWarningState() + " Response: " + responseState ,iTraceLevel);
+
+               // get action register and trace response
+               // TxRxCommand(iComPort,iTransfer, HSLCytomatGlobalCommands::GetCommandActionState() , responseState);
+               // HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandActionState() + " Response: " + responseState ,iTraceLevel);
+            }
+
+            if(HSLCytomatGlobalCommands::CheckErrorBit(response) == hslTrue)
+            {
+               HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandBusy() + " Response: " + response ,iTraceLevel); 
+      
+               // get warning register and trace response
+               TxRxCommand(iComPort,iTransfer, HSLCytomatGlobalCommands::GetCommandErrorState() , responseState);
+               HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandErrorState() + " Response: " + responseState ,iTraceLevel);
+
+               // get action register and trace response
+               // TxRxCommand(iComPort,iTransfer, HSLCytomatGlobalCommands::GetCommandActionState() , responseState);
+               // HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandActionState() + " Response: " + responseState ,iTraceLevel); 
+            }
+
+
+            // Error of Cytomat
+         
+            // Error of Cytomat, ignore er 34 because the position of the handler is allready reached
+            if(StrFind(response,"er ") >= 0 && !(StrFind(response,"er 34") >= 0))
+            {
+               HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_COMPLET,"comport: " + IStr(iComPort) + " command send: " + HSLCytomatGlobalCommands::GetCommandBusy() + " Response: " + response ,iTraceLevel);
+
+               if((countError >= HSLCytomatGlobalCommands::RepeatAskForBusy) && (oldError == response))
+               {
+                  // Cytomat error occured
+                  StrReplace(response, "er ", "");
+                  errCode = HSLCytomatGlobalCommands::GetCytomatError(response);
+                  if(errCode != HSLCytomatGlobalCommands::ERROR_DEVICE_BUSY)
+                  {
+                     oResponse =  response;
+                     return(errCode);
+                  }
+               }
+               else
+               {
+                  if(oldError == response)
+                  {
+                     countError++;
+                  }
+                  else
+                  {
+                     oldError = response;
+                  }
+                  
+               }
+            }
+            else
+            {
+               countError = 0;
+            }
+
+            // Command returns which answer with no bs
+
+            if(StrFind(response, "ve " ) >= 0)
+            {
+               StrReplace(response, "ve ", "");
+            }
+
+            if(StrFind(response, "ok ") >= 0)
+            {
+               StrReplace(response, "ok ", "" );
+            }
+
+            waitCommand.SetTimer(SendCommandInterval);
+            waitCommand.WaitTimer(hslFalse,hslFalse);
+         }
+      }
+
+      return(errCode);
+   }
+
+   function GetFirmware(variable iComPort , variable& oFirmware) variable
+   {
+      oFirmware = "";
+
+      oFirmware = HSLThermoCytomatComport_FirmwareVersion;
+      return( HSLCytomatGlobalCommands::ERROR_NONE );
+
+   }
+
+   static function InitOnInternalCytomatError(variable iComPort, variable iTransfer, variable & oCountError) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable SwapPosition(0);
+      variable SwapOldPosition(0);
+      variable command("");
+      variable response("");
+      
+      //Dump transfer position
+      if(iTransfer == hslTrue)
+      {
+         errCode = TxRxCommand(iComPort,iTransfer, HSLCytomatGlobalCommands::GetSwapState(), response);
+         if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+         {
+            // FIXED0001 if(countError >= HSLCytomatGlobalCommands::RepeatAskForBusy)
+            if((oCountError >= HSLCytomatGlobalCommands::RepeatAskForBusy) || (StrGetLength(response) <= 0))
+            {
+               if(StrGetLength(response) <= 0)
+               {
+                  errCode = HSLCytomatGlobalCommands::ERROR_UNEXPECTED_TXRX ;
+               }
+               return(errCode);
+            }
+            oCountError = oCountError + 1;
+         }
+         else
+         {
+            if(StrFind(response, "sw " ) >= 0)
+            {
+               StrReplace(response, "sw ", "");
+               SwapOldPosition = IVal(StrMid(response,0,1));
+            }
+         
+            errCode = TxRxCommand(iComPort,iTransfer, HSLCytomatGlobalCommands::GetCommandInitialize(), response);
+            if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+            {
+               // FIXED0001 if(countError >= HSLCytomatGlobalCommands::RepeatAskForBusy)
+               if((oCountError >= HSLCytomatGlobalCommands::RepeatAskForBusy) || (StrGetLength(response) <= 0))
+               {
+                  if(StrGetLength(response) <= 0)
+                  {
+                     errCode = HSLCytomatGlobalCommands::ERROR_UNEXPECTED_TXRX ;
+                  }
+                  return(errCode);
+               }
+               oCountError = oCountError + 1;
+            }
+            else
+            {
+               // check new swap position
+               errCode = TxRxCommand(iComPort,iTransfer, HSLCytomatGlobalCommands::GetSwapState(), response);
+               if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+               {
+                  // FIXED0001 if(countError >= HSLCytomatGlobalCommands::RepeatAskForBusy)
+                  if((oCountError >= HSLCytomatGlobalCommands::RepeatAskForBusy) || (StrGetLength(response) <= 0))
+                  {
+                     if(StrGetLength(response) <= 0)
+                     {
+                        errCode = HSLCytomatGlobalCommands::ERROR_UNEXPECTED_TXRX ;
+                     }
+                     return(errCode);
+                  }
+                  oCountError = oCountError + 1;
+               }
+               else
+               {
+                  if(StrFind(response, "sw " ) >= 0)
+                  {
+                     StrReplace(response, "sw ", "");
+                     SwapPosition = IVal(StrMid(response,0,1));
+                  }
+
+
+                  //move swap to old position
+                  if(SwapPosition != SwapOldPosition)
+                  {
+                     if(SwapOldPosition < 10)
+                     {
+                        command = HSLCytomatGlobalCommands::GetCommandMoveTransfer() + "00" + IStr(SwapOldPosition);
+                     }
+
+                     if((SwapOldPosition < 100)&&(SwapOldPosition >= 10))
+                     {
+                        command = HSLCytomatGlobalCommands::GetCommandMoveTransfer() + "0" + IStr(SwapOldPosition);
+                     }
+
+                     if((SwapOldPosition < 1000)&&(SwapOldPosition >= 100))
+                     {
+                        command = HSLCytomatGlobalCommands::GetCommandMoveTransfer() + IStr(SwapOldPosition);
+                     }
+
+                     errCode = TxRxCommand(iComPort, iTransfer, command, response);
+                     if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+                     {
+                        // FIXED0001 if(countError >= HSLCytomatGlobalCommands::RepeatAskForBusy)
+                        if((oCountError >= HSLCytomatGlobalCommands::RepeatAskForBusy) || (StrGetLength(response) <= 0))
+                        {
+                           if(StrGetLength(response) <= 0)
+                           {
+                              errCode = HSLCytomatGlobalCommands::ERROR_UNEXPECTED_TXRX ;
+                           }
+                           return(errCode);
+                        }
+                        oCountError = oCountError + 1;
+                     }
+                  }
+               }                          
+            }
+         }  
+     }
+     else
+     {
+         // no transfer station
+         errCode = TxRxCommand(iComPort,iTransfer, HSLCytomatGlobalCommands::GetCommandInitialize(), response);
+         if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+         {
+            // FIXED0001 if(countError >= HSLCytomatGlobalCommands::RepeatAskForBusy)
+            if((oCountError >= HSLCytomatGlobalCommands::RepeatAskForBusy) || (StrGetLength(response) <= 0))
+            {
+               if(StrGetLength(response) <= 0)
+               {
+                  errCode = HSLCytomatGlobalCommands::ERROR_UNEXPECTED_TXRX ;
+               }
+               return(errCode);
+            }
+            oCountError = oCountError + 1;
+         }
+      }
+      
+      return(HSLCytomatGlobalCommands::ERROR_NONE);                
+   }
+
+
+   static function TxRxCommand( variable iComPort, variable iTransfer, variable iCommand, variable & oResponse ) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable response("");
+      variable lengthResponse(0);
+      variable fileHandleID(-1);
+      variable NextEmpty(0);
+
+		// Activate error handler
+		onerror goto Unexpected;
+
+      oResponse = "";
+
+      errCode = GetFilehandleID(iComPort, fileHandleID, NextEmpty);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE )
+      {
+         arrHSLThermoCytomatComport_comPort.AddAsLast(iComPort);
+      }
+
+
+      arrHSLThermoCytomatComport_criticalSection[fileHandleID].WaitEvent(hslInfinite);
+
+      // -------------------------------------------------------------------------
+		// check simulation mode
+		// -------------------------------------------------------------------------
+
+         response = "";
+
+         SetCommTimeouts( arrHSLThermoCytomatComport_comPortFile[fileHandleID]);
+
+      	// -------------------------------------------------------------------------
+         // clear receive buffer
+   		// -------------------------------------------------------------------------
+         while (arrHSLThermoCytomatComport_comPortFile[fileHandleID].ReadRecord() != 0)
+
+         SetCommTimeouts( arrHSLThermoCytomatComport_comPortFile[fileHandleID]);
+
+      	// -------------------------------------------------------------------------
+         // send command
+   		// -------------------------------------------------------------------------
+   		arrHSLThermoCytomatComport_comBuffer[fileHandleID] = iCommand;
+
+     		if( 0 == arrHSLThermoCytomatComport_comPortFile[fileHandleID].WriteRecord())
+   		{
+            arrHSLThermoCytomatComport_criticalSection[fileHandleID].SetEvent();
+   			return( HSLCytomatGlobalCommands::ERROR_WRITE_RECORD_FAILED );
+   		}
+         
+
+      	// -------------------------------------------------------------------------
+         // wait for command's response
+   		// -------------------------------------------------------------------------
+   		if( 0 == arrHSLThermoCytomatComport_comPortFile[fileHandleID].ReadRecord())
+   		{
+            arrHSLThermoCytomatComport_criticalSection[fileHandleID].SetEvent();
+   			return( HSLCytomatGlobalCommands::ERROR_READ_RECORD_FAILED );
+   		}
+
+         response = "";
+         response = arrHSLThermoCytomatComport_comBuffer[fileHandleID];
+
+         StrReplace(response,StrAsciiToStr(13),"");
+
+         if(GetType(response) == "s")
+         {
+            if(StrGetLength(response) <= 0)
+            {
+               errCode = HSLCytomatGlobalCommands::ERROR_UNEXPECTED_TXRX ;
+            }
+         }
+         else
+         {
+            errCode = HSLCytomatGlobalCommands::ERROR_UNEXPECTED_TXRX ;
+         }
+
+         oResponse = response;
+      
+      arrHSLThermoCytomatComport_criticalSection[fileHandleID].SetEvent();
+      return( errCode );
+
+      Unexpected:
+		{
+         arrHSLThermoCytomatComport_criticalSection[fileHandleID].SetEvent();
+			return( HSLCytomatGlobalCommands::ERROR_UNEXPECTED_TXRX );
+		}
+   }
+
+
+
+   static function TxRxReset( variable iComPort, variable& oResponse ) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable response("");
+      variable fileHandleID(-1);
+      variable NextEmpty(0);
+
+      oResponse = response;  // FIXED0001 
+
+      onerror goto Unexpected;
+
+      errCode = GetFilehandleID(iComPort, fileHandleID, NextEmpty);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE )
+      {
+         arrHSLThermoCytomatComport_comPort.AddAsLast(iComPort);
+         fileHandleID = fileHandleID;
+      }
+
+      arrHSLThermoCytomatComport_criticalSection[fileHandleID].WaitEvent(hslInfinite);
+
+ 		// -------------------------------------------------------------------------
+		// check simulation mode
+		// -------------------------------------------------------------------------
+       response = "";
+
+      	// -------------------------------------------------------------------------
+         // clear receive buffer
+   		// -------------------------------------------------------------------------
+         arrHSLThermoCytomatComport_comPortFile[fileHandleID].ReadRecord();
+      	// -------------------------------------------------------------------------
+         // send reset command
+   		// -------------------------------------------------------------------------
+   		arrHSLThermoCytomatComport_comBuffer[fileHandleID] = StrAsciiToStr(0);
+   		if( 0 == arrHSLThermoCytomatComport_comPortFile[fileHandleID].WriteRecord())
+   		{
+            arrHSLThermoCytomatComport_criticalSection[fileHandleID].SetEvent();
+   			return( HSLCytomatGlobalCommands::ERROR_WRITE_RECORD_FAILED );
+   		}
+      	// -------------------------------------------------------------------------
+         // wait for command's response
+   		// -------------------------------------------------------------------------
+   		if( 0 == arrHSLThermoCytomatComport_comPortFile[fileHandleID].ReadRecord())
+   		{
+            arrHSLThermoCytomatComport_criticalSection[fileHandleID].SetEvent();
+   			return( HSLCytomatGlobalCommands::ERROR_READ_RECORD_FAILED );
+   		}   
+      	// -------------------------------------------------------------------------
+         // ignore return because an error will occure on the cytomat if any disturbing signal was on the cable
+   		// -------------------------------------------------------------------------
+
+         response = arrHSLThermoCytomatComport_comBuffer[fileHandleID];
+         oResponse = response;
+
+      arrHSLThermoCytomatComport_criticalSection[fileHandleID].SetEvent();
+		return( errCode );
+
+		Unexpected:
+		{
+         arrHSLThermoCytomatComport_criticalSection[fileHandleID].SetEvent();
+			return( HSLCytomatGlobalCommands::ERROR_UNEXPECTED_TXRX );
+		}
+   }
+
+   static function GetFilehandleID(variable iComPort, variable & oHandleID ,variable & oNextEmpty) variable
+   {
+      variable countComport(0);
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED);
+
+      oHandleID = -1;     
+      oNextEmpty = -1; 
+
+      for(countComport = 0; countComport < arrHSLThermoCytomatComport_comPort.GetSize(); countComport++)
+      {
+         if(iComPort == arrHSLThermoCytomatComport_comPort.GetAt(countComport))
+         {
+            oHandleID = countComport;
+            errCode = HSLCytomatGlobalCommands::ERROR_NONE;
+            break;
+         }
+      }
+
+      for(countComport = 0; countComport < arrHSLThermoCytomatComport_comPort.GetSize(); countComport++)
+      {
+         if((arrHSLThermoCytomatComport_comPort.GetAt(countComport) == 0) && (oHandleID == -1))
+         {
+            oNextEmpty = countComport;
+            errCode = HSLCytomatGlobalCommands::ERROR_NONE;
+            break; 
+         }  
+      }
+
+      return(errCode);
+   }
+
+}	//end namespace 
+
+// $$author=krjp224$$valid=0$$time=2019-01-24 21:01$$checksum=d0330e2c$$length=084$$

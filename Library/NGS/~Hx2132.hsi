@@ -1,0 +1,1241 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "HslHamHeaterShakerLib.hsl"
+#include "HSLStrLib.hsl"
+#include "HSLSensorLib.hsl"
+#include "HSLInhecoTEC\\HSLInhecoTECLib.hsl"
+#include "Inheco ODTC\\Inheco ODTC.hsl"
+#include "ASWStandard\\TraceLevel\\TraceLevel.hsl"
+#include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl"
+#include "HSLMthLib.hsl"
+#include "HSLExtensions\\File.hsl"
+#include "RemoveTextDelimitersFromAsciiTextFile.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+#include "HSLPTLLib.hsl"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace _10XPREP {
+// }} ""
+variable _blnSimulationModeON;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+private function Abstract(  ) void ;
+function DATA_ReadSampleSheet( variable & var_SourceFile, variable & var_NumberOfSamples, variable & var_IndexesUsed, variable & arr_Index1SeqPositions[], variable & arr_Index2SeqPositions[], variable & arr_ALPseqPositions[], variable i_strTempSampleSheetFileName ) void ;
+function HHS_GetTemperature( variable i_varHHS ) void ;
+function HHS_Init( variable & i_varHHSDeviceNo1, variable & i_varHHSDeviceNo2 ) void ;
+function HHS_SetTemperature( variable i_varHHS, variable i_fltTemperature ) void ;
+function HHS_Shake( variable i_varHHS, variable i_intSpeed, variable i_intShakingDuration ) void ;
+function HHS_Terminate( variable i_varHHSDeviceNo1, variable i_varHHSDeviceNo2 ) void ;
+function HandOverSimulationModeForAllLocalSMTs( variable i_blnSimulationON ) void ;
+function ODTC_CloseDoor( variable i_IntDeviceNumber ) void ;
+function ODTC_ExecuteProtocol( variable i_IntDeviceNumber, variable i_strProtocollFullFileName, variable i_strNameOfProtocollOnDevice, variable & o_intTimeForProtocol, variable & o_intRequestIDForActiveProtocol ) void ;
+function ODTC_Init( variable i_strDeviceAddress, variable & o_intDeviceNum, variable i_strLocalIPAdress ) void ;
+function ODTC_OpenDoor( variable i_IntDeviceNumber ) void ;
+function ODTC_ReadActualTemperature( variable i_IntDeviceNumber, variable i_intTimeForProtocoll ) void ;
+function ODTC_Terminate( variable i_intDeviceNum ) void ;
+function ODTC_WaitForStartedProtocolToFinish( variable i_IntDeviceNumber, variable i_intTimeOut, variable i_intRequestIDToWaitFor ) void ;
+private function _ODTC_HandleReturnValue( variable i_blnSuccess, variable i_strFunctionName, variable i_intReturnValue, variable i_strMessage ) void ;
+private function _Version(  ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "Abstract" "Begin"
+private function Abstract(  ) void {
+// }} ""
+// {{ 5 "Abstract" "InitLocals"
+// }} ""
+// {{ 1 1 0 "7df035d0_074d_4d8a_91ad9db689a15239" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("*********************************************************************\nSubmethod Library:  NGSStar384Prep\nWritten By:  Stephan Grosch, Hamilton Germany GmbH, Germany, Martinsried\nDate:  June 18, 2018 (Modified by Andy Joad)\nVersion:  1.8\n\nVersion Notes:\n1.  Continuing adaptions listed at local smt \"_Version\"\n\n*********************************************************************"));
+// }} ""
+// {{{ 5 "Abstract" "End"
+}
+// }} ""
+// {{{ 5 "HHS_Init" "Begin"
+function HHS_Init( variable & i_varHHSDeviceNo1, variable & i_varHHSDeviceNo2 ) void {
+// }} ""
+private variable ret_HHS1;
+private variable ret_HHS2;
+private variable ret_HHS;
+private variable DialogReturn;
+private variable loopCounter1;
+private dialog customDialog16324C0A7D744f09B0E9D8A02FEC6145;
+private dialog customDialog908A24D9FE9148a9A61C024C298883AD;
+// {{ 5 "HHS_Init" "InitLocals"
+i_varHHSDeviceNo1 = 0;
+i_varHHSDeviceNo2 = 0;
+// }} ""
+// {{ 88 1 0 "fe50aa2d_6b67_473c_a12af98908532cae" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>---------------------------------------------------------------------------------------------->\n>>>>>>>>>> Submethod:  HHS_Init <<<<<<<<<<"));
+// }} ""
+// {{ 89 1 0 "2cb61096_e3f6_4fe1_86ea2fc2d1a46661" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+loopCounter1 = 0;
+while (1 == 1)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{{ 90 1 0 "f0d9d706_4e22_46d1_a2e1447421a79c36" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLHamHeaterShaker::SetSimulation(_blnSimulationModeON);
+// }} ""
+// {{ 91 1 0 "0d0af359_f8c0_4f6f_ab3b8f1b4adda910" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+ret_HHS = 0;
+// }} ""
+// {{{ 92 1 0 "4399d1c9_b8bb_48ca_91230dce4f2a56d8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+ret_HHS1 = HSLHamHeaterShaker::CreateUsbDevice(1, i_varHHSDeviceNo1);
+// }} ""
+// {{{ 93 1 0 "c440442f_6927_481d_bb97a03fcd6e29e7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+ret_HHS2 = HSLHamHeaterShaker::CreateUsbDevice(2, i_varHHSDeviceNo2);
+// }} ""
+// {{ 94 1 0 "a37d24ab_3969_4ecd_8edec3c2bbd8755f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (ret_HHS1 != 0)
+{
+// }} ""
+Trace ("Error on HHS1:  ", ret_HHS1);
+// {{ 96 1 0 "a37d24ab_3969_4ecd_8edec3c2bbd8755f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 97 1 0 "8a0b1d58_d2fd_43c4_90fe2d8f0eb1d0e4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (ret_HHS2 != 0)
+{
+// }} ""
+Trace ("Error on HHS2:  ", ret_HHS2);
+// {{ 99 1 0 "8a0b1d58_d2fd_43c4_90fe2d8f0eb1d0e4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+ret_HHS = ret_HHS1 + ret_HHS2;
+// {{ 101 1 0 "fbd665a3_71fb_4c7b_85d4bd752171656f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (ret_HHS > 0)
+{
+// }} ""
+// {{ 102 1 0 "a84d7cb7_0f5c_435e_a5ac65cd8bbb90e1" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n\nHHS Error codes:\n1 - Fatal Error\n2 - Node not Initialized\n3 - Device not connected\n4 - CAN error\n5 - EEProm error\n6 - Unknown command\n7 - Unknown parameter\n8 - Parameter out of range\n9 - Voltage error\n10 - Stop \n11 - Wrong address\n13 - Shaker init failed\n14 - Shaker not initialized\n15 - Shaker step loss\n17 - Plate lock init failure\n18 - Plate lock step loss\n26 - Unknown firmware error\n\n"));
+// }} ""
+// {{ 103 1 0 "c7924ef3_a5b8_4b2a_aed8faad55df28b2" "{998A7CCC-4374-484D-A6ED-E8A4F0EB71BA}"
+customDialog908A24D9FE9148a9A61C024C298883AD.InitCustomDialog( "c7924ef3_a5b8_4b2a_aed8faad55df28b2" );
+customDialog908A24D9FE9148a9A61C024C298883AD.SetCustomDialogProperty( "textBlock3.Text", ret_HHS );
+customDialog908A24D9FE9148a9A61C024C298883AD.ShowCustomDialog();
+DialogReturn = customDialog908A24D9FE9148a9A61C024C298883AD.GetCustomDialogProperty( "ReturnValue" );
+// }} ""
+// {{ 104 1 0 "9c2d3571_e21e_40c2_8e74f2c68453d2b3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (DialogReturn == ASWGLOBAL::DIALOG::CANCEL)
+{
+// }} ""
+// {{ 105 1 0 "6d2774e5_9649_4ea9_98ab4ea1a95b9379" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 106 1 0 "9c2d3571_e21e_40c2_8e74f2c68453d2b3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 107 1 0 "fbd665a3_71fb_4c7b_85d4bd752171656f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 108 1 0 "dbc08acc_93ed_4585_9f11368e0474923f" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 109 1 0 "fbd665a3_71fb_4c7b_85d4bd752171656f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 110 1 0 "2cb61096_e3f6_4fe1_86ea2fc2d1a46661" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 111 1 0 "e2b4b91d_ed8f_4c49_830b5be14b3955b4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+ret_HHS1 = HSLHamHeaterShaker::SetPlateLock(i_varHHSDeviceNo1, 1);
+// }} ""
+// {{{ 112 1 0 "b8d6cdd5_5e13_4779_b8d28775d7b14db9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+ret_HHS1 = HSLHamHeaterShaker::SetPlateLock(i_varHHSDeviceNo1, 0);
+// }} ""
+// {{{ 113 1 0 "19d53d28_3812_4246_b07d1ab4555c3e5a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+ret_HHS2 = HSLHamHeaterShaker::SetPlateLock(i_varHHSDeviceNo2, 1);
+// }} ""
+// {{{ 114 1 0 "afc6580b_2fcf_4821_bd44bfd0170842a5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+ret_HHS2 = HSLHamHeaterShaker::SetPlateLock(i_varHHSDeviceNo2, 0);
+// }} ""
+// {{ 115 1 0 "90f4d957_88b4_4bdf_9f1092dec0d409bf" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (ret_HHS1 != 0)
+{
+// }} ""
+Trace ("Error on HHS1:  ", ret_HHS1);
+// {{ 117 1 0 "90f4d957_88b4_4bdf_9f1092dec0d409bf" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 118 1 0 "5a7df8ef_f085_4af7_bdb1fa6e3529f353" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (ret_HHS2 != 0)
+{
+// }} ""
+Trace ("Error on HHS2:  ", ret_HHS2);
+// {{ 120 1 0 "5a7df8ef_f085_4af7_bdb1fa6e3529f353" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+ret_HHS = ret_HHS1 + ret_HHS2;
+// {{ 122 1 0 "81bdee2b_2c84_4b51_aa0b78b92705595f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (ret_HHS > 0)
+{
+// }} ""
+// {{ 123 1 0 "b306da4e_b131_4c0b_ada94ce5b4535084" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n\nHHS Error codes:\n1 - Fatal Error\n2 - Node not Initialized\n3 - Device not connected\n4 - CAN error\n5 - EEProm error\n6 - Unknown command\n7 - Unknown parameter\n8 - Parameter out of range\n9 - Voltage error\n10 - Stop \n11 - Wrong address\n13 - Shaker init failed\n14 - Shaker not initialized\n15 - Shaker step loss\n17 - Plate lock init failure\n18 - Plate lock step loss\n26 - Unknown firmware error\n\n"));
+// }} ""
+// {{ 124 1 0 "12ca0f46_50b1_4876_878493c17b947702" "{998A7CCC-4374-484D-A6ED-E8A4F0EB71BA}"
+customDialog16324C0A7D744f09B0E9D8A02FEC6145.InitCustomDialog( "12ca0f46_50b1_4876_878493c17b947702" );
+customDialog16324C0A7D744f09B0E9D8A02FEC6145.SetCustomDialogProperty( "textBlock3.Text", ret_HHS );
+customDialog16324C0A7D744f09B0E9D8A02FEC6145.ShowCustomDialog();
+DialogReturn = customDialog16324C0A7D744f09B0E9D8A02FEC6145.GetCustomDialogProperty( "ReturnValue" );
+// }} ""
+// {{ 125 1 0 "069229ff_2fa1_481f_8df577782d40e9f1" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 126 1 0 "81bdee2b_2c84_4b51_aa0b78b92705595f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 127 1 0 "2f579893_6887_4ac2_9972aef7c71dc6fb" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>>>>>>> Submethod Complete: HHS_Init <<<<<<<<<<\n<-----------------------------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"));
+// }} ""
+// {{{ 5 "HHS_Init" "End"
+}
+// }} ""
+// {{{ 5 "HHS_Shake" "Begin"
+function HHS_Shake( variable i_varHHS, variable i_intSpeed, variable i_intShakingDuration ) void {
+// }} ""
+private variable ActualShakingDuration;
+private timer Shaking;
+private variable CheckForEarlyStop;
+// {{ 5 "HHS_Shake" "InitLocals"
+// }} ""
+// {{ 143 1 0 "41dbbc29_a367_4edd_8cc67d2f91cdf08c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>---------------------------------------------------------------------------------------------->\n>>>>>>>>>> Submethod:  HHS_Shake <<<<<<<<<<"));
+// }} ""
+Trace ("***** Now shaking on HHS", i_varHHS, " at ", i_intSpeed, "rpm for ", i_intShakingDuration, "seconds..."); 
+// {{ 145 1 0 "7fbb9222_d0f0_46d3_8f21e7bee49d35ee" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_blnSimulationModeON == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 146 1 0 "32b1d4b1_cde8_4fa2_89d3e765b4f6b1a2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLHamHeaterShaker::StartShaker(i_varHHS, i_intSpeed);
+// }} ""
+// {{ 147 1 0 "95a29e2a_1069_4bfe_b5f352705f637f45" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == Shaking.SetTimer(i_intShakingDuration) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 148 1 0 "1bb01716_828d_4c28_b7ba6fc3013112ec" "{B31F353F-5D80-11d4-A5EB-0050DA737D89}"
+CheckForEarlyStop = Shaking.WaitTimer(hslTrue, hslTrue);
+if (0 == CheckForEarlyStop)
+{
+    MECC::RaiseRuntimeErrorEx(-1339162368, MECC::IDS::stepNameTimerWait, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 149 1 0 "c2a2e911_83bb_4e38_8a3912230fb53aa0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (CheckForEarlyStop == 3)
+{
+// }} ""
+// {{ 150 1 0 "638d6382_e328_4df5_8a3af26febdc2285" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("***** WARNING!  The shaking was stopped prematurely by the operator! *****"));
+// }} ""
+// {{ 151 1 0 "c2a2e911_83bb_4e38_8a3912230fb53aa0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 152 1 0 "6e008622_4e30_4eb0_ac7e0c312b78ccb6" "{B31F3540-5D80-11d4-A5EB-0050DA737D89}"
+ActualShakingDuration = Shaking.GetElapsedTime();
+// }} ""
+Trace ("***** Actual Shaking Duration (seconds):  ", ActualShakingDuration);
+// {{{ 154 1 0 "9feb9668_b78f_43cf_a88450460aecff79" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLHamHeaterShaker::StopShaker(i_varHHS);
+// }} ""
+// {{ 155 1 0 "7fbb9222_d0f0_46d3_8f21e7bee49d35ee" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 156 1 0 "fe5220d3_1af3_4db3_9dc975fcb84baf5c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("SIMULATION MODE ON - HHS SHAKE simulated"));
+// }} ""
+// {{ 157 1 0 "7fbb9222_d0f0_46d3_8f21e7bee49d35ee" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 158 1 0 "d46349d9_7e8e_4914_ba2c3aebf8201784" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>>>>>>> Submethod Complete:  HHS_Shake <<<<<<<<<<\n<-----------------------------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"));
+// }} ""
+// {{{ 5 "HHS_Shake" "End"
+}
+// }} ""
+// {{{ 5 "HHS_SetTemperature" "Begin"
+function HHS_SetTemperature( variable i_varHHS, variable i_fltTemperature ) void {
+// }} ""
+// {{ 5 "HHS_SetTemperature" "InitLocals"
+// }} ""
+// {{ 129 1 0 "7ba6893c_0032_4de6_be36dd7f545d1349" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>---------------------------------------------------------------------------------------------->\n>>>>>>>>>> Submethod:  HHS_SetTemperature <<<<<<<<<<"));
+// }} ""
+// {{ 130 1 0 "34934c0f_05eb_49fa_ae897183d32cc0e1" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_blnSimulationModeON == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 131 1 0 "3274f6d2_8492_40d7_a819487a1c9e7ee1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLHamHeaterShaker::StopTempCtrl(i_varHHS);
+// }} ""
+// {{ 132 1 0 "b6a70e5f_1e46_40b1_bcebace29d071de2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_fltTemperature != 0)
+{
+// }} ""
+Trace ("***** HHS number ", i_varHHS, " is being set to ", i_fltTemperature, " C");
+// {{{ 134 1 0 "cffd5e8d_294c_41c7_97e4002cff83e21b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLHamHeaterShaker::StartTempCtrl(i_varHHS, i_fltTemperature, 0);
+// }} ""
+// {{ 135 1 0 "b6a70e5f_1e46_40b1_bcebace29d071de2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+Trace ("***** HHS number ", i_varHHS, " is not being controlled, as it is desired to be at room temperature.");
+// {{ 137 1 0 "b6a70e5f_1e46_40b1_bcebace29d071de2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 138 1 0 "34934c0f_05eb_49fa_ae897183d32cc0e1" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 139 1 0 "33a4d691_1185_4848_a6937b22b19fe91b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("SIMULATION MODE ON - HHS set temperature"));
+// }} ""
+// {{ 140 1 0 "34934c0f_05eb_49fa_ae897183d32cc0e1" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 141 1 0 "58d5ab49_4ae6_43e1_b2579ada46a0ac3e" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>>>>>>> Submethod Complete:  HHS_SetTemperature <<<<<<<<<<\n<-----------------------------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"));
+// }} ""
+// {{{ 5 "HHS_SetTemperature" "End"
+}
+// }} ""
+// {{{ 5 "HHS_Terminate" "Begin"
+function HHS_Terminate( variable i_varHHSDeviceNo1, variable i_varHHSDeviceNo2 ) void {
+// }} ""
+// {{ 5 "HHS_Terminate" "InitLocals"
+// }} ""
+// {{ 160 1 0 "5f07e86b_cd2c_41b0_bc2eac0d403e6edb" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>---------------------------------------------------------------------------------------------->\n>>>>>>>>>> Submethod: HHS_Terminate <<<<<<<<<<"));
+// }} ""
+// {{ 161 1 0 "99b657fe_943a_4e62_8e1f132b18b1713a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_blnSimulationModeON == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 162 1 0 "3e4314c5_fc15_4fd9_b13792b385d4a33d" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 163 1 0 "07c6e5c1_e1a1_4bc7_82bbd8fdf445906c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLHamHeaterShaker::StopAllShaker();
+// }} ""
+// {{ 164 1 0 "3e4314c5_fc15_4fd9_b13792b385d4a33d" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 165 1 0 "860f334f_6ebb_4c7a_b21a1ae4b18a464c" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+Trace ("***** All HHS are not being controlled, as it is desired to be at room temperature.");
+// {{ 167 1 0 "a40a5aab_ee34_48ff_9828258d4dd27379" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_varHHSDeviceNo1 != ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 168 1 0 "a8f96ed1_45c9_4d4f_a0aa40de4f918969" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLHamHeaterShaker::StopTempCtrl(i_varHHSDeviceNo1);
+// }} ""
+// {{ 169 1 0 "a40a5aab_ee34_48ff_9828258d4dd27379" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 170 1 0 "42faead0_441c_4d9f_8bbc652e53f9729c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_varHHSDeviceNo2 != ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 171 1 0 "3442432a_b7e9_4529_801b708b7bec730c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLHamHeaterShaker::StopTempCtrl(i_varHHSDeviceNo2);
+// }} ""
+// {{ 172 1 0 "42faead0_441c_4d9f_8bbc652e53f9729c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 173 1 0 "860f334f_6ebb_4c7a_b21a1ae4b18a464c" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 174 1 0 "d47da660_cd53_4d10_bffc06d519fd359f" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 175 1 0 "79bf51ca_4638_49d5_a558e74f3e74ceae" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLHamHeaterShaker::Terminate();
+// }} ""
+// {{ 176 1 0 "d47da660_cd53_4d10_bffc06d519fd359f" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 177 1 0 "99b657fe_943a_4e62_8e1f132b18b1713a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 178 1 0 "55176363_7657_49f4_95f8217119dc0c82" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("SIMULATION MODE ON - Termination simulated"));
+// }} ""
+// {{ 179 1 0 "99b657fe_943a_4e62_8e1f132b18b1713a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 180 1 0 "f2d90106_fe52_4736_933e7575619ae7ca" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>>>>>>> Submethod Complete: HHS_Terminate <<<<<<<<<<\n<-----------------------------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"));
+// }} ""
+// {{{ 5 "HHS_Terminate" "End"
+}
+// }} ""
+// {{{ 5 "HHS_GetTemperature" "Begin"
+function HHS_GetTemperature( variable i_varHHS ) void {
+// }} ""
+private variable ActualTemperatureNow;
+// {{ 5 "HHS_GetTemperature" "InitLocals"
+// }} ""
+// {{ 78 1 0 "dfa25cab_f11d_4076_9b40295d34a6e6e1" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>---------------------------------------------------------------------------------------------->\n>>>>> Submethod:  HHS_GetTemperature <<<<<"));
+// }} ""
+// {{ 79 1 0 "ca9ba055_36ff_45d9_8ce775b31b1f29b8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_blnSimulationModeON == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 80 1 0 "663e4b12_19dc_4301_a0d66800a9afd481" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLHamHeaterShaker::GetTemperature(i_varHHS, ActualTemperatureNow);
+// }} ""
+Trace ("***** The current temperature for HHS", i_varHHS, " is ", ActualTemperatureNow, "C *****");
+// {{ 82 1 0 "ca9ba055_36ff_45d9_8ce775b31b1f29b8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 83 1 0 "155b7807_9d7f_4bf1_91392f71f1a991a5" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("SIMULATION MODE ON - HHS get temperature"));
+// }} ""
+Trace ("***** The current temperature for HHS", i_varHHS, " is ", ActualTemperatureNow, "C *****");
+// {{ 85 1 0 "ca9ba055_36ff_45d9_8ce775b31b1f29b8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 86 1 0 "7ffb10a8_803a_4217_a03bb589e71f6a25" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>> Submethod Complete:  HHS_GetTemperature <<<<<\n<-----------------------------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"));
+// }} ""
+// {{{ 5 "HHS_GetTemperature" "End"
+}
+// }} ""
+// {{{ 5 "_Version" "Begin"
+private function _Version(  ) void {
+// }} ""
+// {{ 5 "_Version" "InitLocals"
+// }} ""
+// {{ 292 1 0 "357e075a_3894_4c74_9cf43375f226f8f2" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 293 1 0 "93d273dd_294d_4129_8ff7a48dba857f03" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 294 1 0 "947dddd0_5ac8_4ba5_a51af0b535aaf22a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 295 1 0 "1b7f2081_26b8_4754_8d1a44dca13c0a18" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 296 1 0 "919fa404_3ef5_4b04_8261e8ce515997e8" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 297 1 0 "82a22598_7340_4403_a4c41e2e9d88bd87" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 298 1 0 "f3f4284f_62fb_442b_9a350e11fbc5ffd4" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 299 1 0 "27051e23_818c_440c_bcc96c428c1c7f7b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 300 1 0 "c22ac0bb_80af_4a44_937d8b8083717dc6" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 5 "_Version" "End"
+}
+// }} ""
+// {{{ 5 "ODTC_Init" "Begin"
+function ODTC_Init( variable i_strDeviceAddress, variable & o_intDeviceNum, variable i_strLocalIPAdress ) void {
+// }} ""
+private variable strDeviceID;
+private variable strState;
+private variable blnReturn;
+private variable intReturnValue;
+private variable strCurrentTime;
+private variable blnLocked;
+private variable strMessage;
+private variable strPmsID;
+private variable strTrace;
+// {{ 5 "ODTC_Init" "InitLocals"
+o_intDeviceNum = 0;
+// }} ""
+// {{ 201 1 0 "8275f3ef_5b28_4337_9231fb314061cad8" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>---------------------------------------------------------------------------------------------->\n>>>>>>>>>>  Start Submethod : ODTC_Init<<<<<<<<<<"));
+// }} ""
+Trace ("_blnSimulationModeON:  ", _blnSimulationModeON);
+Trace ("i_strLocalIPAdress:  ", i_strLocalIPAdress);
+Trace ("i_strDeviceAddress:  ", i_strDeviceAddress);
+// {{ 203 1 0 "0e7053ba_45c4_4f12_af6110c1cde87065" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 204 1 0 "829074f6_7826_4df4_b418e30781f021c8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+Inheco_ODTC::Standard::SetTraceLevel(TRACE_LEVEL_DEBUG);
+// }} ""
+// {{{ 205 1 0 "1f7af9a9_9805_40e6_965f2bfb837c4f9d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnReturn = Inheco_ODTC::Standard::Connect(i_strLocalIPAdress, i_strDeviceAddress, Translate(""), _blnSimulationModeON, o_intDeviceNum, strMessage);
+// }} ""
+// {{{ 206 1 0 "1a59a3d5_5522_44ca_b83df57dbd1f2852" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ODTC_HandleReturnValue(blnReturn, "INHECOODTCCONTROLLER::Initialize", intReturnValue, strMessage);
+// }} ""
+// {{ 207 1 0 "0e7053ba_45c4_4f12_af6110c1cde87065" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 208 1 0 "196a8c30_7cb5_46b0_8ca46d3714d26409" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 209 1 0 "66a43e75_4304_45f5_a2cbb13938b134f8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnReturn = Inheco_ODTC::Standard::Reset(o_intDeviceNum, _blnSimulationModeON, 120, Translate(""), Translate(""), Translate(""), intReturnValue, strMessage);
+// }} ""
+// {{{ 210 1 0 "593d23c1_10a0_43fd_85db09f993bd7ff6" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ODTC_HandleReturnValue(blnReturn, "INHECOODTCCONTROLLER::ResetDevice", intReturnValue, strMessage);
+// }} ""
+// {{ 211 1 0 "196a8c30_7cb5_46b0_8ca46d3714d26409" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 212 1 0 "44382184_5b18_4b8d_ae40672092f8e01f" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 213 1 0 "e606e183_e706_4042_acf08ff7a06a1d43" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnReturn = Inheco_ODTC::Standard::Initialize(o_intDeviceNum, Translate(""), intReturnValue, strMessage);
+// }} ""
+// {{{ 214 1 0 "7d24f34c_d714_4f25_90fd99d0398907cf" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ODTC_HandleReturnValue(blnReturn, "INHECOODTCCONTROLLER::InitializeDevice", intReturnValue, strMessage);
+// }} ""
+// {{ 215 1 0 "44382184_5b18_4b8d_ae40672092f8e01f" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 216 1 0 "158da4bd_c3fb_4dc2_becd58466bc27dfb" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 217 1 0 "2e9e5aaf_8b95_48d6_b11270041b85bb66" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnReturn = Inheco_ODTC::Standard::GetStatus(o_intDeviceNum, strDeviceID, strState, blnLocked, strPmsID, strCurrentTime, intReturnValue, strMessage);
+// }} ""
+// {{{ 218 1 0 "62526d87_0332_4ec1_a249c3b151bbad33" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strTrace = StrConcat12("strDeviceID = ", strDeviceID, ", strState = ", strState, ", blnLocked = ", blnLocked, ", strPMSID = ", strPmsID, ", strCurrentDeviceTime = ", strCurrentTime, ", intReturnValue = ", intReturnValue);
+// }} ""
+// {{{ 219 1 0 "ad04aea4_67e1_4eea_948a0098643468fa" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strTrace = StrConcat4(strTrace, ", strMessage = ", strMessage, "");
+// }} ""
+// {{{ 220 1 0 "475c228a_23d8_4ae1_a8b895458fc20b71" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ODTC_HandleReturnValue(blnReturn, "INHECOODTCCONTROLLER::GetStatus", intReturnValue, strTrace);
+// }} ""
+// {{ 221 1 0 "158da4bd_c3fb_4dc2_becd58466bc27dfb" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 222 1 0 "e4bc709a_f27f_4a82_8328ad084c9a27c8" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>>>>>>> Submethod Complete : ODTC_Init <<<<<<<<<<\n<-----------------------------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"));
+// }} ""
+// {{{ 5 "ODTC_Init" "End"
+}
+// }} ""
+// {{{ 5 "_ODTC_HandleReturnValue" "Begin"
+private function _ODTC_HandleReturnValue( variable i_blnSuccess, variable i_strFunctionName, variable i_intReturnValue, variable i_strMessage ) void {
+// }} ""
+private variable strMethodName;
+private variable strTrace;
+private variable retValueDialog;
+private dialog customDialog3DE2FE67E07C4460BD895A52CBC24A20;
+// {{ 5 "_ODTC_HandleReturnValue" "InitLocals"
+// }} ""
+// {{ 280 1 0 "896e4d36_eb4a_4c77_b86316f1a7bd5b38" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_blnSuccess == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 281 1 0 "09aa30f3_2410_424d_9692d1c306e36bf3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strTrace = StrConcat4("SiLA message was '", i_strMessage, "', SiLA return value was ", i_intReturnValue);
+// }} ""
+Trace ("***** Trace successful message = ", strTrace);
+// {{{ 283 1 0 "cfd07da2_a088_4592_a1a50db48857f897" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return;
+// }} ""
+// {{ 284 1 0 "896e4d36_eb4a_4c77_b86316f1a7bd5b38" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 285 1 0 "b1d8a6e2_c01e_4009_87cd7ff5b4f64d49" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strTrace = StrConcat4("SiLA message was '", i_strMessage, "', SiLA return value was ", i_intReturnValue);
+// }} ""
+// {{ 286 1 0 "59f98e4a_a204_40df_9e39418b73b3022d" "{998A7CCC-4374-484D-A6ED-E8A4F0EB71BA}"
+customDialog3DE2FE67E07C4460BD895A52CBC24A20.InitCustomDialog( "59f98e4a_a204_40df_9e39418b73b3022d" );
+customDialog3DE2FE67E07C4460BD895A52CBC24A20.SetCustomDialogProperty( "textBlock3.Text", i_strFunctionName );
+customDialog3DE2FE67E07C4460BD895A52CBC24A20.SetCustomDialogProperty( "textBlock4.Text", strMethodName );
+customDialog3DE2FE67E07C4460BD895A52CBC24A20.SetCustomDialogProperty( "textBlock5.Text", strTrace );
+customDialog3DE2FE67E07C4460BD895A52CBC24A20.ShowCustomDialog();
+retValueDialog = customDialog3DE2FE67E07C4460BD895A52CBC24A20.GetCustomDialogProperty( "ReturnValue" );
+// }} ""
+// {{ 287 1 0 "09735068_8945_42e2_917cf154721ea6e1" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (retValueDialog == ASWGLOBAL::DIALOG::CANCEL)
+{
+// }} ""
+// {{ 288 1 0 "ce43f7ee_b3ea_47a8_a36201b6ad1493d0" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 289 1 0 "09735068_8945_42e2_917cf154721ea6e1" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 290 1 0 "896e4d36_eb4a_4c77_b86316f1a7bd5b38" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "_ODTC_HandleReturnValue" "End"
+}
+// }} ""
+// {{{ 5 "ODTC_Terminate" "Begin"
+function ODTC_Terminate( variable i_intDeviceNum ) void {
+// }} ""
+private variable blnReturn;
+private variable intReturnValue;
+private variable strMessage;
+// {{ 5 "ODTC_Terminate" "InitLocals"
+// }} ""
+// {{ 257 1 0 "13c465cb_c9d9_42ec_b5543d12bebfc225" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>---------------------------------------------------------------------------------------------->\n>>>>>>>>>> Start Submethod : ODTC_Terminate <<<<<<<<<<"));
+// }} ""
+// {{ 258 1 0 "b230da8f_7750_4c13_b67d448e181d1a61" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_blnSimulationModeON == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 259 1 0 "d196b6b6_dbb9_4f93_afca7cf7ea8645bc" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnReturn = Inheco_ODTC::Standard::StopMethod(i_intDeviceNum, Translate(""), intReturnValue, strMessage);
+// }} ""
+// {{{ 260 1 0 "0f3be33c_2535_4da1_b5231dc65213e005" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ODTC_HandleReturnValue(blnReturn, "INHECOODTCCONTROLLER::StopMethod", intReturnValue, strMessage);
+// }} ""
+// {{{ 261 1 0 "1b422bbd_8911_479b_8fec9933a466894f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnReturn = Inheco_ODTC::Standard::Terminate(i_intDeviceNum, strMessage);
+// }} ""
+// {{{ 262 1 0 "beb2cfbf_b91f_41fb_82e98f9a6cb5f706" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ODTC_HandleReturnValue(blnReturn, "INHECOODTCCONTROLLER::Terminate", intReturnValue, strMessage);
+// }} ""
+// {{ 263 1 0 "b230da8f_7750_4c13_b67d448e181d1a61" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 264 1 0 "cd57b9cb_ab92_40f1_a667ceeb0d36a29f" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>>>>>>>  Submethod Complete : ODTC_Terminate <<<<<<<<<<\n<-----------------------------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"));
+// }} ""
+// {{{ 5 "ODTC_Terminate" "End"
+}
+// }} ""
+// {{{ 5 "ODTC_OpenDoor" "Begin"
+function ODTC_OpenDoor( variable i_IntDeviceNumber ) void {
+// }} ""
+private variable blnReturn;
+private variable intReturnValue;
+private variable strMessage;
+// {{ 5 "ODTC_OpenDoor" "InitLocals"
+// }} ""
+// {{ 224 1 0 "a60916bf_4556_42bb_84631e4752331d54" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>---------------------------------------------------------------------------------------------->\n>>>>>>>>>> ODTC_OpenDoor:  Start Submethod <<<<<<<<<<"));
+// }} ""
+// {{{ 225 1 0 "86ec8020_803c_44b3_bc12f6e0b0afedc4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnReturn = Inheco_ODTC::Standard::OpenDoor(i_IntDeviceNumber, Translate(""), intReturnValue, strMessage);
+// }} ""
+// {{{ 226 1 0 "1b6d5655_2d16_4530_a3d394a866c16f44" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ODTC_HandleReturnValue(blnReturn, "INHECOODTCCONTROLLER::OpenDoor", intReturnValue, strMessage);
+// }} ""
+// {{ 227 1 0 "e643da2a_543d_4919_b5402583df15bfb9" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>>>>>>> ODTC_OpenDoor:  Submethod Complete <<<<<<<<<<\n<-----------------------------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"));
+// }} ""
+// {{{ 5 "ODTC_OpenDoor" "End"
+}
+// }} ""
+// {{{ 5 "ODTC_CloseDoor" "Begin"
+function ODTC_CloseDoor( variable i_IntDeviceNumber ) void {
+// }} ""
+private variable blnReturn;
+private variable intReturnValue;
+private variable strMessage;
+// {{ 5 "ODTC_CloseDoor" "InitLocals"
+// }} ""
+// {{ 187 1 0 "51c61649_a891_4e39_a00caa1c3637fe3e" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>---------------------------------------------------------------------------------------------->\n>>>>>>>>>> ODTC_CloseDoor:  Start Submethod <<<<<<<<<<"));
+// }} ""
+// {{{ 188 1 0 "3530b44c_99f1_4a9e_9966bebbd577b543" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnReturn = Inheco_ODTC::Standard::CloseDoor(i_IntDeviceNumber, Translate(""), intReturnValue, strMessage);
+// }} ""
+// {{{ 189 1 0 "db3278bc_30fa_4ff3_80ae3df7344a8633" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ODTC_HandleReturnValue(blnReturn, "INHECOODTCCONTROLLER::CloseDoor", intReturnValue, strMessage);
+// }} ""
+// {{ 190 1 0 "b7ce6179_3218_4429_916e6245a5febbd2" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>>>>>>> ODTC_CloseDoor:  Submethod Complete <<<<<<<<<<\n<-----------------------------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"));
+// }} ""
+// {{{ 5 "ODTC_CloseDoor" "End"
+}
+// }} ""
+// {{{ 5 "ODTC_WaitForStartedProtocolToFinish" "Begin"
+function ODTC_WaitForStartedProtocolToFinish( variable i_IntDeviceNumber, variable i_intTimeOut, variable i_intRequestIDToWaitFor ) void {
+// }} ""
+private variable strDeviceID;
+private variable strState;
+private variable blnReturn;
+private variable intReturnValue;
+private variable strCurrentTime;
+private variable blnLocked;
+private variable strMessage;
+private variable strPmsID;
+private variable strTrace;
+private variable intTimeToWait;
+// {{ 5 "ODTC_WaitForStartedProtocolToFinish" "InitLocals"
+// }} ""
+// {{ 266 1 0 "a9b2e985_0486_46a4_ab1d8c3b0b7cc6a6" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>---------------------------------------------------------------------------------------------->\n>>>>>>>>>> ODTC_WaitForStartedProtocolToFinish:  Start Submethod <<<<<<<<<<"));
+// }} ""
+// {{ 267 1 0 "58ca3db9_cbed_4fa5_8c671d275a38846d" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+intTimeToWait = i_intTimeOut + 20;
+// }} ""
+// {{{ 268 1 0 "8478f63e_8836_4228_96b3f1d9ddb9906e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strTrace = StrConcat2("Effective time to wait before an error is triggered = ", intTimeToWait);
+// }} ""
+Trace ("***** Message = ", strTrace);
+// {{{ 270 1 0 "43b9687c_2ed7_49c0_8a2e8e8d9e63490a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnReturn = Inheco_ODTC::Standard::WaitForEndOfExecuteMethod(i_IntDeviceNumber, intTimeToWait, i_intRequestIDToWaitFor, intReturnValue, strMessage);
+// }} ""
+// {{{ 271 1 0 "e46b67ba_0324_426e_b6e8a0ca78098e34" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ODTC_HandleReturnValue(blnReturn, "INHECOODTCCONTROLLER::WaitForStartedProtocolToFinish", intReturnValue, strMessage);
+// }} ""
+// {{ 272 1 0 "a97dd4bb_f09c_4808_8373f02518c6ed91" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 273 1 0 "e397f369_4462_4634_a6ea9dc1bce8e77c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnReturn = Inheco_ODTC::Standard::GetStatus(i_IntDeviceNumber, strDeviceID, strState, blnLocked, strPmsID, strCurrentTime, intReturnValue, strMessage);
+// }} ""
+// {{{ 274 1 0 "8b8cea76_2a57_471c_bf7c34c67a0ca0da" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strTrace = StrConcat12("strDeviceID = ", strDeviceID, ", strState = ", strState, ", blnLocked = ", blnLocked, ", strPMSID = ", strPmsID, ", strCurrentDeviceTime = ", strCurrentTime, ", intReturnValue = ", intReturnValue);
+// }} ""
+// {{{ 275 1 0 "fbb2e732_e2a5_4c21_b25322bae8882bd0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strTrace = StrConcat4(strTrace, ", strMessage = ", strMessage, "");
+// }} ""
+// {{{ 276 1 0 "45423de8_03c6_4ebe_a31fa04c09bfe5b7" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ODTC_HandleReturnValue(blnReturn, "INHECOODTCCONTROLLER::GetStatus", intReturnValue, strTrace);
+// }} ""
+// {{ 277 1 0 "a97dd4bb_f09c_4808_8373f02518c6ed91" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 278 1 0 "d3d7c60d_7bec_49b1_94769c4d8a54f02d" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>>>>>>> ODTC_WaitForStartedProtocolToFinish:  Submethod Complete <<<<<<<<<<\n<-----------------------------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"));
+// }} ""
+// {{{ 5 "ODTC_WaitForStartedProtocolToFinish" "End"
+}
+// }} ""
+// {{{ 5 "ODTC_ReadActualTemperature" "Begin"
+function ODTC_ReadActualTemperature( variable i_IntDeviceNumber, variable i_intTimeForProtocoll ) void {
+// }} ""
+private variable strDeviceID;
+private variable strState;
+private variable blnReturn;
+private variable strTime;
+private variable fltElapsedTime;
+private variable intReturnValue;
+private variable strCurrentTime;
+private variable blnLocked;
+private variable strMessage;
+private variable strPmsID;
+private timer hdlDelay;
+private timer hdlWaitForFinish;
+private variable strArrTemperatureNames[];
+private variable fltArrTemperature[];
+private variable strTrace;
+// {{ 5 "ODTC_ReadActualTemperature" "InitLocals"
+// }} ""
+// {{ 229 1 0 "7057ab8e_5585_45fd_af4e30e52b658608" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>---------------------------------------------------------------------------------------------->\n>>>>>>>>>> ODTC_ReadActualTemperature:  Start Submethod <<<<<<<<<<"));
+// }} ""
+// {{ 230 1 0 "c2c3cff5_8d95_43e2_84e4648a88b5ffbb" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == hdlWaitForFinish.SetTimer(hslInfinite) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 231 1 0 "33397695_ef72_46d0_87534818d2ce36a8" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+while (ASWGLOBAL::BOOL::TRUE == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{ 232 1 0 "04de929e_3bab_4a9b_b0da82cd782186e4" "{B31F3540-5D80-11d4-A5EB-0050DA737D89}"
+fltElapsedTime = hdlWaitForFinish.GetElapsedTime();
+// }} ""
+// {{ 233 1 0 "b0fe5754_3fd5_48b4_b7e0159acba403f8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (fltElapsedTime >= i_intTimeForProtocoll)
+{
+// }} ""
+// {{ 234 1 0 "3704de95_3946_4c53_ba476287f84b9881" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 235 1 0 "b0fe5754_3fd5_48b4_b7e0159acba403f8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 236 1 0 "ef3a2381_c9d0_4db0_a59e2d0def4b6db6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnReturn = Inheco_ODTC::Standard::ReadActualTemperature(i_IntDeviceNumber, Translate(""), strTime, fltArrTemperature, strArrTemperatureNames, intReturnValue, strMessage);
+// }} ""
+// {{{ 237 1 0 "73aeaab7_f4aa_4d01_86f552a6da0aa848" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::SetTraceLevel(TRACE_LEVEL_DEBUG);
+// }} ""
+// {{{ 238 1 0 "564d8e50_8b3d_42bf_8f99b107a0c1be1d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArraysFaceToFace(TRACE_LEVEL_DEBUG, "fltArrTemperature", "strArrTemperatureNames", fltArrTemperature, strArrTemperatureNames);
+// }} ""
+// {{{ 239 1 0 "a1763c43_a328_4646_9e8433edefc84f32" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strTrace = StrConcat8("strTime = ", strTime, ", intReturnValue = ", intReturnValue, ", strMessage = ", strMessage, "", "");
+// }} ""
+// {{ 240 1 0 "ab39c609_f3e0_40ef_8a2e8ef82d531cf3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intReturnValue == 12)
+{
+// }} ""
+// {{ 241 1 0 "3eea2fda_5bb9_46c6_b104a885b54d110a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+Trace ("***** ReadActualTemperature failed But Error 2005 or error 2006 warning will be ignored Device will continue operation, intReturnValue = ", intReturnValue);
+Trace ("***** Message = ", strMessage);
+// {{ 243 1 0 "0bf8ce2d_9c2c_4142_935332468bbb26a7" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blnReturn = ASWGLOBAL::BOOL::TRUE;
+// }} ""
+// {{ 244 1 0 "ab39c609_f3e0_40ef_8a2e8ef82d531cf3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 245 1 0 "86cccf22_7799_4efd_95e585065015df56" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ODTC_HandleReturnValue(blnReturn, "INHECOODTCCONTROLLER::ReadActualTemperature", intReturnValue, strTrace);
+// }} ""
+// {{ 246 1 0 "b2cdc24f_38ef_4dd0_b756235fdf9a0042" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == hdlDelay.SetTimer(5) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 247 1 0 "1abde5d0_92e6_41f5_86f46e3e6e8d2168" "{B31F353F-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == hdlDelay.WaitTimer(hslFalse, hslFalse) )
+{
+    MECC::RaiseRuntimeErrorEx(-1339162368, MECC::IDS::stepNameTimerWait, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 248 1 0 "33397695_ef72_46d0_87534818d2ce36a8" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 249 1 0 "1cf38839_fe73_4924_80a4b134ffe995a2" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 250 1 0 "6524c9f1_6dcb_4b3c_ae5a965720075e36" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnReturn = Inheco_ODTC::Standard::GetStatus(i_IntDeviceNumber, strDeviceID, strState, blnLocked, strPmsID, strCurrentTime, intReturnValue, strMessage);
+// }} ""
+// {{{ 251 1 0 "d696c75f_4d9d_4931_b80fa11c63976819" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strTrace = StrConcat12("strDeviceID = ", strDeviceID, ", strState = ", strState, ", blnLocked = ", blnLocked, ", strPMSID = ", strPmsID, ", strCurrentDeviceTime = ", strCurrentTime, ", intReturnValue = ", intReturnValue);
+// }} ""
+// {{{ 252 1 0 "5fb7bded_1f7d_4742_971f737ee67b1353" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strTrace = StrConcat4(strTrace, ", strMessage = ", strMessage, "");
+// }} ""
+// {{{ 253 1 0 "3a9066e9_8998_46c4_88727d3ce02422f4" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ODTC_HandleReturnValue(blnReturn, "INHECOODTCCONTROLLER::GetStatus", intReturnValue, strTrace);
+// }} ""
+// {{ 254 1 0 "1cf38839_fe73_4924_80a4b134ffe995a2" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 255 1 0 "fe893cf3_7600_4f1a_9dc85db3865d0d2a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>>>>>>> ODTC_ReadActualTemperature:  Submethod Complete <<<<<<<<<<\n<-----------------------------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"));
+// }} ""
+// {{{ 5 "ODTC_ReadActualTemperature" "End"
+}
+// }} ""
+// {{{ 5 "ODTC_ExecuteProtocol" "Begin"
+function ODTC_ExecuteProtocol( variable i_IntDeviceNumber, variable i_strProtocollFullFileName, variable i_strNameOfProtocollOnDevice, variable & o_intTimeForProtocol, variable & o_intRequestIDForActiveProtocol ) void {
+// }} ""
+private variable blnReturn;
+private variable intReturnValue;
+private variable strMessage;
+private variable strTrace;
+// {{ 5 "ODTC_ExecuteProtocol" "InitLocals"
+o_intTimeForProtocol = 0;
+o_intRequestIDForActiveProtocol = 0;
+// }} ""
+// {{ 192 1 0 "de9493ab_fcf4_4f2e_acbb18ccf06eac41" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>---------------------------------------------------------------------------------------------->\n>>>>>>>>>> ODTC_ExecuteProtocol:  Start Submethod <<<<<<<<<<"));
+// }} ""
+Trace ("------- ODTC device script to be perfomed: ", i_strProtocollFullFileName);
+
+// {{{ 194 1 0 "41b98cee_1052_40fb_baa6ca2851849360" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnReturn = Inheco_ODTC::Standard::DownloadProtocol(i_IntDeviceNumber, Translate(""), i_strProtocollFullFileName, intReturnValue, strMessage);
+// }} ""
+// {{{ 195 1 0 "cc0a759b_c113_49ba_86b32d9e1ae94bad" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ODTC_HandleReturnValue(blnReturn, "INHECOODTCCONTROLLER::DownloadProtocol", intReturnValue, strMessage);
+// }} ""
+// {{{ 196 1 0 "03875869_b024_418b_a64e055427828387" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnReturn = Inheco_ODTC::Standard::ExecuteMethod(i_IntDeviceNumber, Translate(""), i_strNameOfProtocollOnDevice, 10000, o_intTimeForProtocol, o_intRequestIDForActiveProtocol, intReturnValue, strMessage);
+// }} ""
+// {{{ 197 1 0 "9da73d85_463c_4f3c_b67d964355d3ea19" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strTrace = StrConcat8("o_intTimeForProtocol= ", o_intTimeForProtocol, ", o_intRequestIDForActiveProtocol = ", o_intRequestIDForActiveProtocol, ", intReturnValue = ", intReturnValue, ", strMessage = ", strMessage);
+// }} ""
+// {{{ 198 1 0 "fd22d2f4_fb82_43b1_8c86fcb8ec2d2872" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ODTC_HandleReturnValue(blnReturn, "INHECOODTCCONTROLLER::ExecuteProtocol", intReturnValue, strTrace);
+// }} ""
+// {{ 199 1 0 "68149d3c_a5f7_44a9_bec118e41440167b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>>>>>>> ODTC_ExecuteProtocol:  Submethod Complete <<<<<<<<<<\n<-----------------------------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"));
+// }} ""
+// {{{ 5 "ODTC_ExecuteProtocol" "End"
+}
+// }} ""
+// {{{ 5 "HandOverSimulationModeForAllLocalSMTs" "Begin"
+function HandOverSimulationModeForAllLocalSMTs( variable i_blnSimulationON ) void {
+// }} ""
+// {{ 5 "HandOverSimulationModeForAllLocalSMTs" "InitLocals"
+// }} ""
+// {{ 182 1 0 "02af7d93_168c_43a8_a4faaf684cab28fc" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>---------------------------------------------------------------------------------------------->\n>>>>>>>>>> Submethod: HandOverSimulationModeForAllLocalSMTs <<<<<<<<<<"));
+// }} ""
+// {{ 183 1 0 "cea8da3c_f400_4942_9520c5317206f342" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_blnSimulationModeON = i_blnSimulationON;
+// }} ""
+Trace ("Simulation mode for NGSStarPrep SMT:  ", _blnSimulationModeON);
+// {{ 185 1 0 "6d02715e_16cf_4973_ad531c5c72e2a5f7" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>>>>>>> Submethod Complete: HandOverSimulationModeForAllLocalSMTs <<<<<<<<<<\n<-----------------------------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"));
+// }} ""
+// {{{ 5 "HandOverSimulationModeForAllLocalSMTs" "End"
+}
+// }} ""
+// {{{ 5 "DATA_ReadSampleSheet" "Begin"
+function DATA_ReadSampleSheet( variable & var_SourceFile, variable & var_NumberOfSamples, variable & var_IndexesUsed, variable & arr_Index1SeqPositions[], variable & arr_Index2SeqPositions[], variable & arr_ALPseqPositions[], variable i_strTempSampleSheetFileName ) void {
+// }} ""
+private variable Index2_ID;
+private variable result_StringFound;
+private variable Index2_Position;
+private variable Index1_ID;
+private variable result_Replacement;
+private variable Column1data;
+private variable strDirectoryOfTempSampleSheetFileName;
+private variable WellID_Row;
+private variable Line_WellDataHeader;
+private variable WellID;
+private variable LoopCounter1;
+private variable Return_Found0;
+private variable WellID_Column;
+private variable Index1_Position;
+private variable strFullpathSchemaIniFile;
+private file file1;
+private file file2;
+// {{ 5 "DATA_ReadSampleSheet" "InitLocals"
+var_NumberOfSamples = 0;
+var_IndexesUsed = 0;
+// }} ""
+// {{ 3 1 0 "d4cb68d2_9864_43a9_b5e4ad1163ca166c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>---------------------------------------------------------------------------------------------->\n>>>>>>>>>> Submethod:  DATA_ReadSampleSheet <<<<<<<<<<"));
+// }} ""
+Trace ("Temp Sample Sheet File Name 1:  ", i_strTempSampleSheetFileName);
+
+// {{ 5 1 0 "1780bdd0_151b_40e4_83a12a0a3d3eb097" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+file1.AddField("F1", Column1data, hslString, 255);
+file1.SetDelimiter(hslTabDelimited);
+if( 0 == file1.Open(var_SourceFile, hslAppend) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, var_SourceFile, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 6 1 0 "a98be216_21d5_42ae_af2afca64e2eee1f" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+file2.AddField(1, Column1data, hslString, 255);
+file2.SetDelimiter(hslCSVDelimited);
+if( 0 == file2.Open(i_strTempSampleSheetFileName, hslWrite) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, i_strTempSampleSheetFileName, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 7 1 0 "c8f38280_e697_4415_bc0bb0d41ee0ad75" "{B31F3535-5D80-11d4-A5EB-0050DA737D89}"
+file1.Seek(1, hslCurrent);
+// }} ""
+// {{ 8 1 0 "0e15c428_11a2_4272_bb7c4b0c3497fe86" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("Read and trace out the data from the Sample Sheet:"));
+// }} ""
+// {{ 9 1 0 "5568e70b_64b7_412b_a7be071d7d076108" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+LoopCounter1 = 0;
+while (
+   (file1.Eof() == 0)
+)
+{
+LoopCounter1 = LoopCounter1 + 1;
+// }} ""
+// {{ 10 1 0 "7dcefcfe_4c1c_4572_9f70b35cc570a877" "{B31F3536-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == file1.ReadRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1490157312, MECC::IDS::stepNameFileRead, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+Trace (Column1data);
+// {{ 12 1 0 "472a2088_c3ab_4cdb_966ff7fd350d1745" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 13 1 0 "a3fe1521_8c3b_40e2_8bf53558241c3894" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+result_StringFound = StrFind(Column1data, Translate("Sample_Well"));
+// }} ""
+// {{ 14 1 0 "517e2f28_05fb_4521_9d121152e6039248" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (result_StringFound != -1)
+{
+// }} ""
+// {{ 15 1 0 "67957536_00cc_4366_8c18eafbdd9a662b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("Found the line with the headers for the well data...."));
+// }} ""
+// {{ 16 1 0 "eb4f3db5_cb68_4dcb_a78e52f1e6e51a0b" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+Line_WellDataHeader = LoopCounter1;
+// }} ""
+// {{ 17 1 0 "dbd7566c_67b6_406d_82783be5c4e69e63" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("Header row found.  Determine how many, if any, indexes will be used in this run."));
+// }} ""
+// {{{ 18 1 0 "5b31f2a8_c053_4416_884d48bce22c2ea6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+result_Replacement = StrReplace(Column1data, Translate("Index_ID"), Translate(""));
+// }} ""
+Trace ("***** (Found ", result_Replacement, " Index ID(s).)");
+// {{ 20 1 0 "d0161c94_7f87_4821_acbfe316d80553b0" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+var_IndexesUsed = result_Replacement;
+// }} ""
+// {{ 21 1 0 "517e2f28_05fb_4521_9d121152e6039248" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 22 1 0 "6491ac60_f2b9_4427_aed0f95e55f048f0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (Line_WellDataHeader > 0)
+{
+// }} ""
+// {{ 23 1 0 "c8ba2ba8_7d14_4779_9d02be36e2d6a053" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 24 1 0 "73640e0a_70a3_4114_8dfabf7a8026b043" "{B31F3537-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == file2.WriteRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1473380096, MECC::IDS::stepNameFileWrite, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 25 1 0 "6491ac60_f2b9_4427_aed0f95e55f048f0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 26 1 0 "5568e70b_64b7_412b_a7be071d7d076108" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 27 1 0 "7fe8540c_c173_419e_a1864d1d64de5312" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != file1.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+file1.RemoveFields();
+// }} ""
+// {{ 28 1 0 "355819a5_2370_4af3_a605ea57dd48d912" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != file2.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+file2.RemoveFields();
+// }} ""
+// {{ 29 1 0 "6463be7d_8848_4c96_a4d68fceda0936ee" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 30 1 0 "408bca66_12a1_4160_a5871b51a228cfd5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+RemoveTextDelimitersFromAsciiTextFile(i_strTempSampleSheetFileName);
+// }} ""
+// {{{ 31 1 0 "5a123a98_a829_440b_86ee2ac6d30c4db1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strDirectoryOfTempSampleSheetFileName = HSLExtensions::File::GetDirectoryName(i_strTempSampleSheetFileName);
+// }} ""
+// {{{ 32 1 0 "6547896d_6941_433c_8e8f557dbe4dbb90" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strFullpathSchemaIniFile = StrConcat2(i_strTempSampleSheetFileName, Translate("\\schema.ini"));
+// }} ""
+// {{{ 33 1 0 "d9edbb88_31a4_4854_92b866251c3c0eeb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLExtensions::File::Delete(strFullpathSchemaIniFile);
+// }} ""
+// {{ 34 1 0 "e55a6965_22c9_4cf1_a997d6dd753f0ea6" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("Reread the file to get the number of samples and any index data."));
+// }} ""
+// {{ 35 1 0 "c197bf2b_6d00_41a4_98dd79045387acda" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (var_IndexesUsed == 0)
+{
+// }} ""
+// {{ 36 1 0 "ff10c30c_1efa_4cd1_927282d53694d4d1" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("***** No \"Index_ID\" found.  Adapter Indexes will not be used in this run."));
+// }} ""
+// {{ 37 1 0 "04624b69_023c_4247_807867ccbf048000" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+file2.AddField("Sample_Well", WellID, hslString, 255);
+file2.SetDelimiter(hslCSVDelimited);
+if( 0 == file2.Open(i_strTempSampleSheetFileName, hslRead) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, i_strTempSampleSheetFileName, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 38 1 0 "c197bf2b_6d00_41a4_98dd79045387acda" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 39 1 0 "ddd978ab_29d3_40ff_95c14bce546377c7" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (var_IndexesUsed == 1)
+{
+// }} ""
+// {{ 40 1 0 "02d7ead2_ebad_4841_be10a7bbe4f1c6c0" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("***** One Index Found *****"));
+// }} ""
+// {{ 41 1 0 "94290075_8e94_4b9f_8fe00b79945164c2" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+file2.AddField("Sample_Well", WellID, hslString, 255);
+file2.AddField("I7_", Index1_ID, hslString, 255);
+file2.SetDelimiter(hslCSVDelimited);
+if( 0 == file2.Open(i_strTempSampleSheetFileName, hslRead) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, i_strTempSampleSheetFileName, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 42 1 0 "ddd978ab_29d3_40ff_95c14bce546377c7" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 43 1 0 "1880ce46_d06e_45f8_99476a3258896517" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (var_IndexesUsed == 2)
+{
+// }} ""
+// {{ 44 1 0 "fb7a55e0_185c_41fd_99f901cbcedfbb1d" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("***** Two Indexes Found *****"));
+// }} ""
+// {{ 45 1 0 "fc4262ea_adb5_4d02_ac16a16a9888a3db" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+file2.AddField("Sample_Well", WellID, hslString, 255);
+file2.AddField("I7_", Index1_ID, hslString, 255);
+file2.AddField("I5_", Index2_ID, hslString, 255);
+file2.SetDelimiter(hslCSVDelimited);
+if( 0 == file2.Open(i_strTempSampleSheetFileName, hslRead) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, i_strTempSampleSheetFileName, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 46 1 0 "1880ce46_d06e_45f8_99476a3258896517" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 47 1 0 "638989e0_f7d5_477c_acfc847ae08dcca2" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arr_Index1SeqPositions.SetSize(0);
+// }} ""
+// {{ 48 1 0 "3dedd616_170b_48e6_b9b4e621ac213759" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arr_Index2SeqPositions.SetSize(0);
+// }} ""
+// {{ 49 1 0 "e83f02af_4899_4aac_9bcd2b367494cfea" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arr_ALPseqPositions.SetSize(0);
+// }} ""
+// {{ 50 1 0 "91b2a87e_9764_4234_b4c8d973019aad3c" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+var_NumberOfSamples = 0;
+while (
+   (file2.Eof() == 0)
+)
+{
+var_NumberOfSamples = var_NumberOfSamples + 1;
+// }} ""
+// {{ 51 1 0 "585cb43a_1de3_4f1f_9b34457d54a8d313" "{B31F3536-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == file2.ReadRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1490157312, MECC::IDS::stepNameFileRead, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 52 1 0 "59598b5c_5ea1_4ea5_89111d882a06e246" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+Return_Found0 = StrFind(WellID, Translate("0"));
+// }} ""
+// {{ 53 1 0 "e2f2553c_d59e_4193_92d8854aacba01ee" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (Return_Found0 != -1)
+{
+// }} ""
+// {{ 54 1 0 "e88c9661_e91c_4bbd_9c47ac47a95351f0" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 55 1 0 "eca01757_ba17_43d1_a8a7d6d5f847383f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+WellID_Row = StrLeft(WellID, 1);
+// }} ""
+// {{{ 56 1 0 "58801e8f_0894_40d6_99e262b40cdf0d7d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+WellID_Column = StrRight(WellID, 2);
+// }} ""
+// {{{ 57 1 0 "eba7329c_88c0_4fc8_a03fb08d517f024b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+WellID_Column = StrIVal(WellID_Column);
+// }} ""
+// {{{ 58 1 0 "398408a3_3cf1_452e_bb40b7d1ffd3384f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+WellID = StrConcat2(WellID_Row, WellID_Column);
+// }} ""
+// {{ 59 1 0 "e2f2553c_d59e_4193_92d8854aacba01ee" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 60 1 0 "082cd3cd_a7dd_44a5_b1eb2b0713977f0a" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arr_ALPseqPositions.AddAsLast(WellID);
+// }} ""
+// {{ 61 1 0 "f8c37e12_442b_49fa_afefa71993b403a0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (var_IndexesUsed >= 1)
+{
+// }} ""
+// {{ 62 1 0 "8bac7ef4_a89b_4f3f_9da232e3e1b984ed" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 63 1 0 "3373d2eb_3256_44a2_9cf0d49b1c13f3b1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+Index1_Position = StrRight(Index1_ID, 2);
+// }} ""
+// {{{ 64 1 0 "755e3201_139c_40b7_bf625782fe9a8a4a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+Index1_Position = StrTrimLeft(Index1_Position, Translate("0"));
+// }} ""
+// {{ 65 1 0 "e2f70c8a_0f1c_4f8b_9638f283edb7ebd7" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arr_Index1SeqPositions.AddAsLast(Index1_Position);
+// }} ""
+// {{ 66 1 0 "f8c37e12_442b_49fa_afefa71993b403a0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 67 1 0 "e8c81b28_0228_4b3d_a8dc798ece50d43e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (var_IndexesUsed >= 2)
+{
+// }} ""
+// {{ 68 1 0 "6b517508_56d3_4889_9f90ab51d39823d3" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 69 1 0 "6318e184_de69_420e_b474634eaf1103ea" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+Index2_Position = StrRight(Index2_ID, 2);
+// }} ""
+// {{{ 70 1 0 "05b3cc8f_db26_4804_a6afe228658c5319" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+Index2_Position = StrTrimLeft(Index2_Position, Translate("0"));
+// }} ""
+// {{ 71 1 0 "1ab2488c_1ebf_4a20_b488861727582473" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arr_Index2SeqPositions.AddAsLast(Index2_Position);
+// }} ""
+// {{ 72 1 0 "e8c81b28_0228_4b3d_a8dc798ece50d43e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+Trace ("Well:  ", WellID, "  Index1 Position in carrier:  ", Index1_Position, "  Index2 Position in carrier:  ", Index2_Position);
+// {{ 74 1 0 "91b2a87e_9764_4234_b4c8d973019aad3c" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 75 1 0 "368175f1_301a_424d_b6629bd3e74fcb2a" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != file2.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+file2.RemoveFields();
+// }} ""
+// {{ 76 1 0 "cd808927_cdbd_4b74_a651644b71214b07" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>>>>>>> Submethod Complete:  DATA_ReadSampleSheet <<<<<<<<<<\n<-----------------------------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"));
+// }} ""
+// {{{ 5 "DATA_ReadSampleSheet" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=ch33$$valid=0$$time=2023-11-21 15:08$$checksum=1c37b287$$length=083$$

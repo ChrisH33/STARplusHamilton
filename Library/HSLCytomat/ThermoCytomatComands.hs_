@@ -1,0 +1,1016 @@
+// ===========================================================================
+// Commands Library of the Thermo Cytomats
+//
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+// ===========================================================================
+//
+// Modification History
+//		2010-01-20, V0.0: Frank Jablonsky, created
+//    2010-10-15, V1.0: Frank Jablonsky, added Comands GetCommandShakerSetSpeed, GetCommandShakerGetSpeed, ProcessShekerSpeedResponse
+//    2010-10-28, V1.1: Frank Jablonsky, added Command GetSwapState
+//    2010-09-08, V1.2: Frank Jablonsky, added delidder states and commands
+//    2012-03-06, V1.3: Frank Jablonsky, added command to stop slow rotation of carusels
+//    2012-05-03, V1.4: Frank Jablonsky, added commands to read out the error, warning and action register
+// ===========================================================================
+
+#ifndef __HSL_THERMO_CYTOMATCOMANDS_hsl__
+#define __HSL_THERMO_CYTOMATCOMANDS_hsl__ 1
+
+#ifndef __HSLStrLib_hsl__
+#include "HSLStrLib.hsl"
+#endif
+
+
+/*********************************************************************
+*
+* Module globale constants/variables
+*
+*********************************************************************/
+namespace HSLCytomatGlobalCommands
+{
+
+   /*********************************************************************
+   *
+   * Errordefinition
+   *
+   *********************************************************************/
+
+   /* No Error -- Begin*/   
+
+   const static variable ERROR_NONE                                  (  0 );
+
+   /* No Error -- End*/
+
+
+   /* Processing Errors -- Begin*/
+
+   const static variable ERROR_GET_PLATE                             (  1 );
+   const static variable ERROR_STORE_PLATE                           (  2 );
+   const static variable ERROR_NO_BARCODE_KNOWN                      (  3 );   
+
+   /* Processing Errors -- End*/
+
+
+   /* Cytomat Errors (Depending on error codes) -- Begin*/
+
+   const static variable ERROR_DEVICE_BUSY                           ( 11 );    // Cytomat return er 01
+   const static variable ERROR_COMMAND_UNKNOWN                       ( 12 );    // Cytomat return er 02
+   const static variable ERROR_COMMAND_WRONG                         ( 13 );    // Cytomat return er 03
+   const static variable ERROR_COMMAND_WRONG_PARAMETER               ( 14 );    // Cytomat return er 04
+   const static variable ERROR_STORAGE_POSITON_UNKNOWN               ( 16 );    // Cytomat return er 05
+   const static variable ERROR_NO_SYSTEM_EXISTING                    ( 17 );    // Cytomat return er 06
+   const static variable ERROR_WRONG_START_POSITION_HANDLER          ( 18 );    // Cytomat return er 11
+   const static variable ERROR_SHUFFEL_EXTENTED                      ( 19 );    // Cytomat return er 12
+   const static variable ERROR_HANDLER_OCCUPIED                      ( 20 );    // Cytomat return er 21
+   const static variable ERROR_HANDLER_EMPTY                         ( 21 );    // Cytomat return er 22
+   const static variable ERROR_INTERNAL_TRANSFER_EMPTY               ( 22 );    // Cytomat return er 23
+   const static variable ERROR_INTERNAL_TRANSFER_OCCUPIED            ( 23 );    // Cytomat return er 24
+   const static variable ERROR_STORAGE_POSITION_EMPTY                ( 24 );    // Cytomat return er 25
+   const static variable ERROR_STORAGE_POSITION_OCCUPIED             ( 25 );    // Cytomat return er 26
+   const static variable ERROR_TRANSFER_STATION_EMPTY                ( 26 );    // Cytomat return er 31
+   const static variable ERROR_TRANSFER_STATION_OCCUPIED             ( 27 );    // Cytomat return er 32
+   const static variable ERROR_TRANSFER_STATION_NOT_IN_POSITON       ( 28 );    // Cytomat return er 33
+   const static variable ERROR_GATE_NOT_CONFIGURED                   ( 29 );    // Cytomat return er 41
+   const static variable ERROR_GATE_NOT_OPENED                       ( 30 );    // Cytomat return er 42
+   const static variable ERROR_BARCODE_NOT_CONFIGURED                ( 31 );    // Cytomat return er 43
+   const static variable ERROR_INTERNAL_MEMORY                       ( 32 );    // Cytomat return er 51
+   const static variable ERROR_WRONG_PASSWORT_OR_NOT_ALLOWED_ACCESS  ( 33 );    // Cytomat return er 52
+   const static variable ERROR_VOLTAGE_LOST                          ( 34 );    // Cytomat return er 60
+   const static variable ERROR_EXTERNAL_PLATE_SHUTTLE_NO_INITIALIZED ( 35 );    // Cytomat return er 61
+   const static variable ERROR_INTERNAL_PLATE_SHUTTLE_NO_INITIALIZED ( 36 );    // Cytomat return er 62
+   const static variable ERROR_SUBSYSTEM_ERROR_1                     ( 40 );    // Cytomat return er 66
+   const static variable ERROR_INCORRECT_STARTPOSITION_HANDLER_1     ( 41 );    // Cytomat return er 71
+   const static variable ERROR_SHUFFEL_EXTENTED_1                    ( 42 );    // Cytomat return er 72
+   const static variable ERROR_HANDLER_OCCUPIED_1                    ( 43 );    // Cytomat return er 81
+   const static variable ERROR_HANDLER_EMPTY_1                       ( 44 );    // Cytomat return er 82
+   const static variable ERROR_GATE_NOT_CONFIGURED_1                 ( 45 );    // Cytomat return er A1
+   const static variable ERROR_GATE_NOT_OPENED_1                     ( 46 );    // Cytomat return er A2
+   const static variable ERROR_SUBSYSTEM_ERROR_2                     ( 50 );    // Cytomat return er B6
+   const static variable ERROR_INCORRECT_STARTPOSITION_HANDLER_2     ( 51 );    // Cytomat return er C1
+   const static variable ERROR_SHUFFEL_EXTENTED_2                    ( 52 );    // Cytomat return er C2
+   const static variable ERROR_HANDLER_OCCUPIED_2                    ( 53 );    // Cytomat return er D1
+   const static variable ERROR_HANDLER_EMPTY_2                       ( 54 );    // Cytomat return er D2
+   const static variable ERROR_GATE_NOT_CONFIGURED_2                 ( 55 );    // Cytomat return er F1
+   const static variable ERROR_GATE_NOT_OPENED_2                     ( 56 );    // Cytomat return er F2
+
+   /* Cytomat Errors (Depending on error codes) -- End*/
+ 
+   /* Delidder Errors -- Begin*/
+
+   const static variable ERROR_DELIDDER_LIDONPAD                     (100);  //DELIDDER_LIDONPAD
+   const static variable ERROR_DELIDDER_OCCUPIED                     (101);  //DELIDDER_OCCUPIED
+   const static variable ERROR_DELIDDER_EMPTY                        (102);  //DELIDDER_EMPTY
+   const static variable ERROR_DELIDDER_TIMEOUT                      (103);  //DELIDDER_TIMEOUT
+   const static variable ERROR_DELIDDER_REINITIALIZE                 (104);  //DELIDDER_REINITIALIZE
+   const static variable ERROR_DELIDDER_PRESSURE                     (105);  //DELIDDER_PRESSURE
+   const static variable ERROR_DELIDDER_COMMUNICATION                (106);  //DELIDDER_COMMUNICATION
+   const static variable ERROR_DELIDDER_NOPLC                        (107);  //DELIDDER_NOPLC
+
+    /* Delidder Errors -- End*/  
+
+   /* Initializing Errors -- Begin*/
+
+	const static variable ERROR_PRM_OUT_OF_RANGE                      ( 700 );
+	const static variable ERROR_PRM_OF_WRONG_TYPE                     ( 701 );
+	const static variable ERROR_COMMAND_UNSUPPORTED                   ( 702 );
+
+   /* Initializing Errors -- End*/
+
+
+   /* File Errors -- Begin*/
+
+	const static variable ERROR_WRITE_RECORD_FAILED                   ( 800 );
+	const static variable ERROR_READ_RECORD_FAILED                    ( 801 );
+   const static variable ERROR_COMM_ALREADY_INIT                     ( 802 );
+	const static variable ERROR_NOT_INITIALIZED                       ( 803 );
+	const static variable ERROR_COM_FUNCTION_FAILED                   ( 804 );
+	const static variable ERROR_ALLREADY_INITIALIZED                  ( 805 );
+
+   const static variable ERROR_OPEN_ACCESS_FILE                      ( 850 );
+   const static variable ERROR_CLOSE_ACCESS_FILE                     ( 851 );
+   const static variable ERROR_WRITE_ACCESS_FILE                     ( 852 );
+   const static variable ERROR_READ_ACCESS_FILE                      ( 853 );
+   const static variable ERROR_READ_ACCESS_NO_INSERT                 ( 854 );
+
+   /* File Errors -- End*/
+
+   /* Exception during commands(critical) -- Begin*/
+
+	const static variable ERROR_UNEXPECTED_TXRX                       ( 900 );
+   const static variable ERROR_WRONG_RETURN_FROMAT                   ( 901 );
+   const static variable ERROR_UNKNOWN                               ( 999 );
+
+   /* Exception during commands(critical) -- Begin*/
+
+
+   /* Delidder States */ 
+   const static variable DELIDDER_NO_ERROR                           (0);  //initial value
+   const static variable DELIDDER_BUSY                               (1);  //0x0001
+   const static variable DELIDDER_LIDONPAD                           (2);  //0x0002
+   const static variable DELIDDER_OCCUPIED                           (3);  //0x0010
+   const static variable DELIDDER_EMPTY                              (4);  //0x0020
+   const static variable DELIDDER_TIMEOUT                            (5);  //0x0040
+   const static variable DELIDDER_REINITIALIZE                       (6);  //0x0080
+   const static variable DELIDDER_PRESSURE                           (7);  //0x1000
+   const static variable DELIDDER_COMMUNICATION                      (8);  //0x2000
+   const static variable DELIDDER_NOPLC                              (9);  //0x8000
+
+
+   const static variable LocationOccupied                            ( hslTrue );
+   const static variable LocationNotOccupied                         ( hslFalse );
+
+
+   /* ComPort ConnectionStrings -- Begin*/
+
+   const variable HSLThermoCytomatComport_Portsettings_CytomatC2               ( "9600,N,8,1,N,CR" );
+   const variable HSLThermoCytomatComport_Portsettings_CytomatC5               ( "9600,N,8,1,N,CR" );
+   const variable HSLThermoCytomatComport_Portsettings_CytomatC8_linear        ( "9600,N,8,1,N,CR" );
+   const variable HSLThermoCytomatComport_Portsettings_CytomatC24              ( "9600,N,8,1,N,CR" ); 
+   const variable HSLThermoCytomatComport_Portsettings_CytomatC48              ( "9600,N,8,1,N,CR" ); 
+   const variable HSLThermoCytomatComport_Portsettings_CytomatC6000            ( "9600,N,8,1,N,CR" ); 
+   const variable HSLThermoCytomatComport_Portsettings_CytomatC2LinearShake    ( "9600,N,8,1,N,CR" ); 
+   const variable HSLThermoCytomatComport_Portsettings_CytomatC10              ( "9600,N,8,1,N,CR" ); 
+
+   /* ComPort ConnectionStrings -- End*/
+
+
+   /*********************************************************************
+   *
+   * Declaration
+   *
+   *********************************************************************/
+   
+
+   const static variable CytomatBusy("ch:bs");
+   const static variable CytomatWarningState("ch:bw");
+   const static variable CytomatErrorState("ch:be");
+   const static variable CytomatActionState("ch:ba");
+   const static variable CytomatDeleteError("rs:be");
+   const static variable CytomatFirmware("ch:ve");
+   const static variable CytomatInitialize("ll:in"); //former sb:ns
+   const static variable CytomatGetPlate("mv:st ");
+   const static variable CytomatStorePlate("mv:ts ");
+   const static variable CytomatScanReader("mv:sc");
+   const static variable CytomatScanPartialReader("mv:sn ");
+   const static variable CytomatScanGetBarcode("ch:sc ");
+   const static variable CytomatScanGetBarcodePosition("ch:bc");
+   const static variable CytomatScanHandlerToStacker("ll:dp ");
+   const static variable CytomatScanHandlerLowerToPosition("ll:h- ");
+   const static variable CytomatScanHandlerHigherToPosition("ll:h+ ");
+   const static variable CytomatScanExtentArm("ll:sp 002");
+   const static variable CytomatScanRetractArm("ll:sp 001");
+   const static variable CytomatScanMoveToBarcodePosition("ll:hb ");
+   const static variable CytomatScanReadBarcodePosition("ll:bc ");
+   const static variable CytomatKarouselToPosition("ll:kp ");
+   const static variable CytomatKarouselStopSlowMovement("ll:ks 000");
+   const static variable CytomatMoveXAxisLinear("ll:xp ");
+   const static variable CytomatMoveHandlerWait("ll:wp");
+
+   const static variable CytomatMoveTransfer("ll:tp ");
+   const static variable CytomatQuerySwapState("ch:sw 1"); // return sw xxx
+
+   const static variable CytomatSetTemperatur("ll:it ");
+   const static variable CytomatReadTemperatur("ch:it");
+
+   const static variable CytomatSetCO2("ll:ic ");
+   const static variable CytomatReadCO2("ch:ic");
+
+   const static variable ShakerInit("ll:vi");
+   const static variable ShakerStart("ll:va");
+   const static variable ShakerGetSpeed("ch:pb");
+   const static variable ShakerSetSpeed("se:pb");
+   const static variable ShakerStop("ll:vd");
+
+   const static variable DelidderInit("ll:di");
+   const static variable DelidderRemove("ll:dl 001");
+   const static variable DelidderAdd("ll:dl 002");
+   const static variable DelidderUnlock("ll:dc 001");
+   const static variable DelidderLock("ll:dc 002");
+   const static variable DelidderState("ch:dl");
+
+   const variable CytomatTraceNone(0);
+   const variable CytomatTraceNormal(1);
+   const variable CytomatTraceDebug(2);
+
+   const variable RepeatAskForBusy(3);
+
+   function GetCommandBusy() variable;
+   function GetCommandWarningState() variable;
+   function GetCommandErrorState() variable;
+   function GetCommandActionState() variable;
+   function ResetCytomatError() variable;
+   function GetCommandFirmware() variable;
+   function GetCommandInitialize() variable;
+   function GetCommandGetPlate() variable;
+   function GetCommandStorePlate() variable;
+   function GetCommandScanReader() variable;
+   function GetCommandScanPartialReader() variable;
+   function GetCommandScanGetBarcode() variable;
+   function GetCommandScanGetBarcodePosition() variable;
+   function GetCommandScanRotateHandlerToStacker() variable;
+   function GetCommandScanHandlerLowerToPosition() variable;
+   function GetCommandScanHandlerHigherToPosition() variable;
+   function GetCommandScanExtentArm() variable;
+   function GetCommandScanRetractArm() variable;
+   function GetCommandScanMoveToBarcodePosition() variable;
+   function GetCommandScanReadBarcodePosition() variable;
+   function GetCommandKarouselToPosition() variable;
+   function GetCommandMoveAxisLinear() variable;
+   function GetCommandMoveHandlerWait() variable;
+
+   function GetCommandMoveTransfer() variable;
+   function GetSwapState() variable;
+
+   function GetCommandSetTemperatur() variable;
+   function GetCommandReadTemperatur() variable;
+
+   function GetCommandSetCO2() variable;
+   function GetCommandReadCO2() variable;
+
+   function GetCommandShakerInit() variable;
+   function GetCommandShakerStartAll() variable;
+   function GetCommandShakerStart() variable;
+   function GetCommandShakerSetSpeed() variable;
+   function GetCommandShakerGetSpeed() variable;
+   function GetCommandShakerStopAll() variable;
+   function GetCommandShakerStop() variable;
+
+   function GetCommandDelidderInit() variable;
+   function GetCommandDelidderRemove() variable;
+   function GetCommandDelidderAdd() variable;
+   function GetCommandDelidderUnlock() variable;
+   function GetCommandDelidderLock() variable;
+   function GetCommandDelidderState() variable;
+
+   /* evaluate the return of ch:bs -- Begin*/
+
+   function CheckBusyBit(variable iCytomatReturn)variable; // return is a bool value true for busy/wrong input false for not busy
+   function CheckReadyBit(variable iCytomatReturn)variable; // return is a bool value true for busy/wrong input false for not busy
+   function CheckWarningBit(variable iCytomatReturn)variable; // return is a bool value true for busy/wrong input false for not busy
+   function CheckErrorBit(variable iCytomatReturn)variable; // return is a bool value true for busy/wrong input false for not busy
+   function CheckTransferBit(variable iCytomatReturn)variable; // return is a bool value true for busy/wrong input false for not busy
+   function CheckHandlerBit(variable iCytomatReturn)variable; // return is a bool value true for busy/wrong input false for not busy
+   function CheckDoorBit(variable iCytomatReturn)variable; // return is a bool value true for busy/wrong input false for not busy
+   function CheckMainDoorBit(variable iCytomatReturn)variable; // return is a bool value true for busy/wrong input false for not busy
+
+   /* evaluate the return of ch:bs -- End*/
+
+   /* evaluate the return of ch:sw -- Begin*/
+
+   function ProcessTransferStationStateReturn(variable iCytomatReturn, variable & oTransferStationForGate, variable & oOccupancyStation2, variable & oOccupancyStation1) variable;
+
+   /* evaluate the return of ch:sw -- End*/
+
+   /* evaluate the return of the se:pb -- Begin*/
+
+   function ProcessShakerSpeedResponse(variable iCytomatReturn) variable; // return is an integer value for the shaker speed
+
+   /* evaluate the return of the se:pb -- End*/
+
+
+   function GetCytomatError(variable iErrorReturn) variable; // return Errorcode
+
+   function GetCytomatErrorDescription(variable iErrorCode , variable & oErrorDescription); // output of the error description
+
+   function FormatTraceCytomat(variable iFunctionName, variable iPhoenixState, variable iText, iTraceLevel);
+
+   /*********************************************************************
+   *
+   * Implementation
+   *
+   *********************************************************************/
+
+   function GetCommandBusy() variable
+   {
+      return(CytomatBusy);
+   }
+
+   function GetCommandWarningState() variable
+   {
+      return(CytomatWarningState);
+   }
+
+   function GetCommandErrorState() variable
+   {
+      return(CytomatErrorState);
+   }
+
+   function GetCommandActionState() variable
+   {
+      return(CytomatActionState);
+   }
+
+   function ResetCytomatError() variable
+   {
+      return(CytomatDeleteError);
+   }
+
+   function GetCommandFirmware() variable
+   {
+      return(CytomatFirmware);
+   }
+
+   function GetCommandInitialize() variable
+   {
+      return(CytomatInitialize);
+   }
+
+   function GetCommandGetPlate() variable
+   {
+      return(CytomatGetPlate);
+   }
+
+   function GetCommandStorePlate() variable
+   {
+      return(CytomatStorePlate);
+   }
+
+   function GetCommandMoveTransfer() variable
+   {
+      return(CytomatMoveTransfer);
+   }
+
+   function GetCommandSetTemperatur() variable
+   {
+      return(CytomatSetTemperatur);
+   }
+
+   function GetCommandReadTemperatur() variable
+   {
+      return(CytomatReadTemperatur);
+   }
+
+   function GetCommandSetCO2() variable
+   {
+      return(CytomatSetCO2);
+   }
+
+   function GetCommandReadCO2() variable
+   {
+      return(CytomatReadCO2);
+   }
+
+   function GetCommandShakerInit() variable
+   {
+      return(ShakerInit);
+   }
+
+   function GetCommandShakerStartAll() variable
+   {
+      return(ShakerStart);
+   }
+
+   function GetCommandShakerStart() variable
+   {
+      return(ShakerStart + " ");
+   }
+
+   function GetCommandShakerSetSpeed() variable
+   {
+      return(ShakerSetSpeed + " ");
+   }
+
+   function GetCommandShakerGetSpeed() variable
+   {
+      return(ShakerGetSpeed + " ");
+   }
+
+   function GetCommandShakerStopAll() variable
+   {
+      return(ShakerStop);
+   }
+
+   function GetCommandShakerStop() variable
+   {
+      return(ShakerStop + " ");
+   }
+
+   function GetCommandDelidderInit() variable
+   {
+      return(DelidderInit);
+   }
+
+   function GetCommandDelidderRemove() variable
+   {
+      return(DelidderRemove);
+   }
+
+   function GetCommandDelidderAdd() variable
+   {
+      return(DelidderAdd);
+   }
+
+   function GetCommandDelidderUnlock() variable
+   {
+      return(DelidderUnlock);
+   }
+
+   function GetCommandDelidderLock() variable
+   {
+      return(DelidderLock);
+   }
+
+   function GetCommandDelidderState() variable
+   {
+      return(DelidderState);
+   }
+
+   function GetCommandScanReader() variable
+   {
+      return(CytomatScanReader);
+   }
+
+   function GetCommandScanPartialReader() variable
+   {
+      return(CytomatScanPartialReader);
+   }
+
+   function GetCommandScanGetBarcode() variable
+   {
+      return(CytomatScanGetBarcode);
+   }
+
+   function GetCommandScanGetBarcodePosition() variable
+   {
+      return(CytomatScanGetBarcodePosition);
+   }
+
+   function GetCommandScanRotateHandlerToStacker() variable
+   {
+      return(CytomatScanHandlerToStacker);
+   }
+
+   function GetCommandScanHandlerLowerToPosition() variable
+   {
+      return(CytomatScanHandlerLowerToPosition);
+   }
+
+   function GetCommandScanHandlerHigherToPosition() variable
+   {
+      return(CytomatScanHandlerHigherToPosition);
+   }
+
+   function GetCommandScanExtentArm() variable
+   {
+      return(CytomatScanExtentArm);
+   }
+
+   function GetCommandScanRetractArm() variable
+   {
+      return(CytomatScanRetractArm);      
+   }
+
+   function GetCommandScanMoveToBarcodePosition() variable
+   {
+      return(CytomatScanMoveToBarcodePosition);
+   }
+
+   function GetCommandScanReadBarcodePosition() variable
+   {
+      return(CytomatScanReadBarcodePosition);
+   }
+
+   function GetCommandKarouselToPosition() variable
+   {
+      return(CytomatKarouselToPosition);
+   }
+
+   function GetCommandKarouselStopSlowMovement() variable
+   {
+      return(CytomatKarouselStopSlowMovement);
+   }
+
+   function GetCommandMoveAxisLinear() variable
+   {
+      return(CytomatMoveXAxisLinear);
+   }
+
+   function GetCommandMoveHandlerWait() variable
+   {
+      return(CytomatMoveHandlerWait);
+   }
+
+   function GetSwapState() variable
+   {
+      return(CytomatQuerySwapState);
+   }
+
+   function ProcessShakerSpeedResponse(variable iCytomatReturn)variable
+   {
+      variable returnValue(0);
+
+      // wrong return value of cytomat or wrong string
+      if(-1 >= StrFind(iCytomatReturn,"pb "))
+      {
+      }
+      else
+      {
+         StrReplace(iCytomatReturn,"pb ","");
+         returnValue = IVal(iCytomatReturn);
+      }
+
+      return(returnValue);
+   }
+
+   /* evaluate the return of ch:bs -- Begin*/
+
+   function CheckBusyBit(variable iCytomatReturn)variable
+   {
+      variable returnBusy(hslTrue);
+      variable returnValue(0);
+
+      // wrong return value of cytomat or wrong string
+      if(-1 >= StrFind(iCytomatReturn,"bs "))
+      {
+         returnBusy = hslTrue;
+      }
+      else
+      {
+         StrReplace(iCytomatReturn,"bs ","");
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,1,1);
+         if(IVal(iCytomatReturn) & 0x1)
+         {
+            returnBusy = hslTrue;
+         }
+         else
+         {
+            returnBusy = hslFalse;
+         }
+
+      }
+
+      return(returnBusy);
+   }
+
+   function CheckReadyBit(variable iCytomatReturn)variable
+   {
+      variable returnBusy(hslTrue);
+      variable returnValue(0);
+
+      // wrong return value of cytomat or wrong string
+      if(-1 >= StrFind(iCytomatReturn,"bs "))
+      {
+         returnBusy = hslTrue;
+      }
+      else
+      {
+         StrReplace(iCytomatReturn,"bs ","");
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,1,1);
+         if(IVal(iCytomatReturn) & 0x2)
+         {
+            returnBusy = hslTrue;
+         }
+         else
+         {
+            returnBusy = hslFalse;
+         }
+
+      }
+
+      return(returnBusy);
+   }
+
+   function CheckWarningBit(variable iCytomatReturn)variable
+   {
+      variable returnBusy(hslTrue);
+      variable returnValue(0);
+
+      // wrong return value of cytomat or wrong string
+      if(-1 >= StrFind(iCytomatReturn,"bs "))
+      {
+         returnBusy = hslTrue;
+      }
+      else
+      {
+         StrReplace(iCytomatReturn,"bs ","");
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,1,1);
+         if(IVal(iCytomatReturn) & 0x4)
+         {
+            returnBusy = hslTrue;
+         }
+         else
+         {
+            returnBusy = hslFalse;
+         }
+
+      }
+
+      return(returnBusy);
+   }
+
+   function CheckErrorBit(variable iCytomatReturn)variable
+   {
+      variable returnBusy(hslTrue);
+      variable returnValue(0);
+
+      // wrong return value of cytomat or wrong string
+      if(-1 >= StrFind(iCytomatReturn,"bs "))
+      {
+         returnBusy = hslTrue;
+      }
+      else
+      {
+         StrReplace(iCytomatReturn,"bs ","");
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,1,1);
+         if(IVal(iCytomatReturn) & 0x8)
+         {
+            returnBusy = hslTrue;
+         }
+         else
+         {
+            returnBusy = hslFalse;
+         }
+
+      }
+
+      return(returnBusy);
+   }
+
+   function CheckTransferBit(variable iCytomatReturn)variable
+   {
+      variable returnBusy(hslTrue);
+      variable returnValue(0);
+
+      // wrong return value of cytomat or wrong string
+      if(-1 >= StrFind(iCytomatReturn,"bs "))
+      {
+         returnBusy = hslFalse;
+      }
+      else
+      {
+         StrReplace(iCytomatReturn,"bs ","");
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,0,1);
+         if(IVal(iCytomatReturn) & 0x8)
+         {
+            returnBusy = hslTrue;
+         }
+         else
+         {
+            returnBusy = hslFalse;
+         }
+
+      }
+      return(returnBusy);
+   }
+   
+   
+   function CheckHandlerBit(variable iCytomatReturn)variable
+   {
+      variable returnBusy(hslTrue);
+      variable returnValue(0);
+
+      // wrong return value of cytomat or wrong string
+      if(-1 >= StrFind(iCytomatReturn,"bs "))
+      {
+         returnBusy = hslFalse;
+      }
+      else
+      {
+         StrReplace(iCytomatReturn,"bs ","");
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,0,1);
+         if(IVal(iCytomatReturn) & 0x1)
+         {
+            returnBusy = hslTrue;
+         }
+         else
+         {
+            returnBusy = hslFalse;
+         }
+
+      }
+
+      return(returnBusy);
+   }
+
+   function CheckDoorBit(variable iCytomatReturn)variable
+   {
+      variable returnBusy(hslTrue);
+      variable returnValue(0);
+
+      // wrong return value of cytomat or wrong string
+      if(-1 >= StrFind(iCytomatReturn,"bs "))
+      {
+         returnBusy = hslFalse;
+      }
+      else
+      {
+         StrReplace(iCytomatReturn,"bs ","");
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,0,1);
+         if(IVal(iCytomatReturn) & 0x2)
+         {
+            returnBusy = hslTrue;
+         }
+         else
+         {
+            returnBusy = hslFalse;
+         }
+
+      }
+
+      return(returnBusy);
+   }
+
+   function CheckMainDoorBit(variable iCytomatReturn)variable
+   {
+      variable returnBusy(hslTrue);
+      variable returnValue(0);
+
+      // wrong return value of cytomat or wrong string
+      if(-1 >= StrFind(iCytomatReturn,"bs "))
+      {
+         returnBusy = hslFalse;
+      }
+      else
+      {
+         StrReplace(iCytomatReturn,"bs ","");
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,0,1);
+         if(IVal(iCytomatReturn) & 0x4)
+         {
+            returnBusy = hslTrue;
+         }
+         else
+         {
+            returnBusy = hslFalse;
+         }
+
+      }
+
+      return(returnBusy);
+   }
+
+   /* evaluate the return of ch:bs -- End*/
+
+   /* evaluate the return of ch:sw -- Begin*/
+
+   function ProcessTransferStationStateReturn(variable iCytomatReturn, variable & oTransferStationForGate, variable & oOccupancyStation2, variable & oOccupancyStation1) variable
+   {
+      variable returnBool(hslTrue);
+      variable returnValue(0);
+
+      // wrong return value of cytomat or wrong string
+      if(-1 >= StrFind(iCytomatReturn,"sw "))
+      {
+         returnBool = hslFalse;
+      }
+      else
+      {
+         StrReplace(iCytomatReturn,"sw ","");
+         oTransferStationForGate = IVal(StrMid(iCytomatReturn,0,1));
+         oOccupancyStation2 = IVal(StrMid(iCytomatReturn,1,1));
+         oOccupancyStation1 = IVal(StrMid(iCytomatReturn,2,1));
+
+         returnBool = hslTrue;
+      }
+
+      return(returnBool);
+   }
+   /* evaluate the return of ch:sw -- End*/
+
+
+   /* evaluate the return of ch:dl -- Begin*/
+
+   function GetDelidderState(variable iCytomatReturn , variable & oDelidderState) variable
+   {
+      variable returnBool(hslTrue);
+ 
+      oDelidderState = DELIDDER_NO_ERROR;
+
+      // wrong return value of cytomat or wrong string
+      if(-1 >= StrFind(iCytomatReturn,"dl "))
+      {
+         returnBool = hslFalse;
+      }
+      else
+      {
+         StrReplace(iCytomatReturn,"dl ","");
+         
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,3,1);
+         if(IVal(iCytomatReturn) & 0x1)
+         {
+            oDelidderState = DELIDDER_BUSY;
+         }
+
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,2,1);
+         if(IVal(iCytomatReturn) & 0x1)
+         {
+            oDelidderState = DELIDDER_OCCUPIED;
+         }
+
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,2,1);
+         if(IVal(iCytomatReturn) & 0x2)
+         {
+            oDelidderState = DELIDDER_EMPTY;
+         }
+
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,2,1);
+         if(IVal(iCytomatReturn) & 0x4)
+         {
+            oDelidderState = DELIDDER_TIMEOUT;
+         }
+
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,2,1);
+         if(IVal(iCytomatReturn) & 0x8)
+         {
+            oDelidderState = DELIDDER_REINITIALIZE;
+         }
+
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,0,1);
+         if(IVal(iCytomatReturn) & 0x1)
+         {
+            oDelidderState = DELIDDER_PRESSURE;
+         }
+
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,0,1);
+         if(IVal(iCytomatReturn) & 0x2)
+         {
+            oDelidderState = DELIDDER_COMMUNICATION;
+         }
+
+         iCytomatReturn = "0x" + StrMid(iCytomatReturn,0,1);
+         if(IVal(iCytomatReturn) & 0x2)
+         {
+            oDelidderState = DELIDDER_NOPLC;
+         }
+
+         returnBool = hslTrue;
+      }
+
+      return(returnBool);
+   }
+   /* evaluate the return of ch:dl -- End*/
+
+   function GetCytomatError(variable iErrorReturn) variable
+   {
+
+      if(StrFind(iErrorReturn ,"01") >= 0) return(ERROR_DEVICE_BUSY);
+      if(StrFind(iErrorReturn ,"02") >= 0) return(ERROR_COMMAND_UNKNOWN);
+      if(StrFind(iErrorReturn ,"03") >= 0) return(ERROR_COMMAND_WRONG);
+      if(StrFind(iErrorReturn ,"04") >= 0) return(ERROR_COMMAND_WRONG_PARAMETER);
+      if(StrFind(iErrorReturn ,"05") >= 0) return(ERROR_STORAGE_POSITON_UNKNOWN);
+      if(StrFind(iErrorReturn ,"06") >= 0) return(ERROR_NO_SYSTEM_EXISTING);
+      if(StrFind(iErrorReturn ,"11") >= 0) return(ERROR_WRONG_START_POSITION_HANDLER);
+      if(StrFind(iErrorReturn ,"12") >= 0) return(ERROR_SHUFFEL_EXTENTED);
+      if(StrFind(iErrorReturn ,"21") >= 0) return(ERROR_HANDLER_OCCUPIED);
+      if(StrFind(iErrorReturn ,"22") >= 0) return(ERROR_HANDLER_EMPTY);
+      if(StrFind(iErrorReturn ,"23") >= 0) return(ERROR_INTERNAL_TRANSFER_EMPTY);
+      if(StrFind(iErrorReturn ,"24") >= 0) return(ERROR_INTERNAL_TRANSFER_OCCUPIED);
+      if(StrFind(iErrorReturn ,"25") >= 0) return(ERROR_STORAGE_POSITION_EMPTY);
+      if(StrFind(iErrorReturn ,"26") >= 0) return(ERROR_STORAGE_POSITION_OCCUPIED);
+      if(StrFind(iErrorReturn ,"31") >= 0) return(ERROR_TRANSFER_STATION_EMPTY);
+      if(StrFind(iErrorReturn ,"32") >= 0) return(ERROR_TRANSFER_STATION_OCCUPIED);
+      if(StrFind(iErrorReturn ,"33") >= 0) return(ERROR_TRANSFER_STATION_NOT_IN_POSITON);
+      if(StrFind(iErrorReturn ,"41") >= 0) return(ERROR_GATE_NOT_CONFIGURED);
+      if(StrFind(iErrorReturn ,"42") >= 0) return(ERROR_GATE_NOT_OPENED);
+      if(StrFind(iErrorReturn ,"43") >= 0) return(ERROR_BARCODE_NOT_CONFIGURED);
+      if(StrFind(iErrorReturn ,"51") >= 0) return(ERROR_INTERNAL_MEMORY);
+      if(StrFind(iErrorReturn ,"52") >= 0) return(ERROR_WRONG_PASSWORT_OR_NOT_ALLOWED_ACCESS);
+      if(StrFind(iErrorReturn ,"60") >= 0) return(ERROR_VOLTAGE_LOST);
+      if(StrFind(iErrorReturn ,"61") >= 0) return(ERROR_EXTERNAL_PLATE_SHUTTLE_NO_INITIALIZED);
+      if(StrFind(iErrorReturn ,"62") >= 0) return(ERROR_INTERNAL_PLATE_SHUTTLE_NO_INITIALIZED);
+      if(StrFind(iErrorReturn ,"66") >= 0) return(ERROR_SUBSYSTEM_ERROR_1);
+      if(StrFind(iErrorReturn ,"71") >= 0) return(ERROR_INCORRECT_STARTPOSITION_HANDLER_1);
+      if(StrFind(iErrorReturn ,"72") >= 0) return(ERROR_SHUFFEL_EXTENTED_1);
+      if(StrFind(iErrorReturn ,"81") >= 0) return(ERROR_HANDLER_OCCUPIED_1);
+      if(StrFind(iErrorReturn ,"82") >= 0) return(ERROR_HANDLER_EMPTY_1);
+      if(StrFind(iErrorReturn ,"A1") >= 0) return(ERROR_GATE_NOT_CONFIGURED_1);
+      if(StrFind(iErrorReturn ,"A2") >= 0) return(ERROR_GATE_NOT_OPENED_1);
+      if(StrFind(iErrorReturn ,"B6") >= 0) return(ERROR_SUBSYSTEM_ERROR_2);
+      if(StrFind(iErrorReturn ,"C1") >= 0) return(ERROR_INCORRECT_STARTPOSITION_HANDLER_2);
+      if(StrFind(iErrorReturn ,"C2") >= 0) return(ERROR_SHUFFEL_EXTENTED_2);
+      if(StrFind(iErrorReturn ,"D1") >= 0) return(ERROR_HANDLER_OCCUPIED_2);
+      if(StrFind(iErrorReturn ,"D2") >= 0) return(ERROR_HANDLER_EMPTY_2);
+      if(StrFind(iErrorReturn ,"F1") >= 0) return(ERROR_GATE_NOT_CONFIGURED_2);
+      if(StrFind(iErrorReturn ,"F2") >= 0) return(ERROR_GATE_NOT_OPENED_2);   
+
+      return(ERROR_UNKNOWN);
+
+   }
+
+   function GetCytomatErrorDescription(variable iErrorCode , variable & oErrorDescription)
+   {
+         oErrorDescription = "A unknown error code was inserted.";
+
+         if(ERROR_NONE == iErrorCode)                             oErrorDescription = "Command or function was executed with no error.";
+         if(ERROR_GET_PLATE == iErrorCode)                        oErrorDescription = "No plate was assigned to the position in the access database.";
+         if(ERROR_STORE_PLATE == iErrorCode)                      oErrorDescription = "No plate could be assigned to the position in the access database.";
+         if(ERROR_NO_BARCODE_KNOWN == iErrorCode)                 oErrorDescription = "The insert barcode is unknown in the cytomat database.";
+         if(ERROR_DEVICE_BUSY == iErrorCode)                      oErrorDescription = "The cytomat is still busy. The command was not accepted.";
+         if(ERROR_COMMAND_UNKNOWN == iErrorCode)                  oErrorDescription = "The cytomat do not know the command.";
+         if(ERROR_COMMAND_WRONG == iErrorCode)                    oErrorDescription = "The syntax of the command send to the cytomat was wrong.";
+         if(ERROR_COMMAND_WRONG_PARAMETER == iErrorCode)          oErrorDescription = "The parameter send in the command was wrong.";
+         if(ERROR_STORAGE_POSITON_UNKNOWN == iErrorCode)          oErrorDescription = "The storage position is unknown by the cytomat.";
+         if(ERROR_NO_SYSTEM_EXISTING == iErrorCode)               oErrorDescription = "The target system of the command is unknown.";
+         if(ERROR_WRONG_START_POSITION_HANDLER == iErrorCode)     oErrorDescription = "The handler is in a wrong start position for the operation.";
+         if(ERROR_SHUFFEL_EXTENTED == iErrorCode)                 oErrorDescription = "The shovel is extended the the. Command can not be executed.";
+         if(ERROR_HANDLER_OCCUPIED == iErrorCode)                 oErrorDescription = "The handler is already occupied. Command can not be executed.";
+         if(ERROR_HANDLER_EMPTY == iErrorCode)                    oErrorDescription = "The handler is empty. Command can not be executed.";
+         if(ERROR_INTERNAL_TRANSFER_EMPTY == iErrorCode)          oErrorDescription = "The internal transfer station is empty. Command can not be executed.";
+         if(ERROR_INTERNAL_TRANSFER_OCCUPIED == iErrorCode)       oErrorDescription = "The internal transfer station is already occupied. Command can not be executed.";
+         if(ERROR_STORAGE_POSITION_EMPTY == iErrorCode)           oErrorDescription = "The storage position is empty. Command will not be executed.";
+         if(ERROR_STORAGE_POSITION_OCCUPIED == iErrorCode)        oErrorDescription = "The storage position is occupied. Command will not be executed.";
+         if(ERROR_TRANSFER_STATION_EMPTY == iErrorCode)           oErrorDescription = "The transfer station is empty. Command will not be executed.";
+         if(ERROR_TRANSFER_STATION_OCCUPIED == iErrorCode)        oErrorDescription = "The transfer station is already occupied. Command will not be executed.";
+         if(ERROR_TRANSFER_STATION_NOT_IN_POSITON == iErrorCode)  oErrorDescription = "The transfer station is not in the correct position. Command will not be executed.";
+         if(ERROR_GATE_NOT_CONFIGURED == iErrorCode)              oErrorDescription = "The external gate is not configured command will not be executed.";
+         if(ERROR_GATE_NOT_OPENED == iErrorCode)                  oErrorDescription = "The gate was not opened. Command will not be executed.";
+         if(ERROR_BARCODE_NOT_CONFIGURED == iErrorCode)           oErrorDescription = "The barcode reader is not configured.";
+         if(ERROR_INTERNAL_MEMORY == iErrorCode)                  oErrorDescription = "An error on the internal cytomat memory occurred.";
+         if(ERROR_WRONG_PASSWORT_OR_NOT_ALLOWED_ACCESS == iErrorCode)         oErrorDescription = "Wrong passwort for the cytomat. This error will only occur if the parameters of the cytomat shall be changed.";
+         if(ERROR_VOLTAGE_LOST == iErrorCode)                     oErrorDescription = "A voltage error on the cytomat occur.";
+         if(ERROR_EXTERNAL_PLATE_SHUTTLE_NO_INITIALIZED == iErrorCode)        oErrorDescription = "The external plate shuttle system of the cytomat was not initializied.";
+         if(ERROR_INTERNAL_PLATE_SHUTTLE_NO_INITIALIZED == iErrorCode)        oErrorDescription = "The internal plate shuttle system of the cytomat was not initializied.";
+         if(ERROR_SUBSYSTEM_ERROR_1 == iErrorCode)                oErrorDescription = "An error occurred on subsystem 1.";
+         if(ERROR_INCORRECT_STARTPOSITION_HANDLER_1 == iErrorCode)            oErrorDescription = "Incorrect start position of the handler from subsystem 1.";
+         if(ERROR_SHUFFEL_EXTENTED_1 == iErrorCode)               oErrorDescription = "The shuffle of subsystem 1 is extended. Command can not be executed.";
+         if(ERROR_HANDLER_OCCUPIED_1 == iErrorCode)               oErrorDescription = "The handler of subsystem 1 is occupied. Command can not be executed.";
+         if(ERROR_HANDLER_EMPTY_1 == iErrorCode)                  oErrorDescription = "The handler of subsystem 1 is empty. Command can not be executed.";
+         if(ERROR_GATE_NOT_CONFIGURED_1 == iErrorCode)            oErrorDescription = "Gate of cytomat subsystem 1 is not configured.";
+         if(ERROR_GATE_NOT_OPENED_1 == iErrorCode)                oErrorDescription = "Gate of subsystem 1 is not opend. Command is not executed.";
+         if(ERROR_SUBSYSTEM_ERROR_2 == iErrorCode)                oErrorDescription = "An error occurred on subsystem 2.";
+         if(ERROR_INCORRECT_STARTPOSITION_HANDLER_2 == iErrorCode)            oErrorDescription = "Incorrect start position of the handler from subsystem 2.";
+         if(ERROR_SHUFFEL_EXTENTED_2 == iErrorCode)               oErrorDescription = "The shuffle of subsystem 2 is extended. Command can not be executed.";
+         if(ERROR_HANDLER_OCCUPIED_2 == iErrorCode)               oErrorDescription = "The handler of subsystem 2 is occupied. Command can not be executed.";
+         if(ERROR_HANDLER_EMPTY_2 == iErrorCode)                  oErrorDescription = "The handler of subsystem 2 is empty. Command can not be executed.";
+         if(ERROR_GATE_NOT_CONFIGURED_2 == iErrorCode)            oErrorDescription = "Gate of cytomat subsystem 2 is not configured.";
+         if(ERROR_GATE_NOT_OPENED_2 == iErrorCode)                oErrorDescription = "Gate of subsystem 1 is not opend. Command is not executed.";
+         if(ERROR_PRM_OUT_OF_RANGE == iErrorCode)                 oErrorDescription = "An insert parameter was out of range.";
+         if(ERROR_PRM_OF_WRONG_TYPE == iErrorCode)                oErrorDescription = "An insert parameter was from a wrong type.";
+         if(ERROR_WRITE_RECORD_FAILED == iErrorCode)              oErrorDescription = "An error occurred during writing to comport.";
+         if(ERROR_READ_RECORD_FAILED == iErrorCode)               oErrorDescription = "An error occurred during reading from comport.";
+         if(ERROR_COMM_ALREADY_INIT == iErrorCode)                oErrorDescription = "The specified comport is already be initialized.";
+         if(ERROR_NOT_INITIALIZED == iErrorCode)                  oErrorDescription = "The specified comport was not initialized.";
+         if(ERROR_COM_FUNCTION_FAILED == iErrorCode)              oErrorDescription = "The communictation with the cytomat failed.";
+         if(ERROR_ALLREADY_INITIALIZED == iErrorCode)             oErrorDescription = "The specified comport is already be initialized.";
+         if(ERROR_OPEN_ACCESS_FILE == iErrorCode)                 oErrorDescription = "An error occurred when the access storage file was opened.";
+         if(ERROR_CLOSE_ACCESS_FILE == iErrorCode)                oErrorDescription = "An error occurred when the access file was closed.";
+         if(ERROR_WRITE_ACCESS_FILE == iErrorCode)                oErrorDescription = "An error occurred during writing to the access file.";
+         if(ERROR_READ_ACCESS_FILE == iErrorCode)                 oErrorDescription = "An error occurred during reading from the access file.";
+         if(ERROR_READ_ACCESS_NO_INSERT == iErrorCode)            oErrorDescription = "No insert was found for specified parameter.";
+         if(ERROR_WRONG_RETURN_FROMAT == iErrorCode)              oErrorDescription = "The answer of a command is not in right format.";
+         if(ERROR_UNEXPECTED_TXRX == iErrorCode)                  oErrorDescription = "Unexpected error during communication.";
+         if(ERROR_UNKNOWN == iErrorCode)                          oErrorDescription = "An unknown error occurred.";
+         if(ERROR_DELIDDER_OCCUPIED == iErrorCode)                oErrorDescription = "There is allready a lid on pad.";
+         if(ERROR_DELIDDER_EMPTY == iErrorCode)                   oErrorDescription = "There is no lid on pad.";
+         if(ERROR_DELIDDER_TIMEOUT == iErrorCode)                 oErrorDescription = "The delidder timed out.";
+         if(ERROR_DELIDDER_REINITIALIZE == iErrorCode)            oErrorDescription = "The delidder has to be reinitialized.";
+         if(ERROR_DELIDDER_PRESSURE == iErrorCode)                oErrorDescription = "There is no air preasure for the delidder.";
+         if(ERROR_DELIDDER_COMMUNICATION == iErrorCode)           oErrorDescription = "There is no communication for the delidder.";
+         if(ERROR_DELIDDER_NOPLC == iErrorCode)                   oErrorDescription = "The PLC for the delidder failed.";
+   }
+
+   function FormatTraceCytomat(variable iFunctionName, variable iPhoenixState, variable iText, iTraceLevel)
+   {
+      if(iText != "")
+      {
+         if(iTraceLevel >= CytomatTraceNormal)
+            FormatTrace( iFunctionName, "()", iPhoenixState, iText );
+         else
+            if(iTraceLevel == CytomatTraceDebug)
+               FormatTrace( iFunctionName, "()", iPhoenixState, iText );
+      }
+   }
+
+}	//end namespace 
+#endif
+// $$author=Hamilton Admin$$valid=0$$time=2016-01-20 14:13$$checksum=f8efa8b7$$length=093$$

@@ -1,0 +1,142 @@
+ namespace _Method { #include "Hamilton MultiDaisyChainedTiltModuleAmbient\\HSLMultiDaisyChainedTiltModuleAmbient.hsl" } 
+#include "Engineer\\AT_TestLayout.res"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable myModule;
+variable myAngle;
+variable myComPort;
+timer timer1;
+variable loopCounter1;
+variable mySystemID;
+variable errCode;
+global device ML_STAR ("Engineer\\AT_TestLayout.lay", "ML_STAR", hslTrue);
+variable TM;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+ namespace _Method { #include "HSLPTLLib.hsl" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{ 1 1 0 "9467833e_3ae0_49c5_ae14985778cc933b" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+mySystemID = 1;
+// }} ""
+// {{ 2 1 0 "51aff217_4d76_42c2_b9436cd0eadf20c0" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+myModule = Translate("T1");
+// }} ""
+// {{ 3 1 0 "bdf1193c_d288_4add_989cafee315d2fc7" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+myComPort = 4;
+// }} ""
+// {{ 4 1 0 "d5d9813d_20b7_4235_8571254c72fea522" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+myAngle = 10;
+// }} ""
+// {{ 5 1 0 "55924c44_aa6a_4c20_9e8cd83096b78c9d" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 6 1 0 "af4787e8_5137_4a03_a30b2d168a7ffb03" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+errCode = HSLMultiDaisyChainedTiltModuleAmbient::InitializeCommunication(mySystemID, myComPort, HSLMultiDaisyChainedTiltModuleAmbient::TRACE_LEVEL_FULL, HSLMultiDaisyChainedTiltModuleAmbient::HSL_FALSE);
+// }} ""
+// {{{ 7 1 0 "0c76ee5b_0de5_4560_8073800620434396" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+DisplayErrorAndTerminate(mySystemID, myModule, errCode);
+// }} ""
+// {{{ 8 1 0 "9c57c198_0c4a_4c94_93767c1a6cc203bd" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+errCode = HSLMultiDaisyChainedTiltModuleAmbient::InitializeTiltModuleAmbient(mySystemID, myModule);
+// }} ""
+// {{{ 9 1 0 "9022696a_d5ee_4a81_ad8dc93f1210c8d8" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+DisplayErrorAndTerminate(mySystemID, myModule, errCode);
+// }} ""
+// {{ 10 1 0 "1c5dba2b_7c7f_49fe_b40136572ce2cb4d" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 11 1 0 "62e3c691_706e_4507_a480fad98d73bb84" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+errCode = HSLMultiDaisyChainedTiltModuleAmbient::MoveToPosition(mySystemID, myModule, myAngle);
+// }} ""
+// {{{ 12 1 0 "b736d3e8_c0ab_40c9_bd39035c01ebbbfa" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+DisplayErrorAndTerminate(mySystemID, myModule, errCode);
+// }} ""
+// {{ 13 1 0 "6f60bc5c_0b47_4eae_b3eb5ab03170cb93" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.SetTimer(10) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 14 1 0 "d44d3fc4_2af3_4de2_84e971c88b296078" "{B31F353F-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.WaitTimer(hslTrue, hslFalse) )
+{
+    MECC::RaiseRuntimeErrorEx(-1339162368, MECC::IDS::stepNameTimerWait, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 15 1 0 "edfcf27f_795d_40d0_95cc23cdd834df4e" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < 5;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{ 16 1 0 "c4608946_2e78_41b9_ad8e483b3aac86a0" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 17 1 0 "2d99f6bb_fea1_46e1_8dd417f474f5a93f" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+myAngle = myAngle - 1;
+// }} ""
+// {{{ 18 1 0 "5b2c558a_24df_4edd_9101f7145a609fd5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+errCode = HSLMultiDaisyChainedTiltModuleAmbient::MoveToPosition(mySystemID, myModule, myAngle);
+// }} ""
+// {{{ 19 1 0 "9d2f0546_4be2_465c_ad21cf7365c6adff" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+DisplayErrorAndTerminate(mySystemID, myModule, errCode);
+// }} ""
+// {{ 20 1 0 "ec8ec450_5449_4d45_b345a76961930cd0" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 21 1 0 "3965d12e_ff5d_41ef_89bb4a6e229a695d" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.SetTimer(10) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 22 1 0 "85f8dae3_e998_406b_9cb08f1c404ae2f4" "{B31F353F-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.WaitTimer(hslTrue, hslFalse) )
+{
+    MECC::RaiseRuntimeErrorEx(-1339162368, MECC::IDS::stepNameTimerWait, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 23 1 0 "edfcf27f_795d_40d0_95cc23cdd834df4e" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 24 1 0 "f0de886b_0402_46d7_81c7176a09cd3ac2" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 25 1 0 "2e3013a7_a8c7_4f51_ab1ba979d6455a7e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLMultiDaisyChainedTiltModuleAmbient::TerminateTiltModuleAmbient(mySystemID, myModule);
+// }} ""
+// {{{ 26 1 0 "9e586154_9c88_4ff2_b95a68763ace6020" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLMultiDaisyChainedTiltModuleAmbient::TerminateCommunication(mySystemID);
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=Hamilton$$valid=0$$time=2023-08-09 15:33$$checksum=bea63d42$$length=087$$

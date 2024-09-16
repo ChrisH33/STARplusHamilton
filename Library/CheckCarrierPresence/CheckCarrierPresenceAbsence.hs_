@@ -1,0 +1,18 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 08/06/2023 14:29:00
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace CHECKCARRIERPRESENCEABSENCE {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function CheckCarriers( device & ML_STAR, variable & arrayCarriersExpected[] ) void { }
+function CheckCarriersSTARPlus( device & ML_STAR, variable & arrayCarriersExpected[] ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2023-06-08 14:29$$checksum=5140edcc$$length=081$$

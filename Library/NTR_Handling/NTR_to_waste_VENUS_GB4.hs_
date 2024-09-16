@@ -1,0 +1,17 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 29/06/2023 15:52:56
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace NTR_TO_WASTE_VENUS_GB4 {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function NTR_to_waste_core_VENUS( device & ML_STAR, sequence & RackSequenceToThrowInWaste, sequence & RackPositionOnWasteBlock, variable Eject_CORE_Tool_After_Step, variable ParkISwapOnRight, variable tip_volume ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2023-06-29 15:52$$checksum=f0adaf51$$length=081$$

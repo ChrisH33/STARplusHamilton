@@ -1,0 +1,80 @@
+ namespace _Method { #include "VectorCustomDialogs\\VectorCustomDialogs.hsl" } 
+ namespace _Method { #include "ASWStandard\\TraceLevel\\TraceLevel.hsl" } 
+ namespace _Method { #include "HSLStrLib.hsl" } 
+ namespace _Method { #include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl" } 
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable blnSuccessfulExecuted;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{{ 1 1 0 "473be5fc_b616_4016_9777a4fd818d96c2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::SetTraceLevel(TRACE_LEVEL_DEBUG);
+// }} ""
+// {{{ 2 1 0 "4b040036_ff45_4646_822d381a38a4df8f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::InitializeWithIconSetDirectory(Translate("C:\Program Files (x86)\Hamilton\Library\VectorCustomDialogs\ASWIconSet"));
+// }} ""
+// {{ 3 1 0 "5f60178b_1990_4f1d_89d7d140d5c71c5c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 4 1 0 "772ef89c_6cf3_4475_83f74e7e45475469" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'Initialize' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 5 1 0 "274f82b9_4def_4eca_a7de3e420f344c54" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 6 1 0 "5f60178b_1990_4f1d_89d7d140d5c71c5c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 7 1 0 "a72fc14c_b0d1_49ef_8ea302e4b08696bd" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::MessageDialog(Translate("Error"), VectorCustomDialogs::IconType::Error, VectorCustomDialogs::ButtonType::Ok, 0, 0, 5, Translate("Please remove all the labware and try again."));
+// }} ""
+// {{ 8 1 0 "649e807f_b2d7_4518_903f24d0a37a58f3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 9 1 0 "b1610477_c2ca_4102_adeeafc3a459d9cc" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'MessageDialog' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 10 1 0 "8a884591_8183_4897_a5d1aebf9ee3f1b6" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 11 1 0 "649e807f_b2d7_4518_903f24d0a37a58f3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 12 1 0 "aaf32fbb_ebd3_4ffe_86e7b23154b5ef87" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::Terminate();
+// }} ""
+// {{ 13 1 0 "eb0b8480_486c_4ddb_802ae7b15c2fb633" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 14 1 0 "98335585_18f6_438a_8ef79ec474b54cd6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'Terminate' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 15 1 0 "e8ac0edf_e74c_4a4f_b332664381858e66" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 16 1 0 "eb0b8480_486c_4ddb_802ae7b15c2fb633" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=MKnappe$$valid=0$$time=2020-05-29 11:07$$checksum=3a240206$$length=086$$

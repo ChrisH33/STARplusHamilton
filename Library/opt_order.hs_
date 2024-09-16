@@ -1,0 +1,20 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 08/03/2024 16:41:52
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace OPT_ORDER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function OptChannels_AspDisp2Vol( sequence & sequence_for_sorting, sequence & secondary_seq, variable & array_volume[], variable & array_volume2[], device & ML_STAR ) void { }
+function OptChannels_AspDispVol( sequence & sequence_for_sorting, sequence & secondary_seq, variable & array_volume[], device & ML_STAR ) void { }
+function OptChannels_Pos( sequence & sequence_for_sorting, device & ML_STAR ) void { }
+function OptChannels_PosVol( sequence & sequence_for_sorting, variable & array_volume[], device & ML_STAR ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2024-03-08 16:41$$checksum=4e27d410$$length=081$$

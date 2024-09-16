@@ -1,0 +1,57 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 05/06/2024 13:23:35
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace MEDIMMUNE_SAMPLETRACKINGDBHELPER_SQLDB_2014 {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Add24WellPlatePipettingDataToDB( variable & iArrSampleTrackingFiles[], variable iCultureVolume, variable iMediaVolume, variable imediatype, variable imedialot ) void { }
+function Add384wHitpickPipettingDataToDB( variable & iArrSampleTrackingFiles[], variable icultureVolume, variable imediaVolume, variable imediatype, variable imedialot ) void { }
+function Add96wHitpickPipettingDataToDB( variable & iArrSampleTrackingFiles[], variable icultureVolume, variable imediaVolume, variable imediatype, variable imedialot, variable ProcessStep ) void { }
+function AddCellDensityDataToDB( variable iTestPlateBarcode, variable iTestPlateWellID, variable iTotalCellDensity, variable iViableCellDensity, variable iViability ) void { }
+function AddCellDensityMethodToDB( variable iTestPlateBarcode, variable iAssayDay, variable iDilution, variable iDeviceSerialNumber, variable iResultLocation1, variable iAssaySpecificLot1, variable iAssaySpecificLot1Type, variable iAssaySpecificLot2, variable iAssaySpecificLot2Type ) void { }
+function AddCellDensityPipettingDataToDB( variable & iArrSampleTrackingFileNames[], variable & iArrCellCulturePlateBarcodes[], variable iSampleVol ) void { }
+function AddConfluenceDataToDB( variable iPlateBarcode, variable iWellID, variable iSampleVesselType, variable iConfluenceReading, variable iRandomNum ) void { }
+function AddConfluenceMethodToDB( variable iTestPlateBarcode, variable iTestPlateType, variable iAssayDay, variable iDeviceSerialNumber, variable iResultLocation1 ) void { }
+function AddFeedPipettingDataToDB( variable & iArrSampleTrackingFiles[], variable ipartAvol, variable ipartBvol, variable ipartAfeedtype, variable ipartAfeedlot, variable ipartBfeedtype, variable ipartBfeedlot ) void { }
+function AddFilterPlatePipettingDataToDB( variable & iArrSampleTrackingFiles[], variable iCultureVolume, variable iSourceFile ) void { }
+function AddOctetProAMethodToDB( variable iOctetPlateBarcode, variable iReadType, variable iAssayDay, variable iDilution, variable iBiosensorLot, variable iBiosensorType, variable iOctetMethodFile, variable iOctetDataDir, variable iOctetiniFile, variable iOctetSN ) void { }
+function AddOctetProAResultDataToDB_Manual( variable octetPlateBarcode, variable iOctetInputFile, variable NumSamplePlates, variable SampleVesselType ) void { }
+function AddOctetTestPlatePipettingDatatoDB( variable & iArrSampleTrackingFileNames[], variable & iArrCellCulturePlateBarcodes[], variable iDiluentName, variable iDiluentLot, variable iSampleVol, variable TotalVol ) void { }
+function AddParentalLocationDataToDB( variable iParentalID, variable iCulturePlateBarcode, variable iCulturePlateWellID, variable iPlateType ) void { }
+function AddParentalSummaryDataToDB( variable iParentalID, variable iConfluenceLimit, variable iNumWellsAbove, variable iNumWellsPicked ) void { }
+function AddPassagePlatePipettingDataToDB( variable & iArrSampleTrackingFiles[], variable & iCultureVolume[], variable & iMediaVolume[], variable & iTargetCellDensity[], variable & iTargetViaCellDensity[], variable & iTargetViability[], variable iDWPsThisTime, variable & iArrBarcodesPassagePlates[], variable iMediaType, variable iMediaLot ) void { }
+function AddTerminalPlatePipettingDataToDB( variable & iArrSampleTrackingFiles[], variable & iCultureVolume[], variable & iMediaVolume[], variable & iTargetCellDensity[], variable & iTargetViaCellDensity[], variable & iTargetViability[], variable iDWPsThisTime, variable & iArrBarcodesTerminalPlates[], variable iMediaType, variable iMediaLot ) void { }
+function BarcodedPlateListLiconic( variable PlateType, variable & BCPlateList, variable & ArrBCPlate[] ) void { }
+function CompareBarcodes( variable NumPlates, variable & LiconicBarcodes[], variable & SQLBarcodes[], variable & Match ) void { }
+function ConfluencePlateLookup( variable i_int_QueryType, variable i_int_numConfPlates, variable i_str_platetype, variable & i_arr_LiconicBCList[], variable & o_arr_confluencebarcodes[], variable & str_BarcodeList, variable & o_int_ConfluencePlatesInDB, variable & o_int_GoodFlag ) void { }
+function DDI_Confluence( variable & i_arr_Barcodes[], variable i_str_ExperimentID, variable i_int_WellNum ) void { }
+function DDI_CriticalReagents( variable & i_arr_Barcodes[], variable i_str_ExperimentID, variable i_str_ReagentName, variable i_str_ReagentLot, variable i_int_WellNum, variable i_str_ProcessStep ) void { }
+function DDI_CriticalReagents_Method4( variable & i_arr_Barcodes[], variable i_str_ExperimentID, variable i_str_ReagentName, variable i_str_ReagentLot, variable i_int_WellNum, variable i_str_ProcessStep ) void { }
+function DDI_Octet( variable & i_arr_Barcodes[], variable i_str_ExperimentID, variable i_int_WellNum ) void { }
+function DDI_SampleTransfer( variable & i_arr_Barcodes[], variable i_str_ExperimentID, variable i_int_DestWellNum, variable i_int_SourcetWellNum, variable i_str_ProcessStep ) void { }
+function DDI_ViableCellCount( variable & i_arr_Barcodes[], variable i_str_ExperimentID, variable i_int_WellNum ) void { }
+function DualMediaSetupPlateLookup( variable NumPlates, variable & barcodes, variable & Arrbarcodes[], variable & GoodFlag ) void { }
+function InitializeDBHelperLibrary( variable iExperimentID ) void { }
+function Liconic384PlateBarcode( variable & barcode384 ) void { }
+function PassagePlateLookup( variable NumPlates, variable & barcodes, variable & Arrbarcodes[] ) void { }
+function PlatesInLiconic( variable PlateType, variable InventoryType, variable & NumOfPlates ) void { }
+function RandomNumberInitialize(  ) void { }
+function SendCentrifugationEmail( variable username, variable subject, variable message, variable userdomain ) void { }
+function SetErrorEmailSettings( variable username, variable userdomain ) void { }
+function SetupPlateLookup( variable NumPlates, variable & barcodes, variable & Arrbarcodes[], variable & GoodFlag ) void { }
+function TerminalPlateLookup( variable NumPlates, variable & barcodes, variable & Arrbarcodes[], variable & GoodFlag ) void { }
+function TerminalSetupPlateLookup( variable NumPlates, variable & barcodes, variable & Arrbarcodes[], variable & GoodFlag ) void { }
+global variable SampleTrackingDB_glDBName;
+global variable SampleTrackingDB_glConnectionString;
+global variable SampleTrackingDB_glExperimentID;
+global variable SampleTrackingDB_glRunID;
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2024-06-05 13:23$$checksum=cea3286a$$length=081$$

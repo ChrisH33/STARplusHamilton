@@ -1,0 +1,148 @@
+#pragma global
+
+#ifndef __Data_Controller_GlobalVariables_hsl__
+#define __Data_Controller_GlobalVariables_hsl__ 1
+
+#include "HSLStrLib.hsl"
+#include "GetSerialNumber\\HSLGetSerialNumber.hsl"
+
+namespace DATA_CONTROLLER
+{
+   namespace BLN
+   {
+      variable SIMULATION_MODE;
+      variable DATA_CONTROLLER_INIT(hslFalse);
+      variable SYSTEM_CONTROLLER_INIT(hslFalse);
+      variable TIPS_NONFILTER(hslFalse);
+      variable TIPS_FILTER(hslFalse);
+      variable TIPS_STERILE(hslFalse);
+      variable WRITE_OUTPUT_FILE(hslFalse);
+      variable OVERIDE_REPLICATES(hslFalse);
+   }
+
+   namespace SYSTEM
+   {
+      variable AUTOLOAD(hslFalse);
+      variable AUTOLOAD_PARK(54);
+      variable IS_STAR(hslFalse);
+      variable IS_STARPLUS(hslFalse);
+      variable IS_STARLET(hslFalse);
+      variable IS_VANTAGE_20(hslFalse);
+      variable IS_VANTAGE_13(hslFalse);
+      variable MPH96(hslFalse);
+      variable CHANNEL(hslFalse);
+      variable CHANNEL_NUMBER(8);
+      variable CHANNEL_XL(hslFalse);
+      variable CHANNEL_XL_NUMBER(0);
+   }
+
+   namespace VOLUME
+   {
+      variable DILUENT(0.0);
+      variable BASE(0.0);
+   }
+
+   namespace TIMER
+   {
+      timer RUN_TIME;
+   }
+
+   namespace SEQ
+   {
+      sequence TIPS_RANGE_ADDITION;
+      sequence TIPS_300BASE;
+      sequence WASTE_TIP_EJECT;
+      sequence REAGENT_DILUENT;
+      sequence REAGENT_BASELINE;
+      sequence REAGENT_RANGE_SOLUTION1;
+      sequence REAGENT_RANGE_SOLUTION2;
+      sequence REAGENT_RANGE_SOLUTION3;
+      sequence PLATES;
+   }
+
+   namespace INT
+   {
+      variable TIPS_NEEDED_REAGENT(0);
+      variable TIPS_NEEDED_RANGE(0);
+      variable TIPS_NEEDED_RANGE_RELOAD(0);
+      variable TIP_FILE_LINE(0);
+      variable REPLICATE_NUMBER(0);
+   }
+
+   namespace FLT
+   {
+      variable SELECTED_RANGE_VOLUME(0.0);
+   }
+
+   namespace STR
+   {
+      variable METHOD_NAME("");
+      variable SERIAL_NUMBER("");
+      variable USER_ID("");
+      variable PROCESS_CHANNEL_PATTERN("");
+      variable SELECTED_RANGE_SOLUTION("");
+      variable SELECTED_RANGE_LIQUIDCLASS("");
+
+      namespace FILE
+      {
+         variable LOCAL_REPORT_FILE("");
+         variable REPORT_FILE_TEMPLATE("");
+         variable LOCAL_OUTPUT_LOCATION("");
+         variable NETWORK_OUTPUT_LOCATION("");
+         variable CONFIGURATION_LOCATION("");
+      }
+
+      namespace TIP_COUNTER
+      {
+         variable TIPS_SAMPLES("");
+         variable TIPS_300BASE("TipCounter_300uLBase");
+      }
+   }
+
+   namespace PROCESS
+   {
+      variable PREPARE_VERIFICATION_PLATE(hslFalse);
+      variable SETUP_CHANNELS(hslFalse);
+      variable SETUP_MPH(hslFalse);
+      variable SETUP_CHANNELS_XL(hslFalse);
+      variable TIP_CONFIG_NAME("");
+      variable SETUP_RANGE(hslFalse);
+      variable SETUP_DILUENT(hslFalse);
+   }
+
+   namespace INIT
+   {
+      variable LIBRARY_INIT(hslFalse);
+
+      function InitializeVariables(device& ML_STAR);
+      function LockLibrary();
+
+      function InitializeVariables(device& ML_STAR)
+      {
+         if(DATA_CONTROLLER::INIT::LIBRARY_INIT == hslFalse)
+         {
+            DATA_CONTROLLER::INIT::LIBRARY_INIT = hslTrue;
+            DATA_CONTROLLER::BLN::SIMULATION_MODE = GetSimulationMode( );
+
+            if(DATA_CONTROLLER::BLN::SIMULATION_MODE)
+            {
+               DATA_CONTROLLER::STR::SERIAL_NUMBER = "SIMULATED";
+            }
+            else
+            {
+               DATA_CONTROLLER::STR::SERIAL_NUMBER = GetSerialNumber(ML_STAR);
+               StrReplace(DATA_CONTROLLER::STR::SERIAL_NUMBER,"SN","");
+            }
+            Trace("     System Serial Number:  ",DATA_CONTROLLER::STR::SERIAL_NUMBER);
+         }
+      }
+
+      function LockLibrary()
+      {
+      }
+
+   }
+}
+
+#endif
+// $$author=Bare_B$$valid=0$$time=2021-12-01 17:15$$checksum=bdbbf64e$$length=085$$

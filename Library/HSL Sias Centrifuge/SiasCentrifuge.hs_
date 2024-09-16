@@ -1,0 +1,23 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 21/08/2023 10:28:45
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace SIASCENTRIFUGE {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function CloseDoor( variable i_intModuleID, variable i_intErrorRecovery ) variable {  return (0); }
+function Initialize( variable i_intModuleID, variable i_strModuleName, variable i_intErrorRecovery ) variable {  return (0); }
+function MoveToPosition( variable i_intModuleID, variable i_intPositionNumber, variable i_intErrorRecovery ) variable {  return (0); }
+function SetSimulationMode( variable blnSimulate ) variable {  return (0); }
+function Spin( variable i_intModuleID, variable i_intDuration, variable i_intSpeed, variable i_intAcceleration, variable i_intErrorRecovery ) variable {  return (0); }
+function SpinDifferentSpeeds( variable i_intModuleID, variable & i_arrDurations[], variable & i_arrSpeeds[], variable & i_arrAccelerations[], variable i_intErrorRecovery ) variable {  return (0); }
+function Terminate( variable i_intModuleID ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Hamilton$$valid=0$$time=2023-08-21 10:28$$checksum=cff96862$$length=085$$

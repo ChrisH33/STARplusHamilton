@@ -1,0 +1,58 @@
+global device ML_STAR ("AT_TestLayout.lay", "ML_STAR", hslTrue);
+ namespace _Method { #include "Hamilton\\HSLHamiltonMediaFillModule.hsl" } 
+ namespace _Method { #include "Hamilton MultiDaisyChainedTiltModuleAmbient\\HSLMultiDaisyChainedTiltModuleAmbient.hsl" } 
+ namespace _Method { #include "HslHamHeaterShakerLib.hsl" } 
+ namespace _Method { #include "HSL Sias Centrifuge\\SiasCentrifuge.hs_" } 
+ namespace _Method { #include "C:\\Program Files (x86)\\Hamilton Company\\Library\\Hamilton\\HSLHamiltonCAP.hsl" } 
+ namespace _Method { #include "HSL Sias Centrifuge\\HSLSiasCentrifuge.hsl" } 
+#include "AT_TestLayout.res"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable InstID;
+variable AT_PPump2Dir;
+variable AT_PPump1Dir;
+variable AT_PumpFillTimeout;
+variable AT_PumpFillSpeed;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+ namespace _Method { #include "HSLPTLLib.hsl" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+SIASCENTRIFUGE::_InitLibrary();
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{ 1 1 0 "c1d51e9c_497e_466a_87cfc2bdf39f3dde" "ML_STAR:{1C0C0CB0-7C87-11D3-AD83-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2("c1d51e9c_497e_466a_87cfc2bdf39f3dde"); // Initialize
+}
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+SIASCENTRIFUGE::_ExitLibrary();
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=Hamilton$$valid=0$$time=2024-02-20 13:35$$checksum=10b7b478$$length=087$$

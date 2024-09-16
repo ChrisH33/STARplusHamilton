@@ -1,0 +1,21 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 04/06/2024 17:48:24
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace NTRDIRECTUSE {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function discard_empty_racks( device & ML_STAR, sequence & tip_sequence, sequence & tiprack_sequence, sequence & tiprack_waste_sequence, variable CORE_after, variable tip_volume ) void { }
+function gettips_96head( device & ML_STAR, sequence & tip_sequence, sequence & tiprack_sequence, sequence & tiprack_waste_sequence, variable tipcounter_name, variable tip_volume, variable CORE_after, variable seq_inc_flag ) void { }
+function gettips_channels( device & ML_STAR, sequence & tip_sequence, sequence & tiprack_sequence, sequence & tiprack_waste_sequence, sequence & temp_storage_sequence, variable tipcounter_name, variable tip_volume, variable CORE_after, variable seq_inc_flag, variable channel_pattern ) void { }
+function load( device & ML_STAR, sequence & tip_sequence, sequence & tiprack_sequence, sequence & temp_storage_sequence, variable description_of_position, variable tip_needed, variable tip_volume, variable head96_or_channels, variable tipcounter_name ) void { }
+function load_GUI( device & ML_STAR, sequence & tip_sequence, sequence & tiprack_sequence, sequence & temp_storage_sequence, variable description_of_position, variable tip_needed, variable tip_volume, variable head96_or_channels, variable tipcounter_name ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2024-06-04 17:48$$checksum=ac9ac6dd$$length=081$$

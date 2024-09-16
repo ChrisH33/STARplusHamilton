@@ -1,0 +1,398 @@
+//----------------------------------------------------------------------------------------
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+//
+// Project              : ASW Development Tools
+// Description          : Library containing helper functions used in other libraries
+//
+// Phoenix Version     : 4.5.0.7977
+// ML_STAR Version     : 4.5.0.5217
+//
+// Revision history:
+// - LWietbrock   2022-29-06   library created
+//
+//----------------------------------------------------------------------------------------
+
+
+#ifndef __ASW_HHS3GFIELDVERIFICATIONHELPER_hsl__
+#define __ASW_HHS3GFIELDVERIFICATIONHELPER_hsl__  1
+
+
+
+//*********************************************************************
+// Includes
+//*********************************************************************
+
+
+#ifndef __ASW_HHS3GFIELDVERIFICATIONENUMS_hsl__
+   #include "Enumeration.hsl"
+#endif
+
+
+namespace HamiltonHeaterShaker3G
+{
+   namespace FieldVerification
+   {
+
+   static global variable gHamiltonHeaterShaker3GFieldVerification_intTraceLevel(TraceLevel::Debug);
+
+   namespace Helper
+   {
+      //***************************************************************
+      // Declaration
+      //***************************************************************
+      static string   _strComma                             ("");
+
+      /////////////////////////////////////////////////////////////////
+      // Checks if the given variable is a integer
+      /////////////////////////////////////////////////////////////////
+      function CheckInteger(
+         variable i_varVariableToCheck,
+         variable i_strVariableName,
+         variable i_strFunctionName,
+         variable i_strLibraryFileName) variable;
+
+      /////////////////////////////////////////////////////////////////
+      // Checks if the given variable is a integer in a defined range
+      /////////////////////////////////////////////////////////////////
+      function CheckIntegerRange(
+         variable i_varVariableToCheck,
+         variable i_strVariableName,
+         variable i_fltMinimum,
+         variable i_fltMaximum,
+         variable i_strFunctionName,
+         variable i_strLibraryFileName) variable;
+
+      /////////////////////////////////////////////////////////////////
+      // Checks if the given variable is a float
+      /////////////////////////////////////////////////////////////////
+      function CheckFloat(
+         variable i_varVariableToCheck,
+         variable i_strVariableName,
+         variable i_strFunctionName,
+         variable i_strLibraryFileName) variable;
+
+      /////////////////////////////////////////////////////////////////
+      // Checks if the given variable is a string
+      /////////////////////////////////////////////////////////////////
+      function CheckString(
+         variable i_varVariableToCheck,
+         variable i_strVariableName,
+         variable i_strFunctionName,
+         variable i_strLibraryFileName) variable;
+
+      /////////////////////////////////////////////////////////////////
+      // Checks if a object function (0=error) is successful
+      /////////////////////////////////////////////////////////////////
+      function CheckObjectFunction(
+         variable i_intResult,
+         variable i_strFunctionName,
+         variable i_strLibraryFileName) variable;
+
+      //***************************************************************
+      // Private declaration
+      //***************************************************************
+
+
+      //***************************************************************
+      // Implementation
+      //***************************************************************
+
+      /////////////////////////////////////////////////////////////////
+      // Checks if the given variable is a integer
+      /////////////////////////////////////////////////////////////////
+      static function CheckInteger(
+         variable i_varVariableToCheck,
+         variable i_strVariableName,
+         variable i_strFunctionName,
+         variable i_strLibraryFileName) variable
+      {
+         if(GetType(i_varVariableToCheck) == "i")
+            return (hslTrue);
+
+         Trace(TraceLevel::Release, TraceStatus::CompleteWithError, i_strFunctionName, i_strLibraryFileName, "Parameter '" + i_strVariableName + "' is not of type integer!");
+         return (hslFalse);
+      }
+
+      /////////////////////////////////////////////////////////////////
+      // Checks if the given variable is a integer
+      /////////////////////////////////////////////////////////////////
+      static function CheckBool(
+         variable i_varVariableToCheck,
+         variable i_strVariableName,
+         variable i_strFunctionName,
+         variable i_strLibraryFileName) variable
+      {
+         if(GetType(i_varVariableToCheck) == "i" && (i_varVariableToCheck == 0 || i_varVariableToCheck == 1 ))
+            return (hslTrue);
+
+         Trace(TraceLevel::Release, TraceStatus::CompleteWithError, i_strFunctionName, i_strLibraryFileName, "Parameter '" + i_strVariableName + "' is not of type bool!");
+         return (hslFalse);
+      }
+
+      /////////////////////////////////////////////////////////////////
+      // Checks if the given variable is a integer in a defined range
+      /////////////////////////////////////////////////////////////////
+      static function CheckIntegerRange(
+         variable i_varVariableToCheck,
+         variable i_strVariableName,
+         variable i_fltMinimum,
+         variable i_fltMaximum,
+         variable i_strFunctionName,
+         variable i_strLibraryFileName) variable
+      {
+         if(!(GetType(i_varVariableToCheck) == "i"))
+         {
+            Trace(TraceLevel::Release, TraceStatus::CompleteWithError, i_strFunctionName, i_strLibraryFileName, "Parameter '" + i_strVariableName + "' is not of type integer!");
+            return (hslFalse);
+         }
+         
+         if (i_varVariableToCheck < i_fltMinimum || i_varVariableToCheck > i_fltMaximum)
+         {
+            Trace(TraceLevel::Release, TraceStatus::CompleteWithError, i_strFunctionName, i_strLibraryFileName, "Parameter '" + i_strVariableName + "' is outside the allowed range!");
+            return (hslFalse);
+         }
+
+         return (hslTrue);
+      }
+
+      /////////////////////////////////////////////////////////////////
+      // Checks if the given variable is a float
+      /////////////////////////////////////////////////////////////////
+      static function CheckFloat(
+         variable i_varVariableToCheck,
+         variable i_strVariableName,
+         variable i_strFunctionName,
+         variable i_strLibraryFileName) variable
+      {
+         if(GetType(i_varVariableToCheck) == "f")
+            return (hslTrue);
+
+         Trace(TraceLevel::Release, TraceStatus::CompleteWithError, i_strFunctionName, i_strLibraryFileName, "Parameter '" + i_strVariableName + "' is not of type float!");
+         return (hslFalse);
+      }
+
+      /////////////////////////////////////////////////////////////////
+      // Checks if the given variable is a float in a defined range
+      /////////////////////////////////////////////////////////////////
+       static function CheckFloatRange(
+         variable i_varVariableToCheck,
+         variable i_strVariableName,
+         variable i_fltMinimum,
+         variable i_fltMaximum,
+         variable i_strFunctionName,
+         variable i_strLibraryFileName) variable
+      {
+         if(!(GetType(i_varVariableToCheck) == "f"))
+         {
+            Trace(TraceLevel::Release, TraceStatus::CompleteWithError, i_strFunctionName, i_strLibraryFileName, "Parameter '" + i_strVariableName + "' is not of type float!");
+            return (hslFalse);
+         }
+         
+         if (i_varVariableToCheck < i_fltMinimum || i_varVariableToCheck > i_fltMaximum)
+         {
+            Trace(TraceLevel::Release, TraceStatus::CompleteWithError, i_strFunctionName, i_strLibraryFileName, "Parameter '" + i_strVariableName + "' is outside the allowed range!");
+            return (hslFalse);
+         }
+
+         return (hslTrue);
+      }
+
+      /////////////////////////////////////////////////////////////////
+      // Checks if the given variable is a string
+      /////////////////////////////////////////////////////////////////
+       static function CheckString(
+         variable i_varVariableToCheck,
+         variable i_strVariableName,
+         variable i_strFunctionName,
+         variable i_strLibraryFileName) variable
+      {
+         if(GetType(i_varVariableToCheck) == "s")
+            return (hslTrue);
+
+         Trace(TraceLevel::Release, TraceStatus::CompleteWithError, i_strFunctionName, i_strLibraryFileName, "Parameter '" + i_strVariableName + "' is not of type string!");
+         return (hslFalse);
+      }
+
+      /////////////////////////////////////////////////////////////////
+      // Checks if a object function (0=successful) is successful
+      /////////////////////////////////////////////////////////////////
+      static function CheckObjectFunction(
+         variable i_intResult,
+         variable i_strFunctionName,
+         variable i_strLibraryFileName) variable
+      {
+         if(i_intResult != 0)
+            return (hslTrue);
+
+         Trace(TraceLevel::Release, TraceStatus::CompleteWithError, i_strFunctionName, i_strLibraryFileName, "Object error.");
+         return (hslFalse);
+      }
+
+
+    //----------------------------------------------------------------------------------------------
+    // private function _GetComma
+    //----------------------------------------------------------------------------------------------
+    private function _GetComma() string
+    {
+      if(_strComma.Compare("") == 0)
+      {
+        _strComma = FStr(1.2, hslTrue);
+        _strComma = _strComma.Mid(1,1);
+      }
+      return(_strComma);
+    } // _GetComma
+
+          //----------------------------------------------------------------------------------------------
+    // private function _ToString
+    //----------------------------------------------------------------------------------------------
+    private function _ToString(variable i_varValue) variable
+    {
+      string strVariableType(""), strTempFloat(""), strComma("");
+
+      strVariableType = GetType(i_varValue);
+      if(strVariableType.Compare(hslString) == 0) return(i_varValue);
+      if(strVariableType.Compare(hslInteger) == 0) return(IStr(i_varValue));
+      if(strVariableType.Compare(hslFloat) == 0)
+      {
+        strComma = _GetComma();
+        strTempFloat = FStr(i_varValue, hslTrue, 1000);
+        if(strTempFloat.Find(strComma) == -1)
+        {
+          strTempFloat = strTempFloat + strComma;
+          strTempFloat = strTempFloat + "0";
+        }
+        return(strTempFloat);
+      }
+      return("");
+    } // _ToString
+
+
+
+
+      // --------------------------------------------------------------------------------------
+      // Trace
+      // ------------------------------------------------------------------,-------------------
+      static function Trace(variable i_intTraceLevel,
+                             variable i_intTraceStatus,
+                             variable i_strFunctionName,
+                             variable i_strLibraryName,
+                             variable i_strMessage
+                             ) void
+      {
+         if (i_intTraceLevel <= gHamiltonHeaterShaker3GFieldVerification_intTraceLevel)
+         {
+            FormatTrace("HamiltonHeaterShaker3G.FieldVerification", i_strFunctionName, i_intTraceStatus, i_strMessage);
+         }
+      }
+
+    //----------------------------------------------------------------------------------------------
+    // private function _StringLength
+    //----------------------------------------------------------------------------------------------
+    private function _StringLength(string i_strStringToCheck) variable
+    {
+      return(i_strStringToCheck.GetLength());
+    } // _StringLength
+
+    // --------------------------------------------------------------------------------------
+    // private function _LongestElementSize
+    // --------------------------------------------------------------------------------------
+    private function _LongestElementSize(variable i_arrvarToCheck[]) variable
+    {
+      variable intActualPosition(0), intArraySize(0), intMaxLength(0);
+      string strTemp;
+
+      intArraySize = i_arrvarToCheck.GetSize();
+
+      for(intActualPosition = 0; intActualPosition < intArraySize; intActualPosition++)
+      {
+        strTemp = _ToString(i_arrvarToCheck.GetAt(intActualPosition));
+        if(strTemp.GetLength() > intMaxLength) intMaxLength = strTemp.GetLength();
+      }
+      return(intMaxLength);
+    } // _LongestElementSize
+
+
+
+    //----------------------------------------------------------------------------------------------
+    // private function _FillLeft
+    //----------------------------------------------------------------------------------------------
+    private function _FillLeft(string i_strStringToFill,
+                               variable i_strFillCharacter,
+                               variable i_intLength) variable
+    {
+      variable strReturn("");
+      variable intCount(0);
+
+      strReturn = i_strStringToFill;
+      for(intCount = i_strStringToFill.GetLength(); intCount < i_intLength; intCount++) strReturn = i_strFillCharacter + strReturn;
+      return(strReturn);
+    } // _FillLeft
+
+    //----------------------------------------------------------------------------------------------
+    // private function _FillRight
+    //----------------------------------------------------------------------------------------------
+    private function _FillRight(string i_strStringToFill,
+                                variable i_strFillCharacter,
+                                variable i_intLength) variable
+    {
+      variable strReturn("");
+      variable intLength(0), intCount(0);
+
+      strReturn = i_strStringToFill;
+      intLength = i_strStringToFill.GetLength();
+      for(intCount = intLength; intCount < i_intLength; intCount++) strReturn = strReturn + i_strFillCharacter;
+      return(strReturn);
+    } // _FillRight
+
+
+    // --------------------------------------------------------------------------------------
+    //  TraceArray
+    // --------------------------------------------------------------------------------------
+    static function TraceArray(variable i_intTraceLevel,
+                                 variable i_strDescription,
+                                 variable i_arrvarToTrace[]) void
+    {
+      variable intActualPosition(0), intArraySize(0), intFillupSize(0), intMaxLength(0);
+
+      if (gHamiltonHeaterShaker3GFieldVerification_intTraceLevel < i_intTraceLevel)
+      {
+         return;
+      }
+
+      i_strDescription = _ToString(i_strDescription);
+
+      intArraySize = i_arrvarToTrace.GetSize();
+      intFillupSize = _StringLength(IStr(intArraySize));
+
+      if(intArraySize == 0)
+      {
+        Trace(TraceLevel::Release, TraceStatus::Complete, GetFunctionName(), "" , _ToString(i_strDescription) + ": empty array");
+        return;
+      }
+
+      intMaxLength = _LongestElementSize(i_arrvarToTrace);
+      intMaxLength = intMaxLength + _StringLength(i_strDescription) + intFillupSize;
+
+      FormatTrace("HamiltonHeaterShaker3G.FieldVerification", GetFunctionName(), TraceStatus::Start, _FillRight("   ", "-", intMaxLength + 8));
+      for(intActualPosition = 0; intActualPosition < intArraySize; intActualPosition++)
+        FormatTrace("HamiltonHeaterShaker3G.FieldVerification",
+                    GetFunctionName(),
+                    TraceStatus::Start,
+                    i_strDescription,
+                     " [",
+                    _FillLeft(IStr(intActualPosition + 1), "0", intFillupSize),
+                    "]: ",
+                    _ToString(i_arrvarToTrace.GetAt(intActualPosition)));
+      FormatTrace("HamiltonHeaterShaker3G.FieldVerification", GetFunctionName(), TraceStatus::Complete, _FillRight("", "-", intMaxLength + 5));
+    }// _TraceArray
+
+
+
+
+   } // Helper
+   }// FieldVerification
+
+} // HamiltonHeaterShaker3G
+#endif
+// $$author=gsaJira$$valid=1$$time=2023-08-08 16:57$$checksum=8dc50b56$$length=086$$

@@ -1,0 +1,28 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 08/09/2022 12:09:52
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace SANGER_PIPETTING_CONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function INIT_InitializeController( device & ML_STAR ) void { }
+function LOAD_ReloadTips( device & ML_STAR ) void { }
+function MPH_AddBaseLine( device & ML_STAR ) void { }
+function MPH_AddDiluent( device & ML_STAR ) void { }
+function MPH_AddRangeSolution( device & ML_STAR ) void { }
+function PIP_AddBaseLine( device & ML_STAR ) void { }
+function PIP_AddDiluent( device & ML_STAR ) void { }
+function PIP_AddRangeSolution( device & ML_STAR ) void { }
+function SEQ_SetPlateSequences( device & ML_STAR, sequence & i_seqPlates ) void { }
+function SEQ_SetReagentChannels( device & ML_STAR, sequence & i_seqReagentBaseLine, sequence & i_seqReagentDiluent, sequence & i_seqReagentRangeSol1, sequence & i_seqReagentRangeSol2, sequence & i_seqReagentRangeSol3 ) void { }
+function SEQ_SetReagentMPH( device & ML_STAR, sequence & i_seqReagentBaseLine, sequence & i_seqReagentDiluent, sequence & i_seqReagentRange ) void { }
+function SEQ_SetTipSequences( device & ML_STAR, sequence & i_seqTips50, sequence & i_seqTips300, sequence & i_seqTips1000, sequence & i_seqTips300Base ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Hamilton$$valid=0$$time=2022-09-08 12:09$$checksum=5a0352ed$$length=085$$

@@ -1,0 +1,1584 @@
+#ifndef __HSLCap__
+  #define __HSLCap__ 1
+
+  #ifndef __HAMILTON_NIMBUSCAP_DRIVER_DEPENDENCIES_hsl__
+    #include "Dependencies\\Dependencies.hsl"
+  #endif
+
+namespace HSLCap
+{
+    // --------------------------------------------------------------------------------------
+    // public constant declarations
+    // --------------------------------------------------------------------------------------
+    const variable _TRUE(HAMILTON_NIMBUSCAP_DEPENDENCIES::BOOL::TRUE);
+    const variable _FALSE(HAMILTON_NIMBUSCAP_DEPENDENCIES::BOOL::FALSE);
+
+    const variable SUCCESS(0);
+    const variable ERROR(1);
+	
+    const variable TRACE_LEVEL_RELEASE(HAMILTON_NIMBUSCAP_DEPENDENCIES::TRACE_LEVEL::RELEASE);
+    const variable TRACE_LEVEL_DEBUG(HAMILTON_NIMBUSCAP_DEPENDENCIES::TRACE_LEVEL::DEBUG);
+
+    // --------------------------------------------------------------------------------------
+    // private constant declarations
+    // --------------------------------------------------------------------------------------
+    private const variable INVALID_PARAM_TYPE_RET_CODE(1);
+    private const variable EXTRACT_FUNC_NAME_FAIL_RET_CODE(1);
+    private const variable INIT_LIBRARY_FAIL_RET_CODE(1);
+    private const variable CREATE_OBJECT_FAIL_RET_CODE(1);
+    private const variable DLL_ERROR_RET_CODE(1);
+
+    // --------------------------------------------------------------------------------------
+    // global constant/variable declarations
+    // --------------------------------------------------------------------------------------
+    static global variable  gHSLCap_blnInitialized               (_FALSE);
+    static global variable  gHSLCap_intTraceLevel                (TRACE_LEVEL_DEBUG);
+    static global variable  gHSLCap_strModuleName                ("Hamilton NimbusCap");
+    static global variable  gHSLCap_bOverrideSimulation          (_FALSE);
+    static global variable  gHSLCap_bSimulated                   (_FALSE);
+    static global object    gHSLCap_hdlCommunication;
+
+    static global variable gHSLCap_intLastReturnCode             (0);
+
+
+    // --------------------------------------------------------------------------------------
+    // public function declarations
+    // --------------------------------------------------------------------------------------
+
+    function Connect(variable i_intComPort, variable& o_intDeviceId) variable;
+
+    function AbortRemoteControl(variable i_intDeviceId) variable;
+
+    function Disconnect(variable i_intDeviceId) variable;
+
+    function GetDoorState(variable i_intDeviceId, variable& o_boolDoorState) variable;
+
+    function GetFanSpeed(variable i_intDeviceId, variable& o_intFanSpeed) variable;
+
+    function GetFanState(variable i_intDeviceId, variable& o_boolFanState) variable;
+
+    function GetHepaFilterStatus(variable i_intDeviceId, variable& o_stringHepaFilterStatus) variable;
+
+    function GetHumidity(variable i_intDeviceId, variable& o_floatHumidity) variable;
+
+    function GetLastErrorMessage(variable i_intDeviceId, variable& o_stringLastErrorMessage) variable;
+
+    function GetLightState(variable i_intDeviceId, variable& o_intLightState) variable;
+
+    function GetPrefilterStatus(variable i_intDeviceId, variable& o_stringPrefilterStatus) variable;
+
+    function GetTemperature(variable i_intDeviceId, variable& o_stringTemperature) variable;
+
+    function SetFanSpeed(variable i_intDeviceId, variable i_intFanSpeed) variable;
+
+    function SetFanState(variable i_intDeviceId, variable i_boolFanState) variable;
+
+    function SetLightState(variable i_intDeviceId, variable i_boolLightState) variable;
+
+
+    // --------------------------------------------------------------------------------------
+    // HSL public function declarations
+    // --------------------------------------------------------------------------------------  
+
+    function OverrideSimulation(variable i_boolSimulated) variable;
+
+    function SetTraceLevel(variable i_intTraceLevel) variable;
+
+    // --------------------------------------------------------------------------------------
+    // HSL private function declarations
+    // --------------------------------------------------------------------------------------
+
+    private function SetLastReturnCodeAndReturn(variable i_intReturnCode) variable;
+
+    private function _CleanUp() void;
+
+    private function _InitializeLibrary(variable i_strCallingFunctionName) variable;
+
+    private function _CreateObject(variable i_strCallingFunctionName) variable; 
+
+    //##############################################################################################
+    // CONNECT FUNCTION IMPLEMENTATIONS
+    //##############################################################################################
+
+    //----------------------------------------------------------------------------------------------
+    // Connect
+    //----------------------------------------------------------------------------------------------
+    function Connect(variable i_intComPort, variable& o_intDeviceId) variable
+    {
+      variable intReturnCode(0);
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intComPort, "i_intComPort", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intComPort = " + IStr(i_intComPort),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      if(!_InitializeLibrary(strFunctionName)) return(SetLastReturnCodeAndReturn(INIT_LIBRARY_FAIL_RET_CODE));
+
+      if((gHSLCap_bOverrideSimulation && gHSLCap_bSimulated) ||
+         (!gHSLCap_bOverrideSimulation && (GetSimulationMode() == 1)))
+      {
+        return(SUCCESS);
+      }
+      else
+      {
+        onerror goto DLL_ERROR;
+
+        if (gHSLCap_hdlCommunication.IsNull())
+        {
+          if (_CreateObject(strFunctionName) == _FALSE) return(SetLastReturnCodeAndReturn(CREATE_OBJECT_FAIL_RET_CODE));
+        }
+        
+        if (!gHSLCap_hdlCommunication.IsNull())
+        {
+          intReturnCode = gHSLCap_hdlCommunication.Connect(i_intComPort, o_intDeviceId);
+        }
+
+        gHSLCap_intLastReturnCode = intReturnCode;
+
+        if(intReturnCode != 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Failed to execute, return code: " + IStr(intReturnCode) + "!",
+                                            strFunctionName,
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+
+          return(gHSLCap_intLastReturnCode);
+        }
+        
+        onerror goto 0;
+      }
+	  
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "o_intDeviceId = " + IStr(o_intDeviceId),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+
+      return(SUCCESS);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          strFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        gHSLCap_intLastReturnCode = DLL_ERROR_RET_CODE;
+
+        return(gHSLCap_intLastReturnCode);
+      }
+    } // Connect
+	
+    //##############################################################################################
+    // DEVICE SPECIFIC FUNCTION IMPLEMENTATIONS
+    //##############################################################################################
+
+    //----------------------------------------------------------------------------------------------
+    // AbortRemoteControl
+    //----------------------------------------------------------------------------------------------
+    function AbortRemoteControl(variable i_intDeviceId) variable
+    {
+      variable intReturnCode(0);
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intDeviceId, "i_intDeviceId", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intDeviceId = " + IStr(i_intDeviceId),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      if(!_InitializeLibrary(strFunctionName)) return(SetLastReturnCodeAndReturn(INIT_LIBRARY_FAIL_RET_CODE));
+
+      if((gHSLCap_bOverrideSimulation && gHSLCap_bSimulated) ||
+         (!gHSLCap_bOverrideSimulation && (GetSimulationMode() == 1)))
+      {
+        return(SUCCESS);
+      }
+      else
+      {
+        onerror goto DLL_ERROR;
+
+        if (gHSLCap_hdlCommunication.IsNull())
+        {
+          if (_CreateObject(strFunctionName) == _FALSE) return(SetLastReturnCodeAndReturn(CREATE_OBJECT_FAIL_RET_CODE));
+        }
+        
+        if (!gHSLCap_hdlCommunication.IsNull())
+        {
+          intReturnCode = gHSLCap_hdlCommunication.AbortRemoteControl(i_intDeviceId);
+        }
+
+        gHSLCap_intLastReturnCode = intReturnCode;
+
+        if(intReturnCode != 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Failed to execute, return code: " + IStr(intReturnCode) + "!",
+                                            strFunctionName,
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+
+          return(gHSLCap_intLastReturnCode);
+        }
+
+        onerror goto 0;
+      }
+	  
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "",
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+
+      return(SUCCESS);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          strFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        gHSLCap_intLastReturnCode = DLL_ERROR_RET_CODE;
+
+        return(gHSLCap_intLastReturnCode);
+      }
+    } // AbortRemoteControl
+
+    //----------------------------------------------------------------------------------------------
+    // Disconnect
+    //----------------------------------------------------------------------------------------------
+    function Disconnect(variable i_intDeviceId) variable
+    {
+      variable intReturnCode(0);
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intDeviceId, "i_intDeviceId", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intDeviceId = " + IStr(i_intDeviceId),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      if(!_InitializeLibrary(strFunctionName)) return(SetLastReturnCodeAndReturn(INIT_LIBRARY_FAIL_RET_CODE));
+
+      if((gHSLCap_bOverrideSimulation && gHSLCap_bSimulated) ||
+         (!gHSLCap_bOverrideSimulation && (GetSimulationMode() == 1)))
+      {
+        return(SUCCESS);
+      }
+      else
+      {
+        onerror goto DLL_ERROR;
+
+        if (gHSLCap_hdlCommunication.IsNull())
+        {
+          if (_CreateObject(strFunctionName) == _FALSE) return(SetLastReturnCodeAndReturn(CREATE_OBJECT_FAIL_RET_CODE));
+        }
+        
+        if (!gHSLCap_hdlCommunication.IsNull())
+        {
+          intReturnCode = gHSLCap_hdlCommunication.Disconnect(i_intDeviceId);
+        }
+
+        gHSLCap_intLastReturnCode = intReturnCode;
+
+        if(intReturnCode != 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Failed to execute, return code: " + IStr(intReturnCode) + "!",
+                                            strFunctionName,
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+
+          return(gHSLCap_intLastReturnCode);
+        }
+
+        onerror goto 0;
+      }
+	  
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "",
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+
+      return(SUCCESS);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          strFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        gHSLCap_intLastReturnCode = DLL_ERROR_RET_CODE;
+
+        return(gHSLCap_intLastReturnCode);
+      }
+    } // Disconnect
+
+    //----------------------------------------------------------------------------------------------
+    // GetDoorState
+    //----------------------------------------------------------------------------------------------
+    function GetDoorState(variable i_intDeviceId, variable& o_boolDoorState) variable
+    {
+      variable intReturnCode(0);
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intDeviceId, "i_intDeviceId", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intDeviceId = " + IStr(i_intDeviceId),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      if(!_InitializeLibrary(strFunctionName)) return(SetLastReturnCodeAndReturn(INIT_LIBRARY_FAIL_RET_CODE));
+
+      if((gHSLCap_bOverrideSimulation && gHSLCap_bSimulated) ||
+         (!gHSLCap_bOverrideSimulation && (GetSimulationMode() == 1)))
+      {
+        return(SUCCESS);
+      }
+      else
+      {
+        onerror goto DLL_ERROR;
+
+        if (gHSLCap_hdlCommunication.IsNull())
+        {
+          if (_CreateObject(strFunctionName) == _FALSE) return(SetLastReturnCodeAndReturn(CREATE_OBJECT_FAIL_RET_CODE));
+        }
+        
+        if (!gHSLCap_hdlCommunication.IsNull())
+        {
+          intReturnCode = gHSLCap_hdlCommunication.GetDoorState(i_intDeviceId, o_boolDoorState);
+        }
+
+        gHSLCap_intLastReturnCode = intReturnCode;
+
+        if(intReturnCode != 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Failed to execute, return code: " + IStr(intReturnCode) + "!",
+                                            strFunctionName,
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+
+          return(gHSLCap_intLastReturnCode);
+        }
+
+        onerror goto 0;
+      }
+	  
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::FixInteropBool(o_boolDoorState);
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "o_boolDoorState = " + IStr(o_boolDoorState),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+
+      return(SUCCESS);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          strFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        gHSLCap_intLastReturnCode = DLL_ERROR_RET_CODE;
+
+        return(gHSLCap_intLastReturnCode);
+      }
+    } // GetDoorState
+
+    //----------------------------------------------------------------------------------------------
+    // GetFanSpeed
+    //----------------------------------------------------------------------------------------------
+    function GetFanSpeed(variable i_intDeviceId, variable& o_intFanSpeed) variable
+    {
+      variable intReturnCode(0);
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intDeviceId, "i_intDeviceId", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intDeviceId = " + IStr(i_intDeviceId),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      if(!_InitializeLibrary(strFunctionName)) return(SetLastReturnCodeAndReturn(INIT_LIBRARY_FAIL_RET_CODE));
+
+      if((gHSLCap_bOverrideSimulation && gHSLCap_bSimulated) ||
+         (!gHSLCap_bOverrideSimulation && (GetSimulationMode() == 1)))
+      {
+        return(SUCCESS);
+      }
+      else
+      {
+        onerror goto DLL_ERROR;
+
+        if (gHSLCap_hdlCommunication.IsNull())
+        {
+          if (_CreateObject(strFunctionName) == _FALSE) return(SetLastReturnCodeAndReturn(CREATE_OBJECT_FAIL_RET_CODE));
+        }
+        
+        if (!gHSLCap_hdlCommunication.IsNull())
+        {
+          intReturnCode = gHSLCap_hdlCommunication.GetFanSpeed(i_intDeviceId, o_intFanSpeed);
+        }
+
+        gHSLCap_intLastReturnCode = intReturnCode;
+
+        if(intReturnCode != 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Failed to execute, return code: " + IStr(intReturnCode) + "!",
+                                            strFunctionName,
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+
+          return(gHSLCap_intLastReturnCode);
+        }
+
+        onerror goto 0;
+      }
+	  
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "o_intFanSpeed = " + IStr(o_intFanSpeed),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+
+      return(SUCCESS);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          strFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        gHSLCap_intLastReturnCode = DLL_ERROR_RET_CODE;
+
+        return(gHSLCap_intLastReturnCode);
+      }
+    } // GetFanSpeed
+
+    //----------------------------------------------------------------------------------------------
+    // GetFanState
+    //----------------------------------------------------------------------------------------------
+    function GetFanState(variable i_intDeviceId, variable& o_boolFanState) variable
+    {
+      variable intReturnCode(0);
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intDeviceId, "i_intDeviceId", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intDeviceId = " + IStr(i_intDeviceId),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      if(!_InitializeLibrary(strFunctionName)) return(SetLastReturnCodeAndReturn(INIT_LIBRARY_FAIL_RET_CODE));
+
+      if((gHSLCap_bOverrideSimulation && gHSLCap_bSimulated) ||
+         (!gHSLCap_bOverrideSimulation && (GetSimulationMode() == 1)))
+      {
+        return(SUCCESS);
+      }
+      else
+      {
+        onerror goto DLL_ERROR;
+
+        if (gHSLCap_hdlCommunication.IsNull())
+        {
+          if (_CreateObject(strFunctionName) == _FALSE) return(SetLastReturnCodeAndReturn(CREATE_OBJECT_FAIL_RET_CODE));
+        }
+        
+        if (!gHSLCap_hdlCommunication.IsNull())
+        {
+          intReturnCode = gHSLCap_hdlCommunication.GetFanState(i_intDeviceId, o_boolFanState);
+        }
+
+        gHSLCap_intLastReturnCode = intReturnCode;
+
+        if(intReturnCode != 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Failed to execute, return code: " + IStr(intReturnCode) + "!",
+                                            strFunctionName,
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+
+          return(gHSLCap_intLastReturnCode);
+        }
+
+        onerror goto 0;
+      }
+	  
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::FixInteropBool(o_boolFanState);
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "o_boolFanState = " + IStr(o_boolFanState),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+
+      return(SUCCESS);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          strFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        gHSLCap_intLastReturnCode = DLL_ERROR_RET_CODE;
+
+        return(gHSLCap_intLastReturnCode);
+      }
+    } // GetFanState
+
+    //----------------------------------------------------------------------------------------------
+    // GetHepaFilterStatus
+    //----------------------------------------------------------------------------------------------
+    function GetHepaFilterStatus(variable i_intDeviceId, variable& o_stringHepaFilterStatus) variable
+    {
+      variable intReturnCode(0);
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intDeviceId, "i_intDeviceId", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intDeviceId = " + IStr(i_intDeviceId),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      if(!_InitializeLibrary(strFunctionName)) return(SetLastReturnCodeAndReturn(INIT_LIBRARY_FAIL_RET_CODE));
+
+      if((gHSLCap_bOverrideSimulation && gHSLCap_bSimulated) ||
+         (!gHSLCap_bOverrideSimulation && (GetSimulationMode() == 1)))
+      {
+        return(SUCCESS);
+      }
+      else
+      {
+        onerror goto DLL_ERROR;
+
+        if (gHSLCap_hdlCommunication.IsNull())
+        {
+          if (_CreateObject(strFunctionName) == _FALSE) return(SetLastReturnCodeAndReturn(CREATE_OBJECT_FAIL_RET_CODE));
+        }
+        
+        if (!gHSLCap_hdlCommunication.IsNull())
+        {
+          intReturnCode = gHSLCap_hdlCommunication.GetHepaFilterStatus(i_intDeviceId, o_stringHepaFilterStatus);
+        }
+
+        gHSLCap_intLastReturnCode = intReturnCode;
+
+        if(intReturnCode != 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Failed to execute, return code: " + IStr(intReturnCode) + "!",
+                                            strFunctionName,
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+
+          return(gHSLCap_intLastReturnCode);
+        }
+
+        onerror goto 0;
+      }
+	  
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "o_stringHepaFilterStatus = '" + o_stringHepaFilterStatus + "'",
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+
+      return(SUCCESS);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          strFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        gHSLCap_intLastReturnCode = DLL_ERROR_RET_CODE;
+
+        return(gHSLCap_intLastReturnCode);
+      }
+    } // GetHepaFilterStatus
+
+    //----------------------------------------------------------------------------------------------
+    // GetHumidity
+    //----------------------------------------------------------------------------------------------
+    function GetHumidity(variable i_intDeviceId, variable& o_floatHumidity) variable
+    {
+      variable intReturnCode(0);
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intDeviceId, "i_intDeviceId", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intDeviceId = " + IStr(i_intDeviceId),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      if(!_InitializeLibrary(strFunctionName)) return(SetLastReturnCodeAndReturn(INIT_LIBRARY_FAIL_RET_CODE));
+
+      if((gHSLCap_bOverrideSimulation && gHSLCap_bSimulated) ||
+         (!gHSLCap_bOverrideSimulation && (GetSimulationMode() == 1)))
+      {
+        return(SUCCESS);
+      }
+      else
+      {
+        onerror goto DLL_ERROR;
+
+        if (gHSLCap_hdlCommunication.IsNull())
+        {
+          if (_CreateObject(strFunctionName) == _FALSE) return(SetLastReturnCodeAndReturn(CREATE_OBJECT_FAIL_RET_CODE));
+        }
+        
+        if (!gHSLCap_hdlCommunication.IsNull())
+        {
+          intReturnCode = gHSLCap_hdlCommunication.GetHumidity(i_intDeviceId, o_floatHumidity);
+        }
+
+        gHSLCap_intLastReturnCode = intReturnCode;
+
+        if(intReturnCode != 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Failed to execute, return code: " + IStr(intReturnCode) + "!",
+                                            strFunctionName,
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+
+          return(gHSLCap_intLastReturnCode);
+        }
+
+        onerror goto 0;
+      }
+	  
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "o_floatHumidity = " + FStr(o_floatHumidity),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+
+      return(SUCCESS);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          strFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        gHSLCap_intLastReturnCode = DLL_ERROR_RET_CODE;
+
+        return(gHSLCap_intLastReturnCode);
+      }
+    } // GetHumidity
+
+    //----------------------------------------------------------------------------------------------
+    // GetLastErrorMessage
+    //----------------------------------------------------------------------------------------------
+    function GetLastErrorMessage(variable i_intDeviceId, variable& o_stringLastErrorMessage) variable
+    {
+      variable intReturnCode(0);
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intDeviceId, "i_intDeviceId", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intDeviceId = " + IStr(i_intDeviceId),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      if(!_InitializeLibrary(strFunctionName)) return(SetLastReturnCodeAndReturn(INIT_LIBRARY_FAIL_RET_CODE));
+
+      if((gHSLCap_bOverrideSimulation && gHSLCap_bSimulated) ||
+         (!gHSLCap_bOverrideSimulation && (GetSimulationMode() == 1)))
+      {
+        return(SUCCESS);
+      }
+      else
+      {
+        onerror goto DLL_ERROR;
+
+        if (gHSLCap_hdlCommunication.IsNull())
+        {
+          if (_CreateObject(strFunctionName) == _FALSE) return(SetLastReturnCodeAndReturn(CREATE_OBJECT_FAIL_RET_CODE));
+        }
+        
+        if (!gHSLCap_hdlCommunication.IsNull())
+        {
+          intReturnCode = gHSLCap_hdlCommunication.GetLastErrorMessage(i_intDeviceId, o_stringLastErrorMessage);
+        }
+
+        gHSLCap_intLastReturnCode = intReturnCode;
+
+        if(intReturnCode != 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Failed to execute, return code: " + IStr(intReturnCode) + "!",
+                                            strFunctionName,
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+
+          return(gHSLCap_intLastReturnCode);
+        }
+
+        onerror goto 0;
+      }
+	  
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "o_stringLastErrorMessage = '" + o_stringLastErrorMessage + "'",
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+
+      return(SUCCESS);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          strFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        gHSLCap_intLastReturnCode = DLL_ERROR_RET_CODE;
+
+        return(gHSLCap_intLastReturnCode);
+      }
+    } // GetLastErrorMessage
+
+    //----------------------------------------------------------------------------------------------
+    // GetLightState
+    //----------------------------------------------------------------------------------------------
+    function GetLightState(variable i_intDeviceId, variable& o_intLightState) variable
+    {
+      variable intReturnCode(0);
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intDeviceId, "i_intDeviceId", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intDeviceId = " + IStr(i_intDeviceId),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      if(!_InitializeLibrary(strFunctionName)) return(SetLastReturnCodeAndReturn(INIT_LIBRARY_FAIL_RET_CODE));
+
+      if((gHSLCap_bOverrideSimulation && gHSLCap_bSimulated) ||
+         (!gHSLCap_bOverrideSimulation && (GetSimulationMode() == 1)))
+      {
+        return(SUCCESS);
+      }
+      else
+      {
+        onerror goto DLL_ERROR;
+
+        if (gHSLCap_hdlCommunication.IsNull())
+        {
+          if (_CreateObject(strFunctionName) == _FALSE) return(SetLastReturnCodeAndReturn(CREATE_OBJECT_FAIL_RET_CODE));
+        }
+        
+        if (!gHSLCap_hdlCommunication.IsNull())
+        {
+          intReturnCode = gHSLCap_hdlCommunication.GetLightState(i_intDeviceId, o_intLightState);
+        }
+
+        gHSLCap_intLastReturnCode = intReturnCode;
+
+        if(intReturnCode != 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Failed to execute, return code: " + IStr(intReturnCode) + "!",
+                                            strFunctionName,
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+
+          return(gHSLCap_intLastReturnCode);
+        }
+
+        onerror goto 0;
+      }
+	  
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "o_intLightState = " + IStr(o_intLightState),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+
+      return(SUCCESS);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          strFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        gHSLCap_intLastReturnCode = DLL_ERROR_RET_CODE;
+
+        return(gHSLCap_intLastReturnCode);
+      }
+    } // GetLightState
+
+    //----------------------------------------------------------------------------------------------
+    // GetPrefilterStatus
+    //----------------------------------------------------------------------------------------------
+    function GetPrefilterStatus(variable i_intDeviceId, variable& o_stringPrefilterStatus) variable
+    {
+      variable intReturnCode(0);
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intDeviceId, "i_intDeviceId", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intDeviceId = " + IStr(i_intDeviceId),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      if(!_InitializeLibrary(strFunctionName)) return(SetLastReturnCodeAndReturn(INIT_LIBRARY_FAIL_RET_CODE));
+
+      if((gHSLCap_bOverrideSimulation && gHSLCap_bSimulated) ||
+         (!gHSLCap_bOverrideSimulation && (GetSimulationMode() == 1)))
+      {
+        return(SUCCESS);
+      }
+      else
+      {
+        onerror goto DLL_ERROR;
+
+        if (gHSLCap_hdlCommunication.IsNull())
+        {
+          if (_CreateObject(strFunctionName) == _FALSE) return(SetLastReturnCodeAndReturn(CREATE_OBJECT_FAIL_RET_CODE));
+        }
+        
+        if (!gHSLCap_hdlCommunication.IsNull())
+        {
+          intReturnCode = gHSLCap_hdlCommunication.GetPrefilterStatus(i_intDeviceId, o_stringPrefilterStatus);
+        }
+
+        gHSLCap_intLastReturnCode = intReturnCode;
+
+        if(intReturnCode != 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Failed to execute, return code: " + IStr(intReturnCode) + "!",
+                                            strFunctionName,
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+
+          return(gHSLCap_intLastReturnCode);
+        }
+
+        onerror goto 0;
+      }
+	  
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "o_stringPrefilterStatus = '" + o_stringPrefilterStatus + "'",
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+
+      return(SUCCESS);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          strFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        gHSLCap_intLastReturnCode = DLL_ERROR_RET_CODE;
+
+        return(gHSLCap_intLastReturnCode);
+      }
+    } // GetPrefilterStatus
+
+    //----------------------------------------------------------------------------------------------
+    // GetTemperature
+    //----------------------------------------------------------------------------------------------
+    function GetTemperature(variable i_intDeviceId, variable& o_stringTemperature) variable
+    {
+      variable intReturnCode(0);
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intDeviceId, "i_intDeviceId", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intDeviceId = " + IStr(i_intDeviceId),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      if(!_InitializeLibrary(strFunctionName)) return(SetLastReturnCodeAndReturn(INIT_LIBRARY_FAIL_RET_CODE));
+
+      if((gHSLCap_bOverrideSimulation && gHSLCap_bSimulated) ||
+         (!gHSLCap_bOverrideSimulation && (GetSimulationMode() == 1)))
+      {
+        return(SUCCESS);
+      }
+      else
+      {
+        onerror goto DLL_ERROR;
+
+        if (gHSLCap_hdlCommunication.IsNull())
+        {
+          if (_CreateObject(strFunctionName) == _FALSE) return(SetLastReturnCodeAndReturn(CREATE_OBJECT_FAIL_RET_CODE));
+        }
+        
+        if (!gHSLCap_hdlCommunication.IsNull())
+        {
+          intReturnCode = gHSLCap_hdlCommunication.GetTemperature(i_intDeviceId, o_stringTemperature);
+        }
+
+        gHSLCap_intLastReturnCode = intReturnCode;
+
+        if(intReturnCode != 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Failed to execute, return code: " + IStr(intReturnCode) + "!",
+                                            strFunctionName,
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+
+          return(gHSLCap_intLastReturnCode);
+        }
+
+        onerror goto 0;
+      }
+	  
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "o_stringTemperature = '" + o_stringTemperature + "'",
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+
+      return(SUCCESS);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          strFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        gHSLCap_intLastReturnCode = DLL_ERROR_RET_CODE;
+
+        return(gHSLCap_intLastReturnCode);
+      }
+    } // GetTemperature
+
+    //----------------------------------------------------------------------------------------------
+    // SetFanSpeed
+    //----------------------------------------------------------------------------------------------
+    function SetFanSpeed(variable i_intDeviceId, variable i_intFanSpeed) variable
+    {
+      variable intReturnCode(0);
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intDeviceId, "i_intDeviceId", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intFanSpeed, "i_intFanSpeed", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intDeviceId = " + IStr(i_intDeviceId) + 
+                                        ", i_intFanSpeed = " + IStr(i_intFanSpeed),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      if(!_InitializeLibrary(strFunctionName)) return(SetLastReturnCodeAndReturn(INIT_LIBRARY_FAIL_RET_CODE));
+
+      if((gHSLCap_bOverrideSimulation && gHSLCap_bSimulated) ||
+         (!gHSLCap_bOverrideSimulation && (GetSimulationMode() == 1)))
+      {
+        return(SUCCESS);
+      }
+      else
+      {
+        onerror goto DLL_ERROR;
+
+        if (gHSLCap_hdlCommunication.IsNull())
+        {
+          if (_CreateObject(strFunctionName) == _FALSE) return(SetLastReturnCodeAndReturn(CREATE_OBJECT_FAIL_RET_CODE));
+        }
+        
+        if (!gHSLCap_hdlCommunication.IsNull())
+        {
+          intReturnCode = gHSLCap_hdlCommunication.SetFanSpeed(i_intDeviceId, i_intFanSpeed);
+        }
+
+        gHSLCap_intLastReturnCode = intReturnCode;
+
+        if(intReturnCode != 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Failed to execute, return code: " + IStr(intReturnCode) + "!",
+                                            strFunctionName,
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+
+          return(gHSLCap_intLastReturnCode);
+        }
+
+        onerror goto 0;
+      }
+	  
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "",
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+
+      return(SUCCESS);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          strFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        gHSLCap_intLastReturnCode = DLL_ERROR_RET_CODE;
+
+        return(gHSLCap_intLastReturnCode);
+      }
+    } // SetFanSpeed
+
+    //----------------------------------------------------------------------------------------------
+    // SetFanState
+    //----------------------------------------------------------------------------------------------
+    function SetFanState(variable i_intDeviceId, variable i_boolFanState) variable
+    {
+      variable intReturnCode(0);
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intDeviceId, "i_intDeviceId", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckBool(i_boolFanState, "i_boolFanState", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intDeviceId = " + IStr(i_intDeviceId) + 
+                                        ", i_boolFanState = " + IStr(i_boolFanState),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      if(!_InitializeLibrary(strFunctionName)) return(SetLastReturnCodeAndReturn(INIT_LIBRARY_FAIL_RET_CODE));
+
+      if((gHSLCap_bOverrideSimulation && gHSLCap_bSimulated) ||
+         (!gHSLCap_bOverrideSimulation && (GetSimulationMode() == 1)))
+      {
+        return(SUCCESS);
+      }
+      else
+      {
+        onerror goto DLL_ERROR;
+
+        if (gHSLCap_hdlCommunication.IsNull())
+        {
+          if (_CreateObject(strFunctionName) == _FALSE) return(SetLastReturnCodeAndReturn(CREATE_OBJECT_FAIL_RET_CODE));
+        }
+        
+        if (!gHSLCap_hdlCommunication.IsNull())
+        {
+          intReturnCode = gHSLCap_hdlCommunication.SetFanState(i_intDeviceId, i_boolFanState);
+        }
+
+        gHSLCap_intLastReturnCode = intReturnCode;
+
+        if(intReturnCode != 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Failed to execute, return code: " + IStr(intReturnCode) + "!",
+                                            strFunctionName,
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+
+          return(gHSLCap_intLastReturnCode);
+        }
+
+        onerror goto 0;
+      }
+	  
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::FixInteropBool(i_boolFanState);
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "",
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+
+      return(SUCCESS);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          strFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        gHSLCap_intLastReturnCode = DLL_ERROR_RET_CODE;
+
+        return(gHSLCap_intLastReturnCode);
+      }
+    } // SetFanState
+
+    //----------------------------------------------------------------------------------------------
+    // SetLightState
+    //----------------------------------------------------------------------------------------------
+    function SetLightState(variable i_intDeviceId, variable i_boolLightState) variable
+    {
+      variable intReturnCode(0);
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intDeviceId, "i_intDeviceId", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+	   if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckBool(i_boolLightState, "i_boolLightState", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intDeviceId = " + IStr(i_intDeviceId) + 
+                                        ", i_boolLightState = " + IStr(i_boolLightState),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      if(!_InitializeLibrary(strFunctionName)) return(SetLastReturnCodeAndReturn(INIT_LIBRARY_FAIL_RET_CODE));
+
+      if((gHSLCap_bOverrideSimulation && gHSLCap_bSimulated) ||
+         (!gHSLCap_bOverrideSimulation && (GetSimulationMode() == 1)))
+      {
+        return(SUCCESS);
+      }
+      else
+      {
+        onerror goto DLL_ERROR;
+
+        if (gHSLCap_hdlCommunication.IsNull())
+        {
+          if (_CreateObject(strFunctionName) == _FALSE) return(SetLastReturnCodeAndReturn(CREATE_OBJECT_FAIL_RET_CODE));
+        }
+        
+        if (!gHSLCap_hdlCommunication.IsNull())
+        {
+          intReturnCode = gHSLCap_hdlCommunication.SetLightState(i_intDeviceId, i_boolLightState);
+        }
+
+        gHSLCap_intLastReturnCode = intReturnCode;
+
+        if(intReturnCode != 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Failed to execute, return code: " + IStr(intReturnCode) + "!",
+                                            strFunctionName,
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+
+          return(gHSLCap_intLastReturnCode);
+        }
+
+        onerror goto 0;
+      }
+	  
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::FixInteropBool(i_boolLightState);
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "",
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+
+      return(SUCCESS);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          strFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        gHSLCap_intLastReturnCode = DLL_ERROR_RET_CODE;
+
+        return(gHSLCap_intLastReturnCode);
+      }
+    } // SetLightState
+
+    //##############################################################################################
+    // PUBLIC HSL FUNCTION IMPLEMENTATIONS
+    //##############################################################################################
+
+    //----------------------------------------------------------------------------------------------
+    // function OverrideSimulation
+    //----------------------------------------------------------------------------------------------
+    function OverrideSimulation(variable i_boolSimulated) variable
+    {
+      variable strFunctionName("");
+
+      if (HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+      if (HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckBool(i_boolSimulated, "i_boolSimulated", strFunctionName, gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      gHSLCap_bOverrideSimulation = _TRUE;
+
+      gHSLCap_bSimulated = i_boolSimulated;
+
+      return(SUCCESS);
+    } // OverrideSimulation
+
+    //----------------------------------------------------------------------------------------------
+    // function SetTraceLevel
+    //----------------------------------------------------------------------------------------------
+    function SetTraceLevel(variable i_intTraceLevel) variable
+    {
+      variable strFunctionName("");
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(EXTRACT_FUNC_NAME_FAIL_RET_CODE));
+
+      if(HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckIntegerRange(i_intTraceLevel,
+                                                 "i_intTraceLevel",
+                                                 TRACE_LEVEL_RELEASE,
+                                                 TRACE_LEVEL_DEBUG,
+                                                 strFunctionName,
+                                                 gHSLCap_strModuleName) == _FALSE) return(SetLastReturnCodeAndReturn(INVALID_PARAM_TYPE_RET_CODE));
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::START,
+                                        TRACE_LEVEL_DEBUG,
+                                        "i_intTraceLevel = " + IStr(i_intTraceLevel),
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      gHSLCap_intTraceLevel = i_intTraceLevel;
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_DEBUG,
+                                        "",
+                                        strFunctionName,
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+
+      return(SUCCESS);
+    } // SetTraceLevel
+
+
+    //##############################################################################################
+    // PRIVATE HSL FUNCTION IMPLEMENTATIONS
+    //##############################################################################################
+
+	//----------------------------------------------------------------------------------------------
+    // private function TraceEvent, subscribes the trace to the COM objects trace event.
+    //----------------------------------------------------------------------------------------------
+    global private function gHSLCap_hdlCommunication_TraceEvent(variable message, variable traceLevel) void
+    {
+	  HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::PROGRESS,
+                                        traceLevel,
+                                        message,
+                                        "COM Interop",
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+    } // gHSLCap_hdlCommunication_TraceEvent
+
+	//----------------------------------------------------------------------------------------------
+    // private function SetLastReturnCodeAndReturn
+    //----------------------------------------------------------------------------------------------
+    private function SetLastReturnCodeAndReturn(variable i_intReturnCode) variable
+    {
+	  variable strFunctionName("");
+	  
+	  if(HAMILTON_NIMBUSCAP_DEPENDENCIES::ExtractFunctionName(GetFunctionName(),
+                                                   strFunctionName,
+                                                   gHSLCap_strModuleName) == _FALSE)
+      {
+        gHSLCap_intLastReturnCode = EXTRACT_FUNC_NAME_FAIL_RET_CODE;
+      }
+	  else if (HAMILTON_NIMBUSCAP_DEPENDENCIES::CheckInteger(i_intReturnCode, "i_intReturnCode", strFunctionName, gHSLCap_strModuleName) == _FALSE)
+      {
+        gHSLCap_intLastReturnCode = INVALID_PARAM_TYPE_RET_CODE;
+      }
+      else
+      {
+        gHSLCap_intLastReturnCode = i_intReturnCode;
+      }
+
+      return(gHSLCap_intLastReturnCode);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // private function _InitializeLibrary
+    //----------------------------------------------------------------------------------------------
+    private function _InitializeLibrary(variable i_strCallingFunctionName) variable
+    {
+      if(gHSLCap_blnInitialized) return(_TRUE);
+
+      RegisterAbortHandler("_CleanUp");
+
+      gHSLCap_blnInitialized = _TRUE;
+
+      return(_TRUE);
+    } // _InitializeLibrary
+
+    //----------------------------------------------------------------------------------------------
+    // private function _CreateObject
+    //----------------------------------------------------------------------------------------------
+    private function _CreateObject(variable i_strCallingFunctionName) variable
+    {
+      onerror goto DLL_ERROR;
+      
+      if(gHSLCap_hdlCommunication.CreateObject("HSLCap.HSLCapCOM", _TRUE) == 0)
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unable to create object!",
+                                          i_strCallingFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+        return(_FALSE);
+      }
+
+      onerror goto 0;
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::PROGRESS,
+                                          TRACE_LEVEL_DEBUG,
+                                          "Object created",
+                                          i_strCallingFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+
+      return(_TRUE);
+
+      DLL_ERROR:
+      {
+        HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                          TRACE_LEVEL_RELEASE,
+                                          "Unhandled exception in dll or dll missing!",
+                                          i_strCallingFunctionName,
+                                          gHSLCap_intTraceLevel,
+                                          gHSLCap_strModuleName);
+        return(_FALSE);
+      }
+    } // _CreateObject
+
+    //----------------------------------------------------------------------------------------------
+    // private function _CleanUp
+    //----------------------------------------------------------------------------------------------
+    private function _CleanUp() void
+    {
+      if(!gHSLCap_hdlCommunication.IsNull())
+      {
+        gHSLCap_hdlCommunication.Abort();
+
+        if(gHSLCap_hdlCommunication.ReleaseObject() == 0)
+        {
+          HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE_WITH_ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Unable to release object!",
+                                            "_CleanUp (OnAbort)",
+                                            gHSLCap_intTraceLevel,
+                                            gHSLCap_strModuleName);
+        }
+      }
+
+      HAMILTON_NIMBUSCAP_DEPENDENCIES::StatusTrace(HAMILTON_NIMBUSCAP_DEPENDENCIES::ACTION::COMPLETE,
+                                        TRACE_LEVEL_RELEASE,
+                                        "",
+                                        "_CleanUp (OnAbort)",
+                                        gHSLCap_intTraceLevel,
+                                        gHSLCap_strModuleName);
+    }
+}  // HSLCap 
+#endif
+// $$author=Banghart_W$$valid=1$$time=2021-05-12 10:43$$checksum=1e2e7784$$length=087$$

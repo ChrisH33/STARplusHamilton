@@ -1,0 +1,21 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 3/4/2009 3:18:01 PM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace SEQUENCETOOLS_V2 {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function GetTipTypeFromSequence( sequence & iTipSequence, variable & oTipType ) void { }
+function MergeUpTo4Sequences( device & ML_STAR, sequence & InputSequence1, sequence & InputSequence2, sequence & InputSequence3, sequence & InputSequence4, sequence & OutputSequence, variable NumberOfSequencesToMerge, variable SortOutputSequence ) void { }
+function ShortenSequenceLinewiseOn96Plate( sequence & iSeqToShortenLinewise, variable iNumOfSamples, variable & oChannelPattern, device & ML_STAR ) void { }
+function SortSequenceForChannels( sequence & sequence_for_sorting, device & ML_STAR ) void { }
+function SortSequencePlatewise( device & ML_STAR, sequence & sequence_for_sorting ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=chdanuser$$valid=0$$time=2009-03-04 15:18$$checksum=0dcd2403$$length=086$$

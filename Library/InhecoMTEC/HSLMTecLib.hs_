@@ -1,0 +1,1263 @@
+
+// ======================================================================
+// Library to control the Inheco MTEC Controller
+//
+// Copyright (C) by HAMILTON Reno, NV
+// All rights reserved.
+// ======================================================================
+//
+// Modification History
+// 2008-12-10 Steve Griffin
+//      - Created Initial File.
+//
+// 2008-12-31 Steve Griffin
+//      - Added check for simulation mode.
+//      - Added check to automatically initlialize.
+//      - Added device address to step result traces.
+//      - Added StopAll step - mainly for use by the abort handler.
+//      - Added Abort handler.
+//
+// 2009-03-12 Steve Griffin
+//      - Changed the GetControllerExternalTemperature to use ONLY 
+//        the digital sensor.
+//      - Removed the step GetControllerFanSpeed.
+//      - Add the step StartTimedControlAndHold
+//
+// ======================================================================
+
+
+
+#ifndef __HSLMTec_Impl__
+#define __HSLMTec_Impl__ 1
+
+#ifndef __HSLStrLib_hsl__
+#include "HSLStrLib.hsl"
+#endif
+
+
+namespace HSLMTecLib
+{
+    // Exported return constants
+
+    const variable CMD_FAIL(0);
+    const variable CMD_START(1);
+    const variable CMD_COMPLETE(2);
+    const variable CMD_ERROR(3);
+    const variable CMD_PROGRESS(4);
+    const variable CMD_ERRCOMPLETE(5);
+
+    // global constants/variables
+    global object   objMTec;
+    global variable g_bInitialized;
+    global variable g_lastError("");
+
+    static function Delay( time );
+    static function CheckForInitialization( );
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // The MTec abort handler. The handler is registered in the InitializeServer
+    // function.
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function OnAbortMTec()
+    {
+
+        FormatTrace(GetFunctionName(),"():",CMD_PROGRESS,"Aborting...");
+
+        objMTec.StopAll();
+
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Exported functions
+    //
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function InitializeServer( )
+    {
+		variable bResult;
+        variable errMsg("");
+
+        RegisterAbortHandler("HSLMTecLib::OnAbortMTec");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(0);
+
+		if (g_bInitialized == hslTrue)
+		{
+            // If the MTEC Service handler is already initialized...
+            FormatTrace(GetFunctionName(),"() The server is already initialized." ,CMD_COMPLETE);
+		}
+		else
+		{
+            // Get the object
+            if ( objMTec.IsNull() )
+            {
+                objMTec.CreateObject("ServiceHandler.HxMTECServiceHandler");
+
+                if ( objMTec.IsNull() )
+                    return(0);
+            }
+
+            bResult = objMTec.InitializeServer();
+            if (bResult == 0 /*NO_ERROR*/)
+            {
+                g_bInitialized = hslTrue;
+                FormatTrace(GetFunctionName(),"()",CMD_COMPLETE, "The server is started.");
+            }
+            else
+            {
+                g_bInitialized = hslFalse;
+                FormatTrace(GetFunctionName(),"()",CMD_ERROR, "The server failed to started.");
+            }
+        }
+        
+        Delay( 2 );
+
+		return (bResult);
+    }	
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function StopServer() variable 
+    {
+        variable result(0);
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        objMTec.StopServer( );
+        g_bInitialized = hslFalse;
+
+        FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+
+        return(result);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function SetDeviceName( variable userName, variable deviceAddress) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.SetDeviceName( userName, deviceAddress );
+
+        if (result == 0)
+        {
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, userName, " assigned to ", deviceAddress);
+        }
+        else if (result == 2)
+        {
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, userName, " is already assigned to ", deviceAddress);
+        }
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+
+        return(result);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetControllerCalibrationDate( variable deviceAddress, variable& calDate) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetControllerCalibrationDate( deviceAddress, calDate );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Controller calibration date = ", calDate);
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+
+        return(result);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetControllerSerialNumber( variable deviceAddress, variable& sn ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetControllerSerialNumber( deviceAddress, sn );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Controller serial number = ", sn);
+        
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetControllerInternalTemperature( variable deviceAddress, variable sensor, variable& temp ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetControllerInternalTemperature( deviceAddress, sensor, temp );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Internal temperature = ", temp);
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    //function GetControllerExternalTemperature( variable deviceAddress, variable sensor, variable& temp ) variable
+    function GetControllerExternalTemperature( variable deviceAddress, variable& temp ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetControllerExternalTemperature( deviceAddress, 0/*digital sensor ONLY*/, temp );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): External temperature = ", temp);
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetControllerInternalHumidity( variable deviceAddress, variable& humidity ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetControllerInternalHumidity( deviceAddress, humidity );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Internal humidity = ", humidity);
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetControllerExternalHumidity( variable deviceAddress, variable& humidity ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetControllerExternalHumidity( deviceAddress, humidity );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): External humidity = ", humidity);
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    /*
+    function GetControllerFanSpeed( variable deviceAddress, variable& rpm ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetControllerFanSpeed( deviceAddress, rpm );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Fan speed = ", rpm);
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+    */
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetDeviceSerialNumber( variable deviceAddress, variable& sn ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetDeviceSerialNumber( deviceAddress, sn );
+
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Serial Number = ", sn);
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetDeviceCalibrationDate( variable deviceAddress, variable& calDate ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetDeviceCalibrationDate( deviceAddress, calDate );
+
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Device calibration date = ", calDate);
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetDeviceType( variable deviceAddress, variable& deviceType ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetDeviceType( deviceAddress, deviceType );
+
+        msg = " (Device: " + deviceAddress + "): Device type = " + IStr(deviceType);
+
+        if ( deviceType == 0 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, " - Thermoshake");
+        else if ( deviceType == 1 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, " - CPAC");
+        else if ( deviceType == 2 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, " - Teleshake");
+        else if ( deviceType == 3 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, " - CPAC HT");
+        else if ( deviceType == 4 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, " - CPAC Ultraflat");
+        else if ( deviceType == 64 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, " - UNKNOWN");
+        else if ( deviceType == 128 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, " - NOT PRESENT");
+        else
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, " - UNKNOWN TYPE");
+
+        if (result == 0)
+        {
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        }
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetReservoirStatus( variable deviceAddress, variable& reservoirState ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetReservoirStatus( deviceAddress, reservoirState );
+        if ( reservoirState == 0 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Reservoir is less than 1/3 full!");
+        else if ( reservoirState == 1 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Reservoir is over 1/3 full.");
+
+        if (result == 0)
+        {
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        }
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetActualTemperature( variable deviceAddress, variable& actualTemp ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetActualTemperature( deviceAddress, actualTemp );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Actual temperature = ", actualTemp, "C.");
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetTargetTemperature( variable deviceAddress, variable& targetTemp ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetTargetTemperature( deviceAddress, targetTemp );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Target temperature = ", targetTemp, "C.");
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function SetTargetTemperature( variable deviceAddress, variable targetTemp ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.SetTargetTemperature( deviceAddress, targetTemp );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Target temperature set to ", targetTemp, "C.");
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetHeatingStatus( variable deviceAddress, variable& heaterState ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetHeatingStatus( deviceAddress, heaterState );
+        msg = " (Device: " + deviceAddress + "): Heater status = ";
+
+        if ( heaterState == 0 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, heaterState, " - HEATING");
+        else if ( heaterState == 1 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, heaterState, " - COOLING");
+        else if ( heaterState == 2 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, heaterState, " - OFF");
+        else
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, heaterState, " - UNKNOWN");
+
+        if (result == 0)
+        {
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        }
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function StartTemperatureControl( variable deviceAddress ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.StartTemperatureControl( deviceAddress );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Temperature control started.");
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function StopTemperatureControl( variable deviceAddress ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.StopTemperatureControl( deviceAddress );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Temperature control stopped.");
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function SetTargetShakerSpeed( variable deviceAddress, variable rpm ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.SetTargetShakerSpeed( deviceAddress, rpm );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Shaker speed set to ", rpm, " RPM.");
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetTargetShakerSpeed( variable deviceAddress, variable& rpm ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetTargetShakerSpeed( deviceAddress, rpm );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Shaker set speed is ", rpm, " RPM.");
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function SetShakerPattern( variable deviceAddress, variable pattern ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.SetShakerPattern( deviceAddress, pattern );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Shaker pattern set to ", pattern, ".");
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetShakerPattern( variable deviceAddress, variable& pattern ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetShakerPattern( deviceAddress, pattern );
+        msg = " (Device: " + deviceAddress + "): shaker pattern = ";
+
+        if ( pattern == 0 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, pattern, "  - CIRCLE.");
+        else if ( pattern == 1 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, pattern, "  - UP/DOWN.");
+        else if ( pattern == 2 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, pattern, "  - LEFT/RIGHT.");
+        else if ( pattern == 3 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, pattern, "  - TOP-LEFT/BOTTOM-RIGHT.");
+        else if ( pattern == 4 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, pattern, "  - TOP-RIGHT/BOTTOM-LEFT.");
+        else
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, msg, pattern, "  - NOT KNOWN!");
+
+        if (result == 0)
+        {
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        }
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetShakerStatus( variable deviceAddress, variable& state ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetShakerStatus( deviceAddress, state );
+
+        if ( state == 0 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Shaker status = OFF");
+        else if ( state == 1 )
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Shaker status = ON");
+        else
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, " (Device: ", deviceAddress, "): Shaker status = UNKNOWN");
+
+        if (result == 0)
+        {
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        }
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function StartShaker( variable deviceAddress ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.StartShaker( deviceAddress );
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE, " (Device: ", deviceAddress, ")");
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, " (Device: ", deviceAddress, "): ", msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function StopShaker( variable deviceAddress ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.StopShaker( deviceAddress );
+
+        if (result == 0)
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE, " (Device: ", deviceAddress, ")");
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, " (Device: ", deviceAddress, "): ", msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function StartTimedControl( variable deviceAddress, variable controlMode, variable time ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.StartTimedControl( deviceAddress, controlMode, time );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, "Device ", deviceAddress, " will run for ", time, " seconds.");
+
+        if (result == 0)
+        {
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        }
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function StartTimedControlAndHold( variable deviceAddress, variable controlMode, variable time, variable finalTemp, variable finalSpeed ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.StartTimedControlAndHold( deviceAddress, controlMode, time, finalTemp, finalSpeed );
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, "Device ", deviceAddress, " will run for ", time, " seconds.");
+        FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, "Final temperature = ", finalTemp, "C, Final shaker speed = ", finalSpeed);
+
+        if (result == 0)
+        {
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        }
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+        
+        return(result);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetRemainingRuntime( variable deviceAddress, variable& timeRemaining ) variable
+    {
+        variable result(0);
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        result = objMTec.GetRemainingRunTime( deviceAddress, timeRemaining );
+
+        if (result == 0)
+        {
+            FormatTrace(GetFunctionName(),"()",CMD_PROGRESS, "Device ", deviceAddress, " will run for ", timeRemaining, " seconds.");
+            FormatTrace(GetFunctionName(),"()",CMD_COMPLETE);
+        }
+        else
+        {
+            objMTec.GetLastError( msg );
+            g_lastError = msg;
+            FormatTrace(GetFunctionName(),"()",CMD_ERRCOMPLETE, msg);
+        }
+
+        return(result);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function StopAll( )
+    {
+        variable msg("");
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return;
+
+        if (CheckForInitialization() == 0)
+            objMTec.StopAll( );
+
+        FormatTrace(GetFunctionName(),"()",CMD_COMPLETE );
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function GetLastError( variable& errMessage ) variable
+    {
+        variable result(0);
+
+        FormatTrace(GetFunctionName(),"()",CMD_START);
+
+		if( GetSimulationMode() == 1 )
+			return(result);
+
+        if (CheckForInitialization() != 0)
+            abort;
+
+        errMessage = g_lastError;
+
+        FormatTrace(GetFunctionName(),"()",CMD_COMPLETE, errMessage);
+        
+        return(result);
+    }
+
+
+    //------------------------------------------------------------------------//
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // This function is used to introduce a delay after a move command has been
+    // sent. Commands cause the machine to move immediately, so it is important
+    // give the unit time to finish its positioning.
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    private function Delay(variable time)
+    {
+        timer delayTimer;
+
+        //because the maximum time it would take to do a full move is less than 5.5 seconds
+        delayTimer.SetTimer( time );
+        delayTimer.WaitTimer( hslFalse, hslFalse );
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // This function checks the initialization state of the server. If it is not 
+    // already initialized, it will be.
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    private function CheckForInitialization()
+    {
+        variable result(0);
+
+        if (g_bInitialized == hslFalse)
+        {
+            result = InitializeServer();
+            if (result  == 1)
+            {
+                FormatTrace(GetFunctionName(),"()", CMD_ERROR, " The server is not running!.");
+                result = 1;
+            }
+        }
+
+        return (result);
+    }
+
+} // end of namespace HSLMTecLib
+
+#endif
+// $$author=Williams_R2$$valid=0$$time=2018-11-13 09:31$$checksum=fa2a8746$$length=090$$

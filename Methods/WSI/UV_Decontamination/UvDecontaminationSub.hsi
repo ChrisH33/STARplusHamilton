@@ -1,0 +1,1161 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "HSLFilLib.hsl"
+#include "HSLStrLib.hsl"
+#include "HSLTrcLib.hsl"
+#include "HSLDevLib.hsl"
+#include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+#include "HSLPTLLib.hsl"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace UVDECONTAMINATIONSUB {
+// }} ""
+variable _strFileSource;
+variable _intUsbRunTime;
+variable _strClewarePath;
+variable _intBPos;
+variable _intAPos;
+variable _bFileExists;
+variable _intElapsedTime;
+variable _intAIncrease;
+variable _intDelayTimeBeforeStartOfDeco;
+variable _strRightMostDecontaminationPositionLabwareID;
+variable _strErrorState;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function CleanupAndSwitchLightOff(  ) void ;
+function DoTheDecontamination( device & ML_STAR ) variable ;
+function GetError(  ) variable ;
+private function _Abstract(  ) void ;
+private function _CheckUvLampBlinking( variable i_strClewarePath ) variable ;
+private function _GetValueFromFile( variable & o_intTimeToRun, variable & o_intDelayTimeBeforeStartOfDeco ) variable ;
+private function _InitEnvironmentSettings( variable & o_intMaxUsbTime, variable & o_intMinUsbTime, variable & o_strClewarePath ) variable ;
+private function _RunTimer( device & ML_STAR, variable i_intRunTime ) variable ;
+private function _SwitchLightOFF(  ) variable ;
+private function _SwitchLightOn(  ) variable ;
+private function _WriteValueToFile( variable i_intTimeToRun, variable i_intDelayTimeBeforeStartOfDeco ) variable ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "_GetValueFromFile" "Begin"
+private function _GetValueFromFile( variable & o_intTimeToRun, variable & o_intDelayTimeBeforeStartOfDeco ) variable {
+// }} ""
+private variable bRetValue;
+private file fhFileHandle;
+// {{ 5 "_GetValueFromFile" "InitLocals"
+o_intTimeToRun = 0;
+o_intDelayTimeBeforeStartOfDeco = 0;
+// }} ""
+// {{ 128 1 0 "617cf86b_f864_4f0b_942993f8aafb6558" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+bRetValue = ASWGLOBAL::BOOL::TRUE;
+// }} ""
+// {{ 129 1 0 "bd48bd1f_b03c_42bb_b0e534e05046b4f3" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+onerror goto errLabel_EC54296310804c5b84D4CBCD0D577C77 ;
+err.Clear();
+// }} ""
+// {{ 130 1 0 "357bc359_22ce_42d0_9b5c45e22a2475ac" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+fhFileHandle.AddField("DecoRuntime", _intUsbRunTime, hslString, 255);
+fhFileHandle.AddField("DecoStartDelay", _intDelayTimeBeforeStartOfDeco, hslString, 255);
+fhFileHandle.SetDelimiter(";");
+if( 0 == fhFileHandle.Open(_strFileSource, hslRead) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, _strFileSource, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 131 1 0 "3b59d062_dfe6_4a35_b8a8750f3a6bdfb5" "{B31F3536-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == fhFileHandle.ReadRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1490157312, MECC::IDS::stepNameFileRead, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 132 1 0 "6a728756_dd30_4026_b9cb3c3eb5697a1d" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != fhFileHandle.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+fhFileHandle.RemoveFields();
+// }} ""
+// {{ 133 1 0 "b18482ca_fafb_4a25_88da0114c70c3b97" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 134 1 0 "e1817434_144b_46e6_9b545995fad28c8b" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_intUsbRunTime == "")
+{
+// }} ""
+// {{ 135 1 0 "98d4311c_6b55_4973_846b259b760eec79" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_intUsbRunTime = Translate("1");
+// }} ""
+// {{ 136 1 0 "e1817434_144b_46e6_9b545995fad28c8b" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 137 1 0 "ff9dbd20_a393_408c_92e660cbd81aa296" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_intDelayTimeBeforeStartOfDeco == "")
+{
+// }} ""
+// {{ 138 1 0 "328a4cb2_682a_4bc4_84d1ee2dbf9b7f8b" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_intDelayTimeBeforeStartOfDeco = Translate("1");
+// }} ""
+// {{ 139 1 0 "ff9dbd20_a393_408c_92e660cbd81aa296" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 140 1 0 "bd48bd1f_b03c_42bb_b0e534e05046b4f3" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+errLabel_EC54296310804c5b84D4CBCD0D577C77 : {}
+onerror goto 0;
+if (err.GetId() != 0)   /* skip handler if no error */
+{
+// }} ""
+// {{ 141 1 0 "29fddb15_a89c_4b8a_9c0ce2cc302dc908" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+onerror goto errLabel_14ED72347146452eAA97CDC29FE1FE34 ;
+err.Clear();
+// }} ""
+// {{ 142 1 0 "6d7e0d69_9177_4c9a_bca217ae5363cd3a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("File does not exist --> create file now!"));
+// }} ""
+// {{ 143 1 0 "b0af457a_2a20_412b_b6704f3d8aaefa08" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+fhFileHandle.AddField("DecoRuntime", _intUsbRunTime, hslString, 255);
+fhFileHandle.AddField("DecoStartDelay", _intDelayTimeBeforeStartOfDeco, hslString, 255);
+fhFileHandle.SetDelimiter(";");
+if( 0 == fhFileHandle.Open(_strFileSource, hslAppend) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, _strFileSource, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 144 1 0 "d3233b39_eb39_430b_8c622f47c59728b4" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != fhFileHandle.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+fhFileHandle.RemoveFields();
+// }} ""
+// {{ 145 1 0 "6c9a8bbc_58a0_4687_9e38764163bbbe7c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_intUsbRunTime == "")
+{
+// }} ""
+// {{ 146 1 0 "7f5cf983_f7e8_4c8e_921cd39655ef73dd" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_intUsbRunTime = Translate("1");
+// }} ""
+// {{ 147 1 0 "6c9a8bbc_58a0_4687_9e38764163bbbe7c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 148 1 0 "b76cd7ec_2d2b_451f_8f6ecb6e8288091e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_intDelayTimeBeforeStartOfDeco == "")
+{
+// }} ""
+// {{ 149 1 0 "1bd96610_6d74_410c_94df187940966645" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_intDelayTimeBeforeStartOfDeco = Translate("1");
+// }} ""
+// {{ 150 1 0 "b76cd7ec_2d2b_451f_8f6ecb6e8288091e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 151 1 0 "29fddb15_a89c_4b8a_9c0ce2cc302dc908" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+errLabel_14ED72347146452eAA97CDC29FE1FE34 : {}
+onerror goto 0;
+if (err.GetId() != 0)   /* skip handler if no error */
+{
+// }} ""
+// {{ 152 1 0 "255dcbcb_eb4e_4d18_9afc17162308fbd2" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("file creation errror --> see message!"));
+// }} ""
+// {{ 153 1 0 "1a1722fe_2298_4769_b7887a77e6195a53" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+bRetValue = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{ 154 1 0 "d10f9013_6cf8_409a_9b19665093967903" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != fhFileHandle.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+fhFileHandle.RemoveFields();
+// }} ""
+// {{ 155 1 0 "29fddb15_a89c_4b8a_9c0ce2cc302dc908" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+}   /* end if from skip handler if no error */
+// }} ""
+// {{ 156 1 0 "bd48bd1f_b03c_42bb_b0e534e05046b4f3" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+}   /* end if from skip handler if no error */
+// }} ""
+// {{{ 157 1 0 "bd9cb5a6_7d44_4ce0_a31d1fb7ca36fbdc" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+o_intTimeToRun = StrIVal(_intUsbRunTime);
+// }} ""
+// {{{ 158 1 0 "141f088c_0b2d_496c_a299d9bede8ede8a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+o_intDelayTimeBeforeStartOfDeco = StrIVal(_intDelayTimeBeforeStartOfDeco);
+// }} ""
+// {{{ 159 1 0 "3644ad5e_cb23_4a1a_8ef10b5b8cba35d1" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (bRetValue);
+// }} ""
+// {{{ 5 "_GetValueFromFile" "End"
+}
+// }} ""
+// {{{ 5 "_InitEnvironmentSettings" "Begin"
+private function _InitEnvironmentSettings( variable & o_intMaxUsbTime, variable & o_intMinUsbTime, variable & o_strClewarePath ) variable {
+// }} ""
+private variable strFileName;
+private variable strFileRoot;
+private variable bRetValue;
+private variable strFunctionName;
+private variable intPositionBackslash;
+// {{ 5 "_InitEnvironmentSettings" "InitLocals"
+o_intMaxUsbTime = 0;
+o_intMinUsbTime = 0;
+o_strClewarePath = 0;
+// }} ""
+// {{ 161 1 0 "7baece10_7713_4013_a8893921bebc9d36" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 162 1 0 "6a86f430_0945_4957_bd1aa0b2aef4958c" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+bRetValue = ASWGLOBAL::BOOL::TRUE;
+// }} ""
+// {{ 163 1 0 "f558e4a0_908a_4fc9_9fe335e21a645145" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 164 1 0 "e8828cb0_8bca_4b49_882073c4ff236ba1" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+onerror goto errLabel_CCFCB9BA952246cb958F2F9FBBA1CEB8 ;
+err.Clear();
+// }} ""
+// {{{ 165 1 0 "7b1aa534_ecf6_4e31_9cd617f1e5b3148f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strFileRoot = FilGetMethodsPath();
+// }} ""
+strFileRoot=GetMethodFileName();
+// {{{ 167 1 0 "f2dcfc2a_938f_44a5_b5b70b0033b31a95" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+intPositionBackslash = StrReverseFind(strFileRoot, Translate("\\"));
+// }} ""
+// {{{ 168 1 0 "60be13d4_1d28_484f_a90799c4a0ded36e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strFunctionName = StrMid(strFileRoot, intPositionBackslash, 200);
+// }} ""
+// {{{ 169 1 0 "b46a16bd_46a4_4076_819377110a46d9fe" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+StrReplace(strFileRoot, strFunctionName, Translate(""));
+// }} ""
+// {{{ 170 1 0 "397234d7_4c18_45c5_9421b811da18eb39" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("strFunctionName="), strFunctionName);
+// }} ""
+// {{{ 171 1 0 "3db86c64_e533_485c_b1b26a559ef35593" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("strFileRoot"), strFileRoot);
+// }} ""
+// {{{ 172 1 0 "c20ad320_10ab_4f9f_80a90d386a19bd82" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strClewarePath = FilGetSystemPath();
+// }} ""
+// {{{ 173 1 0 "91f5504f_e409_4a20_987a994d4a875cc3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("_strClewarePath"), _strClewarePath);
+// }} ""
+// {{{ 174 1 0 "098e0760_be8b_4561_ac9a55ecbea49eba" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+StrReplace(_strClewarePath, Translate("\\HAMILTON\\System"), Translate(""));
+// }} ""
+// {{{ 175 1 0 "b4a654d8_b1ef_4971_80bd9b30d9253471" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("_strClewarePath"), _strClewarePath);
+// }} ""
+// {{ 176 1 0 "22eb3282_828e_422c_a27a804b910ae52f" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+_strClewarePath = _strClewarePath + Translate("\\Cleware\\USBswitchCmd.exe");
+// }} ""
+// {{{ 177 1 0 "3ec75090_c3d2_424d_b07783209ec1397f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("_strClewarePath"), _strClewarePath);
+// }} ""
+// {{ 178 1 0 "09c95c22_3748_4af1_a027ea124fbd9183" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_strFileSource = Translate("");
+// }} ""
+// {{ 179 1 0 "8a0e859e_557e_40a6_9390451c6c1d4267" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_intUsbRunTime = Translate("");
+// }} ""
+// {{ 180 1 0 "b72be7db_1f67_4187_bf2609c3a307297a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_intDelayTimeBeforeStartOfDeco = Translate("");
+// }} ""
+// {{ 181 1 0 "5a2a9fa3_6b40_48d0_a528084c9ddc9ca0" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_strRightMostDecontaminationPositionLabwareID = Translate("RightMostDecontaminationPosition");
+// }} ""
+// {{ 182 1 0 "e80b6d85_117b_4c87_be15387862b57d34" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+o_intMinUsbTime = 1;
+// }} ""
+// {{ 183 1 0 "b7989f1f_57c7_40ef_8fd4de126e78ac81" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+o_intMaxUsbTime = 60;
+// }} ""
+// {{ 184 1 0 "6cdb733f_d0a8_4776_92d6e4135624421e" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_intAPos = 100;
+// }} ""
+// {{ 185 1 0 "85826bb8_1a74_41c4_993a44ce7570cc1a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_intBPos = 750;
+// }} ""
+// {{ 186 1 0 "b0b7fa15_3292_43db_a47e010ba7a46382" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFileName = Translate("usbTimeValue.txt");
+// }} ""
+// {{ 187 1 0 "8c087ffd_2bf1_49e6_b08837a9da78b6f3" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+_strFileSource = strFileRoot + Translate("\\usbTimeValue.txt");
+// }} ""
+// {{{ 188 1 0 "2562015c_9b7d_4ec4_8df0f09f99f74fde" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_bFileExists = FilSearchPath(_strClewarePath);
+// }} ""
+// {{ 189 1 0 "822f0577_c7ea_4eed_ae7c2b7ad9ef836c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_bFileExists == "")
+{
+// }} ""
+// {{ 190 1 0 "b9e4a495_7ca2_4730_a6ffe54b8a893d7a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+bRetValue = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{ 191 1 0 "822f0577_c7ea_4eed_ae7c2b7ad9ef836c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 192 1 0 "1a22d18a_315e_4d80_b329ee2f32a20baf" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+o_strClewarePath = _strClewarePath;
+// }} ""
+// {{ 193 1 0 "e8828cb0_8bca_4b49_882073c4ff236ba1" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+errLabel_CCFCB9BA952246cb958F2F9FBBA1CEB8 : {}
+onerror goto 0;
+if (err.GetId() != 0)   /* skip handler if no error */
+{
+// }} ""
+// {{ 194 1 0 "f026ec40_7e14_4ecf_a954f5cc91486785" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+bRetValue = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{ 195 1 0 "e8828cb0_8bca_4b49_882073c4ff236ba1" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+}   /* end if from skip handler if no error */
+// }} ""
+// {{{ 196 1 0 "235d2443_f745_4835_b6c38c8e9c59d1fb" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (bRetValue);
+// }} ""
+// {{{ 5 "_InitEnvironmentSettings" "End"
+}
+// }} ""
+// {{{ 5 "_RunTimer" "Begin"
+private function _RunTimer( device & ML_STAR, variable i_intRunTime ) variable {
+// }} ""
+private variable bRetValue;
+private variable intRunTime;
+private variable loopCounter1;
+private timer timer1;
+private timer timer2;
+private variable fltAngle;
+private variable fltX;
+private variable fltY;
+private variable fltZ;
+// {{ 5 "_RunTimer" "InitLocals"
+// }} ""
+// {{ 198 1 0 "7a7abe42_f044_425b_a778e52f1ce4a6b9" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 199 1 0 "a47dd184_d20a_4750_a88111e999c4aa42" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DevGetLabwarePosition(ML_STAR, _strRightMostDecontaminationPositionLabwareID, fltX, fltY, fltZ, fltAngle);
+// }} ""
+// {{ 200 1 0 "9950fc2c_641b_48f2_9b23a831c6223eda" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+_intAIncrease = fltX - _intAPos;
+// }} ""
+// {{ 201 1 0 "8b71687a_52f7_4bd9_9bc31b9b66bcacfd" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+_intAIncrease = _intAIncrease / (10.0 * 1.0);
+// }} ""
+// {{ 202 1 0 "1daefc95_2725_400d_976ebf0192f9e9f5" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+bRetValue = ASWGLOBAL::BOOL::TRUE;
+// }} ""
+// {{ 203 1 0 "73304798_26dc_4d77_a505d352999ebe79" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+onerror goto errLabel_1E360757EFE24244B7CD6B42DB1A7A6A ;
+err.Clear();
+// }} ""
+// {{ 204 1 0 "2a498c95_a599_4132_b502ff20713c4e7a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_intUsbRunTime = i_intRunTime;
+// }} ""
+// {{{ 205 1 0 "b3ebe5de_8ba1_4241_b5169317a5608ab0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("start timer"), Translate(""));
+// }} ""
+// {{ 206 1 0 "a72a4420_c07d_48f2_9724178cdb6bece8" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intRunTime = 0;
+// }} ""
+// {{ 207 1 0 "fd0e5a0a_c1de_418c_8317b1780bcad067" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+intRunTime = _intUsbRunTime * 60;
+// }} ""
+// {{{ 208 1 0 "47e67fa4_ed90_4f20_97f394b334892279" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("start timer with runtime in seconds :"), intRunTime);
+// }} ""
+// {{ 209 1 0 "f8bed9ef_7086_4e13_960b473bd6e05ada" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.SetTimer(intRunTime) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 210 1 0 "a90096f6_3541_4fd7_a0c0b210db12c73f" "{B31F3540-5D80-11d4-A5EB-0050DA737D89}"
+_intElapsedTime = timer1.GetElapsedTime();
+// }} ""
+// {{ 211 1 0 "4e0c86c3_29c3_4923_b15fac904c70bc6d" "ML_STAR:{81DA4252-3BA9-11d4-AE21-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR.MoveToPosition("4e0c86c3_29c3_4923_b15fac904c70bc6d");
+}
+// }} ""
+// {{ 212 1 0 "5097f3c5_3704_4ab9_8c8fca8956427f6d" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+while (_intElapsedTime < intRunTime)
+{
+// }} ""
+// {{ 213 1 0 "aedfebc1_839e_41f8_9c23d7e615433e60" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < 10;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{ 214 1 0 "1642e898_2e94_42d4_a84086dccbc1766d" "{B31F3540-5D80-11d4-A5EB-0050DA737D89}"
+_intElapsedTime = timer1.GetElapsedTime();
+// }} ""
+// {{ 215 1 0 "fc27980a_c0a0_4bfc_a1a9d35d5156f7ba" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_intElapsedTime >= intRunTime)
+{
+// }} ""
+// {{ 216 1 0 "a86d15bf_b1c7_495f_aa240109f9ee180a" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 217 1 0 "fc27980a_c0a0_4bfc_a1a9d35d5156f7ba" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 218 1 0 "e4a1845e_1b65_48ed_9443a32ca914127b" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+_intAPos = _intAPos + _intAIncrease;
+// }} ""
+// {{ 219 1 0 "592952e4_1afb_4f87_94b77cff7c891118" "ML_STAR:{81DA4252-3BA9-11d4-AE21-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR.MoveToPosition("592952e4_1afb_4f87_94b77cff7c891118");
+}
+// }} ""
+// {{ 220 1 0 "4ab3fc43_5f4e_4a55_afb74b748df522f8" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer2.SetTimer(5) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 221 1 0 "104a51d8_13e8_4186_8cec758b96b2b7f8" "{B31F353F-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer2.WaitTimer(hslFalse, hslFalse) )
+{
+    MECC::RaiseRuntimeErrorEx(-1339162368, MECC::IDS::stepNameTimerWait, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 222 1 0 "aedfebc1_839e_41f8_9c23d7e615433e60" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 223 1 0 "8acb0729_64e1_4bae_88893b0f8235aa77" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < 10;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{ 224 1 0 "f02b89d3_c7eb_4cd3_a36059a338d46882" "{B31F3540-5D80-11d4-A5EB-0050DA737D89}"
+_intElapsedTime = timer1.GetElapsedTime();
+// }} ""
+// {{ 225 1 0 "dcfe2998_ede0_4068_bb2840edbf05a49c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_intElapsedTime >= intRunTime)
+{
+// }} ""
+// {{ 226 1 0 "4e175b87_e703_420d_9988a4d2823fb194" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 227 1 0 "dcfe2998_ede0_4068_bb2840edbf05a49c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 228 1 0 "fd95fa1e_ff57_4d71_84a038af11612c5e" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+_intAPos = _intAPos - _intAIncrease;
+// }} ""
+// {{ 229 1 0 "7e1b37ca_6e38_45ac_bd4aadde6389e251" "ML_STAR:{81DA4252-3BA9-11d4-AE21-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR.MoveToPosition("7e1b37ca_6e38_45ac_bd4aadde6389e251");
+}
+// }} ""
+// {{ 230 1 0 "6c3fde07_a1a5_4fb8_95cfeb07c4b033b9" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer2.SetTimer(5) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 231 1 0 "e28b2a47_0001_4cf7_b1f9218870c62a3d" "{B31F353F-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer2.WaitTimer(hslFalse, hslFalse) )
+{
+    MECC::RaiseRuntimeErrorEx(-1339162368, MECC::IDS::stepNameTimerWait, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 232 1 0 "8acb0729_64e1_4bae_88893b0f8235aa77" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 233 1 0 "5b74a08b_5cfc_403a_ac37f950311f0b0f" "{B31F3540-5D80-11d4-A5EB-0050DA737D89}"
+_intElapsedTime = timer1.GetElapsedTime();
+// }} ""
+// {{ 234 1 0 "5097f3c5_3704_4ab9_8c8fca8956427f6d" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 235 1 0 "82e52c06_b2f4_4c03_8de8c9f4ddbfb3b9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("stop timer"), Translate(""));
+// }} ""
+// {{ 236 1 0 "73304798_26dc_4d77_a505d352999ebe79" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+errLabel_1E360757EFE24244B7CD6B42DB1A7A6A : {}
+onerror goto 0;
+if (err.GetId() != 0)   /* skip handler if no error */
+{
+// }} ""
+// {{{ 237 1 0 "6c07f3b4_2f33_45cb_b54e1675a565e217" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strErrorState = StrFStr(_intAPos);
+// }} ""
+// {{ 238 1 0 "f21b2716_778e_426b_b772ab113f8a7565" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+_strErrorState = Translate("Could not Move Arm to position =") + _strErrorState;
+// }} ""
+// {{ 239 1 0 "098aef11_abca_4818_b2248bd1fdd3fc80" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+_strErrorState = _strErrorState + Translate(" mm");
+// }} ""
+// {{ 240 1 0 "9e946af8_7d41_4113_a1fe9573c1a5d9f0" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+bRetValue = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{{ 241 1 0 "c7f88e16_f610_4350_9fa659ba89fad9c5" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+CleanupAndSwitchLightOff();
+// }} ""
+// {{ 242 1 0 "73304798_26dc_4d77_a505d352999ebe79" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+}   /* end if from skip handler if no error */
+// }} ""
+// {{{ 243 1 0 "17a28e80_5113_4d70_a0ba23ccb2f63243" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (bRetValue);
+// }} ""
+// {{{ 5 "_RunTimer" "End"
+}
+// }} ""
+// {{{ 5 "_WriteValueToFile" "Begin"
+private function _WriteValueToFile( variable i_intTimeToRun, variable i_intDelayTimeBeforeStartOfDeco ) variable {
+// }} ""
+private variable bRetValue;
+private variable strUsbRunTime;
+private file fhFileHandle;
+private variable strDelayTimeBeforeStartOfDeco;
+// {{ 5 "_WriteValueToFile" "InitLocals"
+// }} ""
+// {{ 257 1 0 "020929f1_bef0_4b82_8fd307204da58547" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+bRetValue = ASWGLOBAL::BOOL::TRUE;
+// }} ""
+// {{ 258 1 0 "85602870_debf_4d34_9e6a30da493cff14" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+onerror goto errLabel_3B3D1C59DDA14bde8E1DE235FBAB4C82 ;
+err.Clear();
+// }} ""
+// {{ 259 1 0 "37a2caea_5315_4d99_81c19c7a81c03836" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 260 1 0 "72adf6ff_e634_463e_b9093a4d9c077a3b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strUsbRunTime = StrIStr(i_intTimeToRun);
+// }} ""
+// {{{ 261 1 0 "509c5d99_947a_4c30_a719afd2d2d359bb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strDelayTimeBeforeStartOfDeco = StrIStr(i_intDelayTimeBeforeStartOfDeco);
+// }} ""
+// {{ 262 1 0 "92156260_6f18_4a4a_8d36616597f3ca18" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+fhFileHandle.AddField("DecoRuntime", strUsbRunTime, hslString, 255);
+fhFileHandle.AddField("DecoStartDelay", strDelayTimeBeforeStartOfDeco, hslString, 255);
+fhFileHandle.SetDelimiter(";");
+if( 0 == fhFileHandle.Open(_strFileSource, hslWrite) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, _strFileSource, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 263 1 0 "232ab29a_e91d_499d_95566077cb5ee6d4" "{B31F3537-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == fhFileHandle.WriteRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1473380096, MECC::IDS::stepNameFileWrite, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 264 1 0 "1c2cf0e0_dc5e_44f4_ace748b8738f0150" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != fhFileHandle.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+fhFileHandle.RemoveFields();
+// }} ""
+// {{ 265 1 0 "85602870_debf_4d34_9e6a30da493cff14" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+errLabel_3B3D1C59DDA14bde8E1DE235FBAB4C82 : {}
+onerror goto 0;
+if (err.GetId() != 0)   /* skip handler if no error */
+{
+// }} ""
+// {{ 266 1 0 "581e8f43_4e57_4170_85e47f2fc7265c72" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+bRetValue = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{ 267 1 0 "abeae459_e868_4504_ac8c7fb8d8eaa353" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != fhFileHandle.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+fhFileHandle.RemoveFields();
+// }} ""
+// {{ 268 1 0 "85602870_debf_4d34_9e6a30da493cff14" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+}   /* end if from skip handler if no error */
+// }} ""
+// {{{ 269 1 0 "8371e2ae_c628_4781_b284bb5bafc232e4" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (bRetValue);
+// }} ""
+// {{{ 5 "_WriteValueToFile" "End"
+}
+// }} ""
+// {{{ 5 "_CheckUvLampBlinking" "Begin"
+private function _CheckUvLampBlinking( variable i_strClewarePath ) variable {
+// }} ""
+private variable usbSwitchExited;
+private timer timer1;
+private variable intDialogReturnValue;
+private variable loopCounter1;
+private variable _intDialogRetValue;
+private dialog dialogHandle8B1F2EAFC32242949B0C340A04FA38A9;
+private dialog dialogHandleE0BE16D7885445dc84455C7559CD0E4B;
+private dialog dialogHandle855327BD642C4336AD32B29D638637F7;
+private dialog dialogHandle6BF37C1E19544ebb96C375ED71B9ACF4;
+// {{ 5 "_CheckUvLampBlinking" "InitLocals"
+// }} ""
+// {{ 99 1 0 "f0c59445_429a_473b_846980ad486b90f9" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 100 1 0 "19c0c13f_2df0_4942_bf115e0f4b0b0d4e" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle6BF37C1E19544ebb96C375ED71B9ACF4.SetOutput(Translate("During the check of the UV light:"), Translate("\nAvoid exposure to UV light."), Translate("\nExposure may cause severe eye or skin injury."), Translate("\n"), Translate("\nWear suitable face shield, gloves and protective clothing."), Translate("\nMake sure that the UV cover is placed in the correct position"), Translate("\nto completely close the instrument before switching on the UV lights."), Translate("\n"), Translate("\nPress OK to test the UV light!"));
+_intDialogRetValue = dialogHandle6BF37C1E19544ebb96C375ED71B9ACF4.ShowOutput(Translate("Warning!"), hslOKCancel | hslExclamation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 101 1 0 "c865514f_9962_4bd7_be9facf0aaaa34d9" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_intDialogRetValue == ASWGLOBAL::DIALOG::OK)
+{
+// }} ""
+// {{ 102 1 0 "c24fa9e7_d32f_44b8_8f1a5839c418270c" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+loopCounter1 = 0;
+while (ASWGLOBAL::BOOL::TRUE == ASWGLOBAL::BOOL::TRUE)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{{ 103 1 0 "48fc9ae5_cf25_4740_a6bbd8cf51b4cef8" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+usbSwitchExited = _SwitchLightOn();
+// }} ""
+// {{ 104 1 0 "1c22bce1_c4d7_4e4e_8048967389d5f7a3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (usbSwitchExited != 1)
+{
+// }} ""
+// {{ 105 1 0 "99612856_e180_4eb3_b131ad4c3f4a252e" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle8B1F2EAFC32242949B0C340A04FA38A9.SetOutput(Translate("Failed to start of UV light: Check switch."), Translate("\nUsb switch state = "), usbSwitchExited);
+dialogHandle8B1F2EAFC32242949B0C340A04FA38A9.ShowOutput(Translate("Error"), hslOKOnly | hslError | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 106 1 0 "1c22bce1_c4d7_4e4e_8048967389d5f7a3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 107 1 0 "963fb638_4589_4099_80841d3321feb4eb" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.SetTimer(2) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 108 1 0 "e6bdf8fa_7e5e_49d6_8989b4892097995c" "{B31F353F-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.WaitTimer(hslFalse, hslFalse) )
+{
+    MECC::RaiseRuntimeErrorEx(-1339162368, MECC::IDS::stepNameTimerWait, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 109 1 0 "3408bf5c_5935_48be_8022a8835b26f023" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+usbSwitchExited = _SwitchLightOFF();
+// }} ""
+// {{ 110 1 0 "820bb183_06ad_4c55_aa24a0ddff3db7b0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (usbSwitchExited != 0)
+{
+// }} ""
+// {{ 111 1 0 "0905a225_4cea_43e9_a4b439fd36c9bcaa" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle855327BD642C4336AD32B29D638637F7.SetOutput(Translate("Failed to switch off UV light: Check switch."), Translate("\nUsb switch state = "), usbSwitchExited, Translate("\n"), Translate("\nAttention: UV light still might be in operation!"));
+dialogHandle855327BD642C4336AD32B29D638637F7.ShowOutput(Translate("Error"), hslOKOnly | hslError | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 112 1 0 "820bb183_06ad_4c55_aa24a0ddff3db7b0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 113 1 0 "6d1639cb_6471_40ee_854bd5d8fd2ffe21" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleE0BE16D7885445dc84455C7559CD0E4B.SetOutput(Translate("Have you seen the UV light flashing?"), Translate("\n"), Translate("\nYes:\t UV light is working."), Translate("\nNo:\t Retest the UV light."), Translate("\nCancel:\t Aborts the run."));
+intDialogReturnValue = dialogHandleE0BE16D7885445dc84455C7559CD0E4B.ShowOutput(Translate("Check UV light result confirmation."), hslYesNoCancel | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 114 1 0 "2c0716de_d51f_4c4d_aceac19983ebe350" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intDialogReturnValue == ASWGLOBAL::DIALOG::YES)
+{
+// }} ""
+// {{{ 115 1 0 "af347a98_2833_427d_8935600b2f73147d" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 116 1 0 "7ff0fc8a_7637_4e80_912af8f9f9ae12d6" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 117 1 0 "2c0716de_d51f_4c4d_aceac19983ebe350" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 118 1 0 "43eabf55_fd19_4aa4_a1ffa712ce57b215" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intDialogReturnValue == ASWGLOBAL::DIALOG::CANCEL)
+{
+// }} ""
+// {{{ 119 1 0 "8ad9711b_5657_4bb8_971f0720b01ca6aa" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 120 1 0 "11048c34_8fd6_40a1_bff5a34cd9be5dcf" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 121 1 0 "43eabf55_fd19_4aa4_a1ffa712ce57b215" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 122 1 0 "c24fa9e7_d32f_44b8_8f1a5839c418270c" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 123 1 0 "c865514f_9962_4bd7_be9facf0aaaa34d9" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 124 1 0 "67cbafb3_09c1_4afd_855c64a34e7a7d15" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 125 1 0 "c865514f_9962_4bd7_be9facf0aaaa34d9" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 126 1 0 "4fab84a2_9a44_4e1b_a014bddae6d7902d" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{{ 5 "_CheckUvLampBlinking" "End"
+}
+// }} ""
+// {{{ 5 "_Abstract" "Begin"
+private function _Abstract(  ) void {
+// }} ""
+// {{ 5 "_Abstract" "InitLocals"
+// }} ""
+// {{{ 5 "_Abstract" "End"
+}
+// }} ""
+// {{{ 5 "DoTheDecontamination" "Begin"
+function DoTheDecontamination( device & ML_STAR ) variable {
+// }} ""
+private dialog dialogHandleA8D6A73989F04352B175665C6F8006DD;
+private variable _bInitOK;
+private variable strClewarePath;
+private dialog dialogHandle096AF1E2EB7945b48F9FE030116C39C3;
+private variable intDelayTimeBeforeStartOfDeco;
+private variable intTempInt;
+private dialog dialogHandle6AD9A44B1CBC40d3A2DAF6474BBB6105;
+private dialog dialogHandle8199521F12AF4b909B1B1C3CCC4347A8;
+private variable intMaxUsbRunTime;
+private variable intMinUsbRunTime;
+private dialog dialogHandle3E09F10C60634f58B250D6229D32216F;
+private dialog dialogHandleF0F9E6B6E2F74cba984C122F2A9784D9;
+private variable _intDialogRetValue;
+private dialog dialogHandleABFDDAB067584a6a9419971DA52042A3;
+private variable usbSwitchExited;
+private timer timer1;
+private dialog dialogHandle868795E3ED3D4efe996587DF25AF418C;
+private dialog dialogHandle74A48766973D4a5cA18E21A673FF3C96;
+private variable blnReturn;
+private variable intLabwareIsValid;
+// {{ 5 "DoTheDecontamination" "InitLocals"
+// }} ""
+// {{ 3 1 0 "955bfd3c_2199_4682_922d2e4b4211f665" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 4 1 0 "811f389b_4e44_4975_819541bb51fa0c98" "ML_STAR:{1C0C0CB0-7C87-11D3-AD83-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR.Initialize("811f389b_4e44_4975_819541bb51fa0c98");
+}
+// }} ""
+// {{ 5 1 0 "1e3c9ff2_9dfa_42ec_8bb4d1deb94e24e6" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blnReturn = ASWGLOBAL::BOOL::TRUE;
+// }} ""
+// {{{ 6 1 0 "ef07d0e9_a733_497d_bedbe26e6da6af9e" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_bInitOK = _InitEnvironmentSettings(intMaxUsbRunTime, intMinUsbRunTime, strClewarePath);
+// }} ""
+// {{ 7 1 0 "0e9f1b84_a0cc_4d3f_b84c9b7b1f2d871b" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_bInitOK == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 8 1 0 "ee203ab3_70e1_4a55_ad30c6668c85d434" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleA8D6A73989F04352B175665C6F8006DD.SetOutput(Translate("Init failed: Please check your environment settings and Cleware installation!"));
+dialogHandleA8D6A73989F04352B175665C6F8006DD.ShowOutput(Translate("Initialization error"), hslOKOnly | hslError | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 9 1 0 "47f56f05_4c1e_4c23_bc4fac472c9fb40a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace4(Translate("Init failed!\n"), Translate("Please check your environment settings and Cleware installation!"), Translate("\nPath to Cleware="), strClewarePath);
+// }} ""
+// {{ 10 1 0 "a3d13146_928b_453c_a63a3d5d25e387c2" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blnReturn = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{ 11 1 0 "bc05de0f_155d_4fb0_bb9fd656456eab69" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_strErrorState = Translate("InitFailed!");
+// }} ""
+// {{{ 12 1 0 "f6fd813b_30fd_4fa4_a662af8e4c16a4b9" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+CleanupAndSwitchLightOff();
+// }} ""
+// {{{ 13 1 0 "cdc99243_73da_46ca_a79b7270eb971a97" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (blnReturn);
+// }} ""
+// {{ 14 1 0 "0e9f1b84_a0cc_4d3f_b84c9b7b1f2d871b" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 15 1 0 "0f5b0257_5448_4c36_bb8723e7409eaf7d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+intLabwareIsValid = DevIsValidLabwareForCurrentDeckLayout(ML_STAR, _strRightMostDecontaminationPositionLabwareID);
+// }} ""
+// {{ 16 1 0 "b64d68dd_9a10_4132_b1bfa645ff5e677e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intLabwareIsValid == 0)
+{
+// }} ""
+// {{{ 17 1 0 "ada6d7ec_ce77_4272_8c445a8602db86e9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace4(Translate("Init failed!\n"), Translate("Rightmost LabwarePosition with LabwareID="), _strRightMostDecontaminationPositionLabwareID, Translate(" is missing or misspelled"));
+// }} ""
+// {{ 18 1 0 "1291febb_746c_45ed_86299b96fbe82d0c" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blnReturn = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{ 19 1 0 "401a4da9_e16b_4a4c_874c6478e59baea5" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_strErrorState = Translate("Rightmost labwareID wrong!");
+// }} ""
+// {{{ 20 1 0 "e95219dc_9285_4ee0_9b2bda8ea8858da3" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+CleanupAndSwitchLightOff();
+// }} ""
+// {{{ 21 1 0 "724fde66_a4b7_4893_86d733c33cbe900c" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (blnReturn);
+// }} ""
+// {{ 22 1 0 "b64d68dd_9a10_4132_b1bfa645ff5e677e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 23 1 0 "0b757433_5d84_4554_80fc1022587399d1" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_bInitOK = _CheckUvLampBlinking(strClewarePath);
+// }} ""
+// {{ 24 1 0 "36646156_5a36_4e90_9fedf9d8e30447b8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_bInitOK == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 25 1 0 "055b30ff_af0d_423d_bd696878e96295a0" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle096AF1E2EB7945b48F9FE030116C39C3.SetOutput(Translate("The UV light is not working, this can have several causes."), Translate("\nPlease check if the USB Switch and the UV light are plugged in properly."), Translate("\nIf so and the UV light is still not working, the UV light could be damaged, "), Translate("\nplease contact your responsible technical support representative."));
+dialogHandle096AF1E2EB7945b48F9FE030116C39C3.ShowOutput(Translate("Initialization error"), hslOKOnly | hslError | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 26 1 0 "f2e6c146_8d23_4fa5_bd20447b3f2f16ca" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace4(Translate("Init failed!\n"), Translate("Please check your environment settings and Cleware installation!"), Translate("\nPath to Cleware="), strClewarePath);
+// }} ""
+// {{ 27 1 0 "3ea83ffb_c91d_4ca8_aa6a48b9fd2ff38f" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blnReturn = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{ 28 1 0 "613a9d59_b5a9_46e7_a7a0b54732b969d7" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_strErrorState = Translate("Check UV light not confirmed!");
+// }} ""
+// {{{ 29 1 0 "53576a68_31b5_49e4_a298a9f7040b52d9" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+CleanupAndSwitchLightOff();
+// }} ""
+// {{{ 30 1 0 "7c1e50a7_9afa_4594_81a8c17ab871406a" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (blnReturn);
+// }} ""
+// {{ 31 1 0 "36646156_5a36_4e90_9fedf9d8e30447b8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 32 1 0 "0d2de327_5824_4495_9456c8832e88472a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intTempInt = 0;
+// }} ""
+// {{ 33 1 0 "0f1a6dcb_2f05_47ef_90dbb066694adb47" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intDelayTimeBeforeStartOfDeco = 1;
+// }} ""
+// {{{ 34 1 0 "bc77cef9_6f1b_467a_a801102e69943156" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_bInitOK = _GetValueFromFile(intTempInt, intDelayTimeBeforeStartOfDeco);
+// }} ""
+// {{ 35 1 0 "3649c872_c657_4599_9923a2126323013f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_bInitOK == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 36 1 0 "f4aa8f92_8825_4294_832e45be7d7ca62d" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle8199521F12AF4b909B1B1C3CCC4347A8.SetOutput(Translate("Could not read file: new file creation failed!"));
+dialogHandle8199521F12AF4b909B1B1C3CCC4347A8.ShowOutput(Translate("Read from file error!"), hslOKOnly | hslError | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 37 1 0 "8d9e3ead_2996_4fc9_b37f7763f4502c69" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("Init failed!\n"), Translate("Please check your environment settings!"));
+// }} ""
+// {{ 38 1 0 "4e7c4372_5003_4b6a_b6baed8c441dd46f" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blnReturn = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{ 39 1 0 "144392f9_3fec_4bd7_ad12bd6e98548e12" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_strErrorState = Translate("Get configfile values failed!");
+// }} ""
+// {{{ 40 1 0 "11b74b37_7e70_44bc_a8edc4328c9cdd9b" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+CleanupAndSwitchLightOff();
+// }} ""
+// {{{ 41 1 0 "c6b3cb51_848f_42f8_81c6008ad2155269" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (blnReturn);
+// }} ""
+// {{ 42 1 0 "3649c872_c657_4599_9923a2126323013f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 43 1 0 "04ee05cc_5164_4bd2_89593542272a351c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("intTempInt"), intTempInt);
+// }} ""
+// {{{ 44 1 0 "c1be9549_5b17_4668_91b9e6260b74e281" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("intDelayTimeBeforeStartOfDeco"), intDelayTimeBeforeStartOfDeco);
+// }} ""
+// {{ 45 1 0 "4b7d63d4_1bd2_4bc7_9562c8be10218e21" "{B31F3539-5D80-11d4-A5EB-0050DA737D89}"
+dialogHandle6AD9A44B1CBC40d3A2DAF6474BBB6105.SetInputSize(2);
+dialogHandle6AD9A44B1CBC40d3A2DAF6474BBB6105.SetInputField(0, Translate("Decontamination duration (minutes)"), hslInteger, intTempInt, intMinUsbRunTime, intMaxUsbRunTime);
+dialogHandle6AD9A44B1CBC40d3A2DAF6474BBB6105.SetInputField(1, Translate("Time to wait before decontamination starts (minutes)"), hslInteger, intDelayTimeBeforeStartOfDeco, 0, 10);
+dialogHandle6AD9A44B1CBC40d3A2DAF6474BBB6105.ShowInput(Translate("UV light timer: Please set the decontamination duration and delay timer for the UV light (in minutes)."), hslInfinite, hslOKOnly | hslDefButton1);
+_intUsbRunTime = dialogHandle6AD9A44B1CBC40d3A2DAF6474BBB6105.GetInputField(0);
+intDelayTimeBeforeStartOfDeco = dialogHandle6AD9A44B1CBC40d3A2DAF6474BBB6105.GetInputField(1);
+// }} ""
+// {{{ 46 1 0 "0d94a204_4fa3_46b2_9cc46575ce8efa02" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("Wert ist :"), _intUsbRunTime);
+// }} ""
+// {{{ 47 1 0 "7c1d272e_ecb6_4763_b4f23d13024f4152" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_bInitOK = _WriteValueToFile(_intUsbRunTime, intDelayTimeBeforeStartOfDeco);
+// }} ""
+// {{ 48 1 0 "b0fd6c5d_9f64_4c8e_835a2587bf7cd941" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_bInitOK == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 49 1 0 "8579a86b_9e2e_4997_9f08010b4252a3a5" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle3E09F10C60634f58B250D6229D32216F.SetOutput(Translate("Could not write to file: please check your permissions!"));
+dialogHandle3E09F10C60634f58B250D6229D32216F.ShowOutput(Translate("Write to file error!"), hslOKOnly | hslError | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 50 1 0 "c4982af1_9fc1_4b52_a6f1bbc2d6b7a239" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("Init failed!\n"), Translate("Please check your environment settings and write permissions!"));
+// }} ""
+// {{ 51 1 0 "54968de8_aa7b_4327_825b71b7c7417961" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_strErrorState = Translate("Write configfile values failed!");
+// }} ""
+// {{ 52 1 0 "15dfdcf2_dda3_4977_a05de67d76e4be76" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blnReturn = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{{ 53 1 0 "9a598851_abc3_463a_ba1230520d2a734f" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+CleanupAndSwitchLightOff();
+// }} ""
+// {{{ 54 1 0 "cc0135b0_2449_477e_be7c48f316407096" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (blnReturn);
+// }} ""
+// {{ 55 1 0 "b0fd6c5d_9f64_4c8e_835a2587bf7cd941" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 56 1 0 "d053af88_98dc_40f8_bffbc36a578ccff7" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleF0F9E6B6E2F74cba984C122F2A9784D9.SetOutput(Translate("During the UV decontamination process the pipetting arm will move."), Translate("\nPlease ensure that no collision can take place."), Translate("\n"), Translate("\nAvoid exposure to UV light."), Translate("\nExposure may cause severe eye or skin injury."), Translate("\n"), Translate("\nWear suitable face shield, gloves and protective clothing."), Translate("\nMake sure that the UV cover is placed in the correct position"), Translate("\nto completely close the instrument before switching on the UV lights."));
+_intDialogRetValue = dialogHandleF0F9E6B6E2F74cba984C122F2A9784D9.ShowOutput(Translate("Warning!"), hslOKCancel | hslExclamation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 57 1 0 "4bdb1d09_5fa5_4a1f_9861ecbdb7929c30" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_intDialogRetValue == ASWGLOBAL::DIALOG::OK)
+{
+// }} ""
+// {{ 58 1 0 "0b7a8fbf_8eda_4153_bea5f363bebab19b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 59 1 0 "b98c93ca_fc4b_4d97_9faf38b7b989ca35" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+intDelayTimeBeforeStartOfDeco = intDelayTimeBeforeStartOfDeco * 60;
+// }} ""
+// {{ 60 1 0 "390acc19_1240_41f1_99c4f18c717985eb" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.SetTimer(intDelayTimeBeforeStartOfDeco) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 61 1 0 "fb6c21fd_76c2_42ae_b30f9be582734893" "{B31F353F-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.WaitTimer(hslTrue, hslTrue) )
+{
+    MECC::RaiseRuntimeErrorEx(-1339162368, MECC::IDS::stepNameTimerWait, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 62 1 0 "5b7b759c_abd6_4319_9d036e56cbfac209" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+usbSwitchExited = _SwitchLightOn();
+// }} ""
+// {{ 63 1 0 "e20f3cb1_9e9f_46d5_9ebbc7fc6b42a19a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (usbSwitchExited != 1)
+{
+// }} ""
+// {{ 64 1 0 "e362a209_5979_444e_864e580d6fcf08dd" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleABFDDAB067584a6a9419971DA52042A3.SetOutput(Translate("Failed to start of UV light: Check switch."), Translate("\nUsb switch state = "), usbSwitchExited);
+dialogHandleABFDDAB067584a6a9419971DA52042A3.ShowOutput(Translate("Error"), hslOKOnly | hslError | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 65 1 0 "a4048b3a_8ac3_4e5b_8b7408b5320561bf" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blnReturn = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{ 66 1 0 "585ec7ad_f02c_4d57_834abb983e39bbfa" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_strErrorState = Translate("Could not switch UV light on!");
+// }} ""
+// {{{ 67 1 0 "bf36a622_f873_454a_a2edcbe6d283cb6a" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+CleanupAndSwitchLightOff();
+// }} ""
+// {{{ 68 1 0 "eaaf5c21_6c96_4f3c_9373b49674bc3240" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (blnReturn);
+// }} ""
+// {{ 69 1 0 "e20f3cb1_9e9f_46d5_9ebbc7fc6b42a19a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 70 1 0 "2b5431a1_5930_4349_9d753fb142c3afbd" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+blnReturn = _RunTimer(ML_STAR, _intUsbRunTime);
+// }} ""
+// {{ 71 1 0 "7b8e735e_1d9b_4d0f_9ad20294ca104abb" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnReturn == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 72 1 0 "165765e0_8d14_45dc_8d2572404055b1f5" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blnReturn = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{{ 73 1 0 "b39f3215_7679_4785_8fdb405a79d56455" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+CleanupAndSwitchLightOff();
+// }} ""
+// {{{ 74 1 0 "00ff2368_57ef_4b10_98e32ed862d04ee3" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (blnReturn);
+// }} ""
+// {{ 75 1 0 "7b8e735e_1d9b_4d0f_9ad20294ca104abb" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 76 1 0 "0481fa50_50c6_4f0f_a33a15401bf85e19" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+usbSwitchExited = _SwitchLightOFF();
+// }} ""
+// {{ 77 1 0 "6bc55b49_2b1d_41c4_a8da6778d522d35a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (usbSwitchExited != 0)
+{
+// }} ""
+// {{ 78 1 0 "1ab9c140_f767_446c_b6d5cb9a88e79854" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle868795E3ED3D4efe996587DF25AF418C.SetOutput(Translate("Failed to switch off UV light: Check switch."), Translate("\nUsb switch state = "), usbSwitchExited, Translate("\n"), Translate("\nAttention: UV light still might be in operation!"));
+dialogHandle868795E3ED3D4efe996587DF25AF418C.ShowOutput(Translate("Error"), hslOKOnly | hslError | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 79 1 0 "d9688a2e_36bc_43e6_90a943a0dc639171" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blnReturn = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{ 80 1 0 "e3d72f16_d71e_4e41_ade94efba2631157" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_strErrorState = Translate("Could not switch UV light off!");
+// }} ""
+// {{{ 81 1 0 "64cb6c52_1d02_4e83_80ea0f7b31249ce5" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+CleanupAndSwitchLightOff();
+// }} ""
+// {{{ 82 1 0 "feb6c709_5917_413e_adcf72b12850ef31" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (blnReturn);
+// }} ""
+// {{ 83 1 0 "6bc55b49_2b1d_41c4_a8da6778d522d35a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 84 1 0 "9f41338a_9dda_47a1_a25627fc1d0b2a7c" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle74A48766973D4a5cA18E21A673FF3C96.SetOutput(Translate("End of UV decontamination process."));
+dialogHandle74A48766973D4a5cA18E21A673FF3C96.ShowOutput(Translate("Message"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 85 1 0 "309a4093_294c_4d02_b3ff7cfdfda6d887" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blnReturn = ASWGLOBAL::BOOL::TRUE;
+// }} ""
+// {{ 86 1 0 "4bdb1d09_5fa5_4a1f_9861ecbdb7929c30" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 87 1 0 "5e987b31_bc04_40ea_ba746fd8045218be" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blnReturn = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{{ 88 1 0 "d3b27db3_e12d_4058_848897be3a3b0b45" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate(">>>>>>>>>>>>> "), Translate("Program terminated by user !"));
+// }} ""
+// {{ 89 1 0 "40c84ec1_b8bc_4326_b9e0c56af2ee16b4" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_strErrorState = Translate("Program terminated by user !");
+// }} ""
+// {{{ 90 1 0 "fb3e0559_a72e_4357_957bcc0de359b61b" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+CleanupAndSwitchLightOff();
+// }} ""
+// {{{ 91 1 0 "c0721091_3446_4d4f_94378c4e8b86f87d" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (blnReturn);
+// }} ""
+// {{ 92 1 0 "4bdb1d09_5fa5_4a1f_9861ecbdb7929c30" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 93 1 0 "b44bcedc_2ed4_4bfb_9b82289f8912a3a6" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (blnReturn);
+// }} ""
+// {{{ 5 "DoTheDecontamination" "End"
+}
+// }} ""
+// {{{ 5 "CleanupAndSwitchLightOff" "Begin"
+function CleanupAndSwitchLightOff(  ) void {
+// }} ""
+// {{ 5 "CleanupAndSwitchLightOff" "InitLocals"
+// }} ""
+// {{{ 1 1 0 "53528672_2959_4a7a_975c2deccf171d18" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_SwitchLightOFF();
+// }} ""
+// {{{ 5 "CleanupAndSwitchLightOff" "End"
+}
+// }} ""
+// {{{ 5 "GetError" "Begin"
+function GetError(  ) variable {
+// }} ""
+// {{ 5 "GetError" "InitLocals"
+// }} ""
+// {{ 95 1 0 "8448f6aa_dd9c_4329_ab834f4566d325c8" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 96 1 0 "d5c79250_7ad5_4da4_b26ce1ed83098f3a" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (_strErrorState);
+// }} ""
+// {{{ 5 "GetError" "End"
+}
+// }} ""
+// {{{ 5 "_SwitchLightOn" "Begin"
+private function _SwitchLightOn(  ) variable {
+// }} ""
+private variable usbSwitchExited;
+private variable strClewarePath;
+// {{ 5 "_SwitchLightOn" "InitLocals"
+// }} ""
+// {{ 251 1 0 "f6d9fa57_74c5_4895_829d8b675a26f240" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 252 1 0 "7188502b_e8a5_4b14_a68021e0224604cf" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strClewarePath = StrConcat2(_strClewarePath, Translate(" 1"));
+// }} ""
+// {{{ 253 1 0 "f59b6b45_ce10_4b33_b65a41c9af0a94b2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("strClewarePath="), strClewarePath);
+// }} ""
+// {{ 254 1 0 "b8ae3abb_8bd9_42d4_9a7e05b0d1712504" "{B31F3545-5D80-11d4-A5EB-0050DA737D89}"
+{
+event localDummyEvent1;
+if( 0 == Shell(strClewarePath, hslHide, hslSynchronous, localDummyEvent1, usbSwitchExited) )
+{
+    MECC::RaiseRuntimeErrorEx(-1238499072, MECC::IDS::stepNameShell, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+}
+// }} ""
+// {{{ 255 1 0 "1eef20ff_a9d4_47f7_b95d90e20ea379b2" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (usbSwitchExited);
+// }} ""
+// {{{ 5 "_SwitchLightOn" "End"
+}
+// }} ""
+// {{{ 5 "_SwitchLightOFF" "Begin"
+private function _SwitchLightOFF(  ) variable {
+// }} ""
+private variable usbSwitchExited;
+private variable strClewarePath;
+// {{ 5 "_SwitchLightOFF" "InitLocals"
+// }} ""
+// {{ 245 1 0 "17ad6519_637c_4a6b_bec90d0ad027bb15" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 246 1 0 "182bef30_faae_4c60_a881d5192f46dd99" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strClewarePath = StrConcat2(_strClewarePath, Translate(" 0"));
+// }} ""
+// {{{ 247 1 0 "7354c41b_b608_48eb_bccaf73fc42ab209" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("strClewarePath="), strClewarePath);
+// }} ""
+// {{ 248 1 0 "b4e382e4_ee17_4d50_874666cd08bc829b" "{B31F3545-5D80-11d4-A5EB-0050DA737D89}"
+{
+event localDummyEvent1;
+if( 0 == Shell(strClewarePath, hslHide, hslSynchronous, localDummyEvent1, usbSwitchExited) )
+{
+    MECC::RaiseRuntimeErrorEx(-1238499072, MECC::IDS::stepNameShell, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+}
+// }} ""
+// {{{ 249 1 0 "fcfef189_7775_465d_93f192606cff4e9d" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (usbSwitchExited);
+// }} ""
+// {{{ 5 "_SwitchLightOFF" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=Hamilton$$valid=0$$time=2024-01-08 15:50$$checksum=a3af0bf2$$length=087$$

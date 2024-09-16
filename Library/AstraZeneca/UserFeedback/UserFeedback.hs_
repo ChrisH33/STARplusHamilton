@@ -1,0 +1,20 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 08/12/2022 11:54:13
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace USERFEEDBACK {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function CollectProjectCode( variable i_blnSimulationMode, variable & o_strProjectName ) void { }
+function GetFeedback( device & i_ML_STAR, variable i_strMethodName, variable i_strDateTimeStampStart, variable i_strProjectName, variable i_strEmail ) void { }
+function GetTimeStamp( variable & o_strDateTimeStamp ) void { }
+function OnAbortFeedback( device & i_ML_STAR, variable i_strMethodName, variable i_strDateTimeStampStart, variable i_strProjectName ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2022-12-08 11:54$$checksum=5666214c$$length=081$$

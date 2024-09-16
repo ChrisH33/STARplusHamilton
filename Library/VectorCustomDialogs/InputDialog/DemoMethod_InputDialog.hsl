@@ -1,0 +1,164 @@
+ namespace _Method { #include "VectorCustomDialogs\\VectorCustomDialogs.hsl" } 
+ namespace _Method { #include "ASWStandard\\TraceLevel\\TraceLevel.hsl" } 
+ namespace _Method { #include "HSLUtilLib2.hsl" } 
+ namespace _Method { #include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl" } 
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable intInputDialogLoopCounter;
+variable arrRanges[];
+variable arrUnits[];
+variable arrTooltip[];
+variable arrSelectedResult[];
+variable arrLabels[];
+variable arrValues[];
+variable arrTypes[];
+variable blnSuccessfulExecuted;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{{ 1 1 0 "a29d0e02_5cee_4693_bd119770b168648c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::SetTraceLevel(TRACE_LEVEL_DEBUG);
+// }} ""
+// {{{ 2 1 0 "da76fa4d_1673_4642_80e9f82aa0b88254" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::Initialize();
+// }} ""
+// {{ 3 1 0 "53e9d88d_1220_49d9_84accb8cce550193" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 4 1 0 "10371b3e_8881_45fa_af4bffb12587fbea" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'Initialize' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 5 1 0 "f758d023_d1e5_4cbc_b6364bd3c8dd35ab" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 6 1 0 "53e9d88d_1220_49d9_84accb8cce550193" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 7 1 0 "81b5e717_ab89_4a99_93e0e8d365104b9e" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 8 1 0 "f7d659c9_f69f_4596_b795a3f12d9d96aa" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrLabels.SetSize(0);
+// }} ""
+// {{ 9 1 0 "c77a67f0_c507_4a4f_8d10653674f9f0a9" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrValues.SetSize(0);
+// }} ""
+// {{ 10 1 0 "16df877e_c64f_454c_b0179f783fc0ea8b" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrUnits.SetSize(0);
+// }} ""
+// {{ 11 1 0 "f481baff_c9c5_4833_b329bba75ef65c86" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrTypes.SetSize(0);
+// }} ""
+// {{ 12 1 0 "a67058e8_772d_4881_87a3a65511669ba1" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrRanges.SetSize(0);
+// }} ""
+// {{ 13 1 0 "20e66fee_5b48_4fd4_a71a77bbae5ca6dd" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrTooltip.SetSize(0);
+// }} ""
+// {{ 14 1 0 "9f82a380_3570_44ee_8e98859077fbf235" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrSelectedResult.SetSize(5);
+// }} ""
+// {{ 15 1 0 "81b5e717_ab89_4a99_93e0e8d365104b9e" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 16 1 0 "d271de18_4109_46b8_8c7b335fa5b1b50b" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 17 1 0 "9329d4a5_2e25_4724_88027782a45f5fb0" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrLabels.AddAsLast(Translate("Reagent 1"));
+// }} ""
+// {{ 18 1 0 "e3c6ca44_f3b9_4a20_b09aa6d0268ea54d" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrLabels.AddAsLast(Translate("Reagent 2"));
+// }} ""
+// {{ 19 1 0 "ef255e1d_b33c_4516_afe6b44af0d3d449" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrLabels.AddAsLast(Translate("Reagent 3"));
+// }} ""
+// {{ 20 1 0 "1383c7d2_655d_4665_81c9a4ce4e7413f6" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrLabels.AddAsLast(Translate("Reagent 4"));
+// }} ""
+// {{ 21 1 0 "d271de18_4109_46b8_8c7b335fa5b1b50b" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 22 1 0 "7ce4aeb1_da0e_4a49_8e311700d995509d" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 23 1 0 "89ab192b_795a_4d37_a93ea08e1902f876" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(intInputDialogLoopCounter = 0; intInputDialogLoopCounter < 4;)
+{
+intInputDialogLoopCounter = intInputDialogLoopCounter + 1;
+// }} ""
+// {{ 24 1 0 "911b1505_ca58_4fd0_a776c6dd634b283b" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrValues.AddAsLast(Translate("10"));
+// }} ""
+// {{ 25 1 0 "c6a927aa_bbce_4d14_8e42360b8e49eda1" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrUnits.AddAsLast(Translate("ml"));
+// }} ""
+// {{ 26 1 0 "155e8f77_8728_4dbf_883c6b26d6e43dbb" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrTypes.AddAsLast(1);
+// }} ""
+// {{ 27 1 0 "e9fd31bf_5fc4_46a4_90997110544ebb10" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrRanges.AddAsLast(Translate("10|15"));
+// }} ""
+// {{ 28 1 0 "05223fb7_20f1_4a64_99101ba0cfa9dcdc" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrTooltip.AddAsLast(Translate("Select a value between 10 and 15"));
+// }} ""
+// {{ 29 1 0 "89ab192b_795a_4d37_a93ea08e1902f876" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 30 1 0 "7ce4aeb1_da0e_4a49_8e311700d995509d" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 31 1 0 "6b1c2320_eb9d_43bb_80dfa70b00768189" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::InputDialog(Translate("Inputs Volumes"), VectorCustomDialogs::ButtonType::OkCancel, 0, 0, Translate("Please fill in all fields with the desired volumes"), Translate("Press 'ok' to continue."), arrLabels, arrValues, arrUnits, arrTypes, arrRanges, arrTooltip, arrSelectedResult);
+// }} ""
+// {{ 32 1 0 "e5aab733_ed9a_445f_84428c72b7046470" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 33 1 0 "29cac926_f566_4556_ba19370b3d313d6f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'InputDialog' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 34 1 0 "b923f39b_4e70_4f52_8fc39b6359b6b6b3" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 35 1 0 "e5aab733_ed9a_445f_84428c72b7046470" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 36 1 0 "121487d8_ca08_41b0_9b784e0f01fd4b7b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::Terminate();
+// }} ""
+// {{ 37 1 0 "539b88d2_4fe9_46f5_adb2ea9898239393" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 38 1 0 "bd8bd3b6_4cbf_48f6_9be6ce56f96b7f44" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'Terminate' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 39 1 0 "e88c5304_2e54_4086_b561f8f15785770c" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 40 1 0 "539b88d2_4fe9_46f5_adb2ea9898239393" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=MKnopp$$valid=0$$time=2019-08-06 10:39$$checksum=776fbe17$$length=085$$

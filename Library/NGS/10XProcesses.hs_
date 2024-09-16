@@ -1,0 +1,44 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 15/03/2024 14:47:11
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace _10XPROCESSES {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function DATA_CheckPlatesInStacks( device & ML_STAR, sequence & seq_Stack1, sequence & seq_Stack2, variable var_Stack1Expected, variable var_Stack2Expected, variable & var_Result, variable & msg_Result ) void { }
+function DATA_HandoverSequencesAndDataToSMT( sequence & i_seqTip50Filter, sequence & i_seqTip300Filter, sequence & i_seqTipRocket, sequence & i_seqTip1000Filter, sequence & i_seqTip5mlFilter, sequence & i_seqCOREGripper, variable i_blnSimulationON, variable i_strKitName ) void { }
+function DATA_IncubationTimer( timer & i_strIncubationTimerName, variable i_intTime ) void { }
+function DATA_OverdryingProtection( timer & i_strOverdryingTimerName, variable i_intIncubationTimeForTheFollowingStep, variable i_blnStartNewTimer, variable & o_intIncubationTimeForTheFollowingStepModified ) void { }
+function DATA_TipCounterRead( device & ML_STAR, variable var_Tip50_required, variable var_Tip300_required, variable var_TipRocket_required, variable var_Tip1000_required, variable var_Tip5ml_required, variable var_TipTypeToBeProcessed, variable bln_AlwaysEditTipcounter, variable bln_ShowGUITipAndTimeCalculation ) void { }
+function DATA_TipCounterWrite( device & ML_STAR ) void { }
+function PIP_BeadsFromTroughToPlateAndFixedHeightTransfer( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, sequence & seq_TransferPosition, variable i_fltVolBeads, variable i_fltVolTransfer, variable i_strLiquidClassNameTransfer, sequence seq_Mixing, variable i_intBeadTroughMixVolume, variable i_mixCycles, variable i_mixVolume ) void { }
+function PIP_BeadsFromTroughToPlateAndTransfer( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, sequence & seq_TransferPosition, variable i_fltVolBeads, variable i_fltVolTransfer, variable i_strLiquidClassNameTransfer, sequence seq_Mixing, variable i_intBeadTroughMixVolume, variable i_mixCycles, variable i_mixVolume ) void { }
+function PIP_BeadsFromTubesOrTroughToPlate( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_fltVolBeads, variable i_strLiquidClassNameTransfer, variable i_blnTipExchangeDuringTransfer, sequence seq_Mixing, variable i_intBeadTroughMixVolume, variable i_mixCycles, variable i_mixVolume ) void { }
+function PIP_CherryPickFromPlateToPlate( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable & i_arrVolume[], variable i_strLiquidClassNameTransfer ) void { }
+function PIP_CherryPickFromPlateToPlate50ulTip( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable & i_arrVolume[], variable i_strLiquidClassNameTransfer ) void { }
+function PIP_CherryPickFromPlateToPlate50ulfilterTip( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable & i_arrVolume[], variable i_strLiquidClassNameTransfer ) void { }
+function PIP_Eluate_SingleDispenseFromPlateToPlate( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_fltVolume, variable i_strLiquidClassNameTransfer ) void { }
+function PIP_ElutionBuffer_384MPHRocketTips( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_fltVolume, variable i_strLiquidClassNameTransfer, variable i_intMixCycles, variable i_fltVolumeMix ) void { }
+function PIP_ElutionBuffer_AtSetHeight_384MPHRocketTips( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_fltVolume, variable i_strLiquidClassNameTransfer, variable i_intMixCycles, variable i_fltVolumeMix, variable i_fltAspirationHeight ) void { }
+function PIP_EtOH_HVFTMultidispenseFromTroughToPlate( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_strLiquidClassNameTransfer, variable & var_TrackingEthanolVolume, variable i_intEthanolVolume ) void { }
+function PIP_EthanolRemoval_384MPHRocketTips( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_fltVolume, variable i_strLiquidClassNameTransfer ) void { }
+function PIP_Ethanol_384MPHRocketTips( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_fltVolume, variable i_strLiquidClassNameTransfer ) void { }
+function PIP_Liquid_SingleDispenseFromPlateToPlate( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_fltVolume, variable i_strLiquidClassNameTransfer, variable i_intMixCycles, variable i_fltVolumeMix ) void { }
+function PIP_Normalize_LVFTForSampleTransferSVFTForBufferTransfer( device & ML_STAR, variable i_strNormalizationFile, sequence & io_seqBuffer, sequence & io_seqSourcePlate, sequence & io_seqDestinationPlate, variable i_strLiquidClassNameTransferBUFFER, variable i_strLiquidClassNameTransferSAMPLE, sequence & io_seqPlateSeqForJustBuffer, sequence & io_seqPoolingPlate ) void { }
+function PIP_OIL_LVFTSingleDispenseFromTroughToPlate( device & ML_STAR, sequence & seq_HSP, sequence & seq_Oil ) void { }
+function PIP_Pool_LVFT_SingleDispenseFromPlateToPlate( device & ML_STAR, sequence & i_seq_NormPlate, sequence & i_seq_PoolingPlate, variable i_strLiquidClassNameTransfer, variable & i_str_NormalizationFile ) void { }
+function PIP_ReagentsFromTubeOrTroughToPlate( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_fltVolume, variable & i_arrVolumes[], variable i_strLiquidClassNameTransfer, variable i_blnTipExchangeDuringTransfer, variable i_intMixCycles, variable i_fltVolumeMix, variable i_fltDispenseHeightFromBottom, variable i_blnUseUpToFourVials, variable i_blnLiquidFollowDispense ) void { }
+function PIP_SPRIBeadSupernatantRemoval_384MPHRocketTips( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_fltVolume, variable i_strLiquidClassNameTransfer ) void { }
+function PIP_SupernatantRemoval_384MPHRocketTips( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_fltVolume, variable i_strLiquidClassNameTransfer ) void { }
+function PIP_TransferSamples_SingleDispenseFromPlateToPlate( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_fltVolume, variable i_strLiquidClassNameTransfer, variable & i_arrVolumes[], variable i_intDispenseHeight, variable i_intMixCyclesOnDispense, variable i_intMixingVolume ) void { }
+function Trp_HSPwithCOREGripper( device & ML_STAR, sequence & seq_HSP_StartingPosition, sequence & seq_HSP_Destination, variable var_TrackToReadBC, variable var_ParkAfterMove, variable & o_strReadCurrentBarcode, variable i_intPlateType ) void { }
+function Trp_MIDIwithCOREGripper( device & ML_STAR, sequence & seq_MIDI_Source, sequence & seq_MIDI_Destination, variable var_TrackToReadBC, variable var_ParkAfterMove, variable & o_strReadCurrentBarcode ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2024-03-15 14:47$$checksum=98a1d6b5$$length=081$$

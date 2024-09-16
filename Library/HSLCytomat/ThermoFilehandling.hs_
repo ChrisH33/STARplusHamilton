@@ -1,0 +1,526 @@
+// ===========================================================================
+// The filehandling for the Thermo Cytomats
+//
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+// ===========================================================================
+//
+// Modification History
+//		2010-01-21, V0.0: Frank Jablonsky, created
+// 
+// ===========================================================================
+
+#ifndef __HSL_THERMO_CYTOMATFILEHANDLING_hsl__
+#define __HSL_THERMO_CYTOMATFILEHANDLING_hsl__ 1
+
+#ifndef __HSLStrLib_hsl__
+#include "HSLStrLib.hsl"
+#endif
+
+#ifndef __HSL_THERMO_CYTOMATCOMANDS_hsl__
+#include "ThermoCytomatComands.hs_"
+#endif
+
+#ifndef __HSLFilLib_hsl__  
+#include "HSLFilLib.hsl"
+#endif
+
+#ifndef __HSLTimLib_hsl__
+#include "HSLTimLib.hsl"
+#endif
+
+
+namespace HSLThermoCytomatFilehandling
+{
+
+   /*********************************************************************
+   *
+   * Declaration
+   *
+   *********************************************************************/
+
+   const variable TableStorage("Storage");
+   const variable ColumnLocation("Location");
+   const variable ColumnOccupied("Occupied");
+   const variable ColumnBarcode("Barcode");
+   const variable ColumnDate("Date");
+
+   function CreateAccessDB(variable iName, variable iPositions)variable;
+
+   function CheckDatabaseExist(variable iName, variable& oExist) variable;
+
+   function SelectLocation(variable iName, variable iSelectTargetColumn,variable iWhereValue, variable iSelectWhereColumn, variable& oValue   )variable;
+
+   function UpdateLocation(variable iName, variable iSelectTargetValue, variable iSelectTargetColumn,variable iWhereValue, variable iSelectWhereColumn, variable& oValue  ) variable;
+
+   /* static file functions -- Begin */
+
+   static function CreateAccessDBNew(variable ifilename, variable iPositions)variable;
+
+   static function SelectLocationImp(variable ifilename, variable iSelectTargetColumn,variable iConnection, variable& oValue )variable;
+
+   static function UpdateLocationImp(variable ifilename, variable iConnection, variable& oValue )variable;
+
+   /* static file functions -- End */
+
+   /* static help functions -- Begin */
+
+   function GetDateTime() variable;
+
+   /* static help functions -- End */
+
+   
+   /*********************************************************************
+   *
+   * Implementation
+   *
+   *********************************************************************/
+
+   function CreateAccessDB(variable iName, variable iPositions)variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable pathSystem("");
+
+      pathSystem = FilGetSystemPath();
+
+      errCode = CreateAccessDBNew(pathSystem + "\\" + iName, iPositions);
+
+      return (errCode);
+   }
+
+   function CheckDatabaseExist(variable iName, variable& oExist) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable pathSystem("");
+      variable response("");
+
+      onerror goto Unexpected;      
+
+      pathSystem = FilGetSystemPath();
+
+      response = FilFindFile(pathSystem + "\\" + iName);
+      
+      oExist = hslTrue;
+
+      return(errCode);
+
+      Unexpected:
+		{
+			oExist = hslFalse;
+			return( errCode );
+		}
+   }
+
+   function SelectLocation(variable iName, variable iSelectTargetColumn,variable iWhereValue, variable iSelectWhereColumn, variable& oValue )variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable connectionString("");
+      variable pathSystem("");
+
+      pathSystem = FilGetSystemPath();
+      connectionString = "SELECT * FROM " + TableStorage + " WHERE " + iSelectWhereColumn + " = " ;
+      if((iSelectWhereColumn == ColumnDate )||(iSelectWhereColumn == ColumnBarcode))
+      {
+         connectionString = connectionString + "'";
+      }
+      
+      connectionString = connectionString + iWhereValue + "";
+
+      if((iSelectWhereColumn == ColumnDate )||(iSelectWhereColumn == ColumnBarcode))
+      {
+         connectionString = connectionString + "'";
+      }
+
+      errCode = SelectLocationImp( pathSystem + "\\" + iName, iSelectTargetColumn , connectionString, oValue);
+
+      return (errCode);
+   }
+
+   function SelectPlatePositionsByBarcodeInRange(variable iName, variable iBarcode, variable iStartPosition, variable iEndPosition, variable& oPositions[])variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable connectionString("");
+      variable whereString("");
+      variable orderString("");
+      variable pathSystem("");
+      variable fileName("");
+      variable location(0);
+      variable counterLoop(0);
+      file accessFileHandle;
+
+      oPositions.SetSize(0);
+
+      pathSystem = FilGetSystemPath();
+      pathSystem = pathSystem + "\\" + iName;
+      
+      fileName = pathSystem + " " + TableStorage;
+
+      connectionString = "SELECT " + ColumnLocation + " FROM " + TableStorage;
+      
+      if(iEndPosition > 0)
+      {
+        whereString = " WHERE " + ColumnBarcode + " = '" + iBarcode + "' AND " + ColumnLocation + " >= " + IStr(iStartPosition) + " AND " + ColumnLocation + " <= " + IStr(iEndPosition);
+      }
+      else
+      {
+        whereString = " WHERE " + ColumnBarcode + " = '" + iBarcode + "' AND " + ColumnLocation + " >= " + IStr(iStartPosition);
+
+      }
+      orderString = " ORDER BY " + ColumnLocation + " ASC";
+      
+      connectionString = connectionString + whereString + orderString;
+      
+      accessFileHandle.AddField(ColumnLocation, location, hslInteger);
+
+      if( 0 == accessFileHandle.Open( fileName, hslRead, connectionString) )
+      {
+        return (HSLCytomatGlobalCommands::ERROR_OPEN_ACCESS_FILE);
+
+      }
+
+      while ( accessFileHandle.Eof( ) == 0)
+      {
+         if( 0 == accessFileHandle.ReadRecord() )
+         {
+             errCode = HSLCytomatGlobalCommands::ERROR_READ_ACCESS_FILE;
+             break;
+         }
+
+         oPositions.AddAsLast(location);
+
+      }
+
+      if(oPositions.GetSize() == 0)
+      {
+         errCode = 0;  
+      }
+
+      if( 0 != accessFileHandle.Close() )
+      {
+          return (HSLCytomatGlobalCommands::ERROR_CLOSE_ACCESS_FILE);
+      }
+
+      return (errCode);
+   }
+
+   function UpdateLocation(variable iName, variable iSelectTargetValue, variable iSelectTargetColumn,variable iWhereValue, variable iSelectWhereColumn, variable& oValue ) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable connectionString("");
+      variable pathSystem("");
+      variable response("");
+
+
+      pathSystem = FilGetSystemPath();
+
+      errCode = SelectLocation(iName,iSelectTargetColumn,iWhereValue,iSelectWhereColumn, response);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         return(errCode);
+      }
+
+      connectionString = "UPDATE " + TableStorage + " SET ["  + iSelectTargetColumn + "] = ";
+
+      if((iSelectTargetColumn == ColumnDate )||(iSelectTargetColumn == ColumnBarcode))
+      {
+         connectionString = connectionString + "'";
+      }
+
+      connectionString = connectionString + iSelectTargetValue; 
+
+      if((iSelectTargetColumn == ColumnDate )||(iSelectTargetColumn == ColumnBarcode))
+      {
+         connectionString = connectionString + "'";
+      }
+
+      connectionString = connectionString + " WHERE " + iSelectWhereColumn + " = ";
+   
+      if((iSelectWhereColumn == ColumnDate )||(iSelectWhereColumn == ColumnBarcode))
+      {
+         connectionString = connectionString + "'";
+      }    
+      
+      connectionString = connectionString + iWhereValue + "";
+
+      if((iSelectWhereColumn == ColumnDate )||(iSelectWhereColumn == ColumnBarcode))
+      {
+         connectionString = connectionString + "'";
+      }    
+
+      errCode = UpdateLocationImp(pathSystem + "\\" + iName, connectionString, oValue);
+
+      return (errCode);
+   }
+
+   function GetNumberOfEmptyPositions(variable iName, variable & oNumberOfEmptyPositions)
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable connectionString("");
+      variable pathSystem("");
+      variable response("");
+      variable fileName("");
+      variable barcode("");
+      variable location(0);
+      variable occupied(hslFalse);
+      variable datetime("");
+      variable counterLoop(0);
+      file accessFileHandle;
+
+      oNumberOfEmptyPositions = 0;
+
+      pathSystem = FilGetSystemPath();
+      pathSystem = pathSystem + "\\" + iName;
+      
+      fileName = pathSystem + " " + TableStorage;
+      
+      accessFileHandle.AddField(ColumnBarcode, barcode, hslString, 255);
+      accessFileHandle.AddField(ColumnLocation, location, hslInteger);
+      accessFileHandle.AddField(ColumnOccupied, occupied,hslInteger);
+      accessFileHandle.AddField(ColumnDate, datetime,hslString,255);
+      if( 0 == accessFileHandle.Open( fileName, hslRead) )
+      {
+         return (HSLCytomatGlobalCommands::ERROR_OPEN_ACCESS_FILE);
+      }
+      
+
+      while ( accessFileHandle.Eof( ) == 0)
+      {
+         if( 0 == accessFileHandle.ReadRecord() )
+         {
+             errCode = HSLCytomatGlobalCommands::ERROR_READ_ACCESS_FILE;
+             break;
+         }
+
+         if(occupied == hslFalse)
+         {
+            oNumberOfEmptyPositions = oNumberOfEmptyPositions + 1;
+         }
+
+      }
+
+      
+      if( 0 != accessFileHandle.Close() )
+      {
+          return (HSLCytomatGlobalCommands::ERROR_CLOSE_ACCESS_FILE);
+      }
+
+      return (errCode);
+    }
+
+   function GetNextEmptyPosition(variable iName, variable iSearchStartPosition, variable iSearchEndPosition, variable & oNextEmptyPosition)
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable connectionString("");
+      variable whereString("");
+      variable orderString("");
+      variable pathSystem("");
+      variable response("");
+      variable fileName("");
+      variable location(0);
+
+      file accessFileHandle;
+
+      oNextEmptyPosition = 0;
+
+      pathSystem = FilGetSystemPath();
+      pathSystem = pathSystem + "\\" + iName;
+      
+      fileName = pathSystem + " " + TableStorage;
+
+      connectionString = "SELECT TOP 1 " + ColumnLocation + " FROM " + TableStorage;
+      
+      if(iSearchEndPosition > 0)
+      {
+        whereString = " WHERE " + ColumnOccupied + " = 0 AND " + ColumnLocation + " >= " + IStr(iSearchStartPosition) + " AND " + ColumnLocation + " <= " + IStr(iSearchEndPosition);
+      }
+      else
+      {
+        whereString = " WHERE " + ColumnOccupied + " = 0 AND " + ColumnLocation + " >= " + IStr(iSearchStartPosition);
+
+      }
+      orderString = " ORDER BY " + ColumnLocation + " ASC";
+      
+      connectionString = connectionString + whereString + orderString;
+      
+      accessFileHandle.AddField(ColumnLocation, location, hslInteger);
+
+      if( 0 == accessFileHandle.Open( fileName, hslRead, connectionString) )
+      {
+        return (HSLCytomatGlobalCommands::ERROR_OPEN_ACCESS_FILE);
+
+      }
+
+
+      if (accessFileHandle.Eof( ) == 0)
+      {
+      
+         //all busy
+         if( 0 == accessFileHandle.ReadRecord() )
+         {
+             errCode = HSLCytomatGlobalCommands::ERROR_READ_ACCESS_FILE;
+         }
+
+         oNextEmptyPosition = location;
+
+      }
+      else
+      {
+         oNextEmptyPosition = 0; 
+      }
+
+      if( 0 != accessFileHandle.Close() )
+      {
+          return (HSLCytomatGlobalCommands::ERROR_CLOSE_ACCESS_FILE);
+      }
+
+      return (errCode);
+
+    }
+
+   /* static file functions -- Begin */
+
+   static function CreateAccessDBNew(variable ifilename, variable iPositions)variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable barcode("");
+      variable counterLoop(0);
+      variable location(0);
+      variable occupied(hslFalse);
+      variable datetime("");    
+      variable fileName("");
+ 
+      file accessFileHandle; 
+      
+      fileName = ifilename + " " + TableStorage;
+      
+      accessFileHandle.AddField(ColumnBarcode, barcode, hslString, 255);
+      accessFileHandle.AddField(ColumnLocation, location, hslInteger);
+      accessFileHandle.AddField(ColumnOccupied, occupied,hslInteger);
+      accessFileHandle.AddField(ColumnDate, datetime,hslString,255);
+      if( 0 == accessFileHandle.Open( fileName, hslWrite) )
+      {
+         return (HSLCytomatGlobalCommands::ERROR_OPEN_ACCESS_FILE);
+      }
+      
+      for(counterLoop = 1; counterLoop <= iPositions; counterLoop++)
+      {
+         datetime = GetDateTime();
+         location = counterLoop;
+
+         if( 0 == accessFileHandle.WriteRecord() )
+         {
+             errCode = HSLCytomatGlobalCommands::ERROR_WRITE_ACCESS_FILE;
+             break;
+         }
+      }
+
+      
+      if( 0 != accessFileHandle.Close() )
+      {
+          return (HSLCytomatGlobalCommands::ERROR_CLOSE_ACCESS_FILE);
+      }
+
+      return(errCode);
+   }
+
+   static function SelectLocationImp(variable ifilename, variable iSelectTargetColumn , variable iConnection, variable& oValue )variable
+  {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable barcode("");
+      variable counterLoop(0);
+      variable location(0);
+      variable occupied(hslFalse);
+      variable datetime("");    
+      variable fileName("");
+ 
+      file accessFileHandle; 
+      
+      fileName = ifilename + " " + TableStorage;
+      
+      accessFileHandle.AddField(ColumnBarcode, barcode, hslString, 255);
+      accessFileHandle.AddField(ColumnLocation, location, hslInteger);
+      accessFileHandle.AddField(ColumnOccupied, occupied,hslInteger);
+      accessFileHandle.AddField(ColumnDate, datetime,hslString,255);
+      if( 0 == accessFileHandle.Open( fileName, hslRead, iConnection) )
+      {
+         return (HSLCytomatGlobalCommands::ERROR_OPEN_ACCESS_FILE);
+      }
+
+      if ( accessFileHandle.Eof( ) == 0)
+      {
+      
+         if( 0 == accessFileHandle.ReadRecord() )
+         {
+             errCode = HSLCytomatGlobalCommands::ERROR_READ_ACCESS_FILE;
+         }
+
+         if(iSelectTargetColumn == ColumnBarcode)
+               oValue = barcode;
+         if(iSelectTargetColumn == ColumnLocation)
+               oValue = location;
+         if(iSelectTargetColumn == ColumnOccupied)
+               oValue = occupied;
+         if(iSelectTargetColumn == ColumnDate)
+               oValue = datetime;   
+      }
+      else
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_READ_ACCESS_NO_INSERT;  
+      }
+
+      if( 0 != accessFileHandle.Close() )
+      {
+          return (HSLCytomatGlobalCommands::ERROR_CLOSE_ACCESS_FILE);
+      }
+
+      return(errCode);
+   }
+
+   static function UpdateLocationImp(variable ifilename, variable iConnection, variable& oValue )variable
+  {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable barcode("");
+      variable counterLoop(0);
+      variable location(0);
+      variable occupied(hslFalse);
+      variable datetime("");    
+      variable fileName("");
+ 
+      file accessFileHandle; 
+
+      fileName = ifilename + " " + TableStorage;
+
+      accessFileHandle.AddField(ColumnBarcode, barcode, hslString, 255);
+      accessFileHandle.AddField(ColumnLocation, location, hslInteger);
+      accessFileHandle.AddField(ColumnOccupied, occupied,hslInteger);
+      accessFileHandle.AddField(ColumnDate, datetime,hslString,255);
+      if( 0 == accessFileHandle.Open( fileName, hslRead, iConnection) )
+      {
+         return (HSLCytomatGlobalCommands::ERROR_OPEN_ACCESS_FILE);
+      }
+      
+
+      if( 0 != accessFileHandle.Close() )
+      {
+          return (HSLCytomatGlobalCommands::ERROR_CLOSE_ACCESS_FILE);
+      }
+
+      return(errCode);
+   }
+
+
+   /* static file functions -- End */
+
+
+   /* static help functions -- Begin */
+
+   function GetDateTime() variable
+   {
+      return(TimGetFormattedDate("") + " " + TimGetFormattedTime(""));  
+   }
+
+   /* static help functions -- End */
+
+}
+#endif
+// $$author=dwittmer$$valid=0$$time=2010-08-16 08:46$$checksum=1a166632$$length=087$$

@@ -1,0 +1,27 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 12/1/2022 2:39:22 PM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace DATACONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function DATA_CalculateMixVolume( variable i_fltTotalVolume, variable & o_fltMixVolume, variable i_intModule ) void { }
+function FILE_ExportTrackingFiles( device & ML_STAR, sequence i_seqFinalPlate, variable i_strNameForFile, variable & o_strFinalFilePath, variable & o_strMappingFilePath ) void { }
+function FILE_InitializeTrackingFile( device & ML_STAR ) void { }
+function FILE_StandardWorklist_Extraction( variable i_strPathInputFileWL, variable i_strSeparatorWL, variable & o_arrArraySampleID[], variable & o_arrArrayBarcode[], variable & o_arrArrayWellPosition[], variable & o_arrArrayComment[] ) void { }
+function FILE_UpdateTrackingFileStatus( variable i_blnAddTimeStamp, variable i_strStatusUpdate ) void { }
+function FILE_UpdateTransferReportChannels( device & Instrument, variable i_str_AspReturnValue, variable i_str_DispReturnValue, variable i_str_LiquidLevelReturnValue, variable i_str_LiquidClass, variable i_bln_ShowSampleReport, variable i_bln_ShowReagentReport, variable i_str_NameForTransfer ) void { }
+function FILE_UpdateTransferReportMPH( device & Instrument, variable i_str_AspReturnValue3, variable i_str_AspReturnValue4, variable i_str_DispReturnValue3, variable i_str_DispReturnValue4, variable i_str_TipPickUpValue3, variable i_str_LiquidClass, variable i_bln_ShowSampleReport, variable i_bln_ShowReagentReport, variable i_str_NameForTransfer ) void { }
+function INIT_InitializeController( variable i_blnSimulationMode, variable i_blnTimersStoppable, variable i_blnSkipTimers, variable i_strTrackingFilePath ) void { }
+function TIME_TimerStart( variable i_intIncubationTime, variable i_strNameForIncubation, variable i_blnWaitForTimer, timer & o_hdlTimer ) void { }
+function TIME_WaitForTimer( timer & i_hdlTimerToWait ) void { }
+function _WaitForReport(  ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=PacificBio$$valid=0$$time=2022-12-01 14:39$$checksum=15efc923$$length=087$$

@@ -1,0 +1,60 @@
+//----------------------------------------------------------------------------------------
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+//
+// Project              : [72-808] iPS Cell Culture Automation Platform
+// Description          : ThermoPlateHotel definitions
+//
+// Software Version     :  4.3
+//
+// Revision history:
+// - 2015-11-25  Yvonne Dangendorf  library created
+//----------------------------------------------------------------------------------------
+
+
+#ifndef __THERMOPLATEHOTELCONTROLLERDEFINES__
+#define __THERMOPLATEHOTELCONTROLLERDEFINES__ 1
+
+
+//================================== includes ==================================
+#ifndef __HSL_THERMO_CYTOMAT_hsl__
+//   #include "HSLCytomat\ThermoCytomat.hsl"
+#endif
+
+//================================== THERMOPLATEHOTELCONTROLLER ==================================
+namespace THERMOPLATEHOTELCONTROLLER
+{
+   //================================== DEFINITIONS ==================================
+   namespace DEFINITIONS
+   {
+      //================================== DEVICE ==================================
+      namespace DEVICE
+      {
+         const variable intComPort(1);
+         const variable intNumberOfSlots(171);
+         const variable strDatabaseFilename("CytomatC10.mdb");
+      }//namespace DEVICE
+
+      //================================== TRANSFERSTATION ==================================
+      //namespace TRANSFERSTATION
+      //{
+         //const variable intTransferPositionsMax(2);//Defines the target position of the transfer station.
+         //const variable intPosition_1(1);
+         //const variable intPosition_2(2);
+      //}//TRANSFERSTATION
+
+      //namespace MISC
+      //{
+         //const variable intPositionBeginEntryExitStacker(1);
+         //const variable intPositionEndEntryExitStacker(17);
+
+         //const variable intPositionBeginStoringStacker(18);
+         //const variable intPositionEndStoringStacker(170);
+
+      //}//MISC
+            
+   }//namespace DEFINITIONS
+ }//namespace THERMOPLATEHOTELCONTROLLER
+
+#endif
+// $$author=KJGX688$$valid=0$$time=2019-01-08 13:34$$checksum=9d59aad8$$length=086$$

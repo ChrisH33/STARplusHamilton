@@ -1,0 +1,614 @@
+/****************************************************************************************************
+*  
+*   Library for Methods of Microlab® 2006 STARline Maintenance
+*   Copyright © by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+*
+*   All rights reserved.
+*
+*   Description : Method for Weekly Maintenance of ML STARLine
+*
+*   Revisions   : 
+*   
+*   2005-04-21  Alessandro Carrara : Initial file creation.
+*   2005-09-02  Alessandro Carrara : SCR# 1033 fixed (Manually unload of loaded labware if 
+*                       CO-RE 96 Head Washer is installed)
+*   2006-08-18  Werner Barmettler  : Add DC Wash Station Weekly        
+*   2006-09-08  Werner Barmettler  : Add BVS Weekly              
+*   2006-10-14  Werner Barmettler  : Add 96/384 Wash Station Weekly    
+*   2006-10-17  Werner Barmettler  : Update DC Wash Station Weekly        
+*   2006-10-19  Werner Barmettler  : Removed TraceDlgOK, TraceDlgCancel,  TraceDlgYes, TraceDlgNo
+*   2006-10-20  Werner Barmettler  : Manually unload of loaded labware if 96/386  Head Washer is installed
+*   2006-10-20  Werner Barmettler  : Manually unload of loaded labware if HasTempControlledCarrier is installed
+*   2006-11-10  Fernando Garcia    : ask for BVSMaintenanceWeekly() only if flag MtConst::IsBVSInstalled is set
+*                                    SCR #1200:
+*                                    - Replaced ML_STAR.LockFrontCover() by MtcLib::LockCover()
+*                                    - End maintenance process when front cover locking failed in BVSMaintenanceWeekly()
+*   2007-03-01  Fernando Garcia    : call StarLineMaintenanceOnAbortProcedure.hsl in OnAbort handler
+*                                    to check if instrument was turned off
+*	 2007-10-31	 Urban Bernhard     : - Changed procedure within OnAbortWeeklyMaintenance.
+*                                      Do not longer start a hidden run, just add the information
+*                                      that the run was aborted into file Maintenance_SNxxxx_Params.xls
+*	 2008-07-24	 Claudio Jörg       : - Use MtcLib::MoveAutoloadRight() instead of single step. Removed not longer
+*                                      used variable numbOfAutoLoadTracks.
+*                                    - Removed several unused strings from IDS
+*                                    - Integrated 5ml Channel maintenance
+*                                    - Changed to ask onyl for 1000ul/5ml Channel checks if channels avaiable.
+*	 2010-01-21	 Claudio Jörg       : - 1000ul Channel Tightness/cLLD check: Evaluate and set the required count
+*                                      of needles for the message box text.
+*   2010-11-25  Thomas Benz        : - Integrated CO-RE 96 TADM Head maintenance
+*                                    - Customized deck layout implemented
+*
+****************************************************************************************************/
+
+//device ML_STAR; //(local device in function startMaintenance)
+
+namespace WeeklyMaint
+{
+	// -----------------------------------------------------------------------------
+	// Included libraries
+	// -----------------------------------------------------------------------------
+	#ifndef __HslStarLineMaintMetLib_hsl__
+	#include "HslStarLineMaintMetLib.hs_"
+	#endif
+
+	#ifndef __HSLML_STARLib_hsl__
+	#include "HSLML_STARLib.hsl"
+	#endif
+
+	#ifndef __HSLStrLib_hsl__
+	#include "HSLStrLib.hsl"
+	#endif
+
+	#ifndef __HSLUtilLib_hsl__
+	#include "HSLUtilLib.hsl"
+	#endif
+
+	#ifndef __HSLStringTableLib_hsl__
+	#include "HSLStringTableLib.hs_"
+	#endif
+
+	#ifndef __HslStarLineMaintMetConst_hsl__
+	#include "HslStarLineMaintMetConst.hs_"
+	#endif
+
+  // -----------------------------------------------------------------------------
+  // String Table                
+  // -----------------------------------------------------------------------------
+  namespace IDS // String ID
+  {
+    static const variable first								(0);	// guard
+    static const variable dlgCheckAutoloadTrayTitle			(first +  1);
+    static const variable dlgCheckAutoloadTrayText				(first +  2);
+    static const variable dlgRemoveCarriersTitle				(first +  3);
+    static const variable dlgRemoveCarriersText					(first +  4);
+    static const variable dlgTipWasteTitle						(first +  5);
+    static const variable dlgTipWasteText							(first +  6);
+    static const variable dlgDeckCleaningTitle					(first +  7);
+    static const variable dlgDeckCleaningText					(first +  8);
+    static const variable dlgCloseCoverTitle						(first +  9);
+    static const variable dlgCloseCoverText						(first + 10);
+    static const variable dlgErrorTitle							(first + 11);
+    static const variable dlgWarningTitle							(first + 12);
+    static const variable dlgCannotRunWithSimulator			(first + 13);
+    static const variable dlgDeckWasteTitle						(first + 14);
+    static const variable dlgDeckWasteText						(first + 15);
+    static const variable dlgCheckTightness1000ulTitle		(first + 16);
+    static const variable dlgCheckTightness1000ulText			(first + 17);
+    static const variable dlgCheckClld1000ulTitle				(first + 18);    
+    static const variable dlgCheckClld1000ulText				(first + 19); 
+    static const variable dlgExecute3rdTitle						(first + 20);   
+    static const variable dlgExecute3rdText						(first + 21);
+    static const variable dlgExecuteCrTitle						(first + 22);    
+    static const variable dlgExecuteCrText						(first + 23);
+    static const variable dlgExecute96Title						(first + 24);    
+    static const variable dlgExecute96Text						(first + 25);
+    static const variable dlgExecuteDcTitle						(first + 26);    
+    static const variable dlgExecuteDcText						(first + 27);
+    static const variable dlgExecuteBvsTitle						(first + 28);   
+    static const variable dlgExecuteBvsText						(first + 29);
+    static const variable dlgStatusIncompleteTitle				(first + 30);   
+    static const variable dlgStatusIncompleteText				(first + 31);
+    static const variable dlgStatusSuccessfulTitle				(first + 32);   
+    static const variable dlgStatusSuccessfulText				(first + 33);
+    static const variable dlgStatusFailedTitle					(first + 34);   
+    static const variable dlgStatusFailedText					(first + 35);
+    static const variable dlgRemoveCarriersHandTitle			(first + 36);
+    static const variable dlgRemoveCarriersHandText			(first + 37);
+    static const variable dlgAutoladBarcodeTitle				(first + 38); 
+    static const variable dlgAutoladBarcodeText					(first + 39);  
+    static const variable dlgExecute_96_384_Title				(first + 40);
+    static const variable dlgExecute_96_384_Text				(first + 41);
+    static const variable dlgCheckTightness5mlTitle			(first + 42);
+    static const variable dlgCheckTightness5mlText				(first + 43);
+    static const variable dlgCheckClld5mlTitle					(first + 44);    
+    static const variable dlgCheckClld5mlText					(first + 45); 
+    static const variable dlgCheckTightness96TadmHeadTitle	(first + 46);
+    static const variable dlgCheckTightness96TadmHeadText	(first + 47);
+    static const variable dlgExecuteEasyPuncherTitle	      (first + 48);
+    static const variable dlgExecuteEasyPuncherText	      (first + 49);
+
+    static const variable last								(first + 49);	// guard
+  } // String Table
+
+  // -----------------------------------------------------------------------------
+  // Process definitions              
+  // -----------------------------------------------------------------------------
+  static const variable processId(PID::weeklyMaint); // Weekly Maintenance
+
+  // method directory
+  static const variable methDir("VM\\");
+
+  // report files
+  static const variable templateFileName(methDir + "StarLineWeeklyMaintenance_Template_MVmwkl");
+                                  
+  // layout files
+  static const variable layoutFileName_Star    (methDir + "StarLineMaintenance_Star");
+  static const variable layoutFileName_Starlet (methDir + "StarLineMaintenance_Starlet");
+  static const variable layoutFileName_StarPlus(methDir + "StarLineMaintenance_StarPlus");
+  
+  // -----------------------------------------------------------------------------
+  function startMaintenance(variable& layoutName, variable& instrumentNr)
+  // -----------------------------------------------------------------------------
+  {
+    device ML_STAR( layoutName, "ML_STAR", hslTrue ); 
+
+    onerror goto UnhandledError;
+
+    // --------------------------------------------------------------------------
+    // abort method if simulator mode is set
+    if(HSLML_STAR::IsSimulatorMode(ML_STAR))
+    {
+      MessageBox( StringTable::Load(IDS::dlgCannotRunWithSimulator),
+						StringTable::Load(IDS::dlgWarningTitle), hslOKOnly | hslExclamation, hslInfinite );
+      abort;
+    }
+
+    // --------------------------------------------------------------------------   
+    // Initialize maintenance, evaluate and check configuration data first 
+    MtcLib::InitializeAndCheckConfiguration( ML_STAR, instrumentNr );
+
+    // --------------------------------------------------------------------------
+    // Execute Deck and Waste (Weekly) maintenance (Yes/No)
+    if ( hslYes == MessageBox(StringTable::Load(IDS::dlgDeckWasteText), 
+	 									StringTable::Load(IDS::dlgDeckWasteTitle), hslYesNo  | hslInformation, hslInfinite ) )     
+    {
+      // --------------------------------------------------------------------------
+      // Move dispense head and autoload to the left most position
+      //
+      MtcLib::MoveLeft(ML_STAR);  
+      
+      // --------------------------------------------------------------------------
+      // Remove all carriers        
+      { 
+         if(MtcLib::HasAutoload() && (-1 == MtcLib::HasCORE96HeadWasher() ) && 
+			(hslFalse == MtcLib::Has_96_384_Washer()) &&
+			(hslFalse == MtcLib::HasTempControlledCarrier()) )
+        {
+          // check autoload tray
+          if ( hslOK != MessageBox(StringTable::Load(IDS::dlgCheckAutoloadTrayText), 
+			 								  StringTable::Load(IDS::dlgCheckAutoloadTrayTitle), hslOKCancel | hslInformation, hslInfinite ) )
+          {
+            // Cancel -> maintenance process end
+            return;
+          }
+          // check if any carrier on deck
+          if ( hslFalse == MtcLib::IsDeckEmpty(ML_STAR) )
+          {
+            // empty deck with auto load
+            MtcLib::UnloadDeck(ML_STAR);
+
+            // request to remove carriers from loading deck
+            if ( hslOK != MessageBox(StringTable::Load(IDS::dlgRemoveCarriersText),
+												 StringTable::Load(IDS::dlgRemoveCarriersTitle), hslOKCancel | hslInformation, hslInfinite ) )
+            {
+               // Cancel -> maintenance process end
+              return;
+            }
+          }
+        }
+        else
+        {
+
+		  	 MtcLib::MoveAutoloadRight(ML_STAR); // moves only if installed
+  
+          // request to remove carriers from loading deck without autolad
+          if ( hslOK != MessageBox( StringTable::Load(IDS::dlgRemoveCarriersHandText), 
+          									StringTable::Load(IDS::dlgRemoveCarriersHandTitle), hslOKCancel | hslInformation, hslInfinite ) )
+          {
+            // Cancel -> maintenance process end
+            return;
+          }
+        }
+      }
+
+      // --------------------------------------------------------------------------
+      // Move autoload to the right most position
+      // 
+		MtcLib::MoveAutoloadRight(ML_STAR); // moves only if installed
+
+      // --------------------------------------------------------------------------
+      // Unlock front cover
+      // 
+		MtcLib::LockCover(ML_STAR, CoverLock::coverUnlock, "", "");
+
+      // --------------------------------------------------------------------------
+      // Deck cleaning
+      //
+      MessageBox(StringTable::Load(IDS::dlgDeckCleaningText),
+					  StringTable::Load(IDS::dlgDeckCleaningTitle), hslOKOnly | hslInformation, hslInfinite );
+
+      // --------------------------------------------------------------------------
+      // Close and lock front cover
+      // 
+		if ( ! MtcLib::LockCover(ML_STAR, CoverLock::coverLock, 
+										 StringTable::Load(IDS::dlgCloseCoverText), StringTable::Load(IDS::dlgCloseCoverTitle)) )
+		{
+			// front cover locking failed
+			// -> maintenance process end
+			return;
+		}
+
+      // --------------------------------------------------------------------------
+      // Move dispense head and autoload to the left most position
+      //
+      MtcLib::MoveLeft(ML_STAR);
+      
+      // --------------------------------------------------------------------------
+      // Unlock front cover
+      // 
+		MtcLib::LockCover(ML_STAR, CoverLock::coverUnlock, "", "");
+
+      // --------------------------------------------------------------------------
+      // Empty and clean the tip waste
+      //
+      MessageBox(StringTable::Load(IDS::dlgTipWasteText),
+					  StringTable::Load(IDS::dlgTipWasteTitle), hslOKOnly | hslInformation, hslInfinite );
+
+      // --------------------------------------------------------------------------
+      // Close cover
+      //
+      {
+        while( hslFalse == MtcLib::IsCoverClosed(ML_STAR) )
+        {
+          if ( hslOK != MessageBox(StringTable::Load(IDS::dlgCloseCoverText),
+            							  StringTable::Load(IDS::dlgCloseCoverTitle), hslOKCancel | hslInformation, hslInfinite ) )
+          {
+            return;
+          }
+        }
+      }
+
+      // --------------------------------------------------------------------------
+      // request to clean the barcode window and Autoload to check
+      if(MtcLib::HasAutoload())
+        {
+          if ( hslOK != MessageBox(StringTable::Load(IDS::dlgAutoladBarcodeText), 
+          								  StringTable::Load(IDS::dlgAutoladBarcodeTitle), hslOKCancel | hslInformation, hslInfinite ) )
+          {
+            return;
+          }
+        }
+        
+      // --------------------------------------------------------------------------
+      // Lock front cover
+      // 
+		if ( ! MtcLib::LockCover(ML_STAR, CoverLock::coverLock, 
+										 StringTable::Load(IDS::dlgCloseCoverText), StringTable::Load(IDS::dlgCloseCoverTitle)) )
+		{
+			// front cover locking failed
+			// -> maintenance process end
+			return;
+		}
+
+      MtcLib::SetInstrumentCheckState(PS::successful);  
+          
+    }   //end Deck and Waste (Weekly) maintenance 
+
+
+    MtcLib::MoveRight(ML_STAR, instrumentNr);
+
+
+    // --------------------------------------------------------------------------
+    // Store data for daily AND weekly maintenance process on instrument to failed
+    // 
+    MtcLib::StoreProcessDataOnInstrument( PID::dailyMaint, ML_STAR );
+    MtcLib::StoreProcessDataOnInstrument( PID::weeklyMaint, ML_STAR );
+
+    // --------------------------------------------------------------------------
+    // 1000ul Channel maintenance if installed
+    if(MtcLib::HasPipettingChannel1000ul())
+	 {
+		 variable strText, strNoOfReqNeedles;
+		 strNoOfReqNeedles = IStr(Util::Min(MtcLib::GetNumberOfPipettingChannel1000ul(), 8));		// as maximum 8 needles are possible
+
+	    // --------------------------------------------------------------------------
+	    // 1000ul Channel Tightness check
+		 strText = StringTable::Load(IDS::dlgCheckTightness1000ulText);
+		 StrReplace(strText, "%s1%", strNoOfReqNeedles);
+	    if ( hslYes  == MessageBox(strText,
+	                               StringTable::Load(IDS::dlgCheckTightness1000ulTitle), hslYesNo | hslInformation, hslInfinite) )
+	    { 
+	      // perform tightness check
+	      MtcLib::TightnessCheckChannel1000ul( ML_STAR );
+	    }
+    
+	    // --------------------------------------------------------------------------
+	    // 1000ul Channel cLLD check
+		 strText = StringTable::Load(IDS::dlgCheckClld1000ulText);
+		 StrReplace(strText, "%s1%", strNoOfReqNeedles);
+	    if ( hslYes == MessageBox(strText,
+	                              StringTable::Load(IDS::dlgCheckClld1000ulTitle), hslYesNo | hslInformation, hslInfinite) )
+	    {
+	      // perform cLLD check
+	      MtcLib::CLLDCheckChannel1000ul( ML_STAR );
+	    }
+    }
+
+
+    // --------------------------------------------------------------------------
+    // 5ml Channel maintenance if installed
+    if(MtcLib::HasPipettingChannel5ml())
+	 {
+	    // --------------------------------------------------------------------------
+	    // 5ml Channel Tightness check
+	    if ( hslYes  == MessageBox(StringTable::Load(IDS::dlgCheckTightness5mlText),
+	                               StringTable::Load(IDS::dlgCheckTightness5mlTitle), hslYesNo | hslInformation, hslInfinite) )
+	    { 
+	      MtcLib::TightnessCheckChannel5ml( ML_STAR );
+	    }
+    
+	    // --------------------------------------------------------------------------
+	    // 5ml Channel cLLD check
+	    if ( hslYes == MessageBox(StringTable::Load(IDS::dlgCheckClld5mlText),
+	                              StringTable::Load(IDS::dlgCheckClld5mlTitle), hslYesNo | hslInformation, hslInfinite) )
+	    {
+	      MtcLib::CLLDCheckChannel5ml( ML_STAR );
+	    }
+	 }
+
+    // --------------------------------------------------------------------------
+    // CO-RE 96 TADM Head maintenance if installed
+    if(MtcLib::Has96TadmHead())
+	 {
+	    // --------------------------------------------------------------------------
+	    // 5ml Channel Tightness check
+	    if ( hslYes  == MessageBox(StringTable::Load(IDS::dlgCheckTightness96TadmHeadText),
+	                               StringTable::Load(IDS::dlgCheckTightness96TadmHeadTitle), hslYesNo | hslInformation, hslInfinite) )
+	    { 
+	      MtcLib::TightnessCheck96TadmHead( ML_STAR );
+	    }
+	 }
+
+
+    // ---------------------------------------------------------------------------
+    // 3rd gen. washstation procedure
+    if(MtcLib::Has3rdGenWasher())
+    {
+      if ( hslYes == MessageBox(StringTable::Load(IDS::dlgExecute3rdText),
+        								  StringTable::Load(IDS::dlgExecute3rdTitle), hslYesNo | hslInformation, hslInfinite ) ) 
+      {
+        // execute 3rd gen. washstation maintenance
+        MtcLib::rd3GenerationMaintenance(ML_STAR);
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // CR washstation procedure
+    if(MtcLib::HasCRWasher())
+    {
+      if ( hslYes == MessageBox(StringTable::Load(IDS::dlgExecuteCrText),
+        								  StringTable::Load(IDS::dlgExecuteCrTitle), hslYesNo  | hslInformation, hslInfinite ) ) 
+      {
+        // execute CR washstation maintenance
+        MtcLib::CrWashStationMaintenance(ML_STAR);
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // DC Wash Station procedure
+    {
+      if(MtcLib::HasDCWasher())
+      {
+        if ( hslYes == MessageBox(StringTable::Load(IDS::dlgExecuteDcText),
+          								 StringTable::Load(IDS::dlgExecuteDcTitle), hslYesNo  | hslInformation, hslInfinite ) ) 
+        {
+          // execute DC washstation maintenance
+          MtcLib::DCWashStationMaintenanceWeekly(ML_STAR);
+        }
+      } 
+    } // DC Wash Station procedure
+
+
+    // ---------------------------------------------------------------------------
+    // CORE96 Head washstation procedure
+    {
+      variable nodeId;
+      nodeId = MtcLib::HasCORE96HeadWasher();
+
+      if(nodeId != -1)
+      {
+        if ( hslYes == MessageBox(StringTable::Load(IDS::dlgExecute96Text),         
+          								 StringTable::Load(IDS::dlgExecute96Title), hslYesNo  | hslInformation, hslInfinite ) ) 
+        {
+          // execute CORE96 Head washstation maintenance
+          MtcLib::Core96HeadWsMaintenance(ML_STAR, nodeId);
+        }
+      }
+    }
+
+
+    // ---------------------------------------------------------------------------
+    // BVS Maintenance procedure
+    {
+      if ( MtConst::IsBVSInstalled )
+		{
+			if ( hslYes == MessageBox(StringTable::Load(IDS::dlgExecuteBvsText),
+											  StringTable::Load(IDS::dlgExecuteBvsTitle), hslYesNo  | hslInformation, hslInfinite ) ) 
+	        {
+	            MtcLib::BVSMaintenanceWeekly(ML_STAR); // execute BVS maintenance
+	        }
+		}
+    } // BVS maintenance procedure
+
+
+    // ---------------------------------------------------------------------------
+    // 96/384 Wash Station procedure
+    {
+      if(MtcLib::Has_96_384_Washer())
+      {
+        if ( hslYes == MessageBox(StringTable::Load(IDS::dlgExecute_96_384_Text),
+          								 StringTable::Load(IDS::dlgExecute_96_384_Title), hslYesNo  | hslInformation, hslInfinite ) ) 
+        {
+          // execute DC washstation maintenance
+          MtcLib::WashStation_96_384_MaintenanceWeekly(ML_STAR);
+        }
+      } 
+    } //  96/384 Wash Station procedure
+
+
+    // ---------------------------------------------------------------------------
+    // Easy puncher procedure
+    {
+      if(MtcLib::HasEasyPuncher())
+      {
+        if ( hslYes == MessageBox(StringTable::Load(IDS::dlgExecuteEasyPuncherText),
+                                  StringTable::Load(IDS::dlgExecuteEasyPuncherTitle), hslYesNo | hslInformation, hslInfinite) ) 
+        {
+          // execute easy puncher maintenance
+          MtcLib::EasyPuncher_MaintenanceWeekly(ML_STAR);
+        }
+      } 
+    } // Easy puncher procedure
+
+
+    // Move dispense head and autoload to the right most position
+    MtcLib::MoveRight(ML_STAR, instrumentNr);
+
+    //----------------------------------------------------------------------------
+    // Weekly maintenance successful, incomplete or failed 
+    //----------------------------------------------------------------------------
+    {
+      variable state;
+       
+      state = MtcLib::GetProcessState();
+
+      if(state == MPS::mpsSuccessful) 
+      {
+        MessageBox(StringTable::Load(IDS::dlgStatusSuccessfulText),
+		  				 StringTable::Load(IDS::dlgStatusSuccessfulTitle), hslOKOnly | hslInformation, hslInfinite );
+      }
+      else
+        if(state == MPS::mpsFailed) 
+        {
+          MessageBox(StringTable::Load(IDS::dlgStatusFailedText),
+			 				StringTable::Load(IDS::dlgStatusFailedTitle), hslOKOnly | hslInformation, hslInfinite );
+        }
+        else
+          if(state == MPS::mpsIncomplete) 
+        {
+          MessageBox(StringTable::Load(IDS::dlgStatusIncompleteText),
+			 				StringTable::Load(IDS::dlgStatusIncompleteTitle), hslOKOnly | hslInformation, hslInfinite );
+        }
+    }
+    // --------------------------------------------------------------------------
+    // Unlock front cover
+    // 
+	 MtcLib::LockCover(ML_STAR, CoverLock::coverUnlock, "", "");
+
+    // --------------------------------------------------------------------------
+    // Create report file.
+    // 
+    {
+      variable reportFileName("StarLineWeeklyMaintenance_%s_MVmwkl.xls"); // %s ==> GUID
+
+      StrReplace(reportFileName, "%s", GetUniqueRunId());
+      MtcLib::CreateReportFile( 
+        templateFileName,
+        reportFileName, 
+        "WeeklyMaintenance"); // report excel area name
+    }
+
+    // --------------------------------------------------------------------------
+    // Store data for daily AND weekly maintenance process on instrument
+    // 
+    MtcLib::StoreProcessDataOnInstrument( PID::dailyMaint, ML_STAR );
+    MtcLib::StoreProcessDataOnInstrument( PID::weeklyMaint, ML_STAR );
+
+    return;
+
+    // --------------------------------------------------------------------------
+    UnhandledError :
+    {
+      MessageBox( err.GetDescription(), StringTable::Load(IDS::dlgErrorTitle), hslOKOnly | hslError, hslInfinite );
+      err.Clear();
+      
+      // --------------------------------------------------------------------------
+      // Lock front cover
+      // 
+		if ( MtcLib::LockCover(ML_STAR, CoverLock::coverLock, 
+									  StringTable::Load(IDS::dlgCloseCoverText), StringTable::Load(IDS::dlgCloseCoverTitle)) )
+		{
+	      //---------------------------------------------------------------------------
+	      // Move dispense head and autoload to the right most position
+	      // only if front cover locking succeeded
+			//
+	      MtcLib::MoveRight(ML_STAR, instrumentNr);
+
+	      // --------------------------------------------------------------------------
+	      // Unlock front cover
+	      // 
+			MtcLib::LockCover(ML_STAR, CoverLock::coverUnlock, "", "");
+		}
+
+      abort;
+    }
+
+  } // end startMaintenance
+
+  function OnAbortWeeklyMaintenance()
+  {
+		MtcLib::OnAbortMaintenance();
+		return;
+  }
+
+   //---------------------------------------------------------------------------------
+   method main()
+   //---------------------------------------------------------------------------------
+   {
+      variable instrumentNr;
+      variable layoutFileName(layoutFileName_Star);
+		static object fso;	   // file system object
+
+      // Initialize string table
+      StringTable::Init("HslStarLineWeeklyMaintMet");
+
+      // StringTable::Dump();
+      RegisterAbortHandler("OnAbortWeeklyMaintenance");
+
+      instrumentNr = HSLML_STAR::GetInstrumentType();
+
+		// STAR
+		if (instrumentNr == 0)
+			layoutFileName = layoutFileName_Star;
+
+		// Starlet
+		if (instrumentNr == 1)
+			layoutFileName = layoutFileName_Starlet;
+
+		// StarPlus
+		if (instrumentNr == 2)
+         layoutFileName = layoutFileName_StarPlus;
+
+		// check for customer defined maintenance layout
+		fso.CreateObject("Scripting.FileSystemObject");
+		if (fso.FileExists(GetMethodsPath() + "\\" + layoutFileName + "_mod.lay"))
+			layoutFileName = layoutFileName + "_mod.lay";
+		else 
+			layoutFileName = layoutFileName + ".lay";
+		fso.ReleaseObject();
+
+		startMaintenance(layoutFileName, instrumentNr);
+   }
+
+} // namespace WeeklyMaintenance
+// $$author=wbarmettler$$valid=1$$time=2017-03-14 13:15$$checksum=c369146c$$length=088$$

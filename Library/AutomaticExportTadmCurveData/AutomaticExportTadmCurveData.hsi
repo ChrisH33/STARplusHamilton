@@ -1,0 +1,125 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "HSLFilLib.hsl"
+#include "HSLStrLib.hsl"
+#include "HSLUtilLib.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "Training\\medimmune\\HSLMECCLib.hs_"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace AUTOMATICEXPORTTADMCURVEDATA {
+// }} ""
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function ExportTadmData(  ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "ExportTadmData" "Begin"
+function ExportTadmData(  ) void {
+// }} ""
+private variable strMethodName;
+private variable intIndexMethodNameStart;
+private variable intIndexMethodNameEnd;
+private variable strLogFilesPath;
+private variable strTadmFilePath;
+private variable intMethodNameLength;
+private variable strUniqueRunId;
+private variable strShellCmd;
+// {{ 5 "ExportTadmData" "InitLocals"
+// }} ""
+// {{ 1 1 0 "82b6045f_0e0f_444f_a10c8ef6a3fe58dc" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 2 1 0 "651ace44_7ebb_4741_8db523b7515c5223" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strUniqueRunId = Util::GetUniqueRunId();
+// }} ""
+// {{ 3 1 0 "c09c9650_74a4_4739_941643cabf82d9c5" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 4 1 0 "c91b2886_6dce_4bc6_834cf7692fc553f8" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strMethodName = Translate("");
+// }} ""
+// {{ 5 1 0 "4bbf0ec5_5a93_4154_9cc7bcb626caf548" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+strMethodName=GetMethodFileName();
+// {{ 7 1 0 "68c2fb71_8451_441a_b6fff4daed1ca0e4" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 8 1 0 "9034ed0f_b569_4b45_ba2e6b95d010f0dd" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+intIndexMethodNameStart = StrReverseFind(strMethodName, Translate("\\"));
+// }} ""
+// {{ 9 1 0 "8f1deab9_337d_4519_8ed47fba60824dca" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+intIndexMethodNameStart = intIndexMethodNameStart + 1;
+// }} ""
+// {{{ 10 1 0 "366450cc_9901_4506_86fe38d2ac89893d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+intIndexMethodNameEnd = StrReverseFind(strMethodName, Translate("."));
+// }} ""
+// {{ 11 1 0 "a240eedc_52b8_4dcf_b623bbd124cb3620" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+intMethodNameLength = intIndexMethodNameEnd - intIndexMethodNameStart;
+// }} ""
+// {{{ 12 1 0 "b061927e_e799_4554_897c8c541b15ec1b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strMethodName = StrMid(strMethodName, intIndexMethodNameStart, intMethodNameLength);
+// }} ""
+// {{ 13 1 0 "30cf3b4f_9148_4b33_a38e7166663b8f8b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 14 1 0 "7c7fba40_e886_4b63_a85ccda6e9437642" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strLogFilesPath = FilGetLogFilesPath();
+// }} ""
+Trace("Log Files path = ",strLogFilesPath);
+// {{{ 16 1 0 "660dce0a_2533_4151_9675c21861d19351" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strTadmFilePath = StrConcat8(strLogFilesPath, Translate("\\"), strMethodName, Translate("_"), strUniqueRunId, Translate("_ML_STAR_tadm.mdb"), Translate(""), Translate(""));
+// }} ""
+Trace("Tadm Files path = ",strTadmFilePath);
+// {{ 18 1 0 "d490f283_2c82_430a_bb68f6916c2d0e3d" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 19 1 0 "48a52508_cc3e_4d4b_87cd2496ced20813" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 20 1 0 "62bad76d_c041_4049_93e301962d4e6bb7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strShellCmd = StrConcat8(Translate("C:\\TadmExport\\TadmCurvesExport.exe /exportto:csv "), Translate("\""), strTadmFilePath, Translate("\" \"C:\Program Files (x86)\HAMILTON\TadmExport\""), Translate(""), Translate(""), Translate(""), Translate(""));
+// }} ""
+// {{ 21 1 0 "131c7021_6d58_4255_b38ff9db444fb24c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+/* {{ 1 "" "0" */ if(0){  /* }} "" */
+// {{{ 22 1 0 "8b79a227_89c1_4d00_a992468061e86846" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strShellCmd = StrConcat8(Translate("C:\\TadmExport\\TadmCurvesExport.exe "), Translate("\""), strTadmFilePath, Translate("\" \"C:\Program Files (x86)\HAMILTON\TadmExport\""), Translate(" /ExportTo:CSV /NumericFormat:InvariantCulture /delimiter:comma"), Translate(""), Translate(""), Translate(""));
+// }} ""
+/* {{ 1 "" "1" */ } /* }} "" */
+// {{ 23 1 0 "026518df_507f_4822_a6671327c5c20784" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+/* {{ 1 "" "0" */ if(0){  /* }} "" */
+// {{{ 24 1 0 "3da92f23_5c59_4ab5_93f0a278a8919383" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strShellCmd = StrConcat8(Translate("C:\\TadmExport\\TadmCurvesExport.exe "), Translate("\""), strTadmFilePath, Translate("\" \"C:\Program Files (x86)\HAMILTON\TadmExport\\Results\""), Translate(" /ExportTo:Excel"), Translate(""), Translate(""), Translate(""));
+// }} ""
+/* {{ 1 "" "1" */ } /* }} "" */
+// {{ 25 1 0 "08a9e218_aa76_44fe_8ab3720ff4e2e0d3" "{B31F3545-5D80-11d4-A5EB-0050DA737D89}"
+{
+if( 0 == Shell(strShellCmd, hslShow, hslSynchronous) )
+{
+    MECC::RaiseRuntimeErrorEx(-1238499072, MECC::IDS::stepNameShell, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+}
+// }} ""
+// {{{ 5 "ExportTadmData" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=ch33$$valid=0$$time=2023-04-11 11:03$$checksum=748c153f$$length=083$$

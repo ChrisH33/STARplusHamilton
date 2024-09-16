@@ -1,0 +1,81 @@
+#include "STARlet_TestBed.res"
+ namespace _Method { #include "HSLTrcLib.hsl" } 
+ namespace _Method { #include "load_instructions.hs_" } 
+ namespace _Method { #include "HSLStrLib.hsl" } 
+ namespace _Method { #include "HSLMthLib.hsl" } 
+ namespace _Method { #include "WSI\\SlackMessenger\\SlackMessenger.hs_" } 
+ namespace _Method { #include "SlowHeadMovement\\Slow96Head.hs_" } 
+ namespace _Method { #include "HSLFileDirectoryLib.hsl" } 
+ namespace _Method { #include "WSI\\VariColumn_96Head.hs_" } 
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+global device ML_STAR ("STARlet_TestBed.lay", "ML_STAR", hslTrue);
+variable hndSlack_Instrument;
+file hndSlack;
+variable strBat;
+variable strFilePath;
+variable intVolume;
+variable intCycles;
+variable intMixVolume;
+variable intMixPosition;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+LOAD_INSTRUCTIONS::_InitLibrary();
+SLACKMESSENGER::_InitLibrary();
+SLOW96HEAD::_InitLibrary();
+VARICOLUMN_96HEAD::_InitLibrary();
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{{ 1 1 0 "b2c684c6_f718_4372_b556e75220081bc5" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+SLACKMESSENGER::Update(ML_STAR, 1, Translate("W:\\0.051 Research & Development\\Instrumentation\\SlackUpdates"));
+// }} ""
+// {{ 2 1 0 "6e3fcc47_b8b5_454f_91007d3905f748ae" "ML_STAR:{541143F5-7FA2-11D3-AD85-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._541143F5_7FA2_11D3_AD85_0004ACB1DCB2("6e3fcc47_b8b5_454f_91007d3905f748ae"); // Aspirate
+}
+// }} ""
+abort;
+// {{ 4 1 0 "53aabfe3_7187_4b0d_957882ee24d13ed9" "ML_STAR:{1C0C0CB0-7C87-11D3-AD83-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2("53aabfe3_7187_4b0d_957882ee24d13ed9"); // Initialize
+}
+// }} ""
+// {{ 5 1 0 "f300474c_6bcb_4c12_93b3547ba3825767" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("Load Success"));
+// }} ""
+// {{{ 6 1 0 "5f2b790d_546e_4cbc_85acbfe8ec901199" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+VARICOLUMN_96HEAD::Tip_PickUp_Column(ML_STAR, ML_STAR.Tips_300ulFiltered, ML_STAR.MlStar300ulStandardVolumeTipWithFilter);
+// }} ""
+// {{ 7 1 0 "1c48d634_e5b7_4417_b44bcd00beb4e7b4" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("pickup success"));
+// }} ""
+// {{{ 8 1 0 "95045962_456a_4a86_af909d51efa74c74" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+VARICOLUMN_96HEAD::Tip_Eject_Column(ML_STAR, 2);
+// }} ""
+// {{ 9 1 0 "95f617e7_4cd0_482f_9806e0ebb5d26521" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("eject success"));
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+LOAD_INSTRUCTIONS::_ExitLibrary();
+SLACKMESSENGER::_ExitLibrary();
+SLOW96HEAD::_ExitLibrary();
+VARICOLUMN_96HEAD::_ExitLibrary();
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=ch33$$valid=0$$time=2024-08-29 17:21$$checksum=b57441f2$$length=083$$

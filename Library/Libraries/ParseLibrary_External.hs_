@@ -1,0 +1,20 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 12/5/2023 1:30:07 PM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace PARSELIBRARY_EXTERNAL {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function CreateTempFile( variable _inStrFilePath, variable _inStrCopyDirectoryPath, variable & _outStrTempFilePath ) void { }
+function GenerateTubeSequence( sequence & _inSeq, variable _inLabwareID, variable _inPositionID ) void { }
+function ISwapBounce( device & ML_STAR, sequence _sequence, variable _iSwapGripHeight_mm, variable _iSwapGripWidth_mm, variable _iSwapGripOpening_mm, variable _iSwapGripForce, variable _iSwapGripTolerance_mm, variable _inverseGrip, variable _cycles, variable _bounceHeight, variable _increment, variable _parkiSwap ) void { }
+function TipPickupCORE96( device & MLSTAR, sequence & _seqTipSequence, sequence & _seqTipSupport_300, sequence & _seqTipSupport_50, variable _sizeTip, variable _numberSample, variable _pickupTips ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=oliver$$valid=0$$time=2023-12-05 13:30$$checksum=5323eea0$$length=083$$

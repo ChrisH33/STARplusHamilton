@@ -1,0 +1,30 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 15/03/2024 14:47:11
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace _10XPREP {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function DATA_ReadSampleSheet( variable & var_SourceFile, variable & var_NumberOfSamples, variable & var_IndexesUsed, variable & arr_Index1SeqPositions[], variable & arr_Index2SeqPositions[], variable & arr_ALPseqPositions[], variable i_strTempSampleSheetFileName ) void { }
+function HHS_GetTemperature( variable i_varHHS ) void { }
+function HHS_Init( variable & i_varHHSDeviceNo1, variable & i_varHHSDeviceNo2 ) void { }
+function HHS_SetTemperature( variable i_varHHS, variable i_fltTemperature ) void { }
+function HHS_Shake( variable i_varHHS, variable i_intSpeed, variable i_intShakingDuration ) void { }
+function HHS_Terminate( variable i_varHHSDeviceNo1, variable i_varHHSDeviceNo2 ) void { }
+function HandOverSimulationModeForAllLocalSMTs( variable i_blnSimulationON ) void { }
+function ODTC_CloseDoor( variable i_IntDeviceNumber ) void { }
+function ODTC_ExecuteProtocol( variable i_IntDeviceNumber, variable i_strProtocollFullFileName, variable i_strNameOfProtocollOnDevice, variable & o_intTimeForProtocol, variable & o_intRequestIDForActiveProtocol ) void { }
+function ODTC_Init( variable i_strDeviceAddress, variable & o_intDeviceNum, variable i_strLocalIPAdress ) void { }
+function ODTC_OpenDoor( variable i_IntDeviceNumber ) void { }
+function ODTC_ReadActualTemperature( variable i_IntDeviceNumber, variable i_intTimeForProtocoll ) void { }
+function ODTC_Terminate( variable i_intDeviceNum ) void { }
+function ODTC_WaitForStartedProtocolToFinish( variable i_IntDeviceNumber, variable i_intTimeOut, variable i_intRequestIDToWaitFor ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2024-03-15 14:47$$checksum=c937346e$$length=081$$

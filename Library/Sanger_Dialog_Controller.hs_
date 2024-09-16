@@ -1,0 +1,27 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 05/04/2023 17:33:50
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace SANGER_DIALOG_CONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function INIT_InitializeController(  ) void { }
+function LOAD_ChannelReagents( device & ML_STAR ) void { }
+function LOAD_MPHReagents( device & ML_STAR ) void { }
+function LOAD_Plates( device & ML_STAR ) void { }
+function LOAD_Tips( device & ML_STAR ) void { }
+function SHOW_ChannelOptions(  ) variable {  return (0); }
+function SHOW_MethodFinish( variable i_blnSuccess ) void { }
+function SHOW_MethodStart( device & ML_STAR ) void { }
+function SHOW_RangeOptions( device & ML_STAR ) variable {  return (0); }
+function SHOW_SystemOptions( device & ML_STAR ) void { }
+function SHOW_TipOptions(  ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2023-04-05 17:33$$checksum=a270b69f$$length=081$$

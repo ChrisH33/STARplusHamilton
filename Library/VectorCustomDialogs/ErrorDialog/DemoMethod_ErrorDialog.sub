@@ -1,0 +1,16 @@
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function OnAbort(  ) void ;
+// }} ""
+// {{{ 5 "OnAbort" "Begin"
+function OnAbort(  ) void {
+// }} ""
+// {{ 5 "OnAbort" "InitLocals"
+// }} ""
+// {{{ 23 1 0 "f553e4a7_eb30_4467_9f0e5193413b4c53" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+VectorCustomDialogs::Terminate();
+// }} ""
+// {{{ 5 "OnAbort" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// $$author=MKnappe$$valid=0$$time=2020-05-29 11:55$$checksum=2c48a902$$length=086$$

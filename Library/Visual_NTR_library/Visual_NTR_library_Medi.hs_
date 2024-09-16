@@ -1,0 +1,25 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 03/07/2023 16:25:41
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace VISUAL_NTR_LIBRARY_MEDI {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Channels_TipCounter_Edit( device & ML_STAR, sequence & ioNTRTipSequence, variable iNTRTipCounterName, variable iEditBoxTitleString, variable iSortByTier, variable iDialog_timeout ) void { }
+function Channels_TipCounter_Write( device & ML_STAR, sequence & iNTRTipSequence, variable iNTRTipCounterName, sequence & iNTRFrameWasteSequence, sequence & ioCOREGrippersSequence, variable iEjectPaddlesAfterDiscardRack, variable iNTRRackDisposalChoice, variable iFinalRackInTier_TipDisposal, sequence & ioSeq_FinalTipInTierDestination, variable iTransportChoice, variable iChannelsForTransport, variable iSWAPGripDirection, variable iParkSWAP_rightSide, variable iEditBoxTitleString, variable iDialog_timeout ) void { }
+function End_Method_Cleanup( device & ML_STAR, sequence & iNTRTipSequence, variable iNTRTipCounterName, sequence & iNTRFrameWasteSequence, sequence & ioCOREGrippersSequence, variable iEjectPaddlesAfterDiscardRack, variable iTransportChoice, variable iChannelsForTransport, variable iSWAPGripDirection, variable iParkSWAP_rightSide, variable iEditBoxTitleString, variable iDialog_timeout ) void { }
+function GetCarrierIDandSiteID_FromLabID( device & io_instrument, variable i_labware_ID, variable & o_carrier_ID, variable & o_site_ID ) variable {  return (0); }
+function MPH_TipCounter_CombinedSeq_Write( device & ML_STAR, sequence & iNTRTipSequence, variable iNTRTipCounterName, sequence & iNTRFrameWasteSequence, sequence & ioCOREGrippersSequence, variable iEjectPaddlesAfterDiscardRack, variable iTransportChoice, variable iChannelsForTransport, variable iSWAPGripDirection, variable iParkSWAP_rightSide, variable iEditBoxTitleString, variable iNTRRackDisposalChoice, variable iDialog_timeout ) void { }
+function MPH_TipCounter_Edit( device & ML_STAR, sequence & ioNTRTipSequence, variable iNTRTipCounterName, variable iEditBoxTitleString, variable iSingleColumnPickup, variable iDialog_timeout ) void { }
+function MPH_TipCounter_Write( device & ML_STAR, sequence & iNTRTipSequence, variable iNTRTipCounterName, sequence & iNTRFrameWasteSequence, sequence & ioCOREGrippersSequence, variable iEjectPaddlesAfterDiscardRack, variable iTransportChoice, variable iChannelsForTransport, variable iSWAPGripDirection, variable iParkSWAP_rightSide, variable iEditBoxTitleString, variable iNTRRackDisposalChoice, variable iDialog_timeout ) void { }
+function Reset_TipCounter( variable iTipCounterName ) void { }
+function SortSeqToDiscardEmptyNTROnDeck( sequence i_NTRseq, variable i_SortChoice, sequence & o_WasteNTRseq, device & ML_STAR ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2023-07-03 16:25$$checksum=89cd96d7$$length=081$$

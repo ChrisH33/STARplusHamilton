@@ -1,0 +1,73 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+#include "HSLPTLLib.hsl"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace VENUS4_INIT {
+// }} ""
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function Initialise( device & ML_Star, variable i_blnOnOff ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "Initialise" "Begin"
+function Initialise( device & ML_Star, variable i_blnOnOff ) void {
+// }} ""
+// {{ 5 "Initialise" "InitLocals"
+// }} ""
+// {{ 1 1 0 "6c9405ca_fd43_49db_bf73d86b886abe14" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 2 1 0 "e237ca92_7418_4812_8594c3eb5e1fad29" "ML_Star:{1C0C0CB0-7C87-11D3-AD83-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_Star._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2("e237ca92_7418_4812_8594c3eb5e1fad29"); // Initialize
+}
+// }} ""
+// {{ 3 1 0 "c3c6db8d_b423_4ae0_9cdf47ead3e66407" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 4 1 0 "fde305a2_1f9e_41e5_a68fa58899d1b461" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 5 1 0 "4323f49c_5846_46c1_9ac044c9a332c00c" "ML_Star:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_Star._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("4323f49c_5846_46c1_9ac044c9a332c00c"); // FirmwareCommand
+}
+// }} ""
+// {{ 6 1 0 "c3c6db8d_b423_4ae0_9cdf47ead3e66407" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 5 "Initialise" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=ch33$$valid=0$$time=2023-02-14 11:23$$checksum=d4d838df$$length=083$$

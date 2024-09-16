@@ -1,0 +1,1958 @@
+// ===========================================================================
+// Interface of the library to control the Liconic STX series incubators.
+//
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+// ===========================================================================
+//
+// Modification History
+//    2007-06-20 Ruedi Vogel, V3.0: created, several instruments can be used
+//    2007-07-11 Ruedi Vogel, V3.1: 
+//       - ImportPlate(), ExportPlate() included
+//       - waiting for termination of previous long operation (retransmitting 
+//         new command in ServiceMovePlate())
+//       - _TCPIP_COMMAND_IDENTIFIER_TIMEOUT set to 90
+//    2007-07-19 Ruedi Vogel, V3.2: 
+//       - PartialInventoryScan() implemented
+//    2008-07-30 Ruedi Vogel, V3.3
+//       - GetSysStatus() delivers eight additional parameters each representing
+//         an individual status
+//       - new function IsLongOperationRunning() to check system ready correct
+//       - in function Initialize() sending command STX2Reset  before STX2Activate
+//       - in function Initialize() return values corrected and extended to new values
+//       - new function Restart() to reset and restart the system
+//       - new function ReadUserDoorFlag()
+//       - new function ReadShovelDetector()
+//       - new function ReadXferStationDetector1()
+//       - new function ReadXferStationDetector2()
+//       - new function ReadInventoryFile()
+//    2011-04-07 Bernd Huf V4.0
+//       - added semaphores to prevent parallel requests
+//       - simulation mode for each unit
+//       - function WriteSetClimate sends all values as float
+//       - simplified function calls to SendCommandReceiveMessage (only iUnitID needed, TCP/IP stuff handled inside function now)
+//       - minor formatting changes
+//       - name change to HSL Liconic STX.hsl (changed namespace accordingly)
+//
+// ===========================================================================
+
+
+#ifndef __HSLLiconicSTXSeries_hsl__
+  #define __HSLLiconicSTXSeries_hsl__ 1
+
+  #ifndef __HSLStrLib_hsl__
+    #include "HSLStrLib.hsl"
+  #endif
+
+  #ifndef __HSLFilLib_hsl__
+    #include "HSLFilLib.hsl"
+  #endif
+
+  namespace HSLLiconicSTX
+  {
+
+    /*********************************************************************
+    *
+    * Module globale constants/variables
+    *
+    *********************************************************************/
+
+    const static variable CMD_START   (1);
+    const static variable CMD_COMPLET (2);
+    const static variable CMD_ERROR   (5);   // to prevent suspicious Phoenix error messages
+    const static variable CMD_PROGRESS(4);
+    const static variable CMD_ERRCOMPL(5);
+
+    const variable TRACE_LEVEL_NONE  (0);
+    const variable TRACE_LEVEL_NORMAL(1);
+    const variable TRACE_LEVEL_FULL  (2);
+
+    const variable TRUE(hslTrue);                                        // hslTrue verwenden im Methodeneditor
+    const variable FALSE(hslFalse);                                      // hslFalse verwenden im Methodeneditor
+
+    static const variable _TCPIP_CONNECTION_TIMEOUT(10);                     // [s] Timeout for connection to the driver on the SDS side
+    static const variable _TCPIP_COMMAND_IDENTIFIER_TIMEOUT(90);             // [s] Timeout for recevie the command identifier
+    static const variable _TCPIP_COMMAND_EXECUTION_TIMEOUT(180);             // [s] Timeout for execution a command
+    static const variable _TCPIP_COMMAND_CRLF("\r\n");                       // cr/lf 
+    static const variable _TCPIP_COMMAND_CR("\r");                           // cr 
+
+    static const variable _MAX_UNITS(4);
+
+    static global variable _HSLLiconicSTXSeries_Used[](_MAX_UNITS);
+    static global variable _HSLLiconicSTXSeries_ErrorText[](_MAX_UNITS);
+    static global variable _HSLLiconicSTXSeries_SimulationMode[](_MAX_UNITS);
+    static global object   _HSLLiconicSTXSeries_HxSyncLib[](_MAX_UNITS);
+    static global event    _HSLLiconicSTXSeries_Semaphore[](_MAX_UNITS);
+
+    const variable UNIT_1(1);
+    const variable UNIT_2(2);
+    const variable UNIT_3(3);
+    const variable UNIT_4(4);
+
+    static global variable _HSLLiconicSTXSeries_TraceLevel(TRACE_LEVEL_FULL);
+
+    namespace WINSOCKET
+    {
+      namespace CONNECT
+      {
+        static const variable _Protocol_TCP(0);
+      }
+      namespace STATE
+      {
+        static const variable _SckConnected(7);
+      }
+      namespace GETDATA
+      {
+        static const variable _Type_VT_BSTR(8);
+      }
+    } // namespace WINSOCKET
+
+    /*********************************************************************
+    *
+    * Declarations
+    *
+    *********************************************************************/
+
+    function Initialize(variable iUnitID,
+                        variable iHostname,
+                        variable iPortNr,
+                        variable iTraceLevel,
+                        variable iSimulationMode) variable;
+
+    function Restart(variable iUnitID) variable;
+
+    function Terminate(variable iUnitID) variable;
+
+    function GetLastErrorText(variable iUnitID,
+                              variable& oErrorText) variable;
+
+    function ReadInventoryFile(variable iUnitID,
+                               variable iInvFilename,
+                               variable& oBarcode[],
+                               variable& oCustomerID[],
+                               variable& oPartition[],
+                               variable& oPPD[],
+                               variable& oSerialNo[],
+                               variable& oSystemID[],
+                               variable& oDeviceID[],
+                               variable& oCassetteNo[],
+                               variable& oLevel[],
+                               variable& oRow[]) variable;
+
+    namespace COMMAND
+    {
+      function ReadActualClimate(variable iUnitID,
+                                 variable& oTemperature,
+                                 variable& oHumidity,
+                                 variable& oConcCO2,
+                                 variable& oConcN2) variable;
+
+      function WriteSetClimate(variable iUnitID,
+                               variable iTemperature,
+                               variable iHumidity,
+                               variable iConcCO2,
+                               variable iConcN2) variable;
+
+      function ReadSetClimate(variable iUnitID,
+                              variable& oTemperature,
+                              variable& oHumidity,
+                              variable& oConcCO2,
+                              variable& oConcN2) variable;
+
+      function ActivateShaker(variable iUnitID,
+                              variable iSpeed) variable;
+
+      function DeactivateShaker(variable iUnitID) variable;
+
+      function ReadSetShakerSpeed(variable iUnitID,
+                                  variable& oSpeed) variable;
+
+      function SwapIn(variable iUnitID) variable;
+
+      function SwapOut(variable iUnitID) variable;
+
+      function Lock(variable iUnitID,
+                    variable& oDoorStatus) variable;
+
+      function UnLock(variable iUnitID) variable;
+
+      function AbandonAccess(variable iUnitID) variable;
+
+      function ContinueAccess(variable iUnitID) variable;
+
+      function GetSysStatus(variable iUnitID,
+                            variable& oStatus,
+                            variable& oSystemReady,
+                            variable& oPlateReady,
+                            variable& oSystemInitialized,
+                            variable& oXferStnStatusChange,
+                            variable& oGateClosed,
+                            variable& oUserDoor,
+                            variable& oWarning,
+                            variable& oError) variable;
+
+      function IsLongOperationRunning(variable iUnitID,
+                                      variable& oStatus) variable;
+
+      function ServiceReadBarcode(variable iUnitID,
+                                  variable iSlot,
+                                  variable iLevel,
+                                  variable& oBarcode) variable;
+
+      function Inventory(variable iUnitID,
+                         variable iInvFilename,
+                         variable iPPD,
+                         variable iBCR) variable;
+
+      function PartialInventoryScan(variable iUnitID,
+                                    variable iInvFilename,
+                                    variable iPartitionID,
+                                    variable iPPD,
+                                    variable iBCR) variable;
+
+      function ServiceMovePlate(variable iUnitID,
+                                variable iSrcPos,
+                                variable iSrcSlot,
+                                variable iSrcLevel,
+                                variable iTransSrcSlot,
+                                variable iSrcPlateType,
+                                variable iTrgUnitID,
+                                variable iTrgPos,
+                                variable iTrgSlot,
+                                variable iTrgLevel,
+                                variable iTransTrgSlot,
+                                variable iTrgPlateType) variable;
+
+      function ImportPlate(variable iUnitID,
+                           variable iSlot,
+                           variable iLevel) variable;
+
+      function ExportPlate(variable iUnitID,
+                           variable iSlot,
+                           variable iLevel) variable;
+
+      function ReadUserDoorFlag(variable iUnitID,
+                                variable& oDoorStatus) variable;
+
+      function ReadShovelDetector(variable iUnitID,
+                                  variable& oShovelStatus) variable;
+
+      function ReadXferStationDetector1(variable iUnitID,
+                                        variable& oXferStationStatus) variable;
+
+      function ReadXferStationDetector2(variable iUnitID,
+                                        variable& oXferStationStatus) variable;
+    }
+    static function ClearReceivedBuffer(object iHxSyncLib_WinSockObject) void;
+
+    static function SendCommandReceiveMessage(variable iUnitID,
+                                              variable iSendCommand,
+                                              variable& oReceivedCommand) variable;
+
+    /*********************************************************************
+    *
+    * Implementations
+    *
+    *********************************************************************/
+
+    //--------------------------------------------------------------------
+    // function Initialize
+    //--------------------------------------------------------------------
+    function Initialize(variable iUnitID, variable iHostname, variable iPortNr, variable iTraceLevel, variable iSimulationMode) variable
+    {
+      object HxSyncLib;
+      object HxSyncLib_WinSockObject;
+      timer timerWaitForConnection;
+      variable timeoutWaitForConnection;
+      variable command;
+      variable response;
+      variable errorText;
+
+      _HSLLiconicSTXSeries_TraceLevel = iTraceLevel;
+
+      if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ",iHostname=\"", iHostname, "\",iPortNr=", iPortNr, ",iTraceLevel=", iTraceLevel, ",iSimulationMode=", iSimulationMode, ")");
+
+      // Check if valid server ID
+      if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+      {
+        errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+        return(hslFalse);
+      }
+
+      _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, "");
+      _HSLLiconicSTXSeries_SimulationMode.SetAt(iUnitID - 1, iSimulationMode);
+
+      if(iSimulationMode == hslFalse)
+      {
+        onerror goto error_HxSyncLib;
+        HxSyncLib.CreateObject("HxSyncLib.clsWinsock", hslTrue);
+        onerror goto 0;
+
+        HxSyncLib_WinSockObject = HxSyncLib.GetWinsockObject();
+        HxSyncLib_WinSockObject.RemoteHost = iHostname;
+        HxSyncLib_WinSockObject.RemotePort = iPortNr;
+        HxSyncLib_WinSockObject.Protocol   = WINSOCKET::CONNECT::_Protocol_TCP;
+        HxSyncLib_WinSockObject.Connect();
+
+        timeoutWaitForConnection = _TCPIP_CONNECTION_TIMEOUT * 2;
+        while(HxSyncLib_WinSockObject.State != WINSOCKET::STATE::_SckConnected)
+        {
+          timerWaitForConnection.SetTimer(0.5);
+          timerWaitForConnection.WaitTimer(hslFalse, hslFalse);
+          if(--timeoutWaitForConnection == 0)
+          {
+            errorText = "No connection to \"" + HxSyncLib_WinSockObject.RemoteHost + ":" + IStr(HxSyncLib_WinSockObject.RemotePort) + "\"! (WinSock.State=" + IStr(HxSyncLib_WinSockObject.State) + ")";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            HxSyncLib_WinSockObject.Close();
+            HxSyncLib.ReleaseObject();
+            return(hslFalse);
+          }
+        }
+        _HSLLiconicSTXSeries_HxSyncLib.SetAt(iUnitID - 1, HxSyncLib);
+        _HSLLiconicSTXSeries_Semaphore[iUnitID - 1].SetEvent();
+        _HSLLiconicSTXSeries_Used.SetAt(iUnitID - 1, hslTrue);
+
+        // reset and start the StoreX instrument
+        return(Restart(iUnitID));
+      }
+      else
+      {
+        _HSLLiconicSTXSeries_Used.SetAt(iUnitID - 1, hslTrue);
+        return(hslTrue);
+      }
+
+      error_HxSyncLib:
+      {
+        errorText = "No HxSyncLib.clsWinsock! (Register HxSyncLib.dll ?)";
+        _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+        return(hslFalse);
+      }
+    } // function Initialize
+
+    //--------------------------------------------------------------------
+    // function Restart
+    //--------------------------------------------------------------------
+    function Restart(variable iUnitID) variable
+    {
+      variable command;
+      variable response;
+      variable errorText;
+
+
+      if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+
+      // Check if valid server ID
+      if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+      {
+        errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+        return(hslFalse);
+      }
+
+      if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+      {
+        // Send the command STX2Reset
+        command = "STX2Reset(" + IStr(iUnitID) + ")";
+        if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+        {
+          errorText = "Error occurred when command \"" + command + "\" was sent!";
+          _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        // Send the command STX2Activate
+        command = "STX2Activate(" + IStr(iUnitID) + ")";
+        if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+        {
+          errorText = "Error occurred when command \"" + command + "\" was sent!";
+          _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        // Evaluate the response
+        if(StrMid(response, 0, 1) != "1")
+        {
+          if(StrMid(response, 0, 2) == "-1")
+          {
+            errorText = "Error on opening serial port!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+          if(StrMid(response, 0, 2) == "-2")
+          {
+            errorText = "Serial port already opened!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+          if(StrMid(response, 0, 2) == "-3")
+          {
+            errorText = "No communication!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+          if(StrMid(response, 0, 2) == "-4")
+          {
+            errorText = "Communication error!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+          if(StrMid(response, 0, 2) == "-5")
+          {
+            errorText = "System error (system error flag is true)!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+          if(StrMid(response, 0, 2) == "-6")
+          {
+            errorText = "User door is opened (or cannot read user door status)!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+          if(StrMid(response, 0, 2) == "-7")
+          {
+            errorText = "User door is unlocked or cannot lock user door!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+          errorText = "Unknown error code!";
+          _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+        if(StrMid(response, 1, 1) == ";")
+        {
+          if(StrMid(response, 2, 1) != "1")
+          {
+            if(StrMid(response, 2, 2) == "-1") 
+            {
+              errorText = "Error on opening BCR serial port!";
+              _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+              if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+              return(hslFalse);
+            }
+            if(StrMid(response, 2, 2) == "-2")
+            {
+              errorText = "Wrong value of BCR serial port!";
+              _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+              if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+              return(hslFalse);
+            }
+            errorText = "Unknown error code!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        }
+      } // _HSLLiconicSTXSeries_SimulationMode
+
+      if (_HSLLiconicSTXSeries_TraceLevel>=TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+      return(hslTrue);
+    } // function Restart
+
+
+    //--------------------------------------------------------------------
+    // function Terminate
+    //--------------------------------------------------------------------
+    function Terminate(variable iUnitID) variable
+    {
+      object HxSyncLib;
+      object HxSyncLib_WinSockObject;
+      variable command;
+      variable response;
+      variable errorText;
+
+      if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+
+      if(_HSLLiconicSTXSeries_Used.GetAt(iUnitID - 1) == hslTrue)
+      {
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          HxSyncLib = _HSLLiconicSTXSeries_HxSyncLib.GetAt(iUnitID - 1);
+          HxSyncLib_WinSockObject = HxSyncLib.GetWinsockObject();
+
+          command = "STX2Deactivate(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          HxSyncLib_WinSockObject.Close();
+          HxSyncLib.ReleaseObject();
+        } // _SimulationMode
+
+        _HSLLiconicSTXSeries_Used.SetAt(iUnitID - 1, hslFalse);
+      }
+      if (_HSLLiconicSTXSeries_TraceLevel>=TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+      return(hslTrue);
+    } // function Terminate
+
+    //--------------------------------------------------------------------
+    // function GetLastErrorText
+    //--------------------------------------------------------------------
+    function GetLastErrorText(variable iUnitID, variable& oErrorText) variable
+    {
+      variable errorText;
+
+
+      if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+
+      // Check if valid server ID
+      if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+      {
+        errorText = "Invalid server " + IStr(iUnitID) + "!";
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+        return(hslFalse);
+      }
+
+      oErrorText = _HSLLiconicSTXSeries_ErrorText.GetAt(iUnitID - 1);
+
+      if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET, " oErrorText=\"", oErrorText, "\"");
+      return(hslTrue);
+    } // function GetLastErrorText
+
+    //--------------------------------------------------------------------
+    // function ReadInventoryFile
+    //--------------------------------------------------------------------
+    function ReadInventoryFile(variable iUnitID, variable iInvFilename, variable& oBarcode[], variable& oCustomerID[], variable& oPartition[], variable& oPPD[], variable& oSerialNo[], variable& oSystemID[], variable& oDeviceID[], variable& oCassetteNo[], variable& oLevel[], variable& oRow[]) variable
+    {
+      variable errorText;
+      variable filename;
+      file     invFile;
+      variable invLine;
+      variable invEOF;
+
+
+      if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ", iInvFilename=", iInvFilename, ")");
+
+      // initialize output data
+      oBarcode.SetSize(0);
+      oCustomerID.SetSize(0);
+      oPartition.SetSize(0);
+      oPPD.SetSize(0);
+      oSerialNo.SetSize(0);
+      oSystemID.SetSize(0);
+      oDeviceID.SetSize(0);
+      oCassetteNo.SetSize(0);
+      oLevel.SetSize(0);
+      oRow.SetSize(0);
+
+      // Reset the last error text
+      _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, "");
+
+      // Check if valid server ID
+      if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+      {
+        errorText = "Invalid server " + IStr(iUnitID) + "!";
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+        return(hslFalse);
+      }
+
+      // check if file exists
+      filename = FilSearchPath(iInvFilename);
+      if("" == filename)
+      {
+        errorText = "File <" + iInvFilename + "> does not exists!";
+        _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+        return(hslFalse);
+      }
+
+      // open file
+      invFile.AddField(1, invLine, hslString);
+      invFile.SetDelimiter(hslAsciiText);
+      if(0 == invFile.Open(filename, hslRead))
+      {
+        errorText = "Opening file <" + filename + "> failed!";
+        _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+        return(hslFalse);
+      }
+
+      // read data
+      invEOF = FilEof(invFile);
+      while(0 == invEOF)
+      {
+        // read one line
+        if(0 == invFile.ReadRecord())
+        {
+          errorText = "Read record in file <" + filename + "> failed!";
+          _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        // decode read line
+        if("" != invLine)
+        {
+          // no empty line
+          oBarcode.AddAsLast(StrMid(invLine, 0, StrFind(invLine, ",")));
+          invLine = StrMid(invLine, StrFind(invLine, ",") + 1, StrGetLength(invLine));
+
+          oCustomerID.AddAsLast(StrMid(invLine, 0, StrFind(invLine, ",")));
+          invLine = StrMid(invLine, StrFind(invLine, ",") + 1, StrGetLength(invLine));
+
+          oPartition.AddAsLast(StrMid(invLine, 0, StrFind(invLine, ",")));
+          invLine = StrMid(invLine, StrFind(invLine, ",") + 1, StrGetLength(invLine));
+
+          oPPD.AddAsLast(StrMid(invLine, 0, StrFind(invLine, ",")));
+          invLine = StrMid(invLine, StrFind(invLine, ",") + 1, StrGetLength(invLine));
+
+          oSerialNo.AddAsLast(StrMid(invLine, 0, StrFind(invLine, ",")));
+          invLine = StrMid(invLine, StrFind(invLine, ",") + 1, StrGetLength(invLine));
+
+          oSystemID.AddAsLast(StrMid(invLine, 0, StrFind(invLine, ",")));
+          invLine = StrMid(invLine, StrFind(invLine, ",") + 1, StrGetLength(invLine));
+
+          oDeviceID.AddAsLast(StrMid(invLine, 0, StrFind(invLine, ",")));
+          invLine = StrMid(invLine, StrFind(invLine, ",") + 1, StrGetLength(invLine));
+
+          oCassetteNo.AddAsLast(StrMid(invLine, 0, StrFind(invLine, ",")));
+          invLine = StrMid(invLine, StrFind(invLine, ",") + 1, StrGetLength(invLine));
+
+          oLevel.AddAsLast(StrMid(invLine, 0, StrFind(invLine, ",")));
+          invLine = StrMid(invLine, StrFind(invLine, ",") + 1, StrGetLength(invLine));
+
+          oRow.AddAsLast(invLine);
+        }
+        // check EOF
+        invEOF = FilEof(invFile);
+      }
+
+      // close file
+      if(0 != invFile.Close())
+      {
+        errorText = "Closing file <" + filename + "> failed!";
+        _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+        return(hslFalse);
+      }
+      invFile.RemoveFields();
+
+      if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+      return(hslTrue);
+    } // function ReadInventoryFile
+
+    //--------------------------------------------------------------------
+    // namespace COMMAND
+    //--------------------------------------------------------------------
+    namespace COMMAND
+    {
+      //--------------------------------------------------------------------
+      // function ReadActualClimate
+      //--------------------------------------------------------------------
+      function ReadActualClimate(variable iUnitID, variable& oTemperature, variable& oHumidity, variable& oConcCO2, variable& oConcN2) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+
+        oTemperature = -300;
+        oHumidity    = -1;
+        oConcCO2     = -1;
+        oConcN2      = -1;
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2ReadActualClimate
+          command = "STX2ReadActualClimate(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          // Evaluate the response
+          oTemperature = StrFVal(response);
+          response = StrMid(response, StrFind(response, ";") + 1, StrGetLength(response));
+          oHumidity = StrFVal(response);
+          response = StrMid(response, StrFind(response, ";") + 1, StrGetLength(response));
+          oConcCO2 = StrFVal(response);
+          response = StrMid(response, StrFind(response, ";") + 1, StrGetLength(response));
+          oConcN2 = StrFVal(response);
+        } // _HSLLiconicSTXSeries_SimulationMode
+        else
+        {
+          oTemperature = 25;
+          oHumidity = 50;
+          oConcCO2 = 27;
+          oConcN2 = 70;
+        }
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET, " oTemperature=", oTemperature, " oHumidity=", oHumidity, " oConcCO2=", oConcCO2, " oConcN2=", oConcN2);
+        return(hslTrue);
+      } // function ReadActualClimate
+
+      //--------------------------------------------------------------------
+      // function WriteSetClimate
+      //--------------------------------------------------------------------
+      function WriteSetClimate(variable iUnitID, variable iTemperature, variable iHumidity, variable iConcCO2, variable iConcN2) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+
+        response="";
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2WriteSetClimate
+          command = "STX2WriteSetClimate(" + IStr(iUnitID) + "," + FStr(iTemperature) + "," + FStr(iHumidity) + "," + FStr(iConcCO2) + "," + FStr(iConcN2) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+        return(hslTrue);
+      } // function WriteSetClimate
+
+      //--------------------------------------------------------------------
+      // function ReadSetClimate
+      //--------------------------------------------------------------------
+      function ReadSetClimate(variable iUnitID, variable& oTemperature, variable& oHumidity, variable& oConcCO2, variable& oConcN2) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+
+        oTemperature = -300;
+        oHumidity = -1;
+        oConcCO2 = -1;
+        oConcN2 = -1;
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2Reset
+          command = "STX2ReadSetClimate(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          // Evaluate the response
+          oTemperature = StrFVal(response);
+          response = StrMid(response, StrFind(response, ";") + 1, StrGetLength(response));
+          oHumidity = StrFVal(response);
+          response = StrMid(response, StrFind(response, ";") + 1, StrGetLength(response));
+          oConcCO2 = StrFVal(response);
+          response = StrMid(response, StrFind(response, ";") + 1, StrGetLength(response));
+          oConcN2 = StrFVal(response);
+        } // _HSLLiconicSTXSeries_SimulationMode
+        else
+        {
+          oTemperature = 25;
+          oHumidity = 50;
+          oConcCO2 = 27;
+          oConcN2 = 70;
+        }
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET, " oTemperature=", oTemperature, " oHumidity=", oHumidity, " oConcCO2=", oConcCO2, " oConcN2=", oConcN2);
+        return(hslTrue);
+      } // function ReadSetClimate
+
+      //--------------------------------------------------------------------
+      // function ActivateShaker
+      //--------------------------------------------------------------------
+      function ActivateShaker(variable iUnitID, variable iSpeed) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+
+        response = "";
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if (iSpeed<1 || iSpeed>1200)
+        {
+          errorText = "Parameter iSpeed="+IStr(iSpeed)+" out of range [1..1200]!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2ActivateShaker
+          command = "STX2ActivateShaker(" + IStr(iUnitID) + "," + IStr(iSpeed) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+        return(hslTrue);
+      } // function ActivateShaker
+
+      //--------------------------------------------------------------------
+      // function DeactivateShaker
+      //--------------------------------------------------------------------
+      function DeactivateShaker(variable iUnitID) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+
+        response = "";
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2DeactivateShaker
+          command = "STX2DeactivateShaker(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+        return(hslTrue);
+      } // function DeactivateShaker
+
+      //--------------------------------------------------------------------
+      // function ReadSetShakerSpeed
+      //--------------------------------------------------------------------
+      function ReadSetShakerSpeed(variable iUnitID, variable& oSpeed) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+
+        oSpeed = 0;
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2ReadSetShakerSpeed
+          command = "STX2ReadSetShakerSpeed(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          // Evaluate the response
+          oSpeed = StrFVal(response);
+          if(oSpeed < 0)
+          {
+            errorText = "Error " + StrFStr(oSpeed) + " on unit " + iUnitID + "!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        } // _HSLLiconicSTXSeries_SimulationMode
+        else
+        {
+          oSpeed = 25;
+        }
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET, " oSpeed=",oSpeed);
+        return(hslTrue);
+      } // function ReadSetShakerSpeed
+
+      //--------------------------------------------------------------------
+      // function SwapIn
+      //--------------------------------------------------------------------
+      function SwapIn(variable iUnitID) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2SwapIn
+          command = "STX2SwapIn(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          // Evaluate the response
+          if(StrMid(response, 0, 1) != "1")
+          {
+            errorText = "Error " + StrMid(response, 0, 2) + " on unit " + iUnitID + "!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+        return(hslTrue);
+      } // function SwapIn
+
+      //--------------------------------------------------------------------
+      // function SwapOut
+      //--------------------------------------------------------------------
+      function SwapOut(variable iUnitID) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2SwapOut
+          command = "STX2SwapOut(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          // Evaluate the response
+          if(StrMid(response, 0, 1) != "1")
+          {
+            errorText = "Error " + StrMid(response, 0, 2) + " on unit " + iUnitID + "!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+        return(hslTrue);
+      } // function SwapOut
+
+      //--------------------------------------------------------------------
+      // function Lock
+      //--------------------------------------------------------------------
+      function Lock(variable iUnitID, variable& oDoorStatus) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+        oDoorStatus = -1;
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2Lock
+          command = "STX2Lock(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          // Evaluate the response
+          oDoorStatus = StrIVal(response);
+          if(oDoorStatus < 0)
+          {
+            errorText = "Error " + StrMid(response, 0, 2) + " on unit " + iUnitID + "!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        }
+        else
+        {
+          oDoorStatus = 0;
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET, " Door status = ", oDoorStatus);
+        return(hslTrue);
+      } // function Lock
+
+      //--------------------------------------------------------------------
+      // function UnLock
+      //--------------------------------------------------------------------
+      function UnLock(variable iUnitID) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2UnLock
+          command = "STX2UnLock(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+        return(hslTrue);
+      } // function UnLock
+
+      //--------------------------------------------------------------------
+      // function AbandonAccess
+      //--------------------------------------------------------------------
+      function AbandonAccess(variable iUnitID) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2AbandonAccess
+          command = "STX2AbandonAccess(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+        return(hslTrue);
+      } // function AbandonAccess
+
+      //--------------------------------------------------------------------
+      // function ContinueAccess
+      //--------------------------------------------------------------------
+      function ContinueAccess(variable iUnitID) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2ContinueAccess
+          command = "STX2ContinueAccess(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+        return(hslTrue);
+      } // function ContinueAccess
+
+      //--------------------------------------------------------------------
+      // function GetSysStatus
+      //--------------------------------------------------------------------
+      function GetSysStatus(variable iUnitID, variable& oStatus, variable& oSystemReady, variable& oPlateReady, variable& oSystemInitialized, variable& oXferStnStatusChange, variable& oGateClosed, variable& oUserDoor, variable& oWarning, variable& oError) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+
+        oStatus              = 0;
+        oSystemReady         = 0;
+        oPlateReady          = 0;
+        oSystemInitialized   = 0;
+        oXferStnStatusChange = 0;
+        oGateClosed          = 0;
+        oUserDoor            = 0;
+        oWarning             = 0;
+        oError               = 0;
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2GetSysStatus
+          command = "STX2GetSysStatus(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          // Evaluate the response
+          oStatus = StrIVal(response);
+          if(oStatus < 0)
+          {
+            errorText = "Error " + StrMid(response, 0, 2) + " on unit " + iUnitID + "!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        }
+        else
+        {
+          oStatus = 23;
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        oSystemReady         = (0x0001 == (oStatus & 0x0001));
+        oPlateReady          = (0x0002 == (oStatus & 0x0002));
+        oSystemInitialized   = (0x0003 == (oStatus & 0x0004));
+        oXferStnStatusChange = (0x0008 == (oStatus & 0x0008));
+        oGateClosed          = (0x0010 == (oStatus & 0x0010));
+        oUserDoor            = (0x0020 == (oStatus & 0x0020));
+        oWarning             = (0x0040 == (oStatus & 0x0040));
+        oError               = (0x0080 == (oStatus & 0x0080));
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET, " oStatus=", oStatus);
+        return(hslTrue);
+      } // function GetSysStatus
+
+      //--------------------------------------------------------------------
+      // function IsLongOperationRunning
+      //--------------------------------------------------------------------
+      function IsLongOperationRunning(variable iUnitID, variable& oStatus) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+        oStatus = 0;
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2IsOperationRunning
+          command = "STX2IsOperationRunning(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          // Evaluate the response
+          oStatus = StrIVal(response);
+          if(oStatus < 0)
+          {
+            errorText = "Error " + StrMid(response, 0, 2) + " on unit " + iUnitID + "!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET, " oStatus=", oStatus);
+        return(hslTrue);
+      } // function IsLongOperationRunning
+
+      //--------------------------------------------------------------------
+      // function ServiceReadBarcode
+      //--------------------------------------------------------------------
+      function ServiceReadBarcode(variable iUnitID, variable iSlot, variable iLevel, variable& oBarcode) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ", iSlot=", iSlot,", iLevel=", iLevel, ")");
+        oBarcode = "";
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2ServiceReadBarcode
+          command = "STX2ServiceReadBarcode(" + IStr(iUnitID) + "," + IStr(iSlot) + "," + IStr(iLevel) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          // Evaluate the response
+          if (response == ("BCRError" + _TCPIP_COMMAND_CRLF))
+          {
+            errorText = "Barcode reader is not initialized!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+          if(response == ("InitError" + _TCPIP_COMMAND_CRLF))
+          {
+            errorText = "StoreX is not initialized!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+          if(response == ("No Plate" + _TCPIP_COMMAND_CRLF))
+          {
+            errorText = "There is no plate at the specified position!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+          if(response == ("No Barcode" + _TCPIP_COMMAND_CRLF))
+          {
+            errorText = "There is no barcode on the plate!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+          oBarcode = StrMid(response, 0, StrGetLength(response) - 2);
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET, " oBarcode=\"", oBarcode, "\"");
+        return(hslTrue);
+      } // function ServiceReadBarcode
+
+      //--------------------------------------------------------------------
+      // function Inventory
+      //--------------------------------------------------------------------
+      function Inventory(variable iUnitID, variable iInvFilename, variable iPPD, variable iBCR) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ", iInvFilename=", iInvFilename, ", iPPD=", iPPD, ", iBCR=", iBCR, ")");
+
+        // Check input parameters
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+        if(iPPD < 0 || iPPD > 1)
+        {
+          errorText = "PPD parameter = " + IStr(iPPD) + "is out of range [0,1]!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+        if(iBCR < 0 || iBCR > 1)
+        {
+          errorText = "BCR parameter = " + IStr(iBCR) + "is out of range [0,1]!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2Inventory
+          command = "STX2Inventory(" + IStr(iUnitID) + "," + iInvFilename + "," + IStr(iPPD) + "," + IStr(iBCR) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          // Evaluate the response
+          if(StrIVal(response) < 1)
+          {
+                 if(StrIVal(response) == -1) errorText = "Device is not initialized!";
+            else if(StrIVal(response) == -2) errorText = "Previous long operation is not finished!";
+            else if(StrIVal(response) == -3) errorText = "Device is not ready!";
+            else if(StrIVal(response) == -4) errorText = "Status error occurred on device!";
+            else                             errorText = "Unknown error code!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+        return(hslTrue);
+      } // function Inventory
+
+      //--------------------------------------------------------------------
+      // function PartialInventoryScan
+      //--------------------------------------------------------------------
+      function PartialInventoryScan(variable iUnitID, variable iInvFilename, variable iPartitionID, variable iPPD, variable iBCR) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ", iInvFilename=", iInvFilename, ", iPartitionID=", iPartitionID, ", iPPD=", iPPD, ", iBCR=", iBCR, ")");
+
+        // Check input parameters
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+        if(iPPD < 0 || iPPD > 1)
+        {
+          errorText = "PPD parameter = " + IStr(iPPD) + "is out of range [0,1]!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+        if(iBCR < 0 || iBCR > 1)
+        {
+          errorText = "BCR parameter = " + IStr(iBCR) + "is out of range [0,1]!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2PartitionInventory
+          command = "STX2PartitionInventory(" + IStr(iUnitID) + "," + iInvFilename + "," + iPartitionID + "," + IStr(iPPD) + "," + IStr(iBCR) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          // Evaluate the response
+          if(StrIVal(response) < 1)
+          {
+                 if(StrIVal(response) == -1) errorText = "Device is not initialized!";
+            else if(StrIVal(response) == -2) errorText = "Previous long operation is not finished!";
+            else if(StrIVal(response) == -3) errorText = "Barcode reader has not been initialized!";
+            else if(StrIVal(response) == -4) errorText = "Unknown Partition. Partition has not been defined in Unit Configuration file!";
+            else if(StrIVal(response) == -5) errorText = "There is no cassette in a Partition. The range of a Partition has not been configured properly!";
+            else if(StrIVal(response) == -6) errorText = "Device is not ready!";
+            else if(StrIVal(response) == -7) errorText = "Status error occurred on device!";
+            else                             errorText = "Unknown error code!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+        return(hslTrue);
+      } // function PartialInventoryScan
+
+      //--------------------------------------------------------------------
+      // function ServiceMovePlate
+      //--------------------------------------------------------------------
+      function ServiceMovePlate(variable iUnitID, variable iSrcPos, variable iSrcSlot, variable iSrcLevel, variable iTransSrcSlot, variable iSrcPlateType, variable iTrgUnitID, variable iTrgPos, variable iTrgSlot, variable iTrgLevel, variable iTransTrgSlot, variable iTrgPlateType) variable
+      {
+        variable command;
+        variable response;
+        timer t1;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START,    " (iUnitID=", iUnitID, ", iSrcPos=", iSrcPos, ", iSrcSlot=", iSrcSlot, ", iSrcLevel=", iSrcLevel, ", iTransSrcSlot=", iTransSrcSlot, ", iSrcPlateType=", iSrcPlateType, ")");
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_PROGRESS, " (iTrgUnitID=", iTrgUnitID, ", iTrgPos=", iTrgPos, ", iTrgSlot=", iTrgSlot, ", iTrgLevel=", iTrgLevel, ", iTransTrgSlot=", iTransTrgSlot, ", iTrgPlateType=", iTrgPlateType, ")");
+
+        // Check input parameters (where possible)
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid source unit ID "+IStr(iUnitID)+"!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+        if(iTrgUnitID < 1 || iTrgUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid target unit ID "+IStr(iTrgUnitID)+"!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+        if(iSrcPos < 1 || iSrcPos > 4)
+        {
+          errorText = "Source position = " + IStr(iSrcPos) + "is out of range [1..4]!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+        if(iTrgPos < 1 || iTrgPos > 4)
+        {
+          errorText = "Target position = " + IStr(iTrgPos) + "is out of range [1..4]!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+        if((iSrcPlateType != 0) && (iSrcPlateType != 1) && (iSrcPlateType != 3))
+        {
+          errorText = "Source plate type = " + IStr(iSrcPlateType) + "is out of range [0,1,3]!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+        if((iTrgPlateType != 0) && (iTrgPlateType != 1) && (iTrgPlateType != 3))
+        {
+          errorText = "Target plate type = " + IStr(iTrgPlateType) + "is out of range [0,1,3]!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2ServiceMovePlate
+          command = "STX2ServiceMovePlate(" + IStr(iUnitID) + "," + IStr(iSrcPos) + "," + IStr(iSrcSlot) + "," + IStr(iSrcLevel) + "," + IStr(iTransSrcSlot) + "," + IStr(iSrcPlateType) + ",";
+          command =                 command + IStr(iTrgUnitID) + "," + IStr(iTrgPos) + "," + IStr(iTrgSlot) + "," + IStr(iTrgLevel) + "," + IStr(iTransTrgSlot) + "," + IStr(iTrgPlateType) + ")";
+          while(1)
+          {
+            if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+            {
+              errorText = "Error occurred when command \"" + command + "\" was sent!";
+              _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID-1,errorText);
+              if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+              return(hslFalse);
+            }
+            if(("-1" + _TCPIP_COMMAND_CRLF) != response) 
+              break; // previous long operation finished -> break loop (else try again)
+            t1.SetTimer(0.5);
+            t1.WaitTimer(hslFalse,hslFalse);
+          }
+
+          // Evaluate the response
+          if(("1" + _TCPIP_COMMAND_CRLF) != response)
+          {
+            if(StrFind(response, ";") == -1)
+            {
+                   if(StrIVal(response) == -1) errorText = "Previous long operation is not finished!";
+              else if(StrIVal(response) == -2) errorText = "One of the input parameters is not a valid integer value!";
+              else if(StrIVal(response) == -3) errorText = "A source or target device is not specified or not initialized!";
+              else if(StrIVal(response) == -4) errorText = "One or more of devices is/are not defined in a system!";
+              else if(StrIVal(response) == -5) errorText = "One of transport slot is not specified!";
+              else if(StrIVal(response) == -6) errorText = "Wrong value of a target transport slot!";
+              else if(StrIVal(response) == -7) errorText = "Wrong value of a source transport slot!";
+              else if(StrIVal(response) == -8) errorText = "Wrong value of a source position!";
+              else if(StrIVal(response) == -9) errorText = "Wrong value of a target position!";
+              else                             errorText = "Unknown error code!";
+            }
+            else
+            {
+                   if(StrIVal(StrMid(response, StrFind(response, ";") + 1, StrGetLength(response))) == 1) errorText = "Error during LoadPlate operation, device "   + IStr(-StrIVal(response)) + "!";
+              else if(StrIVal(StrMid(response, StrFind(response, ";") + 1, StrGetLength(response))) == 2) errorText = "Error during UnloadPlate operation, device " + IStr(-StrIVal(response)) + "!";
+              else if(StrIVal(StrMid(response, StrFind(response, ";") + 1, StrGetLength(response))) == 3) errorText = "Error during PickPlate operation, device "   + IStr(-StrIVal(response)) + "!";
+              else if(StrIVal(StrMid(response, StrFind(response, ";") + 1, StrGetLength(response))) == 4) errorText = "Error during PlacePlate operation, device "  + IStr(-StrIVal(response)) + "!";
+              else if(StrIVal(StrMid(response, StrFind(response, ";") + 1, StrGetLength(response))) == 5) errorText = "Error during SetPlate operation, device "    + IStr(-StrIVal(response)) + "!";
+              else if(StrIVal(StrMid(response, StrFind(response, ";") + 1, StrGetLength(response))) == 6) errorText = "Error during GetPlate operation, device "    + IStr(-StrIVal(response)) + "!";
+              else if(StrIVal(StrMid(response, StrFind(response, ";") + 1, StrGetLength(response))) == 7) errorText = "Device "                                     + IStr(-StrIVal(response)) + " is not ready!";
+              else if(StrIVal(StrMid(response, StrFind(response, ";") + 1, StrGetLength(response))) == 8) errorText = "Status error occurred on device "            + IStr(-StrIVal(response)) + "!";
+              else                                                                                        errorText = "Unknown error code!";
+            }
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+        return(hslTrue);
+      } // function ServiceMovePlate
+
+      //--------------------------------------------------------------------
+      // function ImportPlate
+      //--------------------------------------------------------------------
+      function ImportPlate(variable iUnitID, variable iSlot, variable iLevel) variable
+      {
+        variable rtnCode;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START,    " (iUnitID=", iUnitID, ", iSlot=", iSlot, ", iLevel=", iLevel, ")");
+        rtnCode = ServiceMovePlate(iUnitID, // Server Number of source unit
+                                   1,       // source position {1=Transfer Station, 2=Slot/Level, 3=Shovel, 4=Tunnel}
+                                   0,       // plate slot position of source
+                                   0,       // plate level position of source
+                                   0,       // number of a transport slot of a source device
+                                   0,       // plate type of source position {0=MTP, 1=DWP, 3=P28}
+                                   iUnitID, // Server Number of target unit
+                                   2,       // target position {1=Transfer Station, 2=Slot/Level, 3=Shovel, 4=Tunnel}
+                                   iSlot,   // plate slot position of target
+                                   iLevel,  // plate level position of target
+                                   0,       // number of a transport slot of a target device
+                                   0        // plate type of source position {0=MTP, 1=DWP, 3=P28}
+                                  );
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+        return(rtnCode);
+      } // function ImportPlate
+
+      //--------------------------------------------------------------------
+      // function ExportPlate
+      //--------------------------------------------------------------------
+      function ExportPlate(variable iUnitID, variable iSlot, variable iLevel) variable
+      {
+        variable rtnCode;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START,    " (iUnitID=", iUnitID, ", iSlot=", iSlot, ", iLevel=", iLevel, ")");
+        rtnCode = ServiceMovePlate(iUnitID, // Server Number of source unit
+                                   2,       // source position {1=Transfer Station, 2=Slot/Level, 3=Shovel, 4=Tunnel}
+                                   iSlot,   // plate slot position of source
+                                   iLevel,  // plate level position of source
+                                   0,       // number of a transport slot of a source device
+                                   0,       // plate type of source position {0=MTP, 1=DWP, 3=P28}
+                                   iUnitID, // Server Number of target unit
+                                   1,       // target position {1=Transfer Station, 2=Slot/Level, 3=Shovel, 4=Tunnel}
+                                   0,       // plate slot position of target
+                                   0,       // plate level position of target
+                                   0,       // number of a transport slot of a target device
+                                   0        // plate type of source position {0=MTP, 1=DWP, 3=P28}
+                                  );
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET);
+        return(rtnCode);
+      } // function ExportPlate
+
+      //--------------------------------------------------------------------
+      // function ReadUserDoorFlag
+      //--------------------------------------------------------------------
+      function ReadUserDoorFlag(variable iUnitID, variable& oDoorStatus) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+        oDoorStatus = -1;
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2ReadUserDoorFlag
+          command = "STX2ReadUserDoorFlag(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          // Evaluate the response
+          oDoorStatus = StrIVal(response);
+          if(oDoorStatus < 0)
+          {
+            errorText = "Error " + StrMid(response, 0, 2) + " on unit " + iUnitID + "!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        }
+        else
+        {
+          oDoorStatus = 0;
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET, " Door status = ", oDoorStatus);
+        return(hslTrue);
+      } // function ReadUserDoorFlag
+
+      //--------------------------------------------------------------------
+      // function ReadShovelDetector
+      //--------------------------------------------------------------------
+      function ReadShovelDetector(variable iUnitID, variable& oShovelStatus) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+        oShovelStatus = -1;
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2ReadShovelDetector
+          command = "STX2ReadShovelDetector(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          // Evaluate the response
+          oShovelStatus = StrIVal(response);
+          if(oShovelStatus < 0)
+          {
+            errorText = "Error " + StrMid(response, 0, 2) + " on unit " + iUnitID + "!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        }
+        else
+        {
+          oShovelStatus = 0;
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET, " Shovel detector status = ", oShovelStatus);
+        return(hslTrue);
+      } // function ReadShovelDetector
+
+      //--------------------------------------------------------------------
+      // function ReadXferStationDetector1
+      //--------------------------------------------------------------------
+      function ReadXferStationDetector1(variable iUnitID, variable& oXferStationStatus) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+        oXferStationStatus = -1;
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2ReadXferStationDetector1
+          command = "STX2ReadXferStationDetector1(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          // Evaluate the response
+          oXferStationStatus = StrIVal(response);
+          if(oXferStationStatus < 0)
+          {
+            errorText = "Error " + StrMid(response, 0, 2) + " on unit " + iUnitID + "!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        }
+        else
+        {
+          oXferStationStatus = 0;
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET, " Shovel detector status = ", oXferStationStatus);
+        return(hslTrue);
+      } // function ReadXferStationDetector1
+
+      //--------------------------------------------------------------------
+      // function ReadXferStationDetector2
+      //--------------------------------------------------------------------
+      function ReadXferStationDetector2(variable iUnitID, variable& oXferStationStatus) variable
+      {
+        variable command;
+        variable response;
+        variable errorText;
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " (iUnitID=", iUnitID, ")");
+        oXferStationStatus = -1;
+
+        // Check if valid server ID
+        if(iUnitID < 1 || iUnitID > _MAX_UNITS)
+        {
+          errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+          return(hslFalse);
+        }
+
+        if(_HSLLiconicSTXSeries_SimulationMode.GetAt(iUnitID -1) == hslFalse)
+        {
+          // Send the command STX2ReadXferStationDetector2
+          command = "STX2ReadXferStationDetector2(" + IStr(iUnitID) + ")";
+          if(SendCommandReceiveMessage(iUnitID, command, response) == hslFalse)
+          {
+            errorText = "Error occurred when command \"" + command + "\" was sent!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+
+          // Evaluate the response
+          oXferStationStatus = StrIVal(response);
+          if(oXferStationStatus < 0)
+          {
+            errorText = "Error " + StrMid(response, 0, 2) + " on unit " + iUnitID + "!";
+            _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+            if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+            return(hslFalse);
+          }
+        }
+        else
+        {
+          oXferStationStatus = 0;
+        } // _HSLLiconicSTXSeries_SimulationMode
+
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET, " Shovel detector status = ", oXferStationStatus);
+        return(hslTrue);
+      } // function ReadXferStationDetector2
+    } // namespace COMMAND
+
+    //--------------------------------------------------------------------
+    // static function ClearReceivedBuffer
+    //--------------------------------------------------------------------
+    static function ClearReceivedBuffer(object iHxSyncLib_WinSockObject) void
+    {
+      variable SocketData;
+
+      while(iHxSyncLib_WinSockObject.BytesReceived > 0)
+        iHxSyncLib_WinSockObject.GetData(SocketData, WINSOCKET::GETDATA::_Type_VT_BSTR);
+      return;
+    } // static function ClearReceivedBuffer
+
+    //--------------------------------------------------------------------
+    // static function SendCommandReceiveMessage
+    //--------------------------------------------------------------------
+    static function SendCommandReceiveMessage(variable iUnitID, variable iSendCommand, variable& oReceivedCommand) variable
+    {
+      variable ReceivedSocketData;
+      variable ReceivedSocketDataTotal;
+      variable timeoutWaitForData;
+      variable errorText;
+      timer timerWaitForData;
+      object HxSyncLib;
+      object HxSyncLib_WinSockObject;
+
+      _HSLLiconicSTXSeries_Semaphore[iUnitID -1].WaitEvent(hslInfinite);
+
+      if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_START, " iSendCommand=\"", iSendCommand, "\"");
+
+      oReceivedCommand = "";
+
+      // Check if server used
+      if(_HSLLiconicSTXSeries_Used.GetAt(iUnitID - 1) == hslFalse)
+      {
+        errorText = "Invalid unit ID " + IStr(iUnitID) + "!";
+        _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+        return(hslFalse);
+      }
+
+      // Get the WinSocket Object
+      HxSyncLib               = _HSLLiconicSTXSeries_HxSyncLib.GetAt(iUnitID - 1);
+      HxSyncLib_WinSockObject = HxSyncLib.GetWinsockObject();
+
+      // Check the WinSocket connection state
+      if(HxSyncLib_WinSockObject.State != WINSOCKET::STATE::_SckConnected)
+      {
+        errorText = "Connection lost to \"" + HxSyncLib_WinSockObject.RemoteHost + ":" + IStr(HxSyncLib_WinSockObject.RemotePort) + "\"! (WinSock.State=" + IStr(HxSyncLib_WinSockObject.State) + ")";
+        _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, errorText);
+        if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " ", errorText);
+        return(hslFalse);
+      }
+
+      // Reset the last error text
+      _HSLLiconicSTXSeries_ErrorText.SetAt(iUnitID - 1, "");
+
+      ClearReceivedBuffer(HxSyncLib_WinSockObject);
+
+      HxSyncLib_WinSockObject.SendData(iSendCommand + _TCPIP_COMMAND_CR);
+
+      ReceivedSocketDataTotal = "";
+      timeoutWaitForData = _TCPIP_COMMAND_IDENTIFIER_TIMEOUT * 10;
+      while(1)
+      {
+        timerWaitForData.SetTimer(0.1);
+        timerWaitForData.WaitTimer(hslFalse, hslFalse);
+        if(--timeoutWaitForData == 0)
+        {
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL) FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " Identifier timeout for command \"", iSendCommand, "\"");
+          return(hslFalse);
+        }
+        if(HxSyncLib_WinSockObject.State != WINSOCKET::STATE::_SckConnected)
+        {
+          if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_NORMAL)
+            FormatTrace(GetFunctionName(), "()", CMD_ERRCOMPL, " Connection lost to \"" +
+                        HxSyncLib_WinSockObject.RemoteHost + ":" + IStr(HxSyncLib_WinSockObject.RemotePort) +
+                        "\"! (WinSock.State=" + IStr(HxSyncLib_WinSockObject.State) + ")");
+          return(hslFalse);
+        }
+        HxSyncLib_WinSockObject.GetData(ReceivedSocketData, WINSOCKET::GETDATA::_Type_VT_BSTR);
+        ReceivedSocketDataTotal = ReceivedSocketDataTotal + ReceivedSocketData;
+        if(StrRight(ReceivedSocketDataTotal, StrGetLength(_TCPIP_COMMAND_CRLF)) == _TCPIP_COMMAND_CRLF)
+          break;
+      }
+
+      oReceivedCommand = ReceivedSocketDataTotal;
+
+      if(_HSLLiconicSTXSeries_TraceLevel >= TRACE_LEVEL_FULL) FormatTrace(GetFunctionName(), "()", CMD_COMPLET, " oReceivedCommand=\"", oReceivedCommand, "\"");
+      _HSLLiconicSTXSeries_Semaphore[iUnitID -1].SetEvent();
+      return(hslTrue);
+    } // static function SendCommandReceiveMessage
+  } // namespace HSLLiconicSTXSeries
+#endif
+// $$author=BHuf$$valid=0$$time=2011-04-15 09:21$$checksum=966d1711$$length=081$$

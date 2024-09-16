@@ -1,0 +1,19 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 27/10/2023 07:57:25
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace STARBACKUP {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function choice_backup( variable i_folder_backup, variable i_folder_source, variable i_filetype ) void { }
+function method_backup( variable i_folder_backup ) void { }
+function submethod_library_backup( variable i_folder_backup ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2023-10-27 07:57$$checksum=bbfffa59$$length=081$$

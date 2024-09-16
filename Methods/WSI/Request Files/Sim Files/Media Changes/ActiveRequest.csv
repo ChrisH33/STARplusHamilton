@@ -1,0 +1,4 @@
+Source Barcode,Source Well ID,Source Labware ID,Destination Barcode,Destination Well ID,Destination Labware ID,Date,Process
+MC_Src_x01,A1,Autoflask,MC_Src_x01,-,Autoflask,14/06/2023,Media Change
+MC_Src_X02,A1,Autoflask,MC_Src_X02,-,Autoflask,14/06/2023,Media Change
+MC_Src_x03,A1,Autoflask,MC_Src_x03,-,Autoflask,14/06/2023,Media Change

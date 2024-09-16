@@ -1,0 +1,27 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 4/21/2022 11:54:32 AM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace ARRAYTOOLS {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function ArraySeqVLookUp( sequence & i_arraySequencesA[], variable & i_arrayValuesB[], variable i_varCondition, sequence & o_arraySequencesC[] ) void { }
+function ArrayVLookUp( variable & i_arrayValuesA[], variable & i_arrayValuesB[], variable i_varCondition, variable & o_arrayValuesC[] ) void { }
+function ConvertArrayOfNumericIntegersToString( variable & i_arr1_int[], variable & o_arr1_str[] ) void { }
+function ConvertArrayOfNumericStringsToInteger( variable & i_arr1_str[], variable & o_arr1_int[] ) void { }
+function Lookup( variable & array[], variable item ) variable {  return (0); }
+function Sort2ArraysByNumericAscendingOrder( variable & io_array1[], variable & io_array2[] ) void { }
+function Sort3ArraysByNumericAscendingOrder( variable & io_array1[], variable & io_array2[], variable & io_array3[] ) void { }
+function Update_Value_in_Array( variable & i_array[], variable & i_value, variable i_index ) void { }
+function get_distinct_from_array( variable & i_arr[], variable & o_arr[] ) void { }
+function mergeArrays( variable & array1[], variable & array2[], variable & array3[] ) void { }
+function removeValueFromArray_basedOnIndex( variable & i_array_elements[], variable i_index_to_remove ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Hutchens_W$$valid=0$$time=2022-04-21 11:54$$checksum=2918f9f0$$length=087$$

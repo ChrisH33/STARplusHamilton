@@ -1,0 +1,31 @@
+// {{{ 2 "SubmethodForwardDeclaration" ""
+private function _SoundLoop(  ) void ;
+function OnAbort(  ) void ;
+// }} ""
+// {{{ 5 "OnAbort" "Begin"
+function OnAbort(  ) void {
+// }} ""
+// {{ 5 "OnAbort" "InitLocals"
+// }} ""
+// {{{ 15 1 0 "b14cd153_651b_4cd9_a14593704c1254eb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::Terminate();
+// }} ""
+// {{{ 5 "OnAbort" "End"
+}
+// }} ""
+// {{{ 5 "_SoundLoop" "Begin"
+private function _SoundLoop(  ) void {
+// }} ""
+// {{ 5 "_SoundLoop" "InitLocals"
+// }} ""
+// {{{ 12 1 0 "0702748c_60be_49d7_9d6e18e058f5676f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+VectorCustomDialogs::ActivateSoundForNextDialog("C:\Program Files (x86)\HAMILTON\Methods\LibraryDemoMethods\VectorCustomDialogs\Sound\Success.wav", 1);
+// }} ""
+// {{{ 13 1 0 "100e62f9_3aea_497c_9c9b5e24564f85eb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+VectorCustomDialogs::MessageDialog(Translate("Information"), VectorCustomDialogs::IconType::Information, VectorCustomDialogs::ButtonType::Ok, 400, 600, 0, Translate("sound plays looped"));
+// }} ""
+// {{{ 5 "_SoundLoop" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// $$author=MKnopp$$valid=0$$time=2019-07-23 14:40$$checksum=e05e1aae$$length=085$$

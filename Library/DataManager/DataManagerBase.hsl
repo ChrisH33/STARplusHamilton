@@ -1,0 +1,1282 @@
+// This library contains the base communication functions for the DataManager 
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+//
+// Modification History
+// date        author      informations
+//
+// 2010-08-03  ofunke      Creation of this lib.
+
+#ifndef __DATAMANAGERINTERFACEBASE_hsl__
+#define __DATAMANAGERINTERFACEBASE_hsl__	1
+
+namespace DATAMANAGERINTERFACEBASE
+{
+   //-----member - global-----
+   global object gDATAMANAGERINTERFACEBASEoManager;
+   global variable gDATAMANAGERINTERFACEBASEbIsManagerInitialized(hslFalse);
+   global variable gDATAMANAGERINTERFACEBASEiManagerCriticalSection(0);
+
+   //-----enums-----
+   namespace VALUETYPE
+	{
+      const variable String(1);
+		const variable Integer(2);
+      const variable Double(3);
+      const variable Boolean(4);
+	}
+
+   namespace BOOLEANEXPORTFORMAT
+   {
+      const variable TrueAndFalse(1);
+      const variable ZeroAndOne(2);
+   }
+
+   namespace SELECTIONMODE
+   {
+      const variable All(1);
+      const variable Distinct(2);
+   }
+
+   namespace AGGREGATETYPE
+   {
+      const variable Count(1);
+      const variable Minimum(2);
+      const variable Maximum(3);
+      const variable Sum(4);
+      const variable Average(5);
+   }
+
+   namespace ERRORCODES
+	{
+      const static variable NoError("");
+
+      const static variable COMObjectNotInitialized("-1.1");	// com not initialized
+
+      //alle Fehler > 0 sind Fehler die im DataManager definiert sind
+	}
+
+
+
+   //#################################################################################################
+   // COM Object
+   //#################################################################################################
+
+
+   //---------------------------------------------
+   // create the com object
+   //
+   // Returns: (bool)
+   // - hslTrue  : Init executed successfully
+   // - hslFalse : Init could not be executed
+   //---------------------------------------------
+   function CreateManagerObject() variable
+   {
+      // create object
+      onerror goto com_load_error;
+      gDATAMANAGERINTERFACEBASEoManager.CreateObject("Hamilton.DataManager");
+      gDATAMANAGERINTERFACEBASEbIsManagerInitialized = hslTrue;
+      return(hslTrue);
+      
+      // COM-Object can not be instantised
+      com_load_error:
+      {
+         return(hslFalse);
+      }
+   }
+   
+
+   //---------------------------------------------
+   // release the com object
+   //
+   // Returns: (bool)
+   // - hslTrue  : command executed successfully
+   // - hslFalse : command could not be executed
+   //---------------------------------------------
+   function ReleaseManagerObject() variable                   
+   {
+      gDATAMANAGERINTERFACEBASEbIsManagerInitialized = hslFalse;
+      gDATAMANAGERINTERFACEBASEoManager.ReleaseObject();
+      return(hslTrue);
+   }
+
+
+
+   //#################################################################################################
+   // Manager version
+   //#################################################################################################
+
+   
+   //---------------------------------------------
+   // get the file and product version of the manager
+   //
+   // Parameter:
+   // [out] o_strManagerProductVersion : prdocut version (string)
+   // [out] o_strManagerFileVersion : file version (string)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function GetManagerVersions(variable& o_strManagerProductVersion,
+                               variable& o_strManagerFileVersion) variable              
+                                                               
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      o_strManagerProductVersion = gDATAMANAGERINTERFACEBASEoManager.GetProductVersion();
+      o_strManagerFileVersion = gDATAMANAGERINTERFACEBASEoManager.GetFileVersion();
+
+      return(strReturnValue);
+   }
+   
+
+
+   //#################################################################################################
+   // Manager common functions
+   //#################################################################################################
+
+   
+   //---------------------------------------------
+   // get the error message according to the exception id
+   //
+   // Parameter:
+   // [in] i_strExceptionID : excpetion id (string)
+   // [out] o_strErrorMessage : error message (string)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function GetErrorMessage(variable i_strExceptionID,
+                            variable& o_strErrorMessage
+                                       ) variable 
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      o_strErrorMessage = "";
+
+      //internal errors
+      if(i_strExceptionID == "-1.1")
+      {
+         o_strErrorMessage = "The com object is not initialized.";
+      }
+      //manager errors
+      else
+      {
+         if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+         {
+            return(ERRORCODES::COMObjectNotInitialized);
+         }
+
+         o_strErrorMessage = gDATAMANAGERINTERFACEBASEoManager.GetErrorMessage(i_strExceptionID);
+      }
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // reset the manager (removes all date)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ResetManager() variable        
+   {
+      variable strReturnValue(ERRORCODES::NoError);     
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ResetManager();
+     
+      return(strReturnValue);
+   }   
+
+
+   //#################################################################################################
+   // Table
+   //#################################################################################################
+
+   //---------------------------------------------
+   // add a table
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_arrColumnNames : names of all columnse (array of string)
+   // [in] i_arrColumnTypes : types of all columns (array of int) (see enum DATAMANAGERINTERFACEBASE::VALUTYPE)
+   // [in] i_arrAllowDBNull : set whether null is allowed for the columns (array of bool)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function AddTable(variable i_strTableName,
+                     variable i_arrColumnNames[],
+                     variable i_arrColumnTypes[],
+                     variable i_arrAllowDBNull[]
+                              ) variable
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.AddTable(i_strTableName, i_arrColumnNames, i_arrColumnTypes, i_arrAllowDBNull);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // remove a table
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function RemoveTable(variable i_strTableName) variable
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.RemoveTable(i_strTableName);
+
+      return(strReturnValue);
+   }
+
+
+   //---------------------------------------------
+   // get the number of rows of the table
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [out] o_iNumberOfRows : number of rows (int)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function GetRowCount(variable i_strTableName,
+                        variable& o_iNumberOfRows) variable
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      o_iNumberOfRows = -1;
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.GetRowCount(i_strTableName, o_iNumberOfRows);
+
+      return(strReturnValue);
+   }
+
+   //#################################################################################################
+   // Columns
+   //#################################################################################################
+
+   //---------------------------------------------
+   // add a column to an existing table
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_strColumnName : name of the column (string)
+   // [in] i_iColumnType : type of the column (int) (see enum DATAMANAGERINTERFACEBASE::VALUTYPE)
+   // [in] i_bAllowDBNull : set whether null is allowed for the columns (bool)
+   // [in] i_oValue : value which shall bes set to all row values of the new column (object)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function AddColumn(variable i_strTableName,
+                     variable i_strColumnName,
+                     variable i_iColumnType,
+                     variable i_bAllowDBNull,
+                     variable i_oValue
+                              ) variable
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.AddColumn(i_strTableName, i_strColumnName, i_iColumnType, i_bAllowDBNull, i_oValue);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // remove a calumn from an existing table
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_strColumnName : name of the column (string)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function RemoveColumn(variable i_strTableName,
+                         variable i_strColumnName) variable
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.RemoveColumn(i_strTableName, i_strColumnName);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // rename an existing column of an existing table
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_strActualColumnName : actual name of the column (string)
+   // [in] i_strNewColumnName : new name of the column (string)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function RenameColumn(  variable i_strTableName,
+                           variable i_strActualColumnName,
+                           variable i_strNewColumnName
+                              ) variable
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.RenameColumn(i_strTableName, i_strActualColumnName, i_strNewColumnName);
+
+      return(strReturnValue);
+   }
+
+
+   //#################################################################################################
+   // IO (import, export)
+   //#################################################################################################
+
+   //---------------------------------------------
+   // create a table and import the values from a csv file
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_arrColumnNames : names of all columnse (array of string)
+   // [in] i_arrColumnTypes : types of all columns (array of int) (see enum DATAMANAGERINTERFACEBASE::VALUTYPE)
+   // [in] i_arrAllowDBNull : set whether null is allowed for the columns (array of bool)
+   // [in] i_strFullFileName : full file namme (string)
+   // [in] i_strSeparator : separator which is used to split the values of the csv file (string)
+   // [in] i_bFileContainsHeader : set whether the first line of the file contains the column names (bool)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ImportFromCSVFile(variable i_strTableName,
+                              variable i_arrColumnNames[],
+                              variable i_arrColumnTypes[],
+                              variable i_arrAllowDBNull[],
+                              variable i_strFullFileName,
+                              variable i_strSeparator,
+                              variable i_bFileContainsHeader
+                              ) variable
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ImportFromCSVFile(i_strTableName, i_arrColumnNames, i_arrColumnTypes, i_arrAllowDBNull, i_strFullFileName, i_strSeparator, i_bFileContainsHeader);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // export all values of the table to a csv file
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_strFullFileName : full file name (string)
+   // [in] i_bOverwriteExistingFile : set ehether to overwrite an existing file (bool)
+   // [in] i_strSeparator : separator which is used to split the values of the csv file (string)
+   // [in] i_iBooleanExportFormat : format of boolean values (array of int) (see enum DATAMANAGERINTERFACEBASE::BOOLEANEXPORTFORMAT)
+   // [in] i_bWriteHeader : set whether the column names should be written as first line of the file
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ExportToCSVFile(  variable i_strTableName,
+                              variable i_strFullFileName,
+                              variable i_bOverwriteExistingFile,
+                              variable i_strSeparator,
+                              variable i_iBooleanExportFormat,
+                              variable i_bWriteHeader
+                              ) variable                              
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ExportToCSVFile(i_strTableName, i_strFullFileName, i_bOverwriteExistingFile, i_strSeparator, i_iBooleanExportFormat, i_bWriteHeader);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // export columns of the table to a csv file
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_strFullFileName : full file name (string)
+   // [in] i_strColumnNames : names of the columns to select (string, comma seperated)
+   // [in] i_bOverwriteExistingFile : set ehether to overwrite an existing file (bool)
+   // [in] i_strSeparator : separator which is used to split the values of the csv file (string)
+   // [in] i_iBooleanExportFormat : format of boolean values (array of int) (see enum DATAMANAGERINTERFACEBASE::BOOLEANEXPORTFORMAT)
+   // [in] i_bWriteHeader : set whether the column names should be written as first line of the file
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ExportColumnsToCSVFile(  variable i_strTableName,
+                              variable i_strFullFileName,
+                              variable i_strColumnNames,
+                              variable i_bOverwriteExistingFile,
+                              variable i_strSeparator,
+                              variable i_iBooleanExportFormat,
+                              variable i_bWriteHeader
+                              ) variable                              
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ExportColumnsToCSVFile(i_strTableName, i_strFullFileName, i_strColumnNames, i_bOverwriteExistingFile, i_strSeparator, i_iBooleanExportFormat, i_bWriteHeader);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // export the results of a previously executed select comand to a csv file
+   //
+   // Parameter:
+   // [in] i_strFullFileName : full file name (string)
+   // [in] i_bOverwriteExistingFile : set ehether to overwrite an existing file (bool)
+   // [in] i_strSeparator : separator which is used to split the values of the csv file (string)
+   // [in] i_iBooleanExportFormat : format of boolean values (array of int) (see enum DATAMANAGERINTERFACEBASE::BOOLEANEXPORTFORMAT)
+   // [in] i_bWriteHeader : set whether the column names should be written as first line of the file
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ExportSelectedToCSVFile(variable i_strFullFileName,
+                              variable i_bOverwriteExistingFile,
+                              variable i_strSeparator,
+                              variable i_iBooleanExportFormat,
+                              variable i_bWriteHeader
+                              ) variable                              
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ExportSelectedToCSVFile(i_strFullFileName, i_bOverwriteExistingFile, i_strSeparator, i_iBooleanExportFormat, i_bWriteHeader);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // create a table and import the values from a excel binary file (standard excel format)
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_arrColumnNames : names of all columnse (array of string)
+   // [in] i_arrColumnTypes : types of all columns (array of int) (see enum DATAMANAGERINTERFACEBASE::VALUTYPE)
+   // [in] i_arrAllowDBNull : set whether null is allowed for the columns (array of bool)
+   // [in] i_strFullFileName : full file namme (string)
+   // [in] i_strSheetName : name of the excel sheet (string)
+   // [in] i_bFileContainsHeader : set whether the first line of the file contains the column names (bool)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ImportFromExcelBinaryFile(variable i_strTableName,
+                              variable i_arrColumnNames[],
+                              variable i_arrColumnTypes[],
+                              variable i_arrAllowDBNull[],
+                              variable i_strFullFileName,
+                              variable i_strSheetName,
+                              variable i_bFileContainsHeader
+                              ) variable
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ImportFromExcelBinaryFile(i_strTableName, i_arrColumnNames, i_arrColumnTypes, i_arrAllowDBNull, i_strFullFileName, i_strSheetName, i_bFileContainsHeader);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // export all values of the table to a excel binary file (standard excel format)
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_strFullFileName : full file name (string)
+   // [in] i_bOverwriteExistingFile : set ehether to overwrite an existing file (bool)
+   // [in] i_strSheetName : name of the sheet (string)
+   // [in] i_iBooleanExportFormat : format of boolean values (array of int) (see enum DATAMANAGERINTERFACEBASE::BOOLEANEXPORTFORMAT)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ExportToExcelBinaryFile(  variable i_strTableName,
+                              variable i_strFullFileName,
+                              variable i_bOverwriteExistingFile,
+                              variable i_strSheetName,
+                              variable i_iBooleanExportFormat
+                              ) variable                              
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ExportToExcelBinaryFile(i_strTableName, i_strFullFileName, i_bOverwriteExistingFile, i_strSheetName, i_iBooleanExportFormat);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // export columns of the table to a excel binary file (standard excel format)
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_strFullFileName : full file name (string)
+   // [in] i_strColumnNames : names of the columns to select (string, comma seperated)
+   // [in] i_bOverwriteExistingFile : set ehether to overwrite an existing file (bool)
+   // [in] i_strSheetName : name of the sheet (string)
+   // [in] i_iBooleanExportFormat : format of boolean values (array of int) (see enum DATAMANAGERINTERFACEBASE::BOOLEANEXPORTFORMAT)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ExportColumnsToExcelBinaryFile(  variable i_strTableName,
+                              variable i_strFullFileName,
+                              variable i_strColumnNames,
+                              variable i_bOverwriteExistingFile,
+                              variable i_strSheetName,
+                              variable i_iBooleanExportFormat
+                              ) variable                              
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ExportColumnsToExcelBinaryFile(i_strTableName, i_strFullFileName, i_strColumnNames, i_bOverwriteExistingFile, i_strSheetName, i_iBooleanExportFormat);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // export the results of a previously executed select comand to a excel binary file (standard excel format)
+   //
+   // Parameter:
+   // [in] i_strFullFileName : full file name (string)
+   // [in] i_bOverwriteExistingFile : set ehether to overwrite an existing file (bool)
+   // [in] i_strSheetName : name of the sheet (string)
+   // [in] i_iBooleanExportFormat : format of boolean values (array of int) (see enum DATAMANAGERINTERFACEBASE::BOOLEANEXPORTFORMAT)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ExportSelectedToExcelBinaryFile(variable i_strFullFileName,
+                              variable i_bOverwriteExistingFile,
+                              variable i_strSheetName,
+                              variable i_iBooleanExportFormat
+                              ) variable                              
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ExportSelectedToExcelBinaryFile(i_strFullFileName, i_bOverwriteExistingFile, i_strSheetName, i_iBooleanExportFormat);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // create a table and import the values from a excel xml file (special xml format which can be readed by excel)
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_arrColumnNames : names of all columnse (array of string)
+   // [in] i_arrColumnTypes : types of all columns (array of int) (see enum DATAMANAGERINTERFACEBASE::VALUTYPE)
+   // [in] i_arrAllowDBNull : set whether null is allowed for the columns (array of bool)
+   // [in] i_strFullFileName : full file namme (string)
+   // [in] i_bFileContainsHeader : set whether the first line of the file contains the column names (bool)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ImportFromExcelXMLFile(variable i_strTableName,
+                              variable i_arrColumnNames[],
+                              variable i_arrColumnTypes[],
+                              variable i_arrAllowDBNull[],
+                              variable i_strFullFileName,
+                              variable i_bFileContainsHeader
+                              ) variable
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ImportFromExcelXMLFile(i_strTableName, i_arrColumnNames, i_arrColumnTypes, i_arrAllowDBNull, i_strFullFileName, i_bFileContainsHeader);
+
+      return(strReturnValue);
+   }
+
+
+   //---------------------------------------------
+   // export all values of the table to a excel xml file (special xml format which can be readed by excel)
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_strFullFileName : full file name (string)
+   // [in] i_bOverwriteExistingFile : set ehether to overwrite an existing file (bool)
+   // [in] i_strSheetName : name of the sheet (string)
+   // [in] i_iBooleanExportFormat : format of boolean values (array of int) (see enum DATAMANAGERINTERFACEBASE::BOOLEANEXPORTFORMAT)
+   // [in] i_bWriteHeader : set whether the column names should be written as first row of the file
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ExportToExcelXMLFile(  variable i_strTableName,
+                              variable i_strFullFileName,
+                              variable i_bOverwriteExistingFile,
+                              variable i_strSheetName,
+                              variable i_iBooleanExportFormat,
+                              variable i_bWriteHeader
+                              ) variable                              
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ExportToExcelXMLFile(i_strTableName, i_strFullFileName, i_bOverwriteExistingFile, i_strSheetName, i_iBooleanExportFormat, i_bWriteHeader);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // export columns of the table to a excel xml file (special xml format which can be readed by excel)
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_strFullFileName : full file name (string)
+   // [in] i_strColumnNames : names of the columns to select (string, comma seperated)
+   // [in] i_bOverwriteExistingFile : set ehether to overwrite an existing file (bool)
+   // [in] i_strSheetName : name of the sheet (string)
+   // [in] i_iBooleanExportFormat : format of boolean values (array of int) (see enum DATAMANAGERINTERFACEBASE::BOOLEANEXPORTFORMAT)
+   // [in] i_bWriteHeader : set whether the column names should be written as first row of the file
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ExportColumnsToExcelXMLFile(  variable i_strTableName,
+                              variable i_strFullFileName,
+                              variable i_strColumnNames,
+                              variable i_bOverwriteExistingFile,
+                              variable i_strSheetName,
+                              variable i_iBooleanExportFormat,
+                              variable i_bWriteHeader
+                              ) variable                              
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ExportColumnsToExcelXMLFile(i_strTableName, i_strFullFileName, i_strColumnNames, i_bOverwriteExistingFile, i_strSheetName, i_iBooleanExportFormat, i_bWriteHeader);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // export the results of a previously executed select comand to a excel xml file (special xml format which can be readed by excel)
+   //
+   // Parameter:
+   // [in] i_strFullFileName : full file name (string)
+   // [in] i_bOverwriteExistingFile : set ehether to overwrite an existing file (bool)
+   // [in] i_strSheetName : name of the sheet (string)
+   // [in] i_iBooleanExportFormat : format of boolean values (array of int) (see enum DATAMANAGERINTERFACEBASE::BOOLEANEXPORTFORMAT)
+   // [in] i_bWriteHeader : set whether the column names should be written as first row of the file
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ExportSelectedToExcelXMLFile(variable i_strFullFileName,
+                              variable i_bOverwriteExistingFile,
+                              variable i_strSheetName,
+                              variable i_iBooleanExportFormat,
+                              variable i_bWriteHeader
+                              ) variable                              
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ExportSelectedToExcelXMLFile(i_strFullFileName, i_bOverwriteExistingFile, i_strSheetName, i_iBooleanExportFormat, i_bWriteHeader);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // create a table and import the values from a xml file
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_arrColumnNames : names of all columnse (array of string)
+   // [in] i_arrColumnTypes : types of all columns (array of int) (see enum DATAMANAGERINTERFACEBASE::VALUTYPE)
+   // [in] i_arrAllowDBNull : set whether null is allowed for the columns (array of bool)
+   // [in] i_strFullFileName : full file namme (string)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ImportFromXMLFile(variable i_strTableName,
+                              variable i_arrColumnNames[],
+                              variable i_arrColumnTypes[],
+                              variable i_arrAllowDBNull[],
+                              variable i_strFullFileName
+                              ) variable
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ImportFromXMLFile(i_strTableName, i_arrColumnNames, i_arrColumnTypes, i_arrAllowDBNull, i_strFullFileName);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // export all values of the table to a csv file
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_strFullFileName : full file name (string)
+   // [in] i_bOverwriteExistingFile : set ehether to overwrite an existing file (bool)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ExportToXMLFile(  variable i_strTableName,
+                              variable i_strFullFileName,
+                              variable i_bOverwriteExistingFile
+                              ) variable                              
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ExportToXMLFile(i_strTableName, i_strFullFileName, i_bOverwriteExistingFile);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // export columns of the table to a csv file
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_strFullFileName : full file name (string)
+   // [in] i_strColumnNames : names of the columns to select (string, comma seperated)
+   // [in] i_bOverwriteExistingFile : set ehether to overwrite an existing file (bool)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ExportColumnsToXMLFile(  variable i_strTableName,
+                              variable i_strFullFileName,
+                              variable i_strColumnNames,
+                              variable i_bOverwriteExistingFile
+                              ) variable                              
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ExportColumnsToXMLFile(i_strTableName, i_strFullFileName, i_strColumnNames, i_bOverwriteExistingFile);
+
+      return(strReturnValue);
+   }
+   
+   //---------------------------------------------
+   // export the results of a previously executed select comand to a csv file
+   //
+   // Parameter:
+   // [in] i_strFullFileName : full file name (string)
+   // [in] i_bOverwriteExistingFile : set ehether to overwrite an existing file (bool)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ExportSelectedToXMLFile(variable i_strFullFileName,
+                              variable i_bOverwriteExistingFile
+                              ) variable                              
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ExportSelectedToXMLFile(i_strFullFileName, i_bOverwriteExistingFile);
+
+      return(strReturnValue);
+   }
+
+
+   //#################################################################################################
+   // load and save (all tables)
+   //#################################################################################################
+
+   //---------------------------------------------
+   // load the content of the data manager from a file (all tables, with all columns and rows)
+   //
+   // Parameter:
+   // [in] i_strFullFileName : full file namme (string)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function LoadDataManagerContent(variable i_strFullFileName
+                              ) variable
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.LoadDataManagerContent(i_strFullFileName);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // save the content of the data manager to a file (all tables, with all columns and rows)
+   //
+   // Parameter:
+   // [in] i_strFullFileName : full file name (string)
+   // [in] i_bOverwriteExistingFile : set ehether to overwrite an existing file (bool)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function SaveDataManagerContent(variable i_strFullFileName,
+                              variable i_bOverwriteExistingFile
+                              ) variable                              
+
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.SaveDataManagerContent(i_strFullFileName, i_bOverwriteExistingFile);
+
+      return(strReturnValue);
+   }
+
+
+   //#################################################################################################
+   // Row commands (insert, update, delete, select)
+   //#################################################################################################
+
+   //---------------------------------------------
+   // insert a row into a table
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_arrColumnNames : names of all columnse (array of string)
+   // [in] i_arrValues : value of each column (array of object)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function InsertRow(  variable i_strTableName,
+                        variable i_arrColumnNames[],
+                        variable i_arrValues[]
+                              ) variable
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.InsertRow(i_strTableName, i_arrColumnNames, i_arrValues);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // insert a row into a table, the values must be sorted according to creation order of columns
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_arrValues : value of each column (array of object)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function InsertSortedRow(  variable i_strTableName,
+                              variable i_arrValues[]
+                              ) variable
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.InsertSortedRow(i_strTableName, i_arrValues);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // update the table values
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_arrColumnNames : names of all columnse (array of string)
+   // [in] i_arrValues : value of each column (array of object)
+   // [in] i_strFilterExpression : filter expression (string) (e.g. "columnX = 15 AND columY <> 10") (optional paremeter, if empty than all rows will be updated)
+   // [out] o_iRowsAffected: number of updated rows (int)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function UpdateRows( variable i_strTableName,
+                        variable i_arrColumnNames[],
+                        variable i_arrValues[],
+                        variable i_strFilterExpression,
+                        variable& o_iRowsAffected 
+                              ) variable
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      o_iRowsAffected = -1;
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.UpdateRows(i_strTableName, i_arrColumnNames, i_arrValues, i_strFilterExpression, o_iRowsAffected);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // deletes rows of the table
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_strFilterExpression : filter expression (string) (e.g. "columnX = 15 AND columY <> 10") (optional paremeter, if empty than all rows will be deleted)
+   // [out] o_iRowsAffected: number of deleted rows (int)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function DeleteRows( variable i_strTableName,
+                        variable i_strFilterExpression,
+                        variable& o_iRowsAffected 
+                              ) variable
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      o_iRowsAffected = -1;
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.DeleteRows(i_strTableName, i_strFilterExpression, o_iRowsAffected);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // execute select statement
+   // - selects rows according to filter expression
+   // - rows are sorted
+   //
+   // to get the selected rows use 'GetSelectCommandRow' command
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_iSelectionMode : selection mode (integer, see enum SELECTIONMODE)
+   // [in] i_strColumnNames : names of the columns to select (string, comma seperated)
+   // [in] i_strFilterExpression : filter expression (string) (e.g. "columnX = 15 AND columY <> 10") (optional paremeter, if empty than all rows will be selected)
+   // [in] i_strSortExpression: sort expresstion (string) (e.g. "columnX ASC, columnY DESC") (optional paremeter, if empty than rows will not sorted)
+   // [out] o_iRowsAffected: number of selected rows (int)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ExecuteSelectCommand(variable i_strTableName,
+                                       variable i_iSelectionMode,
+                                       variable i_strColumnNames,
+                                       variable i_strFilterExpression,
+                                       variable i_strSortExpression,
+                                       variable& o_iRowsAffected 
+                                             ) variable
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      o_iRowsAffected = -1;
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ExecuteSelectCommand(i_strTableName, i_iSelectionMode, i_strColumnNames, i_strFilterExpression, i_strSortExpression, o_iRowsAffected);
+
+      return(strReturnValue);
+   }
+   
+   //---------------------------------------------
+   // execute select statement
+   // - selects rows according to filter expression
+   // - rows are sorted
+   //
+   // to get the selected rows use 'GetSelectCommandRow' command
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_iSelectionMode : selection mode (integer, see enum SELECTIONMODE)
+   // [in] i_strColumnNames : names of the columns to select (string, comma seperated)
+   // [in] i_strFilterExpression : filter expression (string) (e.g. "columnX = 15 AND columY <> 10") (optional paremeter, if empty than all rows will be selected)
+   // [in] i_strSortExpression: sort expresstion (string) (e.g. "columnX ASC, columnY DESC") (optional paremeter, if empty than rows will not sorted)
+   // [out] o_iRowsAffected: number of selected rows (int)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ExecuteSelectAllLineByLineCommand(variable i_strTableName,
+                                       variable& o_iRowsAffected 
+                                             ) variable
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      o_iRowsAffected = -1;
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ExecuteSelectAllLineByLineCommand(i_strTableName, o_iRowsAffected);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // get the values of a selected row
+   // - this is the result of a selct command, therefore call a select command prviously to this command
+   //
+   // Parameter:
+   // [in] i_iIndex : index of the selected row (integer) (0 <= index < number of selected rows)
+   // [out] o_arrValues: values of the selected columns (array of object)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function GetSelectCommandRow( variable i_iIndex,
+                                 variable& o_arrValues[]
+                                 ) variable
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      o_arrValues.SetSize(0);
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.GetSelectCommandRow(i_iIndex, o_arrValues);
+
+      return(strReturnValue);
+   }
+
+   //---------------------------------------------
+   // execute select statement
+   // - selects rows according to filter expression
+   // - rows are sorted
+   //
+   // to get the selected rows use 'GetSelectCommandRow' command
+   //
+   // Parameter:
+   // [in] i_strTableName : name of the table (string)
+   // [in] i_iAggregateType : aggregate type (integer, see enum AGGREGATETYPE)
+   // [in] i_iSelectionMode : selection mode (integer, see enum SELECTIONMODE)
+   // [in] i_strColumnName : name of the column which shall be used for execution of the aggregate function (string)
+   // [in] i_strFilterExpression : filter expression (string) (e.g. "columnX = 15 AND columY <> 10") (optional paremeter, if empty than all rows will be selected)
+   // [out] o_oResult: result (type is regarding to selected row and regarding to aggregate type)
+   //
+   // Returns: (string)
+   // - empty string : no error
+   // - string : exception id
+   //---------------------------------------------
+   function ExecuteAggregateFunction(variable i_strTableName,
+                                       variable i_iAggregateType,
+                                       variable i_iSelectionMode,
+                                       variable i_strColumnName,
+                                       variable i_strFilterExpression,
+                                       variable& o_oResult 
+                                             ) variable
+   {
+      variable strReturnValue(ERRORCODES::NoError);
+
+      o_oResult = 0;
+
+      if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized==hslFalse)
+      {
+         return(ERRORCODES::COMObjectNotInitialized);
+      }
+
+      strReturnValue = gDATAMANAGERINTERFACEBASEoManager.ExecuteAggregateFunction(i_strTableName, i_iAggregateType, i_iSelectionMode, i_strColumnName, i_strFilterExpression, o_oResult);
+
+      return(strReturnValue);
+   }
+}
+
+#endif
+// $$author=ofunke$$valid=0$$time=2011-09-26 08:56$$checksum=fab381c4$$length=085$$

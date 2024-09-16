@@ -1,0 +1,256 @@
+//****************************************************************************************************
+//  
+//   Library for Methods of Microlab® 2006 STARline Maintenance
+//   Copyright © by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+//   All rights reserved.
+//
+//   Method      : StarLineNanoStartUpRoutine.hsl
+//
+//   Description : Method for Starting Up of Nano Pipetttor of ML STARLine
+//
+//   Revisions   : Rev 1.0 2006-04-25 Werner Barmettler
+//
+//****************************************************************************************************
+//
+// Modification History
+//
+// 2008-06-17  Thomas Benz    :  - Nano library "HslStarLineNanoMaintMetLib.hs_" integrated in HslStarLineMaintMetLib.hs_
+//                               - TraceDlgOk function call removed (Dialog is trace itself).
+//                               - Check for modified deck layout implemented
+// 2009-01-14  Claudio Jörg   :  - Change report short name of used template and generated report to ..MVmnsu..
+//                                 (previously it was named like ..MVmwkl..)
+//
+//********************************************************************************************************************************
+
+
+
+
+//---------------------------------------------------------------------------------
+// #define HSL_RUNTIME 1 //testing errors in runtime
+//---------------------------------------------------------------------------------
+
+//device ML_STAR; //(local device in function startMaintenance) 
+
+namespace StartUpNanoMaintenance
+{
+	// -----------------------------------------------------------------------------
+	// Included libraries
+	// -----------------------------------------------------------------------------
+	#ifndef __HslStarLineMaintMetLib_hsl__
+	#include "HslStarLineMaintMetLib.hs_"
+	#endif
+
+	#ifndef __HSLML_STARLib_hsl__ 
+	#include "HSLML_STARLib.hsl"
+	#endif
+
+	#ifndef __HSLStrLib_hsl__
+	#include "HSLStrLib.hsl"
+	#endif
+
+	#ifndef __HSLStringTableLib_hsl__
+	#include "HSLStringTableLib.hs_" 
+	#endif
+
+	// -----------------------------------------------------------------------------
+	// String Table
+	// -----------------------------------------------------------------------------
+	namespace IDS // String ID
+	{
+		static const variable first(1);
+		static const variable dlgCannotRunWithSimulator(first + 1);
+		static const variable dlgMaintenanceNoLabware(first + 2);
+
+		static const variable dlgNanoPipettorTitle(first + 3);
+		static const variable dlgStatusSuccessfulText(first + 4);	
+		static const variable dlgStatusIncompleteText(first + 5);
+		static const variable dlgStatusFailedText(first + 6);
+		static const variable dlgMaintenanceAbortText(first + 7);
+		static const variable dlgCheckNanoPipettorText(first + 8);
+		static const variable dlgNoNanopipettorFound(first + 9);
+		static const variable last(first + 9);
+
+	} // String Table
+
+		
+	// method directory
+	static const variable methDir("VM\\");
+
+	// report files
+   static const variable templateFileName(methDir + "StarLineNanoStartUpMaintenance_Template_MVmnsu");
+
+	// layout files
+	static const variable layoutFileName_Star(methDir + "StarLineMaintenance_Star");
+	static const variable layoutFileName_Starlet(methDir + "StarLineMaintenance_Starlet");
+	static const variable layoutFileName_StarPlus(methDir + "StarLineMaintenance_StarPlus");
+
+
+	// -----------------------------------------------------------------------------
+	function startMaintenance(variable& layoutName, variable& instrumentNr)
+	// -----------------------------------------------------------------------------
+	{ 
+		variable NanoPipettor;
+      variable maintenanceTitle;
+      variable nanoProcessID(PID::startUpMaintNano);
+		string   tempService_carrier;
+		device   ML_STAR( layoutName, "ML_STAR", hslTrue ); 
+		
+		onerror goto UnhandledError;
+
+
+      maintenanceTitle = StringTable::Load(IDS::dlgNanoPipettorTitle);
+
+		// --------------------------------------------------------------------------
+		// abort method if simulator mode is set
+		if(HSLML_STAR::IsSimulatorMode(ML_STAR))
+		{
+			MessageBox( StringTable::Load(IDS::dlgCannotRunWithSimulator), maintenanceTitle, hslOKOnly | hslExclamation, hslInfinite );
+			abort;
+		}
+
+		// --------------------------------------------------------------------------
+		// abort if no Nanopippettor found
+		NanoPipettor = ML_STAR.GetCfgValueWithKey( MtcLib::MtConst::starCfgNanoPipettorKey );
+      if (NanoPipettor == 0)
+	   {
+			MessageBox( StringTable::Load(IDS::dlgNoNanopipettorFound), maintenanceTitle, hslOKOnly | hslError, hslInfinite );
+			abort;
+		}
+
+  		// --------------------------------------------------------------------------
+      // check if an service carrier available on PC
+		tempService_carrier = StrConcat2(MtcLib::GetLabwarePath(), MtcLib::LabwrData::nanoService_carrier); 	
+		if ("" == SearchPath(tempService_carrier))
+		{
+			MessageBox( StringTable::Load(IDS::dlgMaintenanceNoLabware), maintenanceTitle, hslOKOnly | hslExclamation, hslInfinite );
+			abort;
+		}
+
+		// --------------------------------------------------------------------------
+		// Initialize maintenance, evaluate and check configuration data first		
+		MtcLib::InitializeAndCheckConfiguration( ML_STAR, instrumentNr );
+		MtcLib::MoveRight(ML_STAR, instrumentNr);
+
+
+		// --------------------------------------------------------------------------
+		// Nano Pipettor check
+		// --------------------------------------------------------------------------
+		if ( hslYes  != MessageBox( 
+		   StringTable::Load(IDS::dlgCheckNanoPipettorText),
+		   maintenanceTitle, hslYesNo	| hslInformation, hslInfinite ) )
+		{
+			return;
+		}
+
+      // --------------------------------------------------------------------------
+      // Store data for daily maintenance process on instrument to failed
+      MtcLib::StoreProcessDataOnInstrument( nanoProcessID, ML_STAR );
+
+		// Yes -> maintenance process for nanopipettor start
+		MtcLib::nanoPipettorMaintenance(ML_STAR, nanoProcessID);
+
+		// ---------------------------------------------------------------------------
+		// Daily maintenance successful, incomplete or failed 
+		//----------------------------------------------------------------------------
+		{
+			variable state;
+			 
+			state = MtcLib::GetProcessStateNano();
+
+			if(state == MPS::mpsSuccessful) 
+			{
+				MessageBox( StringTable::Load(IDS::dlgStatusSuccessfulText), maintenanceTitle,
+               hslOKOnly | hslInformation, hslInfinite );
+			}
+			else
+	  		if(state == MPS::mpsFailed) 
+			{
+				MessageBox( StringTable::Load(IDS::dlgStatusFailedText), maintenanceTitle,
+               hslOKOnly | hslError, hslInfinite );
+			}
+			else
+	  		if(state == MPS::mpsIncomplete) 
+			{
+				MessageBox( StringTable::Load(IDS::dlgStatusIncompleteText), maintenanceTitle,
+               hslOKOnly | hslError, hslInfinite );
+			}
+		}
+
+		// ---------------------------------------------------------------------------
+		// Create report file.
+		// ---------------------------------------------------------------------------
+		{
+			variable reportFileName("StarLineStartUpNanoMaintenance_%s_MVmnsu.xls"); // %s ==> GUID
+
+			StrReplace(reportFileName, "%s", GetUniqueRunId());
+			MtcLib::CreateReportFileNano( 
+				templateFileName,
+				reportFileName, 
+				"StartUpNanoMaintenance"); // report excel area name 
+		}
+
+		// ---------------------------------------------------------------------------
+		// Store data for weekly maintenance Nanopipettor process on instrument
+		// 
+		MtcLib::StoreProcessDataOnInstrument( nanoProcessID, ML_STAR );
+		return;
+		
+		// ---------------------------------------------------------------------------
+		UnhandledError :
+		{
+         MessageBox( err.GetDescription(), maintenanceTitle, hslOKOnly | hslError, hslInfinite );
+         err.Clear();
+		}
+
+	} // end startMaintenance
+
+	function OnAbortNanoStartUpMaintenance()
+	{
+		// show dialog (power off /on)
+  		MessageBox( StringTable::Load(IDS::dlgMaintenanceAbortText), StringTable::Load(IDS::dlgNanoPipettorTitle),
+         hslOKOnly | hslExclamation, hslInfinite );
+	}
+
+	//-----------------------------------------------------------------------------------------------------
+	// Start method
+	method main()
+	//-----------------------------------------------------------------------------------------------------
+	{
+		variable instrumentNr;
+      // instrumentNr == 0 == Star
+      variable layoutFileName(layoutFileName_Star);
+		static object fso;	   // file system object
+
+		// Initialize string table
+		StringTable::Init("HslStarLineNanoStartUpMaintMet");
+
+		//StringTable::Dump(); 
+		RegisterAbortHandler("OnAbortNanoStartUpMaintenance");
+
+		instrumentNr = HSLML_STAR::GetInstrumentType();
+
+		// Star
+		if (instrumentNr == 0)
+			layoutFileName = layoutFileName_Star;
+
+		// Starlet
+		if (instrumentNr == 1)
+			layoutFileName = layoutFileName_Starlet;
+
+		// StarPlus
+		if (instrumentNr == 2)
+         layoutFileName = layoutFileName_StarPlus;
+
+		// check for customer defined maintenance layout
+		fso.CreateObject("Scripting.FileSystemObject");
+		if (fso.FileExists(GetMethodsPath() + "\\" + layoutFileName + "_mod.lay"))
+			layoutFileName = layoutFileName + "_mod.lay";
+		else 
+			layoutFileName = layoutFileName + ".lay";
+		fso.ReleaseObject();
+
+		startMaintenance(layoutFileName, instrumentNr);
+	}
+
+} // namespace StartUpNanoMaintenance
+// $$author=cjoerg$$valid=1$$time=2009-01-14 09:11$$checksum=2a71f4a7$$length=083$$

@@ -1,0 +1,19 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 13/02/2023 15:38:44
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace TIPMANAGEMENT_SANGER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function A_VersionInfo(  ) void { }
+function Channels_ModifyTipNumbers( device & ML_STAR, sequence & io_seqTip, variable i_strTipCounter, variable i_intTipNumber, variable i_varDialogTimeout, variable i_strTipDescription ) void { }
+function _GetDBFilePath( variable & o_strTipDBPath ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2023-02-13 15:38$$checksum=059cf849$$length=081$$

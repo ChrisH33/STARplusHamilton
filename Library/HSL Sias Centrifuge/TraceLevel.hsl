@@ -1,0 +1,238 @@
+// TraceLevel depending traces 
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+
+// Modification History:
+// 02.03.2009 - Corsin Alig: Version 1.0 created
+// 12.03.2009 - Corsin Alig: Version 1.1 created
+//  - Debug_Trace6, Release_Trace6 deleted
+//  - GetTraceLevel, Debug_Trace8, Release_Trace8 added
+// 01.02.2010 - Corsin Alig: Version 1.2 created
+//  - Default TraceLevel value is NONE
+
+#ifndef __TraceLevel_hsl__
+#define __TraceLevel_hsl__ 1
+
+#include "HSLTrcLib.hsl"
+#include "HSLUtilLib2.hsl"
+
+
+namespace TRACELEVEL
+{
+
+	// Global constant definitions of the trace levels
+	const global variable TRACE_LEVEL_NONE(0);
+	const global variable TRACE_LEVEL_RELEASE(1);
+	const global variable TRACE_LEVEL_DEBUG(2);
+
+	// Global trace level variable
+	global variable gTraceLevel(TRACE_LEVEL_NONE);
+
+   // SetTraceLevel() -----------------------------------------------------------------------------
+	function SetTraceLevel(
+								   variable iTraceLevel
+								 ) void
+	{
+		gTraceLevel = iTraceLevel;
+	}
+   // ------------------------------------------------------------------------------------------
+
+   // GetTraceLevel() -----------------------------------------------------------------------------
+	function GetTraceLevel() variable
+	{
+		return (gTraceLevel);
+	}
+   // ------------------------------------------------------------------------------------------
+
+   // Debug_Trace2() ---------------------------------------------------------------------------
+   function Debug_Trace2(
+                          variable iText1,              // Tracetext 1
+                          variable iText2               // Tracetext 2
+                        ) void
+	{
+		if (gTraceLevel<TRACE_LEVEL_DEBUG) return;
+
+      Trace(iText1, iText2);
+   }
+   // ------------------------------------------------------------------------------------------
+
+   // Debug_Trace4() ---------------------------------------------------------------------------
+   function Debug_Trace4(
+                          variable iText1,              // Tracetext 1
+                          variable iText2,              // Tracetext 2
+                          variable iText3,              // Tracetext 3
+                          variable iText4               // Tracetext 4
+                        ) void
+   {
+      if (gTraceLevel<TRACE_LEVEL_DEBUG) return;
+
+      Trace(iText1, iText2, iText3, iText4);
+   }
+   // ------------------------------------------------------------------------------------------
+
+   // Debug_Trace8() -----------------------------------------------------------------------------
+   function Debug_Trace8(
+                          variable iText1,              // Tracetext 1
+                          variable iText2,              // Tracetext 2
+                          variable iText3,              // Tracetext 3
+                          variable iText4,              // Tracetext 4
+                          variable iText5,              // Tracetext 5
+                          variable iText6,              // Tracetext 6
+                          variable iText7,              // Tracetext 7
+                          variable iText8               // Tracetext 8
+                        ) void
+   {
+      if (gTraceLevel<TRACE_LEVEL_DEBUG) return;
+
+      Trace(iText1, iText2, iText3, iText4, iText5, iText6, iText7, iText8);
+
+   }
+   // ------------------------------------------------------------------------------------------
+
+   // Debug_Trace12() -----------------------------------------------------------------------------
+   function Debug_Trace12(
+                          variable iText1,              // Tracetext 1
+                          variable iText2,              // Tracetext 2
+                          variable iText3,              // Tracetext 3
+                          variable iText4,              // Tracetext 4
+                          variable iText5,              // Tracetext 5
+                          variable iText6,              // Tracetext 6
+                          variable iText7,              // Tracetext 7
+                          variable iText8,              // Tracetext 8
+                          variable iText9,              // Tracetext 9
+                          variable iText10,             // Tracetext 10
+                          variable iText11,             // Tracetext 11
+                          variable iText12              // Tracetext 12
+                        ) void
+   {
+      if (gTraceLevel<TRACE_LEVEL_DEBUG) return;
+
+      Trace(iText1, iText2, iText3, iText4, iText5, iText6, iText7, iText8, iText9, iText10, iText11, iText12);
+
+   }
+   // ------------------------------------------------------------------------------------------
+
+
+   // Release_Trace2() -------------------------------------------------------------------------
+   function Release_Trace2(
+                            variable iText1,              // Tracetext 1
+                            variable iText2               // Tracetext 2
+                          ) void
+   {
+      if (gTraceLevel<TRACE_LEVEL_RELEASE) return;
+
+      Trace(iText1, iText2);
+   }
+   // ------------------------------------------------------------------------------------------
+
+   // Release_Trace4() -------------------------------------------------------------------------
+   function Release_Trace4(
+                            variable iText1,              // Tracetext 1
+                            variable iText2,              // Tracetext 2
+                            variable iText3,              // Tracetext 3
+                            variable iText4               // Tracetext 4
+                          ) void
+   {
+      if (gTraceLevel<TRACE_LEVEL_RELEASE) return;
+
+      Trace(iText1, iText2, iText3, iText4);
+   }
+   // ------------------------------------------------------------------------------------------
+
+   // Release_Trace8() -------------------------------------------------------------------------
+   function Release_Trace8(
+                            variable iText1,              // Tracetext 1
+                            variable iText2,              // Tracetext 2
+                            variable iText3,              // Tracetext 3
+                            variable iText4,              // Tracetext 4
+                            variable iText5,              // Tracetext 5
+                            variable iText6,              // Tracetext 6
+                            variable iText7,              // Tracetext 7
+                            variable iText8               // Tracetext 8
+                          ) void
+   {
+      if (gTraceLevel<TRACE_LEVEL_RELEASE) return;
+
+      Trace(iText1, iText2, iText3, iText4, iText5, iText6, iText7, iText8);
+   }
+   // ------------------------------------------------------------------------------------------
+
+   // Release_Trace12() -----------------------------------------------------------------------------
+   function Release_Trace12(
+                          variable iText1,              // Tracetext 1
+                          variable iText2,              // Tracetext 2
+                          variable iText3,              // Tracetext 3
+                          variable iText4,              // Tracetext 4
+                          variable iText5,              // Tracetext 5
+                          variable iText6,              // Tracetext 6
+                          variable iText7,              // Tracetext 7
+                          variable iText8,              // Tracetext 8
+                          variable iText9,              // Tracetext 9
+                          variable iText10,             // Tracetext 10
+                          variable iText11,             // Tracetext 11
+                          variable iText12              // Tracetext 12
+                        ) void
+   {
+      if (gTraceLevel<TRACE_LEVEL_RELEASE) return;
+
+
+      Trace(iText1, iText2, iText3, iText4, iText5, iText6, iText7, iText8, iText9, iText10, iText11, iText12);
+
+   }
+   // ------------------------------------------------------------------------------------------
+
+	// Debug_TraceArray() -----------------------------------------------------------------------
+	function Debug_TraceArray(
+									   variable iArray[],
+									   variable iArrayDescription
+								    ) void
+	{
+		variable i;
+
+      if (gTraceLevel<TRACE_LEVEL_DEBUG) return;
+
+		Util2::Debug::TraceArray(iArrayDescription, iArray);
+	}
+   // ------------------------------------------------------------------------------------------
+
+	// Release_TraceArray() ---------------------------------------------------------------------
+	function Release_TraceArray(
+									     variable iArray[],
+									     variable iArrayDescription
+								      ) void
+	{
+		variable i;
+
+      if (gTraceLevel<TRACE_LEVEL_RELEASE) return;
+
+		Util2::Debug::TraceArray(iArrayDescription, iArray);
+	}
+   // ------------------------------------------------------------------------------------------
+
+   // Debug_TraceSequence() --------------------------------------------------------------------------
+   function Debug_TraceSequence(
+		                           sequence iSequence
+		                         ) void
+   {
+      if (gTraceLevel<TRACE_LEVEL_DEBUG) return;
+
+		TrcTraceSequence(iSequence);
+   }
+   // ------------------------------------------------------------------------------------------
+
+   // Release_TraceSequence() --------------------------------------------------------------------------
+   function Release_TraceSequence(
+		                             sequence iSequence
+		                         	) void
+   {
+      if (gTraceLevel<TRACE_LEVEL_RELEASE) return;
+
+		TrcTraceSequence(iSequence);
+   }
+   // ------------------------------------------------------------------------------------------
+
+
+} // namespace TRACELEVEL
+
+#endif
+// $$author=calig$$valid=0$$time=2010-02-01 11:22$$checksum=ba046418$$length=082$$

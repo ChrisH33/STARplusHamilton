@@ -1,0 +1,562 @@
+// ####################################################################################################
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+// ----------------------------------------------------------------------------------------------------
+// Driver for SynenTec Cellavista
+// ----------------------------------------------------------------------------------------------------
+// Modification History
+// 2016-01-12  sroe, ksta       creation of this library
+// ####################################################################################################
+
+
+#ifndef __SynenTec_Cellavista_hsl__
+  #define __SynenTec_Cellavista_hsl__  1
+
+  #ifndef __Hamilton_DriverTools_hsl__
+    #include "Hamilton DriverTools\\Hamilton DriverTools.hsl"
+  #endif
+
+  #ifndef __TraceLevel_hsl__
+    #include "ASWStandard\\TraceLevel\\TraceLevel.hsl"
+  #endif
+
+  #ifndef __ASWGLOBAL_hsl__
+    #include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl"
+  #endif
+
+   namespace SynenTec_Cellavista
+   {
+      //variable declaration
+      const static variable _strLibraryName                         ("SynenTec Cellavista");
+
+      static variable _intTraceLevel                                (TRACE_LEVEL_RELEASE);
+      static variable _blnTraceLevelSet                             (ASWGLOBAL::BOOL::FALSE);
+      static variable _blnSimulationMode                            (ASWGLOBAL::BOOL::FALSE);
+      
+      
+      //declaration of functions
+      function Initialize(variable i_strIpAddress, variable i_intPort, variable i_blnEnableLogging, variable i_blnSimulationMode) variable;
+
+      function Terminate() variable;
+
+      function TrayIn() variable;
+
+      function TrayOut() variable;
+
+      function OpenNewExperiment(variable i_strTemplatePath, variable i_strExperimentName, variable i_strBarcode) variable;
+
+      function OpenExperiment(variable i_strExperimentName) variable;
+
+      function StartMeasurement(variable i_intPhase, variable i_blnLiveView) variable;
+
+      function StopMeasurement() variable;
+
+      function CloseExperiment() variable;
+
+      function SelectWellsForMeasurement(variable i_arrStrPositions[], variable i_intTotalNumberOfRows, variable i_intTotalNumberOfColumns) variable;
+      
+      function GetLastErrorMessage(variable & o_strErrorMessage) variable;
+
+
+      static global object HSL_Cellavista_ComInterface;
+
+      
+    // SetTraceLevel
+      function SetTraceLevel(variable i_intTraceLevel)variable
+      {
+         variable strFunctionName("");
+
+         if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         if(Hamilton_DriverTools::CheckIntegerRange(i_intTraceLevel, "i_intTraceLevel", TRACE_LEVEL_NONE, TRACE_LEVEL_DEBUG, strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::START, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+
+         _intTraceLevel = i_intTraceLevel;
+         _blnTraceLevelSet = ASWGLOBAL::BOOL::TRUE;
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE, TRACE_LEVEL_DEBUG,"i_intTraceLevel = " + IStr(i_intTraceLevel),strFunctionName, _intTraceLevel, _strLibraryName);
+            return(ASWGLOBAL::BOOL::TRUE);
+      }
+
+      //Create COM Object and initialize device 
+      function Initialize(variable i_strIpAddress, variable i_intPort, variable i_blnEnableLogging, variable i_blnSimulationMode) variable
+      {
+         variable strFunctionName("");
+         variable blnSuccessfullExecuted(ASWGLOBAL::BOOL::FALSE);
+
+         if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+            return(ASWGLOBAL::BOOL::FALSE);
+                          
+         //Check input value
+         if(Hamilton_DriverTools::CheckString(i_strIpAddress, "i_strIpAddress", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+            return(ASWGLOBAL::BOOL::FALSE);
+         if(Hamilton_DriverTools::CheckInteger(i_intPort, "i_intPort", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+            return(ASWGLOBAL::BOOL::FALSE);
+         if(Hamilton_DriverTools::CheckBool(i_blnEnableLogging, "i_blnEnableLogging", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+            return(ASWGLOBAL::BOOL::FALSE);
+         if(Hamilton_DriverTools::CheckBool(i_blnSimulationMode, "i_blnSimulationMode", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+            return(ASWGLOBAL::BOOL::FALSE);      
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::START, TRACE_LEVEL_DEBUG,"i_strIpAddress: " + i_strIpAddress + 
+                                                                                                  ", i_intPort: " + IStr(i_intPort) + 
+                                                                                                  ", i_blnEnableLogging: " + IStr(i_blnEnableLogging) + 
+                                                                                                  ", i_blnSimulationMode: " + IStr(i_blnSimulationMode),strFunctionName, _intTraceLevel, _strLibraryName);
+                         
+         //Set default TraceLevel
+         _intTraceLevel = TRACELEVEL::GetTraceLevel();
+
+         //Set simulation mode
+         _blnSimulationMode = i_blnSimulationMode;   
+
+         if(!_blnSimulationMode)
+         {
+            //Create COM Object
+            onerror goto CreateObjectError;
+            HSL_Cellavista_ComInterface.CreateObject("Hamilton.Cellavista.ComInterface");
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,"CreateObject called.",strFunctionName, _intTraceLevel, _strLibraryName);
+
+            //Initialize device
+            onerror goto ComObjectError;
+            blnSuccessfullExecuted = HSL_Cellavista_ComInterface.Initialize(i_strIpAddress, i_intPort, i_blnEnableLogging);
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,"Initialize device.",strFunctionName, _intTraceLevel, _strLibraryName);
+         
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+         }
+         else
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,"Running in simulation mode!", strFunctionName, _intTraceLevel, _strLibraryName);
+            blnSuccessfullExecuted = ASWGLOBAL::BOOL::TRUE;
+         }
+
+         onerror goto 0;
+         if(blnSuccessfullExecuted)
+            return(ASWGLOBAL::BOOL::TRUE);
+         else
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         CreateObjectError:
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::ERROR, TRACE_LEVEL_RELEASE,"Error creating COM object",strFunctionName, _intTraceLevel, _strLibraryName);
+               return (ASWGLOBAL::BOOL::FALSE);
+         }
+
+         ComObjectError:
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::ERROR, TRACE_LEVEL_RELEASE,"Error accessing COM object",strFunctionName, _intTraceLevel, _strLibraryName);
+               return (ASWGLOBAL::BOOL::FALSE);
+         }
+      }
+      
+      //Terminate device
+      function Terminate() variable
+      {
+         variable strFunctionName("");
+         variable blnSuccessfullExecuted(ASWGLOBAL::BOOL::FALSE);
+
+         if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::START, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+         
+         if(!_blnSimulationMode)
+         {
+            //terminate device
+            onerror goto ComObjectError;
+            blnSuccessfullExecuted = HSL_Cellavista_ComInterface.DeInitialize();
+         }
+         else
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,"Running in simulation mode!", strFunctionName, _intTraceLevel, _strLibraryName);
+            blnSuccessfullExecuted = ASWGLOBAL::BOOL::TRUE;
+         }
+         
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+
+         onerror goto 0;
+         if(blnSuccessfullExecuted)
+            return(ASWGLOBAL::BOOL::TRUE);
+         else
+            return(ASWGLOBAL::BOOL::FALSE);
+         
+         ComObjectError:
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::ERROR, TRACE_LEVEL_RELEASE,"Error accessing COM object",strFunctionName, _intTraceLevel, _strLibraryName);
+               return (ASWGLOBAL::BOOL::FALSE);
+         }
+      }
+
+      //Move tray into position were a measurement can start or move the tray not to have it outside of the device.
+      function TrayIn() variable
+      {
+         variable strFunctionName("");
+         variable blnSuccessfullExecuted(ASWGLOBAL::BOOL::FALSE);
+
+         if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+            return(ASWGLOBAL::BOOL::FALSE);
+         
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::START, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+         
+         if(!_blnSimulationMode)
+         {
+            //Tray in
+            onerror goto ComObjectError;
+            blnSuccessfullExecuted = HSL_Cellavista_ComInterface.TrayIn();
+         }
+         else
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,"Running in simulation mode!", strFunctionName, _intTraceLevel, _strLibraryName);
+            blnSuccessfullExecuted = ASWGLOBAL::BOOL::TRUE;
+         }
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+
+         onerror goto 0;
+         if(blnSuccessfullExecuted)
+            return(ASWGLOBAL::BOOL::TRUE);
+         else
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         ComObjectError:
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::ERROR, TRACE_LEVEL_RELEASE,"Error accessing COM object",strFunctionName, _intTraceLevel, _strLibraryName);
+               return (ASWGLOBAL::BOOL::FALSE);
+         }
+      }
+
+      //Move tray into position were a robot can insert/remove a plate into/from device.
+      function TrayOut() variable
+      {
+         variable strFunctionName("");
+         variable blnSuccessfullExecuted(ASWGLOBAL::BOOL::FALSE);
+
+         if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+            return(ASWGLOBAL::BOOL::FALSE);
+         
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::START, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+
+         if(!_blnSimulationMode)
+         {         
+            //Tray out
+            onerror goto ComObjectError;
+            blnSuccessfullExecuted = HSL_Cellavista_ComInterface.TrayOut();
+         }
+         else
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,"Running in simulation mode!", strFunctionName, _intTraceLevel, _strLibraryName);
+            blnSuccessfullExecuted = ASWGLOBAL::BOOL::TRUE;
+         }
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+
+         onerror goto 0;
+         if(blnSuccessfullExecuted)
+            return(ASWGLOBAL::BOOL::TRUE);
+         else
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         ComObjectError:
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::ERROR, TRACE_LEVEL_RELEASE,"Error accessing COM object",strFunctionName, _intTraceLevel, _strLibraryName);
+               return (ASWGLOBAL::BOOL::FALSE);
+         }
+      }
+
+      //open a new experiment
+      function OpenNewExperiment(variable i_strTemplatePath, variable i_strExperimentName, variable i_strBarcode) variable
+      {
+         variable strFunctionName("");
+         variable blnSuccessfullExecuted(ASWGLOBAL::BOOL::FALSE);
+
+         if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         //Check input value
+         if(Hamilton_DriverTools::CheckString(i_strTemplatePath, "i_strTemplatePath", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+            return(ASWGLOBAL::BOOL::FALSE);
+         if(Hamilton_DriverTools::CheckString(i_strExperimentName, "i_strExperimentName", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+            return(ASWGLOBAL::BOOL::FALSE);
+         if(Hamilton_DriverTools::CheckString(i_strBarcode, "i_strBarcode", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::START, TRACE_LEVEL_DEBUG,"i_strTemplatePath: " + i_strTemplatePath +
+                                                                                                  ", i_strExperimentName" + i_strExperimentName +
+                                                                                                  ", i_strBarcode" + i_strBarcode,strFunctionName, _intTraceLevel, _strLibraryName);
+
+         if(!_blnSimulationMode)
+         {         
+            //open new experiment
+            onerror goto ComObjectError;
+            blnSuccessfullExecuted = HSL_Cellavista_ComInterface.OpenNewExperiment(i_strTemplatePath, i_strExperimentName, i_strBarcode);
+         }
+         else
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,"Running in simulation mode!", strFunctionName, _intTraceLevel, _strLibraryName);
+            blnSuccessfullExecuted = ASWGLOBAL::BOOL::TRUE;
+         }
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+         
+         onerror goto 0;
+         if(blnSuccessfullExecuted)
+            return(ASWGLOBAL::BOOL::TRUE);
+         else
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         ComObjectError:
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::ERROR, TRACE_LEVEL_RELEASE,"Error accessing COM object",strFunctionName, _intTraceLevel, _strLibraryName);
+               return (ASWGLOBAL::BOOL::FALSE);
+         }
+      }
+
+      //open a experiment
+      function OpenExperiment(variable i_strExperimentName) variable
+      {
+         variable strFunctionName("");
+         variable blnSuccessfullExecuted(ASWGLOBAL::BOOL::FALSE);
+
+         if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         //Check input value
+         if(Hamilton_DriverTools::CheckString(i_strExperimentName, "i_strExperimentName", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::START, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+
+         if(!_blnSimulationMode)
+         {
+            //Open experiment
+            onerror goto ComObjectError;
+            blnSuccessfullExecuted = HSL_Cellavista_ComInterface.OpenExperiment(i_strExperimentName);
+         }
+         else
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,"Running in simulation mode!", strFunctionName, _intTraceLevel, _strLibraryName);
+            blnSuccessfullExecuted = ASWGLOBAL::BOOL::TRUE;
+         }
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE, TRACE_LEVEL_DEBUG,"i_strExperimentName: " + i_strExperimentName, strFunctionName, _intTraceLevel, _strLibraryName);
+         
+         onerror goto 0;
+         if (blnSuccessfullExecuted)
+            return(ASWGLOBAL::BOOL::TRUE);
+         else
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         ComObjectError:
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::ERROR, TRACE_LEVEL_RELEASE,"Error accessing COM object",strFunctionName, _intTraceLevel, _strLibraryName);
+               return (ASWGLOBAL::BOOL::FALSE);
+         }
+      }
+
+      //Close the current experiment
+      function CloseExperiment() variable
+      {
+         variable strFunctionName("");
+         variable blnSuccessfullExecuted(ASWGLOBAL::BOOL::FALSE);
+
+         if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::START, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+
+         if(!_blnSimulationMode)
+         {
+            //Close experiment
+            onerror goto ComObjectError;
+            blnSuccessfullExecuted = HSL_Cellavista_ComInterface.CloseExperiment();
+         }
+         else
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,"Running in simulation mode!", strFunctionName, _intTraceLevel, _strLibraryName);
+            blnSuccessfullExecuted = ASWGLOBAL::BOOL::TRUE;
+         }
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+
+         if(blnSuccessfullExecuted)
+            return(ASWGLOBAL::BOOL::TRUE);
+         else
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         ComObjectError:
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::ERROR, TRACE_LEVEL_RELEASE,"Error accessing COM object",strFunctionName, _intTraceLevel, _strLibraryName);
+               return (ASWGLOBAL::BOOL::FALSE);
+         }
+      }
+
+      //Start new measurement defined in the actual experiment
+      function StartMeasurement(variable i_intPhase, variable i_blnLiveView) variable
+      {
+         variable strFunctionName("");
+         variable blnSuccessfullExecuted(ASWGLOBAL::BOOL::FALSE);
+
+         if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+            return(ASWGLOBAL::BOOL::FALSE);
+         
+         //Check input value
+         if(Hamilton_DriverTools::CheckInteger(i_intPhase, "i_intPhase", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+            return(ASWGLOBAL::BOOL::FALSE);
+         if(Hamilton_DriverTools::CheckBool(i_blnLiveView, "i_blnLiveView", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::START, TRACE_LEVEL_DEBUG,"i_intPhase: " + IStr(i_intPhase) + ", i_blnLiveView: " + IStr(i_blnLiveView),strFunctionName, _intTraceLevel, _strLibraryName);
+         
+         if(!_blnSimulationMode)
+         {
+            //start measurement
+            onerror goto ComObjectError;
+            blnSuccessfullExecuted = HSL_Cellavista_ComInterface.StartMeasurement(i_intPhase, i_blnLiveView);
+         }
+         else
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,"Running in simulation mode!", strFunctionName, _intTraceLevel, _strLibraryName);
+            blnSuccessfullExecuted = ASWGLOBAL::BOOL::TRUE;
+         }
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+
+         onerror goto 0;
+         if(blnSuccessfullExecuted)
+            return(ASWGLOBAL::BOOL::TRUE);
+         else
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         ComObjectError:
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::ERROR, TRACE_LEVEL_RELEASE,"Error accessing COM object",strFunctionName, _intTraceLevel, _strLibraryName);
+               return (ASWGLOBAL::BOOL::FALSE); 
+         }
+      }
+
+      //Stop running measurement prematurely
+      function StopMeasurement() variable
+      {
+         variable strFunctionName("");
+         variable blnSuccessfullExecuted(ASWGLOBAL::BOOL::FALSE);
+
+         if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         if(!_blnSimulationMode)
+         {
+            //stop measurement
+            onerror goto ComObjectError;
+            blnSuccessfullExecuted = HSL_Cellavista_ComInterface.StopMeaurement();
+         }
+         else
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,"Running in simulation mode!", strFunctionName, _intTraceLevel, _strLibraryName);
+            blnSuccessfullExecuted = ASWGLOBAL::BOOL::TRUE;
+         }
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+
+         onerror goto 0;
+         if(blnSuccessfullExecuted)
+            return(ASWGLOBAL::BOOL::TRUE);
+         else
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         ComObjectError:
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::ERROR, TRACE_LEVEL_RELEASE,"Error accessing COM object",strFunctionName, _intTraceLevel, _strLibraryName);
+               return (ASWGLOBAL::BOOL::FALSE); 
+         }
+      }
+
+       //Set the well position(s) which should be measured on the plate(s)
+       function SelectWellsForMeasurement(variable i_arrStrPositions[], variable i_intTotalNumberOfRows, variable i_intTotalNumberOfColumns) variable
+       {
+         variable strFunctionName("");
+         variable blnSuccessfullExecuted(ASWGLOBAL::BOOL::FALSE);
+
+         if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         if(!Hamilton_DriverTools::CheckArrayType(i_arrStrPositions, "i_arrStrPositions", Hamilton_DriverTools::TYPE::STRING,strFunctionName, _strLibraryName))
+            return(ASWGLOBAL::BOOL::FALSE);
+
+          if(!Hamilton_DriverTools::CheckArraySize(i_arrStrPositions, "i_arrStrPositions", 1, 96,strFunctionName, _strLibraryName))
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::START, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+         
+         if(!_blnSimulationMode)
+         {         
+            //Export Csv file
+            onerror goto ComObjectError;
+            blnSuccessfullExecuted = HSL_Cellavista_ComInterface.SelectWellsForMeasurement(i_arrStrPositions, i_intTotalNumberOfRows, i_intTotalNumberOfColumns);
+         }
+         else
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,"Running in simulation mode!", strFunctionName, _intTraceLevel, _strLibraryName);
+            blnSuccessfullExecuted = ASWGLOBAL::BOOL::TRUE;
+         }
+         
+         Hamilton_DriverTools::StatusTraceArray(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,i_arrStrPositions,"i_arrStrPositions: ",strFunctionName, _intTraceLevel, _strLibraryName);
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE, TRACE_LEVEL_DEBUG,"i_intTotalNumberOfRows: " + IStr(i_intTotalNumberOfRows) + ", i_intTotalNumberOfColumns: " + IStr(i_intTotalNumberOfColumns),strFunctionName, _intTraceLevel, _strLibraryName);
+
+         onerror goto 0;
+         if(blnSuccessfullExecuted)
+            return(ASWGLOBAL::BOOL::TRUE);
+         else
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         ComObjectError:
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::ERROR, TRACE_LEVEL_RELEASE,"Error accessing COM object",strFunctionName, _intTraceLevel, _strLibraryName);
+               return (ASWGLOBAL::BOOL::FALSE);
+         }
+       }
+
+
+
+       //Returns the error message of the last executed command
+       function GetLastErrorMessage(variable & o_strErrorMessage) variable
+       {
+         variable strFunctionName("");
+         variable blnSuccessfullExecuted(ASWGLOBAL::BOOL::FALSE);
+
+         //Get function name
+         if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::START, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+         
+         if(!_blnSimulationMode)
+         {
+            //Get last error message
+            onerror goto ComObjectError;
+            blnSuccessfullExecuted = HSL_Cellavista_ComInterface.GetLastErrorMessage(o_strErrorMessage);
+         }
+         else
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,"Running in simulation mode!", strFunctionName, _intTraceLevel, _strLibraryName);
+            blnSuccessfullExecuted = ASWGLOBAL::BOOL::TRUE;
+         }
+
+         Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE, TRACE_LEVEL_DEBUG,"",strFunctionName, _intTraceLevel, _strLibraryName);
+         
+         onerror goto 0;
+         if(blnSuccessfullExecuted)
+            return(ASWGLOBAL::BOOL::TRUE);
+         else
+            return(ASWGLOBAL::BOOL::FALSE);
+
+         ComObjectError:
+         {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::ERROR, TRACE_LEVEL_RELEASE,"Error accessing COM object",strFunctionName, _intTraceLevel, _strLibraryName);
+               return (ASWGLOBAL::BOOL::FALSE);
+         }
+        }
+   }
+
+#endif
+// $$author=sroemer$$valid=0$$time=2016-04-15 07:54$$checksum=4d729dad$$length=086$$

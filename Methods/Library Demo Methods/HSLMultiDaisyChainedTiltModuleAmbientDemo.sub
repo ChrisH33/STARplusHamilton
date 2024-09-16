@@ -1,0 +1,50 @@
+// {{{ 2 "SubmethodForwardDeclaration" ""
+private function DisplayErrorAndTerminate( variable iSystemId, variable iModuleId, variable iErrorCode ) void ;
+function OnAbort(  ) void ;
+// }} ""
+// {{{ 5 "OnAbort" "Begin"
+function OnAbort(  ) void {
+// }} ""
+// {{ 5 "OnAbort" "InitLocals"
+// }} ""
+// {{{ 5 "OnAbort" "End"
+}
+// }} ""
+// {{{ 5 "DisplayErrorAndTerminate" "Begin"
+private function DisplayErrorAndTerminate( variable iSystemId, variable iModuleId, variable iErrorCode ) void {
+// }} ""
+private dialog dialogHandle1;
+private variable errMsg;
+// {{ 5 "DisplayErrorAndTerminate" "InitLocals"
+// }} ""
+// {{ 28 1 0 "7f19ded0_aee6_4004_b3475c7cf0b60e50" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (iErrorCode != HSLMultiDaisyChainedTiltModuleAmbient::ERROR_NONE)
+{
+// }} ""
+// {{{ 29 1 0 "f1202e8e_4ec2_420b_af9d42dd99e33e5a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+errMsg = HSLMultiDaisyChainedTiltModuleAmbient::EvaluateErrorMessage(iErrorCode);
+// }} ""
+// {{ 30 1 0 "2444c18c_9928_4057_bcdd328ce1fd8279" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle1.SetOutput(Translate("Module <"), iModuleId, Translate("> on system #"), iSystemId, Translate(" failed!\nError code = "), iErrorCode, Translate(": "), errMsg);
+dialogHandle1.ShowOutput(Translate("Error raised!"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 31 1 0 "2d51fbd0_f898_4ec9_9bcae0e418083a5f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLMultiDaisyChainedTiltModuleAmbient::TerminateTiltModuleAmbient(iSystemId, iModuleId);
+// }} ""
+// {{{ 32 1 0 "86a38d17_ba2d_491d_92de5d3015712764" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLMultiDaisyChainedTiltModuleAmbient::TerminateCommunication(iSystemId);
+// }} ""
+// {{ 33 1 0 "8ae2f511_7322_4178_9350af360dec94cb" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 34 1 0 "7f19ded0_aee6_4004_b3475c7cf0b60e50" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 35 1 0 "93fc6554_e849_4482_b38c81e541f52868" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return;
+// }} ""
+// {{{ 5 "DisplayErrorAndTerminate" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// $$author=Hamilton$$valid=0$$time=2023-08-09 15:33$$checksum=e2af71d8$$length=087$$

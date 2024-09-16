@@ -1,0 +1,26 @@
+HxCfgFile,3;
+
+ConfigIsValid,Y;
+
+DataDef,HxPars,3,e00f1bd0_28d1_4509_96cde94db87bb6af,
+[
+"1CommandStepFileGuid",
+"950ded56_f142_42b0_94ee5405f59be1c6",
+"3-534118376",
+"457",
+"(-534183935",
+"1-534183815",
+"\"racl\"",
+"1-534183816",
+"\"C0RA\"",
+")",
+"1StepName",
+"FirmwareCommand",
+"3ParsCommandVersion",
+"2",
+"1Timestamp",
+"2013-03-18 11:42:00",
+")"
+];
+
+* $$author=Turman_w$$valid=0$$time=2014-09-03 09:25$$checksum=448c6aab$$length=084$$

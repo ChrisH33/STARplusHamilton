@@ -1,0 +1,255 @@
+:Base HSLPTLLibEnu.hlp
+2 Microlab® STAR Pipetting Template Library
+2 Loading Functions
+3 GetLoadingStateEx=GetLoadingStateEx
+3 SetLoadingStateEx=SetLoadingStateEx
+3 ResetLoadingStateEx=ResetLoadingStateEx
+3 GetLoadingState=GetLoadingState
+3 SetLoadingState=SetLoadingState
+3 GetLoadingStateDefault=GetLoadingStateDefault
+3 SetLoadingStateDefault=SetLoadingStateDefault
+3 SetLoadingSize=SetLoadingSize
+3 GetLoadingSize=GetLoadingSize
+3 SetLoadingSequence=SetLoadingSequence
+3 GetLoadingSequence=GetLoadingSequence
+3 ResetLoadingStateAndSequences=ResetLoadingStateAndSequences
+3 Load=Load
+2 Loading Control Settings
+3 General Settings
+4 UserResponseTime=LCB::UserResponseTime
+4 ErrorHandling=LCB::ErrorHandling
+4 CalibrateCarrierChannel=LCB::CalibrateCarrierChannel
+4 RecoveryOptionContinue=LCB::RecoveryOptionContinue
+4 RecoveryOptionExclude=LCB::RecoveryOptionExclude
+4 RecoveryOptionDefault=LCB::RecoveryOptionDefault
+4 KitLotCheckEnabled=LCB::KitLotCheckEnabled
+2 Unloading Functions
+3 GetUnloadingState=GetUnloadingState
+3 SetUnloadingState=SetUnloadingState
+3 SetUnloadingSize=SetUnloadingSize
+3 GetUnloadingSize=GetUnloadingSize
+3 SetUnloadingSequence=SetUnloadingSequence
+3 GetUnloadingSequence=GetUnloadingSequence
+3 ResetUnloadingStateAndSequences=ResetUnloadingStateAndSequences
+3 Unload=Unload
+2 Unloading Control Settings
+3 General Settings
+4 UserResponseTime=UCB::UserResponseTime
+4 ErrorHandling=UCB::ErrorHandling
+2 Pipetting Functions
+3 GetPipettingState=GetPipettingState
+3 SetPipettingState=SetPipettingState
+3 GetPipettingSequence=GetPipettingSequence
+3 SetPipettingSequence=SetPipettingSequence
+3 ResetPipettingStateAndSequences=ResetPipettingStateAndSequences
+3 Pipette=Pipette
+2 Pipetting Control Settings
+3 General Settings
+4 UserResponseTime=UserResponseTime
+4 ErrorHandling=ErrorHandling
+4 TipCountingEnabled=TipCountingEnabled
+4 TipCountingIdentifier=TipCountingIdentifier
+4 CopyPatternEnabled=CopyPatternEnabled
+4 ExcludeErrorPositionsEnabled=ExcludeErrorPositionsEnabled
+4 LoadCarrierBarcodeFileName=LoadCarrierBarcodeFileName
+4 CalibrateCarrierChannel=CalibrateCarrierChannel
+3 Aliquot Settings
+4 AliquotEnabled=AliquotEnabled
+4 AliquotPreAspirateVolume=AliquotPreAspirateVolume
+4 AliquotAspirateDefaultMixingEnabled=AliquotAspirateDefaultMixingEnabled
+3 Initialize Settings
+4 InitializeUseDefaultWaste=InitializeUseDefaultWaste
+4 InitializeWasteDestination=InitializeWasteDestination
+4 InitializeChannelVariable=InitializeChannelVariable
+4 InitializeSequenceCounting=InitializeSequenceCounting
+4 InitializeChannelUse=InitializeChannelUse
+4 InitializeAlways=InitializeAlways
+4 InitializeEnabled=InitializeEnabled
+4 InitializeWasteDestinationReloadable=InitializeWasteDestinationReloadable
+4 InitializeWasteDestinationReducible=InitializeWasteDestinationReducible
+3 Tip Pickup Settings
+4 TipPickupChannelVariable=TipPickupChannelVariable
+4 TipPickupSequenceCounting=TipPickupSequenceCounting
+4 TipPickupTipType=TipPickupTipType
+4 TipPickupChannelUse=TipPickupChannelUse
+4 TipPickupEnabled=TipPickupEnabled
+4 TipPickupSequenceReloadable=TipPickupSequenceReloadable
+4 TipPickupSequenceReducible=TipPickupSequenceReducible
+4 TipPickupSequenceCurrentInitialization=TipPickupSequenceCurrentInitialization
+4 TipPickupSequenceCurrentFinalization=TipPickupSequenceCurrentFinalization
+4 TipPickupSequenceCountInitialization=TipPickupSequenceCountInitialization
+4 TipPickupSequenceCountFinalization=TipPickupSequenceCountFinalization
+4 TipPickupReverseSequenceCount=TipPickupReverseSequenceCount
+3 Tip Eject Settings
+4 TipEjectUseDefaultWaste=TipEjectUseDefaultWaste
+4 TipEjectWasteDestination=TipEjectWasteDestination
+4 TipEjectChannelVariable=TipEjectChannelVariable
+4 TipEjectChannelUse=TipEjectChannelUse
+4 TipEjectSequenceCounting=TipEjectSequenceCounting
+4 TipEjectWasteDestinationReloadable=TipEjectWasteDestinationReloadable
+4 TipEjectWasteDestinationReducible=TipEjectWasteDestinationReducible
+3 Aspirate Settings
+4 AspirateSequenceCounting=AspirateSequenceCounting
+4 AspirateChannelUse=AspirateChannelUse
+4 AspirateMode=AspirateMode
+4 AspirateCLLDSensitivity=AspirateCLLDSensitivity
+4 AspirateFluidHeight=AspirateFluidHeight
+4 AspirateSubmergeDepth=AspirateSubmergeDepth
+4 AspirateVolume=AspirateVolume
+4 AspirateRestVolume=AspirateRestVolume
+4 AspirateChannelVariable=AspirateChannelVariable
+4 AspirateMaxHeightDiff=AspirateMaxHeightDiff
+4 AspiratePLLDSensitivity=AspiratePLLDSensitivity
+4 AspirateLiquidFollowing=AspirateLiquidFollowing
+4 AspiratePrerinsingMixCycles=AspiratePrerinsingMixCycles
+4 AspiratePrerinsingMixPosition=AspiratePrerinsingMixPosition
+4 AspiratePrerinsingMixVolume=AspiratePrerinsingMixVolume
+4 AspirateUserDefinedLiquidClass=AspirateUserDefinedLiquidClass
+4 AspirateSequenceReloadable=AspirateSequenceReloadable
+4 AspirateSequenceReducible=AspirateSequenceReducible
+4 AspirateSequenceCurrentInitialization=AspirateSequenceCurrentInitialization
+4 AspirateSequenceCurrentFinalization=AspirateSequenceCurrentFinalization
+4 AspirateSequenceCountInitialization=AspirateSequenceCountInitialization
+4 AspirateSequenceCountFinalization=AspirateSequenceCountFinalization
+4 AspirateSequenceCalibration=AspirateSequenceCalibration
+3 Dispense Settings
+4 DispenseSubmergeDepth=DispenseSubmergeDepth
+4 DispenseChannelVariable=DispenseChannelVariable
+4 DispenseVolume=DispenseVolume
+4 DispenseRestVolume=DispenseRestVolume
+4 DispenseRestVolumeDestination=DispenseRestVolumeDestination
+4 DispenseRestVolumeFluidHeight=DispenseRestVolumeFluidHeight
+4 DispenseChannelUse=DispenseChannelUse
+4 DispenseCLLDSensitivity=DispenseCLLDSensitivity
+4 DispenseSequenceCounting=DispenseSequenceCounting
+4 DispenseFluidHeight=DispenseFluidHeight
+4 DispenseMode=DispenseMode
+4 DispenseLiquidFollowing=DispenseLiquidFollowing
+4 DispensePrerinsingMixCycles=DispensePrerinsingMixCycles
+4 DispensePrerinsingMixPosition=DispensePrerinsingMixPosition
+4 DispensePrerinsingMixVolume=DispensePrerinsingMixVolume
+4 DispenseUserDefinedLiquidClass=DispenseUserDefinedLiquidClass
+4 DispenseSequenceReloadable=DispenseSequenceReloadable
+4 DispenseSequenceReducible=DispenseSequenceReducible
+4 DispenseSequenceCurrentInitialization=DispenseSequenceCurrentInitialization
+4 DispenseSequenceCurrentFinalization=DispenseSequenceCurrentFinalization
+4 DispenseSequenceCountInitialization=DispenseSequenceCountInitialization
+4 DispenseSequenceCountFinalization=DispenseSequenceCountFinalization
+4 DispenseSequenceCalibration=DispenseSequenceCalibration
+2 Washing Functions
+3 GetWashingState=GetWashingState
+3 SetWashingState=SetWashingState
+3 ResetWashingState=ResetWashingState
+3 GetWashingStateDefault=GetWashingStateDefault
+3 SetWashingStateDefault=SetWashingStateDefault
+3 NeedlePickup=NeedlePickup
+3 NeedleEject=NeedleEject
+2 Washing Control Settings
+3 General Settings
+4 UserResponseTime=WCB::UserResponseTime
+4 ErrorHandling=WCB::ErrorHandling
+3 Needle Pickup Settings
+4 NeedlePickupChannelVariable=NeedlePickupChannelVariable
+3 Needle Eject Settings
+4 NeedleEjectChannelVariable=NeedleEjectChannelVariable
+3 Wash Settings
+4 RinseTime1=RinseTime1
+4 SoakTime1=SoakTime1
+4 FlowRate1=FlowRate1
+4 RinseTime2=RinseTime2
+4 SoakTime2=SoakTime2
+4 FlowRate2=FlowRate2
+4 DrainingTime=DrainingTime
+4 StartWashLiquid=StartWashLiquid
+2 Tip Handling Functions
+3 GetTipHandlingState=GetTipHandlingState
+3 SetTipHandlingState=SetTipHandlingState
+3 ResetTipHandlingState=ResetTipHandlingState
+3 TipPickup=TipPickup
+3 TipEject=TipEject
+2 Tip Handling Control Settings
+3 General Settings
+4 UserResponseTime=TCB::UserResponseTime
+4 ErrorHandling=TCB::ErrorHandling
+4 TipCountingEnabled=TCB::TipCountingEnabled
+4 TipCountingIdentifier=TCB::TipCountingIdentifier
+3 Tip Pickup Settings
+4 TipPickupChannelVariable=TCB::TipPickupChannelVariable
+4 TipPickupSequenceCounting=TCB::TipPickupSequenceCounting
+4 TipPickupChannelUse=TCB::TipPickupChannelUse
+4 TipPickupSequenceReloadable=TCB::TipPickupSequenceReloadable
+4 TipPickupSequenceReducible=TCB::TipPickupSequenceReducible
+4 TipPickupReverseSequenceCount=TCB::TipPickupReverseSequenceCount
+3 Tip Eject Settings
+4 TipEjectUseDefaultWaste=TCB::TipEjectUseDefaultWaste
+4 TipEjectWasteDestination=TCB::TipEjectWasteDestination
+4 TipEjectChannelVariable=TCB::TipEjectChannelVariable
+4 TipEjectChannelUse=TCB::TipEjectChannelUse
+4 TipEjectSequenceCounting=TCB::TipEjectSequenceCounting
+4 TipEjectWasteDestinationReloadable=TCB::TipEjectWasteDestinationReloadable
+4 TipEjectWasteDestinationReducible=TCB::TipEjectWasteDestinationReducible
+2 Error Handling Functions
+3 RaiseRuntimeError=RaiseRuntimeError
+3 String Table Identifiers
+4 IDS::smartStepPipetteWithTips=IDS::smartStepPipetteWithTips
+4 IDS::smartStepPipette=IDS::smartStepPipette
+4 IDS::smartStepLoad=IDS::smartStepLoad
+4 IDS::smartStepUnload=IDS::smartStepUnload
+4 IDS::smartStepNeedleWashSettings=IDS::smartStepNeedleWashSettings
+4 IDS::smartStepNeedlePickup=IDS::smartStepNeedlePickup
+4 IDS::smartStepNeedleEject=IDS::smartStepNeedleEject
+4 IDS::smartStepTipPickup=IDS::smartStepTipPickup
+4 IDS::smartStepTipEject=IDS::smartStepTipEject
+4 IDS::smartStepRuntimeError=IDS::smartStepRuntimeError
+4 IDS::smartStepUnspecifiedError=IDS::smartStepUnspecifiedError
+4 IDS::smartStepFailed=IDS::smartStepFailed
+2 Pipetting Runtime Errors
+3 1: Invalid Parameter=Invalid Parameter
+3 2: Invalid PCB Key=Invalid PCB Key
+3 3: Invalid PCB Value=Invalid PCB Value
+3 4: Invalid LCB Key=Invalid LCB Key
+3 5: Invalid LCB Value=Invalid LCB Value
+3 6: Invalid UCB Key=Invalid UCB Key
+3 7: Invalid UCB Value=Invalid UCB Value
+3 8: Invalid LLD Mode=Invalid LLD Mode
+3 9: Invalid Driving Mode=Invalid Driving Mode
+3 10: Invalid Tip Type=Invalid Tip Type
+3 11: Invalid Sequence Counting=Invalid Sequence Counting
+3 12: Invalid Tip Counting=Invalid Tip Counting
+3 13: Invalid Channel Use=Invalid Channel Use
+3 14: Invalid Aspirate Mode=Invalid Aspirate Mode
+3 15: Invalid Dispense Mode=Invalid Dispense Mode
+3 16: Invalid LLD Sensitivity=Invalid LLD Sensitivity
+3 17: Invalid Multiplicity 1=Invalid Multiplicity 1
+3 18: Invalid Multiplicity 2=Invalid Multiplicity 2
+3 19: Invalid Volume=Invalid Volume
+3 20: Invalid Rest Volume=Invalid Rest Volume
+3 21: Invalid Pre / Post Volume=Invalid Pre / Post Volume
+3 22: Invalid Mix Volume=Invalid Mix Volume
+3 23: Invalid Renewal Cycle=Invalid Renewal Cycle
+3 24: Invalid Initialization=Invalid Initialization
+3 25: Invalid Finalization=Invalid Finalization
+3 26: Invalid Error Handling=Invalid Error Handling
+3 27: Invalid Rest Volume Destination=Invalid Rest Volume Destination
+3 28: Invalid Liquid Class=Invalid Liquid Class
+3 29: Invalid Tip Counting Identifier=Invalid Tip Counting Identifier
+3 30: Invalid First=Invalid First
+3 31: Invalid Last=Invalid Last
+3 32: Loading Canceled=Loading Canceled
+3 33: Unloading Canceled=Unloading Canceled
+3 34: Method Aborted=Method Aborted
+3 35: Invalid WCB Key=Invalid WCB Key
+3 36: Invalid WCB Value=Invalid WCB Value
+3 37: Invalid TCB Key=Invalid TCB Key
+3 38: Invalid TCB Value=Invalid TCB Value
+3 39: Advanced Load Settings Conflict=Advanced Load Settings Conflict
+3 40: Unexpected Step Return=Unexpected Step Return
+3 41: Invalid Step Type=Invalid Step Type
+3 42: No Kit Lot In Barcode Mask=No Kit Lot In Barcode Mask
+3 43: Invalid Barcode Value Or Barcode Mask=Invalid Barcode Value Or Barcode Mask
+3 44: Kit Lot Not Defined=Kit Lot Not Defined
+3 45: Default Waste Not Found=Default Waste Not Found
+3 46: Empty Sequence=Empty Sequence
+3 47: Kit Lot File Not Found=Kit Lot File Not Found
+2 Pipetting Flowchart
+3 Pipetting Flowchart=Pipetting Flowchart

@@ -1,0 +1,581 @@
+// This is a part of the Tip Counting Library.
+// Copyright (C) by HAMILTON Reno, NV
+// All rights reserved.
+//
+// Modification History
+// 05-10-2011  Miles Lugo : Initial file creation. This library is a copy of the "HSLTipCountingLib.hsl" and was modified
+//                            to support the use of the NimbusChannel and Nimbus96 devices.
+
+
+#ifndef __HSLTipCountingNimbusLib_hsl__
+#define __HSLTipCountingNimbusLib_hsl__	1
+
+// Interface to the Tip Counting Library
+#ifndef HSL_RUNTIME
+namespace TipCount1
+{
+	function Write2(
+		sequence& sequenceObj, 
+		variable& tipCounter,
+		device& deviceContext)	variable {return ( 0);}	// Nonzero if the function succeeds, otherwise zero.
+
+	function Read2(
+		sequence& sequenceObj, 
+		variable& tipCounter,
+		device& deviceContext)	variable {return (-1);}	//  1 if the function succeeds
+																	 	// -1 if the sequence could not be found in the database table
+	function Edit2(
+		sequence& sequenceObj, 
+		variable& tipCounter,
+		device& deviceContext, 
+		variable timeout)			variable {return (-1);}	//  1 if the function succeeds
+																	 	// -1 if the sequence could not be found in the database table
+
+	
+}
+#endif
+
+#ifdef HSL_RUNTIME
+
+#ifndef __HSLFilLib_hsl__
+#include "HSLFilLib.hsl"
+#endif
+
+#ifndef __HSLSynLib_hsl__
+#include "HSLSynLib.hsl"
+#endif
+
+#ifndef __HSLUtilLib_hsl__
+#include "HSLUtilLib.hsl"
+#endif
+
+#ifndef __HSLStrLib_hsl__
+#include "HSLStrLib.hsl"
+#endif
+
+
+
+namespace TipCount1
+{
+	// --------------------------------------------------------------------------------------
+	// StringConstants
+	// --------------------------------------------------------------------------------------
+	namespace StringConstants
+	{		
+		static variable tipRackKey("IsTipRack");
+	}
+
+	// --------------------------------------------------------------------------------------
+	// enum's from HxElementCounter
+	// --------------------------------------------------------------------------------------
+	namespace HxECLabwareTypes
+	{
+		// long min value according C Integer Limits definition (see MSDN)
+		// LONG_MIN: Minimum value for a variable of type long. -2147483647 -1
+		static const variable unknownType(-2147483647 -1);
+	}
+
+	namespace HxECPositionStatus
+	{
+		static const variable empty(0);
+		static const variable occupied(1);
+	}
+
+	namespace HxServicesSound
+	{
+		static const variable soundError(0);
+		static const variable soundQuestion(1);
+		static const variable soundWarning(2);
+		static const variable soundLoading(3);
+	}
+
+	// --------------------------------------------------------------------------------------
+	// Tracing
+	// --------------------------------------------------------------------------------------
+	namespace TraceStatus
+	{
+		static const variable start(1);									// action status for formated trace
+		static const variable complete(2);								// action status for formated trace
+		static const variable error_(3);									// action status for formated trace
+		static const variable progress(4);								// action status for formated trace
+		static const variable completeWithError(5);					// action status for formated trace
+	}
+
+	// --------------------------------------------------------------------------------------
+	// Error Ids
+	// --------------------------------------------------------------------------------------
+	namespace IDE
+	{
+		static const variable first(0);									// guard
+		static const variable noError(first);							// No error.
+		static const variable invalidParameter(first + 1);			// The parameter is incorrect.
+		static const variable invalidTipCounterName(first + 2);	// Invalid name of tip counter
+		static const variable fatalError(first + 3);					// Fatal error.
+		static const variable last(first + 3);							// guard
+	}
+
+	// --------------------------------------------------------------------------------------
+	// String Ids
+	// --------------------------------------------------------------------------------------
+	namespace IDS
+	{
+		static const variable first(IDE::last + 1);					// guard
+		static const variable editTipCountTitle(first);				// title for edit tip count dialog
+		static const variable editTipCountPrompt(first + 1);		// prompt for edit tip count dialog
+		static const variable helpFileName(first + 2);				// help file name
+		static const variable traceSource(first + 3);				// formated trace > SYSTEM
+		static const variable traceLibName(first + 4);				// formated trace > HSLTipCountingLib
+		static const variable changeTipCounterName(first + 5);	// formated trace > warning - tip counter name changed due to invalid characters within given name
+		static const variable last(first + 5);							// guard
+	}
+
+	#ifndef __HSLStringTableLib_hsl__
+	#include "HSLStringTableLib.hs_"
+	#endif
+
+	// --------------------------------------------------------------------------------------
+	// Data 
+	// --------------------------------------------------------------------------------------
+	static object m_elementCounterObject;								// the one and only elementCounter object, instantiated from Vector Database
+	static variable m_sound;												// the sound played within edit sequence dialog
+
+	// --------------------------------------------------------------------------------------
+	// Library Initialization 
+	// --------------------------------------------------------------------------------------
+
+	static variable initializedLib(hslFalse);							// initialization state of the Tip Counting Library
+	static function InitTipCountingLibrary();							// initializes the Tip Counting Library (only once)
+
+	// -------------------------------------------------------------------------
+	// Simulation
+	// -------------------------------------------------------------------------
+	static variable systemSimulationOn(hslFalse); 					// "global" system simulation flag
+
+   //-----------------------------------------------------------------------------------------
+   //Cfg key values
+   //------------------------------------------------------------------------------------------
+   static variable Simulation(101);                            //Key value used to determine if instrument is in simulation mode. 
+
+	// --------------------------------------------------------------------------------------
+	// Declaration of internal functions
+	// --------------------------------------------------------------------------------------
+	static function GetTipType(											// returns the tip type found in labware underlying 
+		device& deviceContext,												// on first position of given sequence
+		sequence& sequenceObj);												// (return HxECLabwareTypes::unknownType if no tip type was found)
+
+	// --------------------------------------------------------------------------------------
+	// Exception handling
+	// --------------------------------------------------------------------------------------
+
+	namespace Error
+	{
+		static function Raise(												// raises a runtime error
+			variable errorId,													// i: error id, one of IDE
+			variable& fileName,												// i: file name
+			variable& funcName,												// i: function name
+			variable& lineNumber)											// i: line number
+		{
+			variable description("");
+
+			// set error description
+			description = fileName + "(" + lineNumber + ") : " + funcName + "()\n" + StringTable::Load(errorId);
+			err.SetDescription(description);
+
+			// raise error
+			err.Raise(errorId, err.GetDescription(), StringTable::Load(IDS::helpFileName));
+		}
+	}
+
+	// --------------------------------------------------------------------------------------
+	// Functions
+	// --------------------------------------------------------------------------------------
+
+	static function InitTipCountingLibrary()
+	{
+		// initialize the Tip Counting Library once only
+		if (!initializedLib)
+		{
+			object vectorDbTracker;
+			object elementCounter;
+			object services;
+			object generalSettings;
+
+			StringTable::Init("HSLTipCountingNimbusLib");
+
+			// get the Element Counter object from Sample Tracker
+			vectorDbTracker = GetVectorDbTrackerObject();
+			elementCounter = vectorDbTracker.GetElementCounter();
+			// change to interface IHxElementCounter2
+			elementCounter.GetObject2("{4BD6717B-EF66-42ff-9EF8-166099E46E2B}", m_elementCounterObject);
+
+			services.CreateObject( "Hamilton.HxServicesGeneralSettings" );
+			services.GetObject( "IHxServicesGeneralSettings2", generalSettings );
+
+			systemSimulationOn = ( generalSettings.SimulationOn != 0 );
+
+			m_sound = "";
+			
+			vectorDbTracker.ReleaseObject();
+			elementCounter.ReleaseObject();
+			services.ReleaseObject();
+			generalSettings.ReleaseObject();
+
+			initializedLib = hslTrue;
+		}
+		return(initializedLib);
+	}
+
+	static function GetTipType(									// returns the tip type found in labware underlying 
+			device& deviceContext,									// on first position of given sequence
+			sequence& sequenceObj)									// (return HxECLabwareTypes::unknownType if no tip type was found)
+	{
+		variable tipType(HxECLabwareTypes::unknownType);	// tip type
+		variable labwareId("");										// labware id
+		variable currentPosBak;										// backup of current position
+		variable propertyKeys[];									// place to hold property keys
+		variable propertyValues[];									// place to hold property values
+		variable propertyValue;										// property value
+      variable systemDeckLayoutName("");
+      variable instrumentDeckName("");
+      
+		// backup current position
+		currentPosBak = sequenceObj.GetCurrentPosition();
+
+		onerror goto Unexpected;
+
+		// if no more positions are available, get labware Id from a reloaded sequence
+		if(0 == sequenceObj.GetTotal())
+		{
+			sequence reloadedSequence;
+
+			// use reloaded sequence to get the labware ID
+			// return unknown tip type if the desired deck sequence was not found
+			if(hslFalse == deviceContext.CopyResetSequence(sequenceObj.GetName(), reloadedSequence))
+				return (HxECLabwareTypes::unknownType);
+			
+			labwareId = reloadedSequence.GetLabwareId();
+		}
+		else
+		{
+			// set first position of sequence as current
+			sequenceObj.SetCurrentPosition(1);
+			labwareId = sequenceObj.GetLabwareId();
+		}
+            		
+      // return unknown tip type if no labware ID was found
+		if(labwareId == "")
+			return (HxECLabwareTypes::unknownType);
+      
+      
+		propertyValue = "";
+		propertyKeys.SetSize(0);
+		propertyValues.SetSize(0);
+		propertyKeys.AddAsLast(StringConstants::tipRackKey);
+		deviceContext.GetLabwareData(labwareId, propertyKeys, propertyValues);
+	
+		if(0 < propertyValues.GetSize())
+			propertyValue = propertyValues.GetAt(0);
+	
+		if("" != propertyValue)
+		{
+			// the labware supports the key IsTipRack,
+			tipType = IVal(propertyValue);
+		}
+
+		// restore current position
+		sequenceObj.SetCurrentPosition(currentPosBak);
+
+		return(tipType);
+
+		Unexpected:
+		{
+			// restore current position
+			sequenceObj.SetCurrentPosition(currentPosBak);
+			return(HxECLabwareTypes::unknownType);
+		}
+	}
+
+
+	static function IsSimulatorMode(device& nimbus)
+	{
+		variable simulatorMode;      
+		const variable simulatorModeOff(0);
+      variable instrumentName; 
+      object regPtr;
+      object cfgPtr;
+      string path;
+      string instrCfgFile;
+     
+
+		//Checking if instrument is running is simulation. (1 = simulation on, 0 = simulation off)
+     // simulatorMode = nimbus.GetCfgValueWithKey(Simulation);
+
+
+      regPtr.CreateObject("HXREGLib.HxRegistry");
+      cfgPtr.CreateObject("HXCFGFILLib.HxCfgFile");
+
+      path = regPtr.ConfigPath;
+      path = path + "\\";
+      instrumentName = nimbus.GetInstrumentName();
+      regPtr.InstCfgFile(instrumentName, instrCfgFile);
+      path = path + instrCfgFile;
+      cfgPtr.LoadFile(path);
+      simulatorMode  = cfgPtr.GetDataDefValueAsShort("Configuration", "default", "Simulation");
+
+
+ 
+		if (		( hslInteger.Compare(GetType(simulatorMode)) == 0 )
+				&& ( simulatorMode != simulatorModeOff ))
+		{
+			// is integer and not set to OFF -> this instrument is in the simulator mode.
+			return( hslTrue );
+		}
+
+		return( hslFalse );
+	}
+
+	// Reads the indexes from the file (database) HxElementCounter in the System directory
+	// into the given sequence (doesn't prompt the user to edit the sequence graphically). 
+	function Read2(
+		sequence& sequenceObj,
+		variable& tipCounter,
+		device& deviceContext)
+	{
+		object iSequence;
+		variable labwareType;
+		variable count;
+		variable isSimulation(hslFalse);
+      variable nimbusType;
+
+		// initialize Tip Counting Library
+		InitTipCountingLibrary();
+	   
+      // activate error handler
+		onerror goto Unexpected;
+		
+      //retrieving which Instrument is being used.
+      nimbusType = deviceContext.GetInstrumentName(  );
+	
+		  isSimulation = IsSimulatorMode(deviceContext);
+
+		// validate input
+		if (!Util::IsString(tipCounter))
+			 Error::Raise(IDE::invalidParameter, GetFileName(), GetFunctionName(), GetLineNumber());
+
+		// check tip counter name
+		if(!m_elementCounterObject.ElementCounterNameIsValid(tipCounter))
+		{
+			string sTraceAction;
+			variable invalidName(tipCounter);
+			// try to generate a valid element counter name
+			tipCounter = m_elementCounterObject.GetValidElementCounterName(invalidName);
+
+			// trace the change of the tip counter name
+			sTraceAction = StringTable::Load(IDS::changeTipCounterName);
+			
+			StrReplace(sTraceAction, "%s1", invalidName);
+			StrReplace(sTraceAction, "%s2", tipCounter);
+
+			FormatTrace(StringTable::Load(IDS::traceSource), StringTable::Load(IDS::traceLibName), TraceStatus::progress, sTraceAction);
+		}
+
+		// get tip type (labware type)
+		labwareType = GetTipType(deviceContext, sequenceObj);
+
+		if(!m_elementCounterObject.ElementCounterExists(tipCounter, nimbusType))
+   		return(-1);	
+
+		// reset sequence to follow the rule of ReadElementCounterIntoSequence() function of HxElementCounter
+		deviceContext.CopyResetSequence(sequenceObj.GetName(), sequenceObj);
+		
+		// read data from HxElementCounter
+		m_elementCounterObject.ReadElementCounterIntoSequence(
+			tipCounter, nimbusType, labwareType, isSimulation, sequenceObj.GetSequenceObject());
+
+		// check if current read sequence is an empty sequence
+		if( sequenceObj.GetCount() == 0 )
+		{
+			// reset the sequence and set the current position to zero
+			deviceContext.CopyResetSequence(sequenceObj.GetName(), sequenceObj);
+			sequenceObj.SetCount(0);
+			sequenceObj.SetCurrentPosition(0);
+		}
+
+		return(1);
+
+		Unexpected:
+		{
+			// re-raise error
+			err.Raise();
+		}
+	}
+
+	// Writes the indexes from the given sequence into HxElementCounter database
+	// in the System directory.
+	function Write2(
+		sequence& sequenceObj,
+		variable& tipCounter,
+		device& deviceContext)
+	{
+		variable labwareType;
+		variable isSimulation(hslFalse);
+      variable nimbusType;
+
+		// initialize Tip Counting Library
+		InitTipCountingLibrary();
+
+		// activate error handler
+		onerror goto Unexpected;
+
+      //retrieving which Instrument is being used.
+      nimbusType = deviceContext.GetInstrumentName(  );
+
+		isSimulation = IsSimulatorMode(deviceContext);
+
+		// validate input
+		if (!Util::IsString(tipCounter))
+			 Error::Raise(IDE::invalidParameter, GetFileName(), GetFunctionName(), GetLineNumber());
+
+		// check tip counter name
+		if(!m_elementCounterObject.ElementCounterNameIsValid(tipCounter))
+		{
+			string sTraceAction;
+			variable invalidName(tipCounter);
+			// try to generate a valid element counter name
+			tipCounter = m_elementCounterObject.GetValidElementCounterName(invalidName);
+
+			// trace the change of the tip counter name
+			sTraceAction = StringTable::Load(IDS::changeTipCounterName);
+			
+			StrReplace(sTraceAction, "%s1", invalidName);
+			StrReplace(sTraceAction, "%s2", tipCounter);
+
+			FormatTrace(StringTable::Load(IDS::traceSource), StringTable::Load(IDS::traceLibName), TraceStatus::progress, sTraceAction);
+		}
+
+		// get tip type (labware type)
+		labwareType = GetTipType(deviceContext, sequenceObj);
+
+		if(!m_elementCounterObject.ElementCounterExists(tipCounter , nimbusType))
+		{
+			sequence reloadedSequence;
+
+			// create the element counter first
+			m_elementCounterObject.CreateElementCounter(tipCounter, nimbusType, labwareType);
+			
+			// reset sequence to follow the rule of ResetElementCounter() function of HxElementCounter
+			// if it's not a deck dequence, use/assign the given sequence
+			if(hslFalse == deviceContext.CopyResetSequence(sequenceObj.GetName(), reloadedSequence))
+				reloadedSequence = sequenceObj;
+
+			// reset all positions to occupied
+			m_elementCounterObject.ResetElementCounter(
+				tipCounter, nimbusType, labwareType, isSimulation,
+				reloadedSequence.GetSequenceObject(), HxECPositionStatus::occupied);
+		}
+
+		// write data into HxElementCounter
+		m_elementCounterObject.WriteSequenceIntoElementCounter(
+			tipCounter, nimbusType, labwareType, isSimulation, sequenceObj.GetSequenceObject());
+
+		return(hslTrue);
+
+		Unexpected:
+		{
+			// re-raise error
+			err.Raise();
+		}
+	}
+
+	// Reads the indexes from the file (database) HxElementCounter in the System directory
+	// into the given sequence (prompts the user to edit the sequence graphically). 
+	function Edit2(
+		sequence& sequenceObj,
+		variable& tipCounter,
+		device& deviceContext,
+		variable timeout)
+	{
+		sequence reloadedSequence;	// a "full sequence copy" of given sequenceObj, used to reset the element counter
+		variable labwareType;
+		variable isSimulation(hslFalse);
+      variable nimbusType;
+
+		// initialize Tip Counting Library
+		InitTipCountingLibrary();
+
+		// activate error handler
+		onerror goto Unexpected;
+
+      //retrieving which Instrument is being used.
+      nimbusType = deviceContext.GetInstrumentName(  );
+
+		isSimulation = IsSimulatorMode(deviceContext);
+
+		// validate input
+		if (!Util::IsString(tipCounter))
+			 Error::Raise(IDE::invalidParameter, GetFileName(), GetFunctionName(), GetLineNumber());
+		if (!Util::IsNumber(timeout))
+			 Error::Raise(IDE::invalidParameter, GetFileName(), GetFunctionName(), GetLineNumber());
+		if (Util::IsNegative(timeout))
+			 Error::Raise(IDE::invalidParameter, GetFileName(), GetFunctionName(), GetLineNumber());
+
+		// get tip type (labware type)
+		labwareType = GetTipType(deviceContext, sequenceObj);
+		
+		// check tip counter name
+		if(!m_elementCounterObject.ElementCounterNameIsValid(tipCounter))
+		{
+			string sTraceAction;
+			variable invalidName(tipCounter);
+			// try to generate a valid element counter name
+			tipCounter = m_elementCounterObject.GetValidElementCounterName(invalidName);
+
+			// trace the change of the tip counter name
+			sTraceAction = StringTable::Load(IDS::changeTipCounterName);
+			
+			StrReplace(sTraceAction, "%s1", invalidName);
+			StrReplace(sTraceAction, "%s2", tipCounter);
+
+			FormatTrace(StringTable::Load(IDS::traceSource), StringTable::Load(IDS::traceLibName), TraceStatus::progress, sTraceAction);
+		}
+
+		// read from ElementCounter
+		Read2(sequenceObj, tipCounter, deviceContext);
+
+		// reset sequence to follow the rule of ResetElementCounter() function of HxElementCounter
+		// if it's not a deck dequence, use/assign the given sequence
+		if(hslFalse == deviceContext.CopyResetSequence(sequenceObj.GetName(), reloadedSequence))
+			reloadedSequence = sequenceObj;
+
+		// create if not exist
+		if(!m_elementCounterObject.ElementCounterExists(tipCounter, nimbusType))
+		{
+			// create the element counter first
+			m_elementCounterObject.CreateElementCounter(tipCounter, nimbusType, labwareType);
+			
+			// reset all positions to occupied
+			m_elementCounterObject.ResetElementCounter(
+				tipCounter, nimbusType, labwareType, isSimulation,
+				reloadedSequence.GetSequenceObject(), HxECPositionStatus::occupied);
+		}
+
+		// ask the user to edit the sequence graphically 
+		deviceContext.RemoveSequences();
+		deviceContext.AddSequence2(sequenceObj, reloadedSequence, hslTrue);
+		deviceContext.EditSequences(StringTable::Load(IDS::editTipCountTitle), StringTable::Load(IDS::editTipCountPrompt), timeout, m_sound);
+
+		// write the tip count 
+		Write2(sequenceObj, tipCounter, deviceContext);
+
+		return(1);
+
+		Unexpected:
+		{
+			// re-raise error
+			err.Raise();
+		}
+	}
+}
+#endif
+#endif
+// $$author=cuevas_a$$valid=0$$time=2017-10-12 10:41$$checksum=3479ec99$$length=087$$

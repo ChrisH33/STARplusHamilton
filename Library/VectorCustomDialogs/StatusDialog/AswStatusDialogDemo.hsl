@@ -1,0 +1,246 @@
+ namespace _Method { #include "VectorCustomDialogs\\VectorCustomDialogs.hsl" } 
+ namespace _Method { #include "ASWStandard\\TraceLevel\\TraceLevel.hsl" } 
+ namespace _Method { #include "HSLStrLib.hsl" } 
+ namespace _Method { #include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl" } 
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable blnSuccessfulExecuted;
+timer timer1;
+variable intAppendTextLoopCounter;
+variable strAppendTextLoopCounter;
+variable strAppendText;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{{ 1 1 0 "1f45b559_7ada_4dcb_b181624d228be391" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::SetTraceLevel(TRACE_LEVEL_DEBUG);
+// }} ""
+// {{{ 2 1 0 "9a949e66_b099_4d00_a83ad431d95e5dfe" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::Initialize();
+// }} ""
+// {{ 3 1 0 "089e9bb0_f167_433e_ba62042b91ce0aec" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 4 1 0 "fbadb856_d0ae_4f49_90a22b50ffa8dc09" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'Initialize' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 5 1 0 "78206f9b_e348_4cf6_8b5d2c33a58bef3d" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 6 1 0 "089e9bb0_f167_433e_ba62042b91ce0aec" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 7 1 0 "8be3ca00_caa9_41f4_963f70a62a63280b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::ShowStatusDialog(Translate("Status Window"));
+// }} ""
+// {{ 8 1 0 "61a100a9_2b25_49a6_aa3557814ccb4c2e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 9 1 0 "874e1999_2742_4ce2_b2fb61168b9c88c6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'ShowStatusDialog' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 10 1 0 "c51e0dc4_dc53_432f_80b2bbe71ff8a965" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 11 1 0 "61a100a9_2b25_49a6_aa3557814ccb4c2e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 12 1 0 "a580cb18_f7c7_4dc1_93494a95fbcaceb9" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(intAppendTextLoopCounter = 0; intAppendTextLoopCounter < 100;)
+{
+intAppendTextLoopCounter = intAppendTextLoopCounter + 1;
+// }} ""
+// {{{ 13 1 0 "61f08ffa_d22c_413b_b0cc9c04045047bd" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strAppendTextLoopCounter = StrIStr(intAppendTextLoopCounter);
+// }} ""
+// {{{ 14 1 0 "d8ffb2ee_0fbc_4b5c_876c1cfce2e27db1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strAppendText = StrConcat4(Translate("I am append text "), strAppendTextLoopCounter, Translate("!"), Translate(""));
+// }} ""
+// {{ 15 1 0 "38b3e47e_8558_498c_ae6ca5b52ff54a6d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intAppendTextLoopCounter == 20)
+{
+// }} ""
+// {{{ 16 1 0 "0bebccc6_f669_4afb_8900bfb5e4d16535" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::ClearStatusText();
+// }} ""
+// {{ 17 1 0 "540e0c31_03b9_4c2d_81b0210346b00c3f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 18 1 0 "d0699302_2422_450d_b68b289d28ee2d2e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'ClearStatusText' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 19 1 0 "0b6cc5ee_295f_42b0_8c48a449cd0cd6c5" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 20 1 0 "540e0c31_03b9_4c2d_81b0210346b00c3f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 21 1 0 "0ba9ea60_b5bd_4d5c_807ff55d87347b53" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::SetStatusTitle(Translate("Changed Dialog Title"));
+// }} ""
+// {{ 22 1 0 "318cc9dd_456b_4820_be308ea26b193ad9" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 23 1 0 "0704a713_6049_413e_899116b1d6f856cb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'SetStatusTitle' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 24 1 0 "79755acc_2db0_44bc_9531f98fe27006a2" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 25 1 0 "318cc9dd_456b_4820_be308ea26b193ad9" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 26 1 0 "38b3e47e_8558_498c_ae6ca5b52ff54a6d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 27 1 0 "09182c87_407f_4644_986a534562ff89de" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intAppendTextLoopCounter == 40)
+{
+// }} ""
+// {{{ 28 1 0 "3c756139_3760_4fd9_ba24a5802a43f3d3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::SetStatusText(Translate("New status list started (SetStatusText)"));
+// }} ""
+// {{ 29 1 0 "a9c40a8e_03e4_4b4f_b19fcb2b88e71090" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 30 1 0 "fb31cac9_db01_4104_96df66e18ab74984" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'SetStatusText' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 31 1 0 "b2663df0_aada_432c_a573dc89b24368bd" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 32 1 0 "a9c40a8e_03e4_4b4f_b19fcb2b88e71090" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 33 1 0 "09182c87_407f_4644_986a534562ff89de" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 34 1 0 "23ee4c2d_b45b_40a3_a22e8901e5491d28" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::AppendStatusText(strAppendText);
+// }} ""
+// {{ 35 1 0 "4d93cc0d_84fa_4cb6_b7b463263908fc2e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 36 1 0 "6a994333_b28e_4ca7_a055864217ee3c0c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'AppendText' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 37 1 0 "48ba6ca0_7dad_47af_a00266c829be208e" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 38 1 0 "4d93cc0d_84fa_4cb6_b7b463263908fc2e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 39 1 0 "2554a67f_716d_4974_a4cbb96e7bd35e17" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.SetTimer(0.5) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 40 1 0 "fa22bec4_72df_4b9b_9b7a3943422ca48a" "{B31F353F-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.WaitTimer(hslTrue, hslFalse) )
+{
+    MECC::RaiseRuntimeErrorEx(-1339162368, MECC::IDS::stepNameTimerWait, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 41 1 0 "a580cb18_f7c7_4dc1_93494a95fbcaceb9" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 42 1 0 "e9c29fd2_6d72_45d8_bf80871491174c0d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::SetStatusText(Translate("I am status dialog text!"));
+// }} ""
+// {{ 43 1 0 "4aaab479_2140_4e84_99e503adb0a518fa" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 44 1 0 "81ddaae8_8551_4916_a3973cc664fa4b1c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'SetStatusText' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 45 1 0 "1d8f7e4e_b339_44d4_a39989510b017849" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 46 1 0 "4aaab479_2140_4e84_99e503adb0a518fa" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 47 1 0 "e1f9b142_4036_4287_a288726c555a6232" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.SetTimer(10) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 48 1 0 "b85c7a4c_2ae6_4d5a_80c4018e95ca0a8c" "{B31F353F-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.WaitTimer(hslTrue, hslTrue) )
+{
+    MECC::RaiseRuntimeErrorEx(-1339162368, MECC::IDS::stepNameTimerWait, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 49 1 0 "ba42e379_6f70_4f2c_955bdd9ddb3ab2f4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::CloseStatusDialog();
+// }} ""
+// {{ 50 1 0 "5b3096bd_3ab0_4395_8d7fc18ddbd96273" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 51 1 0 "93206758_1ab5_4bfd_a5f107be5ecc786e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'SetStatusText' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 52 1 0 "a3510439_b0d4_4616_b046bf26998a5b4d" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 53 1 0 "5b3096bd_3ab0_4395_8d7fc18ddbd96273" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 54 1 0 "e1575fb8_818c_41c2_a193bd61bc91b694" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.SetTimer(2) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 55 1 0 "9f7336f7_4a0c_4b22_bb7b268902721788" "{B31F353F-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.WaitTimer(hslTrue, hslFalse) )
+{
+    MECC::RaiseRuntimeErrorEx(-1339162368, MECC::IDS::stepNameTimerWait, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 56 1 0 "8d372b81_c053_49a4_b9d58c08162f8ddf" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::Terminate();
+// }} ""
+// {{ 57 1 0 "2996834b_e448_4722_b8d101aa0354ec61" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 58 1 0 "07aaf0e1_d83e_4480_a6402ca11812e6ff" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'Terminate' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 59 1 0 "9b401455_44bd_4780_b13b2878e4511c96" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 60 1 0 "2996834b_e448_4722_b8d101aa0354ec61" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=MKnappe$$valid=0$$time=2020-05-25 10:51$$checksum=57e73d07$$length=086$$

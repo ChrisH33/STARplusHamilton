@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CustomTheme xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Colors>
+    <Entry Key="HamiltonColorA" Value="#FF001B35" />
+    <Entry Key="HamiltonColorB" Value="#FF08345E" />
+    <Entry Key="HamiltonColorB1" Value="#FF4D77A3" />
+    <Entry Key="HamiltonColorB2" Value="#FF3F6489" />
+    <Entry Key="HamiltonColorB3" Value="#FF4C6F96" />
+    <Entry Key="HamiltonColorC" Value="#FF1666B0" />
+    <Entry Key="HamiltonColorF" Value="#FF5578A5" />
+    <Entry Key="HamiltonColorG1" Value="#FFC6E2FF" />
+    <Entry Key="HamiltonColorG2" Value="#FFE6E6E6" />
+    <Entry Key="HamiltonColorG3" Value="#FFBFBFBF" />
+    <Entry Key="HamiltonColorG4" Value="#FF154C82" />
+    <Entry Key="HamiltonColorG4_transparency33" Value="#33ADBECF" />
+    <Entry Key="HamiltonColorG4_transparency55" Value="#55ADBECF" />
+    <Entry Key="HamiltonColorG5" Value="#FF012D59" />
+    <Entry Key="HamiltonColorH" Value="#FFAED5FC" />
+    <Entry Key="HamiltonColorH_transparency" Value="#AABFDDFA" />
+    <Entry Key="HamiltonColorK" Value="#FF000000" />
+    <Entry Key="HamiltonColorN1" Value="#FF0FAB00" />
+    <Entry Key="HamiltonColorP1" Value="#FF749BD3" />
+    <Entry Key="HamiltonColorP2" Value="#FF6A97C4" />
+    <Entry Key="HamiltonColorR1" Value="#FFD8000C" />
+    <Entry Key="HamiltonColorR2" Value="#FFFFBABA" />
+    <Entry Key="HamiltonColorR3" Value="#FF8B0000" />
+    <Entry Key="HamiltonColorS1" Value="#FF96B4D2" />
+    <Entry Key="HamiltonColorS2" Value="#FFC8DCF0" />
+    <Entry Key="HamiltonColorW" Value="#FF144F8C" />
+    <Entry Key="HamiltonColorZ" Value="#FF4788C8" />
+  </Colors>
+  <FontFamily>
+    <Entry Key="HamiltonFont" Value="Tahoma" />
+  </FontFamily>
+  <FontSize>
+    <Entry Key="HamiltonFontSize" Value="14" />
+    <Entry Key="HamiltonFontSizeHuge" Value="32" />
+    <Entry Key="HamiltonFontSizeLarge" Value="16" />
+    <Entry Key="HamiltonFontSizeSmall" Value="12" />
+  </FontSize>
+</CustomTheme>

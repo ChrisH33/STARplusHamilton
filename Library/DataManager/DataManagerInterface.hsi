@@ -1,0 +1,2435 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "ASWStandard\\TraceLevel\\TraceLevel.hsl"
+#include "HSLSynLib.hsl"
+#include "HSLTrcLib.hsl"
+#include "DataManager\\DataManagerBase.hsl"
+#include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace DATAMANAGERINTERFACE {
+// }} ""
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function AddColumn( variable i_strTableName, variable i_strColumnName, variable i_iColumnType, variable i_bAllowDBNull, variable i_oValue ) variable ;
+function AddTable( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrColumnTypes[], variable & i_arrAllowDBNull[] ) variable ;
+function DeleteRows( variable i_strTableName, variable i_strFilterExpression, variable & o_iRowsAffected ) variable ;
+function ExecuteAggregateFunction( variable i_strTableName, variable i_iAggregateType, variable i_iSelectionMode, variable i_strColumnName, variable i_strFilterExpression, variable & o_oResult ) variable ;
+function ExecuteSelectAllLineByLineCommand( variable i_strTableName, variable & o_iRowsAffected ) variable ;
+function ExecuteSelectCommand( variable i_strTableName, variable i_iSelectionMode, variable i_strColumnNames, variable i_strFilterExpression, variable i_strSortExpression, variable & o_iRowsAffected ) variable ;
+function ExportColumnsToCSVFile( variable i_strTableName, variable i_strFullFileName, variable i_strColumnNames, variable i_bOverwriteExistingFile, variable i_strSeparator, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable ;
+function ExportColumnsToExcelBinaryFile( variable i_strTableName, variable i_strFullFileName, variable i_strColumnNames, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat ) variable ;
+function ExportColumnsToExcelXMLFile( variable i_strTableName, variable i_strFullFileName, variable i_strColumnNames, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable ;
+function ExportColumnsToXMLFile( variable i_strTableName, variable i_strFullFileName, variable i_strColumnNames, variable i_bOverwriteExistingFile ) variable ;
+function ExportSelectedToCSVFile( variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSeparator, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable ;
+function ExportSelectedToExcelBinaryFile( variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat ) variable ;
+function ExportSelectedToExcelXMLFile( variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable ;
+function ExportSelectedToXMLFile( variable i_strFullFileName, variable i_bOverwriteExistingFile ) variable ;
+function ExportToCSVFile( variable i_strTableName, variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSeparator, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable ;
+function ExportToExcelBinaryFile( variable i_strTableName, variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat ) variable ;
+function ExportToExcelXMLFile( variable i_strTableName, variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable ;
+function ExportToXMLFile( variable i_strTableName, variable i_strFullFileName, variable i_bOverwriteExistingFile ) variable ;
+function GetRowCount( variable i_strTableName, variable & o_iNumberOfRows ) variable ;
+function GetSelectCommandRow( variable i_iRowNumber, variable & o_arrValues[] ) variable ;
+function ImportFromCSVFile( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrColumnTypes[], variable & i_arrAllowDBNull[], variable i_strFullFileName, variable i_strSeparator, variable i_bFileContainsHeader ) variable ;
+function ImportFromExcelBinaryFile( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrColumnTypes[], variable & i_arrAllowDBNull[], variable i_strFullFileName, variable i_strSheetName, variable i_bFileContainsHeader ) variable ;
+function ImportFromExcelXMLFile( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrColumnTypes[], variable & i_arrAllowDBNull[], variable i_strFullFileName, variable i_bFileContainsHeader ) variable ;
+function ImportFromXMLFile( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrColumnTypes[], variable & i_arrAllowDBNull[], variable i_strFullFileName ) variable ;
+function Init(  ) variable ;
+function InsertRow( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrValues[] ) variable ;
+function InsertSortedRow( variable i_strTableName, variable & i_arrValues[] ) variable ;
+function LoadDataManagerContent( variable i_strFullFileName ) variable ;
+function RemoveColumn( variable i_strTableName, variable i_strColumnName ) variable ;
+function RemoveTable( variable i_strTableName ) variable ;
+function RenameColumn( variable i_strTableName, variable i_strActualColumnName, variable i_strNewColumnName ) variable ;
+function ResetManager(  ) variable ;
+function SaveDataManagerContent( variable i_strFullFileName, variable i_bOverwriteExistingFile ) variable ;
+function Terminate(  ) variable ;
+function UpdateRows( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrValues[], variable i_strFilterExpression, variable & o_iRowsAffected ) variable ;
+private function _GetInterfaceVersions( variable & o_strProductVersion, variable & o_strFileVersion ) void ;
+private function _InitInterface(  ) void ;
+private function _InitManager(  ) variable ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "_InitManager" "Begin"
+private function _InitManager(  ) variable {
+// }} ""
+private variable bSuccessfullExecuted;
+private variable strManagerFileVersion;
+private variable strManagerProductVersion;
+private variable strFunctionName;
+// {{ 5 "_InitManager" "InitLocals"
+// }} ""
+// {{ 643 1 0 "856fa3db_7b72_41b7_b6451bc97ce90f1a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 645 1 0 "ccaabf46_c788_4c2b_84a9c03fe78126d9" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 646 1 0 "42cde589_942a_4676_bad135e844cc9f1a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 647 1 0 "97648d8b_3242_49c4_b1d88cf3650f8a7e" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 648 1 0 "42cde589_942a_4676_bad135e844cc9f1a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 649 1 0 "a12881e2_eb05_4668_8a7eca5ebd263c00" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 650 1 0 "9716d476_9d71_4f3b_969b90dfddd90e0a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+bSuccessfullExecuted = DATAMANAGERINTERFACEBASE::CreateManagerObject();
+// }} ""
+// {{ 651 1 0 "5ce1cd07_900b_482a_ad61a08872200334" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (bSuccessfullExecuted == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 652 1 0 "6070ce11_a18b_4af5_88047ffd2734e6d5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace2(strFunctionName, ": DataManager - error - unable to initialize manager object");
+// }} ""
+// {{{ 653 1 0 "d2673b98_7904_4c74_a93eadc542452b4b" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 654 1 0 "5ce1cd07_900b_482a_ad61a08872200334" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 655 1 0 "506c3837_d63e_43d7_911498f43fa9eaaf" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 656 1 0 "df58d27d_bcaa_4f20_94eb9dcc17b5ac7a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strManagerProductVersion = "";
+// }} ""
+// {{ 657 1 0 "54809a25_fde9_4649_8b5f34c5470bf93b" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strManagerFileVersion = "";
+// }} ""
+// {{{ 658 1 0 "df21df34_2a8c_4640_85741ce6481ef33d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+bSuccessfullExecuted = DATAMANAGERINTERFACEBASE::GetManagerVersions(strManagerProductVersion, strManagerFileVersion);
+// }} ""
+// {{ 659 1 0 "7b65f623_9991_4de0_9bf78b487bf72330" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 660 1 0 "281b6592_9e1e_4871_8900556efb6f1bb2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace4("DataManager initialized, product version=", strManagerProductVersion, Translate(" | file version ="), strManagerFileVersion);
+// }} ""
+// {{ 661 1 0 "84194bae_a745_4954_946ba6f7bf157850" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 662 1 0 "0028c9ad_b592_4f93_923d66c3772d4cf0" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{{ 5 "_InitManager" "End"
+}
+// }} ""
+// {{{ 5 "Terminate" "Begin"
+function Terminate(  ) variable {
+// }} ""
+private variable bSuccessfullExecuted;
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "Terminate" "InitLocals"
+// }} ""
+// {{ 589 1 0 "ce6d0161_1aa3_40e2_8ffa4d6545988c86" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 591 1 0 "075453dd_9dda_4e87_9510486f3b79f069" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 592 1 0 "f6010773_393f_458e_a79ca99c6b1d2425" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 593 1 0 "4c2b4414_1789_48b3_8b5bdd0a2f043212" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 594 1 0 "ad08ad4a_b1d0_4615_b2ae360100562db3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (gDATAMANAGERINTERFACEBASEbIsManagerInitialized == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 595 1 0 "1e4f0c0d_dfa9_48e3_83c1d7f9ffabf6ac" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 596 1 0 "ad08ad4a_b1d0_4615_b2ae360100562db3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 597 1 0 "9dc9982f_2b4d_4ed2_a6ddf9588964f33c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 598 1 0 "fc532c80_213e_46be_9edd653625bb1bcc" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 599 1 0 "2e08bf54_7a6a_4c21_acd50701942e6f6f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ResetManager();
+// }} ""
+// {{ 600 1 0 "3a5de702_fcee_46eb_9b45f867b2fa719f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 601 1 0 "37189743_49f3_4a4a_a6e8929b9dc0dc88" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 602 1 0 "a629f237_b1c1_4b57_825498796502de8a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 603 1 0 "3a5de702_fcee_46eb_9b45f867b2fa719f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 604 1 0 "162c4155_6f00_4471_b8dd135085e5eccd" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 605 1 0 "64e1258a_fda7_44ed_bf40e59dc9c78ed8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+bSuccessfullExecuted = DATAMANAGERINTERFACEBASE::ReleaseManagerObject();
+// }} ""
+// {{ 606 1 0 "efd6f890_c701_43c5_8fbdf66cce89c50b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 607 1 0 "c04abef6_d90f_40f0_b24b204a0038310e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace2(strFunctionName, ": DataManager released");
+// }} ""
+// {{ 608 1 0 "f44c75f7_7a85_4a95_8896193f8d866744" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 609 1 0 "4d3e93b2_1f34_4cd6_b19ec496d904f4e9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 610 1 0 "748ba5a7_77c0_418e_9530f812adc59081" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{{ 5 "Terminate" "End"
+}
+// }} ""
+// {{{ 5 "_InitInterface" "Begin"
+private function _InitInterface(  ) void {
+// }} ""
+private variable strFileVersion;
+private variable strProductVersion;
+private variable strFunctionName;
+// {{ 5 "_InitInterface" "InitLocals"
+// }} ""
+// {{ 633 1 0 "23211cd8_7e93_4d25_8873604106532307" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 635 1 0 "b24d49da_5d74_44a1_aff200b8591e1119" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 636 1 0 "37cdb7d9_c6df_43d0_af5c0d5acfacbedc" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (gDATAMANAGERINTERFACEBASEiManagerCriticalSection == 0)
+{
+// }} ""
+// {{{ 637 1 0 "f9acadc3_e7b8_4235_af4b33d28f10010b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+gDATAMANAGERINTERFACEBASEiManagerCriticalSection = SynInitializeCriticalSection();
+// }} ""
+// {{ 638 1 0 "3be2aefe_02a5_4002_87e6ef5a0313f7ac" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 639 1 0 "99dac0d7_078a_4f7c_957f7b9264e4413b" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_GetInterfaceVersions(strProductVersion, strFileVersion);
+// }} ""
+// {{{ 640 1 0 "5821a9f0_cff3_403a_a9a9bc484189f56f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace8(strFunctionName, "DataManagerInterface initialized. product version='", strProductVersion, "', file version='", strFileVersion, "'", "", "");
+// }} ""
+// {{ 641 1 0 "37cdb7d9_c6df_43d0_af5c0d5acfacbedc" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "_InitInterface" "End"
+}
+// }} ""
+// {{{ 5 "_GetInterfaceVersions" "Begin"
+private function _GetInterfaceVersions( variable & o_strProductVersion, variable & o_strFileVersion ) void {
+// }} ""
+// {{ 5 "_GetInterfaceVersions" "InitLocals"
+o_strProductVersion = 0;
+o_strFileVersion = 0;
+// }} ""
+// {{ 630 1 0 "788e98f4_43eb_4ef9_a6810fc121ae8149" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+o_strProductVersion = "1.2.1.1";
+// }} ""
+// {{ 631 1 0 "a0c70c3a_6432_4c8a_8a3df76ab242bbfd" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+o_strFileVersion = "1.2.1.0";
+// }} ""
+// {{{ 5 "_GetInterfaceVersions" "End"
+}
+// }} ""
+// {{{ 5 "Init" "Begin"
+function Init(  ) variable {
+// }} ""
+private variable bSuccessfullExecuted;
+// {{ 5 "Init" "InitLocals"
+// }} ""
+// {{ 436 1 0 "4a1a431f_4598_44af_98436ef41207137b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 437 1 0 "52a7df83_720c_415c_9c52815af70f93b9" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 438 1 0 "0818e113_6c73_4243_8e7cf0c8d7a2454c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 439 1 0 "6c09298a_c5bb_44e6_80c145ad536ac877" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 440 1 0 "aa1b6696_e5a2_49b4_bef0cba4537a5c2e" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+bSuccessfullExecuted = _InitManager();
+// }} ""
+// {{ 441 1 0 "ace52130_c13a_4be1_b68351425f3fe9f7" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 442 1 0 "f7566da7_57a9_406a_a29329c06c5a72c4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 443 1 0 "26b4a833_66df_461c_9c622c894953ef47" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (bSuccessfullExecuted);
+// }} ""
+// {{{ 5 "Init" "End"
+}
+// }} ""
+// {{{ 5 "ResetManager" "Begin"
+function ResetManager(  ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ResetManager" "InitLocals"
+// }} ""
+// {{ 553 1 0 "6deff0e6_71c0_46d3_80f26f61e0915fce" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 555 1 0 "138679f3_2fde_464b_ac2098ef912dad30" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 556 1 0 "0aa90b9a_8630_410b_ba1842670ec26882" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 557 1 0 "4934c9df_8939_4d50_981fa2c2c0105cd8" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 558 1 0 "c2f44b8d_3633_44f1_9f7fb508cf802c98" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 559 1 0 "05792919_24cf_46ef_9d730db00df11a17" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ResetManager();
+// }} ""
+// {{ 560 1 0 "53bc1ba9_bd69_4546_a7f61ff95b66403a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 561 1 0 "46496741_12ee_469a_add44c4f3c3e03ae" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 562 1 0 "4becc040_1a2e_450e_8f33ce2d9a02938a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 563 1 0 "53bc1ba9_bd69_4546_a7f61ff95b66403a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 564 1 0 "60ad5376_e307_44a1_8cdd1ef3b6f4fb1e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 565 1 0 "fcf83b0a_22a2_4bf2_bd484bc9b6459c7d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 566 1 0 "2ab79239_3af3_42c0_9288447f88fefb67" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 567 1 0 "fcf83b0a_22a2_4bf2_bd484bc9b6459c7d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 568 1 0 "8cbae879_9f9e_4529_a1b3746a2dadee81" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 569 1 0 "fcf83b0a_22a2_4bf2_bd484bc9b6459c7d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ResetManager" "End"
+}
+// }} ""
+// {{{ 5 "AddTable" "Begin"
+function AddTable( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrColumnTypes[], variable & i_arrAllowDBNull[] ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "AddTable" "InitLocals"
+// }} ""
+// {{ 19 1 0 "55d1d269_2a33_42a3_acfd50858977cee9" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 21 1 0 "43cce935_2393_4cdf_bdda9180b47713b1" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 22 1 0 "62925838_d001_455d_bacb1a575659e2e4" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 23 1 0 "509ed65d_2a8f_438d_ba5ec28f4af3c2c7" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 24 1 0 "71387cc3_2b2b_4abb_92d5c2e380467f9a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 25 1 0 "392d06c7_0fdf_4a97_9ec6053abe5b2c7b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::AddTable(i_strTableName, i_arrColumnNames, i_arrColumnTypes, i_arrAllowDBNull);
+// }} ""
+// {{ 26 1 0 "860301eb_1d13_4c35_b4d0516842cf4d38" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 27 1 0 "57853743_c595_4386_b70343f88b43c2e7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 28 1 0 "7900692d_731a_40c5_bc9b871026db15e6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 29 1 0 "860301eb_1d13_4c35_b4d0516842cf4d38" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 30 1 0 "55a9ea3e_bd8c_45ca_a2bc5c5a9d3d558e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 31 1 0 "e1a493a6_fbe9_43e7_baddc7f56b8535b2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 32 1 0 "8bde22ea_80de_40c1_9aca155907f57664" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 33 1 0 "e1a493a6_fbe9_43e7_baddc7f56b8535b2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 34 1 0 "fc8c990e_94f2_44fc_8f4e3ec765ed1cea" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 35 1 0 "e1a493a6_fbe9_43e7_baddc7f56b8535b2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "AddTable" "End"
+}
+// }} ""
+// {{{ 5 "RemoveTable" "Begin"
+function RemoveTable( variable i_strTableName ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "RemoveTable" "InitLocals"
+// }} ""
+// {{ 517 1 0 "4efd9d6c_5599_45ef_aba7729f4aabe9d9" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 519 1 0 "add0128e_e418_412d_9d673f726d672fe0" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 520 1 0 "f174de40_de15_43e4_8b467f887fe647d7" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 521 1 0 "6dd6ae08_cd74_4cbe_85a4e965ba41453a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 522 1 0 "83c9620f_5a39_4895_ba066d19654deaa4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 523 1 0 "627caf42_08ea_431d_a1eaf718aee6bab2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::RemoveTable(i_strTableName);
+// }} ""
+// {{ 524 1 0 "b773d524_d72c_4b4c_84899f442cae7d75" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 525 1 0 "d36d1e85_69ea_45a8_8b87230e0cf1a47f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 526 1 0 "17333ca7_4aad_47ca_a567b6d25920157b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 527 1 0 "b773d524_d72c_4b4c_84899f442cae7d75" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 528 1 0 "3891f0b6_678c_4810_9baffccaba48a19e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 529 1 0 "0da2c99a_a414_4be3_9b5f1b3335b40e96" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 530 1 0 "9069f2d2_96b7_4e7e_a0ad1e1d3e02cf5c" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 531 1 0 "0da2c99a_a414_4be3_9b5f1b3335b40e96" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 532 1 0 "1204c6ec_af4f_4f0f_bbfea0134460bdff" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 533 1 0 "0da2c99a_a414_4be3_9b5f1b3335b40e96" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "RemoveTable" "End"
+}
+// }} ""
+// {{{ 5 "GetRowCount" "Begin"
+function GetRowCount( variable i_strTableName, variable & o_iNumberOfRows ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "GetRowCount" "InitLocals"
+o_iNumberOfRows = 0;
+// }} ""
+// {{ 325 1 0 "5763d875_3e91_408d_8937ed03ab7df9a0" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 327 1 0 "5e74f101_2ffc_4b37_9958ee2c1aedf68c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 328 1 0 "218b323b_59e8_4e70_89923d52503d8415" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+o_iNumberOfRows = -1;
+// }} ""
+// {{ 329 1 0 "216b9ab6_d824_4bd2_9d63e826be02d1b3" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 330 1 0 "b0b079a6_9547_4fae_b5c50db955bab16b" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 331 1 0 "f22d251f_1aca_4fcc_810011385fce2072" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 332 1 0 "569064bb_cddb_4c68_acf52037e91cec1a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 333 1 0 "0ae49a68_e8d7_4e7a_a6c8a5eb3930202a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::GetRowCount(i_strTableName, o_iNumberOfRows);
+// }} ""
+// {{ 334 1 0 "155ef31a_ec36_4cd7_be778f7a0e0c6c79" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 335 1 0 "d29aa727_3ed1_4370_b189c086c22ca055" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 336 1 0 "50225a49_39cd_4e7b_a9b6c6201eb36cba" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 337 1 0 "155ef31a_ec36_4cd7_be778f7a0e0c6c79" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 338 1 0 "fbc090b6_f4fc_4b1a_8f0a04b0ff857b0e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 339 1 0 "c946fe33_05f9_4977_8695d34960369f3c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 340 1 0 "30ccc64c_b270_45e3_84882c6dd3086e66" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 341 1 0 "c946fe33_05f9_4977_8695d34960369f3c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 342 1 0 "4baecb0e_2775_4b7c_a180e29b0a882aa9" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 343 1 0 "c946fe33_05f9_4977_8695d34960369f3c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "GetRowCount" "End"
+}
+// }} ""
+// {{{ 5 "ImportFromCSVFile" "Begin"
+function ImportFromCSVFile( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrColumnTypes[], variable & i_arrAllowDBNull[], variable i_strFullFileName, variable i_strSeparator, variable i_bFileContainsHeader ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ImportFromCSVFile" "InitLocals"
+// }} ""
+// {{ 364 1 0 "349b2e86_1cdf_4cea_aa9bce3543a3bfdc" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 366 1 0 "2b0151a9_f9ae_42a3_8163a245fe1b547c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 367 1 0 "84b010fe_cc72_4efd_bf99a1f46e49ca27" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 368 1 0 "5225179f_4bee_4579_ae4a6e03b21428de" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 369 1 0 "8c454ff5_bb11_47ec_a4706309e33a416a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 370 1 0 "0de33ffd_1a76_4ba0_956f76570c2e5e52" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ImportFromCSVFile(i_strTableName, i_arrColumnNames, i_arrColumnTypes, i_arrAllowDBNull, i_strFullFileName, i_strSeparator, i_bFileContainsHeader);
+// }} ""
+// {{ 371 1 0 "9ae092a3_73cf_4458_9dfb5998647e51e5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 372 1 0 "266e4157_c1db_426e_9bd8a7940d3e9cea" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 373 1 0 "e6f6b667_7bea_4009_a1561a5cc3751149" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 374 1 0 "9ae092a3_73cf_4458_9dfb5998647e51e5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 375 1 0 "0caa52f6_a398_4b7a_896922e8feed7fb1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 376 1 0 "0d0cd93e_8a9f_43a4_8ec58cbce05580e9" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 377 1 0 "2847d0c1_d266_466e_b240231f87f8e467" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 378 1 0 "0d0cd93e_8a9f_43a4_8ec58cbce05580e9" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 379 1 0 "5d9dbc97_ebfe_4bc2_b4333e13911bc079" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 380 1 0 "0d0cd93e_8a9f_43a4_8ec58cbce05580e9" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ImportFromCSVFile" "End"
+}
+// }} ""
+// {{{ 5 "InsertRow" "Begin"
+function InsertRow( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrValues[] ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "InsertRow" "InitLocals"
+// }} ""
+// {{ 445 1 0 "4165ae1e_13f6_4aea_8db10f43a629c591" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 447 1 0 "66e64fd9_d644_4e6e_bcaf0370aa113fd0" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 448 1 0 "eecaf06e_b8fa_4dab_a719d04ccbc4a8ff" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 449 1 0 "108b8ccc_9787_4bbe_badddbfea4b57e57" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 450 1 0 "e98a8ba4_cb5a_4f67_b7acb755a01abaf8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 451 1 0 "bc9d7109_c106_4bef_9c51b0ba0a2a5f8f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::InsertRow(i_strTableName, i_arrColumnNames, i_arrValues);
+// }} ""
+// {{ 452 1 0 "fac0b833_7979_4e0c_bacdbeaac6f49f41" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 453 1 0 "f8ef3f74_258c_4b97_8c253a72ab10f765" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 454 1 0 "65bb0495_a960_42a5_9d4bf2404cbbced2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 455 1 0 "fac0b833_7979_4e0c_bacdbeaac6f49f41" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 456 1 0 "7c60b6e6_ace1_4949_945c3ef4272a7913" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 457 1 0 "c89ff872_bfad_489e_ad65daf47e0753da" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 458 1 0 "bf547997_47fc_4a0b_8b6d2f559fb54a89" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 459 1 0 "c89ff872_bfad_489e_ad65daf47e0753da" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 460 1 0 "20664434_b53b_40bd_84de8e4975f5ad5a" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 461 1 0 "c89ff872_bfad_489e_ad65daf47e0753da" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "InsertRow" "End"
+}
+// }} ""
+// {{{ 5 "InsertSortedRow" "Begin"
+function InsertSortedRow( variable i_strTableName, variable & i_arrValues[] ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "InsertSortedRow" "InitLocals"
+// }} ""
+// {{ 463 1 0 "b175007c_f3cc_4048_8c4820984306e54e" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 465 1 0 "200d620d_5979_4139_a845b2e8b1e18baa" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 466 1 0 "bdd44a79_7e1c_40d5_82755a5ea89eadf4" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 467 1 0 "a7a25832_95da_41c9_bcbfca1547ba3fde" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 468 1 0 "a2ef76a4_4778_47f5_ab0e91b3040b03c1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 469 1 0 "53892d60_5e13_46e2_a0d394690e96c33d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::InsertSortedRow(i_strTableName, i_arrValues);
+// }} ""
+// {{ 470 1 0 "5f0501a5_daa5_4c63_bf101718ca9370ca" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 471 1 0 "3cbccc32_73ab_481e_a4afc8c3e846b0f5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 472 1 0 "bd1362d8_44af_4cc7_89e74ebab8be7981" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 473 1 0 "5f0501a5_daa5_4c63_bf101718ca9370ca" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 474 1 0 "a10c1604_2673_4f3d_b99e31e7f45f41dc" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 475 1 0 "141b542d_100a_42e3_aaa520a8516c2d50" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 476 1 0 "c67cdb9c_55a4_4c01_b2a2d6fc01ea2114" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 477 1 0 "141b542d_100a_42e3_aaa520a8516c2d50" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 478 1 0 "efce155a_5ed9_4a55_9039dcd7ab5ef351" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 479 1 0 "141b542d_100a_42e3_aaa520a8516c2d50" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "InsertSortedRow" "End"
+}
+// }} ""
+// {{{ 5 "DeleteRows" "Begin"
+function DeleteRows( variable i_strTableName, variable i_strFilterExpression, variable & o_iRowsAffected ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "DeleteRows" "InitLocals"
+o_iRowsAffected = 0;
+// }} ""
+// {{ 37 1 0 "37518974_168a_449d_a7f5c04ce59c02bd" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 39 1 0 "f5388220_b4e5_40fb_8d83590ab185617a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 40 1 0 "49206596_1949_45e2_908ee719e908bd4d" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 41 1 0 "19cfb54a_19cb_4003_ba0c22c433e0f7fe" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 42 1 0 "59f79fa0_9552_4a8e_9cc17e2e71ce03d6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 43 1 0 "66259751_12fb_402b_ac9a11f7bdf7c923" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::DeleteRows(i_strTableName, i_strFilterExpression, o_iRowsAffected);
+// }} ""
+// {{ 44 1 0 "f4881a43_c83e_4d6f_9777a193396772a3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 45 1 0 "217beaec_701e_420b_91b35d48d31c61cb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 46 1 0 "55907691_249a_4929_a4af41805faaac2c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 47 1 0 "f4881a43_c83e_4d6f_9777a193396772a3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 48 1 0 "4c9537d1_74a3_4b46_9ed7fdc1d073f917" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 49 1 0 "749402bf_1ef4_45d6_a4b731fe62ac7eb0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 50 1 0 "23d9e23e_6038_442c_b4c28e37c04d94f2" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 51 1 0 "749402bf_1ef4_45d6_a4b731fe62ac7eb0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 52 1 0 "edde3626_7aed_43b9_b7fd6a2247f17929" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 53 1 0 "749402bf_1ef4_45d6_a4b731fe62ac7eb0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "DeleteRows" "End"
+}
+// }} ""
+// {{{ 5 "UpdateRows" "Begin"
+function UpdateRows( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrValues[], variable i_strFilterExpression, variable & o_iRowsAffected ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "UpdateRows" "InitLocals"
+o_iRowsAffected = 0;
+// }} ""
+// {{ 612 1 0 "9df0836c_06cb_405c_865a614f375372d1" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 614 1 0 "eb777fe3_4302_45e9_892a559d25d6e425" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 615 1 0 "8c1be785_2078_4105_ae0b88f29eae13cc" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 616 1 0 "f150b543_d51d_4549_b7a6b36a316ab26a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 617 1 0 "8b5819ee_9968_4bc8_97641056aed83c1f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 618 1 0 "930df06f_7d6d_4424_a926ef47fa08d2e5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::UpdateRows(i_strTableName, i_arrColumnNames, i_arrValues, i_strFilterExpression, o_iRowsAffected);
+// }} ""
+// {{ 619 1 0 "0c185438_ddd6_4f79_a2e93d166b0363e8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 620 1 0 "6a3799ba_733a_4040_b14ad86c1261d469" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 621 1 0 "9f4e1638_37e5_4a9f_ba132aef9bd8d3d6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 622 1 0 "0c185438_ddd6_4f79_a2e93d166b0363e8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 623 1 0 "51e943c8_7dc0_4fc7_b72b0d8caa2966d4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 624 1 0 "e7dfb222_f188_40a2_b74998eebc484445" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 625 1 0 "b2756c84_be98_4b5d_90eaff95486d9aa7" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 626 1 0 "e7dfb222_f188_40a2_b74998eebc484445" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 627 1 0 "c1ff96f0_19f3_4051_8003b110c68a68b9" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 628 1 0 "e7dfb222_f188_40a2_b74998eebc484445" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "UpdateRows" "End"
+}
+// }} ""
+// {{{ 5 "ExecuteSelectCommand" "Begin"
+function ExecuteSelectCommand( variable i_strTableName, variable i_iSelectionMode, variable i_strColumnNames, variable i_strFilterExpression, variable i_strSortExpression, variable & o_iRowsAffected ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ExecuteSelectCommand" "InitLocals"
+o_iRowsAffected = 0;
+// }} ""
+// {{ 91 1 0 "d059b017_e983_41f5_b7a306b01ae92973" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 93 1 0 "789b43ee_6b8a_49f9_8cacf8f18768d5c3" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 94 1 0 "6d8a4540_0528_4dd6_80ff9dd352db97e6" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 95 1 0 "a4e5c2ec_d490_4cb7_b1ade0175323d9d3" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 96 1 0 "23401f98_b3f2_4a6f_9adb5ed107e4d9e9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 97 1 0 "9516dc2f_2bab_49c2_bdbeb9655f65f10e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ExecuteSelectCommand(i_strTableName, i_iSelectionMode, i_strColumnNames, i_strFilterExpression, i_strSortExpression, o_iRowsAffected);
+// }} ""
+// {{ 98 1 0 "44e2206e_4d7a_4d2b_b51e533c78aa48a7" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 99 1 0 "2014ffec_5d79_4cfa_bd2f62d327b4527b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 100 1 0 "6fd0b4e2_dd67_4f97_830b2a2e43393566" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 101 1 0 "44e2206e_4d7a_4d2b_b51e533c78aa48a7" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 102 1 0 "a73db825_3ecc_4f31_abd6c83344612f53" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 103 1 0 "dd3b9d8b_e282_4bc4_91d1d661033b7a96" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 104 1 0 "c8126d76_5bed_406f_ae60f727d8dfae74" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 105 1 0 "dd3b9d8b_e282_4bc4_91d1d661033b7a96" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 106 1 0 "aca0a6d6_c6ce_44c3_988955c8696956a3" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 107 1 0 "dd3b9d8b_e282_4bc4_91d1d661033b7a96" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ExecuteSelectCommand" "End"
+}
+// }} ""
+// {{{ 5 "GetSelectCommandRow" "Begin"
+function GetSelectCommandRow( variable i_iRowNumber, variable & o_arrValues[] ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+private variable iIndex;
+// {{ 5 "GetSelectCommandRow" "InitLocals"
+o_arrValues.SetSize( 0);
+// }} ""
+// {{ 345 1 0 "a5cd6ec4_29b1_456f_b3a0a519e5d054b4" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 347 1 0 "a942fd33_0910_4a79_8ebbf172bfbda6ba" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 348 1 0 "557854ce_0b85_414d_942939e973d398a6" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 349 1 0 "41b57762_551c_475b_b45ef324f9905186" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 350 1 0 "df426593_2ff7_4234_967f92560431acb7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 351 1 0 "7df7b15e_3462_42d3_8290cbc4b4b255c4" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+iIndex = i_iRowNumber - 1;
+// }} ""
+// {{{ 352 1 0 "f27144cd_c2b2_4849_8711b451307e69fb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::GetSelectCommandRow(iIndex, o_arrValues);
+// }} ""
+// {{ 353 1 0 "a65d0276_c0ba_4be4_98ccd4e875fa7908" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 354 1 0 "412395ce_7720_4e76_b1ca0f7477c61825" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 355 1 0 "5bb9edc3_001a_4dd5_904aca8fa6aafe3f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 356 1 0 "a65d0276_c0ba_4be4_98ccd4e875fa7908" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 357 1 0 "4ab13d5f_b710_4176_ad14bb6e608a041b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 358 1 0 "17b2d192_6f1a_4b62_84c3111930b17b2a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 359 1 0 "991645d0_4fa0_4697_a04402bdc3cc68cc" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 360 1 0 "17b2d192_6f1a_4b62_84c3111930b17b2a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 361 1 0 "da6608c7_5a89_445e_87ed344d0ed13f2c" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 362 1 0 "17b2d192_6f1a_4b62_84c3111930b17b2a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "GetSelectCommandRow" "End"
+}
+// }} ""
+// {{{ 5 "ImportFromExcelBinaryFile" "Begin"
+function ImportFromExcelBinaryFile( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrColumnTypes[], variable & i_arrAllowDBNull[], variable i_strFullFileName, variable i_strSheetName, variable i_bFileContainsHeader ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ImportFromExcelBinaryFile" "InitLocals"
+// }} ""
+// {{ 382 1 0 "cdc9b28f_0037_43f8_8a81d963c0cfff57" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 384 1 0 "026133a9_0783_4c70_b3e254726617807c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 385 1 0 "d48ffb4c_6298_4886_949ddf8266bc024d" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 386 1 0 "0f65d7c3_0501_4123_b441694bc09e07c6" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 387 1 0 "e4228465_f8ab_4b21_92bd157a1d9f29f6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 388 1 0 "8704ea1c_4a52_40b5_ac31dffbc14a4992" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ImportFromExcelBinaryFile(i_strTableName, i_arrColumnNames, i_arrColumnTypes, i_arrAllowDBNull, i_strFullFileName, i_strSheetName, i_bFileContainsHeader);
+// }} ""
+// {{ 389 1 0 "fd9c8107_9b5c_4ecb_9f96dbd9be5f1df7" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 390 1 0 "2b42a7d7_d153_4f2d_a79698610fe262f2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 391 1 0 "bb8b8ee6_385d_46ec_b79ff2f60d6e7034" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 392 1 0 "fd9c8107_9b5c_4ecb_9f96dbd9be5f1df7" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 393 1 0 "ca8b3c4b_b319_4575_99fad7ca960bd4ce" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 394 1 0 "23069a2a_5724_4dd6_b4321adb8183ca5c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 395 1 0 "706abefc_c66f_4126_9567cb39b31c6a88" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 396 1 0 "23069a2a_5724_4dd6_b4321adb8183ca5c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 397 1 0 "548a8945_db17_4d14_b0e556c816228180" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 398 1 0 "23069a2a_5724_4dd6_b4321adb8183ca5c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ImportFromExcelBinaryFile" "End"
+}
+// }} ""
+// {{{ 5 "ExportToExcelBinaryFile" "Begin"
+function ExportToExcelBinaryFile( variable i_strTableName, variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ExportToExcelBinaryFile" "InitLocals"
+// }} ""
+// {{ 271 1 0 "836afa93_95c1_4063_a0a11acc54ec83d7" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 273 1 0 "2237f4ad_6904_4541_9dabca541d00ea58" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 274 1 0 "3573fedf_08fd_4ac8_a6ed83251a8f5507" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 275 1 0 "81d8c2cf_e990_4574_a2b632c25f170536" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 276 1 0 "475a226c_919b_485f_b5d50b346fae83fc" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 277 1 0 "94f807c4_8416_44fa_811c23465199fd7b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ExportToExcelBinaryFile(i_strTableName, i_strFullFileName, i_bOverwriteExistingFile, i_strSheetName, i_iBooleanExportFormat);
+// }} ""
+// {{ 278 1 0 "e07b8bbe_c5fa_4f52_8e2573f3b684be9b" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 279 1 0 "d55737ea_5a19_4a25_85540cc4bad320e4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 280 1 0 "82c9fc7a_aa5b_4d8a_a2f9f71a6aa0a995" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 281 1 0 "e07b8bbe_c5fa_4f52_8e2573f3b684be9b" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 282 1 0 "465db3ed_7603_4424_b92af5cc193ab140" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 283 1 0 "36b25ee4_17b3_4d8b_84d125c380af7c57" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 284 1 0 "f2219765_3c12_412b_8e4e1c604c3a79bf" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 285 1 0 "36b25ee4_17b3_4d8b_84d125c380af7c57" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 286 1 0 "864959fd_b82a_4cf6_9d0e7240504c3e99" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 287 1 0 "36b25ee4_17b3_4d8b_84d125c380af7c57" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ExportToExcelBinaryFile" "End"
+}
+// }} ""
+// {{{ 5 "ExportColumnsToCSVFile" "Begin"
+function ExportColumnsToCSVFile( variable i_strTableName, variable i_strFullFileName, variable i_strColumnNames, variable i_bOverwriteExistingFile, variable i_strSeparator, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ExportColumnsToCSVFile" "InitLocals"
+// }} ""
+// {{ 109 1 0 "df8bf57e_c7f2_49a8_8371adf1b19ad2d3" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 111 1 0 "9f12006c_dc28_4e40_a1fae436a2de19ab" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 112 1 0 "7b5a74b2_3ccb_40ac_8de534206ea7ca94" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 113 1 0 "abde4fc4_78fc_40c4_802e754e206dc97e" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 114 1 0 "26dd06d1_e88a_4bfd_8fe6990399b244de" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 115 1 0 "16e10224_1a45_46a8_b6324d888ff3b9cc" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ExportColumnsToCSVFile(i_strTableName, i_strFullFileName, i_strColumnNames, i_bOverwriteExistingFile, i_strSeparator, i_iBooleanExportFormat, i_bWriteHeader);
+// }} ""
+// {{ 116 1 0 "dfa410ef_63f3_4057_a43da29e5de11c59" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 117 1 0 "08c8ba83_8315_408e_91afe9f60c94fd29" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 118 1 0 "a4ac1752_dc4c_4f39_a94cce0e62ac052d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 119 1 0 "dfa410ef_63f3_4057_a43da29e5de11c59" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 120 1 0 "1f18f32d_79a5_4089_a529cfdacee9ed5f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 121 1 0 "a58c2ebb_9a0c_4ea8_b80bd6575f223cb5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 122 1 0 "410da424_2441_4c68_80edcdd369c0263a" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 123 1 0 "a58c2ebb_9a0c_4ea8_b80bd6575f223cb5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 124 1 0 "144eeef0_a8cc_42e5_80b395b30867698b" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 125 1 0 "a58c2ebb_9a0c_4ea8_b80bd6575f223cb5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ExportColumnsToCSVFile" "End"
+}
+// }} ""
+// {{{ 5 "ExportColumnsToExcelBinaryFile" "Begin"
+function ExportColumnsToExcelBinaryFile( variable i_strTableName, variable i_strFullFileName, variable i_strColumnNames, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ExportColumnsToExcelBinaryFile" "InitLocals"
+// }} ""
+// {{ 127 1 0 "f4ed5b18_dcd4_4de1_a1b37d63d8f4c58b" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 129 1 0 "c37daeb2_abc8_4c75_95dbf036d82b0f77" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 130 1 0 "f63fc0c0_9a88_4bdc_b6134e7cdecd92cf" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 131 1 0 "3e4e89e1_6135_4100_b81d56cefd5e779a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 132 1 0 "400a1251_a653_4b65_b1a050443a4d8118" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 133 1 0 "c833a40b_2821_42c6_a86cfd2a4e410b29" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ExportColumnsToExcelBinaryFile(i_strTableName, i_strFullFileName, i_strColumnNames, i_bOverwriteExistingFile, i_strSheetName, i_iBooleanExportFormat);
+// }} ""
+// {{ 134 1 0 "799efbb1_9d2c_4ab7_b6e4ad1f3b81abc4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 135 1 0 "9b2f0b39_cd27_4748_98e93ac94c77ded8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 136 1 0 "6c6e5c07_547c_4e72_b61fdf9239f7fd20" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 137 1 0 "799efbb1_9d2c_4ab7_b6e4ad1f3b81abc4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 138 1 0 "0091b6fc_a2fd_46c3_8ba535d303da96d9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 139 1 0 "bf1562e2_976e_4b82_ac88e87e667cd043" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 140 1 0 "7e9437c9_01a6_433c_ab1a6428b332b53a" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 141 1 0 "bf1562e2_976e_4b82_ac88e87e667cd043" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 142 1 0 "18a33618_af26_4a7b_bb1f6a132528ebbe" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 143 1 0 "bf1562e2_976e_4b82_ac88e87e667cd043" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ExportColumnsToExcelBinaryFile" "End"
+}
+// }} ""
+// {{{ 5 "ExportSelectedToCSVFile" "Begin"
+function ExportSelectedToCSVFile( variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSeparator, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ExportSelectedToCSVFile" "InitLocals"
+// }} ""
+// {{ 181 1 0 "625371f9_50bc_4533_a8a233a9741beee1" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 183 1 0 "102508b5_f189_42a4_8268536c53148666" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 184 1 0 "d39e2597_befc_4cae_97f4a18627d323c6" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 185 1 0 "fe408e81_b95e_41e6_b6f6d285353277b2" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 186 1 0 "505ecec6_1262_49ea_a0c047040c9362ff" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 187 1 0 "c05fcaf6_ff7a_4997_ad8018145c2bdcd0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ExportSelectedToCSVFile(i_strFullFileName, i_bOverwriteExistingFile, i_strSeparator, i_iBooleanExportFormat, i_bWriteHeader);
+// }} ""
+// {{ 188 1 0 "a23fc4cb_02f6_47d6_82ed9395860777b5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 189 1 0 "1b2ac3b8_66fe_4c12_b940f26153bbf1ff" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 190 1 0 "99e91cfa_7d50_49a3_a6dce1df91fbf1c6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 191 1 0 "a23fc4cb_02f6_47d6_82ed9395860777b5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 192 1 0 "695ef2ea_0674_46bb_a06fd966885790c9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 193 1 0 "fc95c894_77b7_48f8_8e0ec7ca94b80425" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 194 1 0 "ac88a006_eb0e_4244_b56a32531766f7ef" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 195 1 0 "fc95c894_77b7_48f8_8e0ec7ca94b80425" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 196 1 0 "b54c589d_871c_41e6_bccd7c57e759458d" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 197 1 0 "fc95c894_77b7_48f8_8e0ec7ca94b80425" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ExportSelectedToCSVFile" "End"
+}
+// }} ""
+// {{{ 5 "ExportSelectedToExcelBinaryFile" "Begin"
+function ExportSelectedToExcelBinaryFile( variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ExportSelectedToExcelBinaryFile" "InitLocals"
+// }} ""
+// {{ 199 1 0 "e62157b2_cb6d_4979_a63bd60b5dc5dc0a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 201 1 0 "fd9e9a45_a52c_46eb_b07d3189668d4991" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 202 1 0 "841e816e_b3a1_462d_b9b4e45e7d1cfba9" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 203 1 0 "48c1ba29_7ef6_4727_ab74138bc55965a1" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 204 1 0 "1d6b9dc3_bbb4_4819_9c816d303133c4e0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 205 1 0 "ccd58d6a_e37c_47d5_88a12ac28744df34" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ExportSelectedToExcelBinaryFile(i_strFullFileName, i_bOverwriteExistingFile, i_strSheetName, i_iBooleanExportFormat);
+// }} ""
+// {{ 206 1 0 "e06084c7_b0c1_494e_ae32dd357c52a737" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 207 1 0 "7a79daa1_4169_4c4f_b5ccc92b303454d8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 208 1 0 "9f05e059_51ac_46e6_80702c9d1b1822b2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 209 1 0 "e06084c7_b0c1_494e_ae32dd357c52a737" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 210 1 0 "66b9cc37_c91c_446a_8046f096acc908f9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 211 1 0 "0147ee67_67b8_4ff5_bfca2c2f03d0a4b8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 212 1 0 "baa9dfd7_d67a_4a21_bdac463c333510d6" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 213 1 0 "0147ee67_67b8_4ff5_bfca2c2f03d0a4b8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 214 1 0 "d129303b_6a58_4b27_a242d1ec5ff8fede" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 215 1 0 "0147ee67_67b8_4ff5_bfca2c2f03d0a4b8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ExportSelectedToExcelBinaryFile" "End"
+}
+// }} ""
+// {{{ 5 "ExecuteAggregateFunction" "Begin"
+function ExecuteAggregateFunction( variable i_strTableName, variable i_iAggregateType, variable i_iSelectionMode, variable i_strColumnName, variable i_strFilterExpression, variable & o_oResult ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ExecuteAggregateFunction" "InitLocals"
+o_oResult = 0;
+// }} ""
+// {{ 55 1 0 "51085d74_55e3_4f24_949fd0c4303ab974" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 57 1 0 "f07d1e50_ef2d_4751_b39a10a5195050dc" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 58 1 0 "98a85fa4_5a15_4de0_bad3084bf8aef4ef" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 59 1 0 "0206302b_61e8_4279_9159360b59175260" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 60 1 0 "6a6b3520_50b2_408e_93de2a7d0c52252d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 61 1 0 "286f7fb0_64dd_45b1_9db879eb30b018d0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ExecuteAggregateFunction(i_strTableName, i_iAggregateType, i_iSelectionMode, i_strColumnName, i_strFilterExpression, o_oResult);
+// }} ""
+// {{ 62 1 0 "72d1b6a8_bfe4_4f08_9efabf0d23c7fc33" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 63 1 0 "cfb714ed_660a_4c75_9a9eaf3f700a3d17" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 64 1 0 "c70e0e29_63a3_4412_87c52616843cef9c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 65 1 0 "72d1b6a8_bfe4_4f08_9efabf0d23c7fc33" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 66 1 0 "1e6a27ca_8eac_49ad_927540530394ad2c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 67 1 0 "243a66d5_70c3_4e40_93ba5eabbdde70fc" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 68 1 0 "97122ea4_8d35_4b7e_bebb9cd47825d111" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 69 1 0 "243a66d5_70c3_4e40_93ba5eabbdde70fc" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 70 1 0 "4f3138c9_4bc2_4c3c_92f69811af609cbf" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 71 1 0 "243a66d5_70c3_4e40_93ba5eabbdde70fc" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ExecuteAggregateFunction" "End"
+}
+// }} ""
+// {{{ 5 "ImportFromExcelXMLFile" "Begin"
+function ImportFromExcelXMLFile( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrColumnTypes[], variable & i_arrAllowDBNull[], variable i_strFullFileName, variable i_bFileContainsHeader ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ImportFromExcelXMLFile" "InitLocals"
+// }} ""
+// {{ 400 1 0 "bc647bdb_92b9_4078_9eb058e81fbeff89" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 402 1 0 "542c6e81_3fec_4cd6_ba757cb963b0771b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 403 1 0 "1568397f_1e09_4fd2_a2145ec1016e84a4" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 404 1 0 "1becbddd_9257_4cb9_833d7b2b07c14033" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 405 1 0 "63515d26_d7ab_41a8_a8f6115c7a1d15be" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 406 1 0 "46467ee3_7a7f_4e2c_8ccc33ebf2961529" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ImportFromExcelXMLFile(i_strTableName, i_arrColumnNames, i_arrColumnTypes, i_arrAllowDBNull, i_strFullFileName, i_bFileContainsHeader);
+// }} ""
+// {{ 407 1 0 "aa1b13be_3849_44b3_b7d390da148e423c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 408 1 0 "3d2015eb_50dc_430b_bdf0f1501e37010c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 409 1 0 "d5f76583_a0cc_4dca_897995995e31c5d0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 410 1 0 "aa1b13be_3849_44b3_b7d390da148e423c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 411 1 0 "8abf0123_3f67_4290_af3c525b877e4c23" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 412 1 0 "ab1717f3_03da_460d_858ccad6915928ac" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 413 1 0 "fb1742fa_bc01_414e_b9a77bfe002a0a3f" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 414 1 0 "ab1717f3_03da_460d_858ccad6915928ac" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 415 1 0 "e7e77be5_21ec_44e4_85549ca98e8da9b8" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 416 1 0 "ab1717f3_03da_460d_858ccad6915928ac" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ImportFromExcelXMLFile" "End"
+}
+// }} ""
+// {{{ 5 "ExportToExcelXMLFile" "Begin"
+function ExportToExcelXMLFile( variable i_strTableName, variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ExportToExcelXMLFile" "InitLocals"
+// }} ""
+// {{ 289 1 0 "eab6d623_bdd7_47fd_bbd2945852f46a1a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 291 1 0 "0fb775fa_2310_4008_9b9fa768c45fff7c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 292 1 0 "f363a6b2_3184_4b14_a5af2b4ad67e95b4" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 293 1 0 "201d1646_45e9_4062_80592246db251b0b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 294 1 0 "bc3a2986_4590_4cf5_aa2b2ebc594060a2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 295 1 0 "5113a73c_845c_455d_bb91efec0f7a5ef5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ExportToExcelXMLFile(i_strTableName, i_strFullFileName, i_bOverwriteExistingFile, i_strSheetName, i_iBooleanExportFormat, i_bWriteHeader);
+// }} ""
+// {{ 296 1 0 "c7e86fe0_dfbf_4b62_aec9c5dc49b8f925" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 297 1 0 "00fc63c3_1ce7_4b4b_af7b57fe7fe83f15" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 298 1 0 "98996899_59b8_4433_88e4336316ee04d7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 299 1 0 "c7e86fe0_dfbf_4b62_aec9c5dc49b8f925" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 300 1 0 "ab8721f9_e09e_4ac3_b85e8f2f53f5418a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 301 1 0 "20e63779_3c47_4b0c_a88ea5a6e71692e5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 302 1 0 "b99eb1b1_0835_466a_9ad1a0cc58ea28fd" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 303 1 0 "20e63779_3c47_4b0c_a88ea5a6e71692e5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 304 1 0 "6874439f_eab5_4a9f_86cb5b2672f0248a" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 305 1 0 "20e63779_3c47_4b0c_a88ea5a6e71692e5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ExportToExcelXMLFile" "End"
+}
+// }} ""
+// {{{ 5 "ExportColumnsToExcelXMLFile" "Begin"
+function ExportColumnsToExcelXMLFile( variable i_strTableName, variable i_strFullFileName, variable i_strColumnNames, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ExportColumnsToExcelXMLFile" "InitLocals"
+// }} ""
+// {{ 145 1 0 "aa81a8d1_a84a_444e_b231ad5bc9161814" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 147 1 0 "4765ee14_3721_4a3f_b75000c8accee523" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 148 1 0 "121dfeef_2a93_4610_99c7e4f8b99cc068" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 149 1 0 "8281a55a_e486_49ea_b00ae38d3300cae9" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 150 1 0 "46d8a8c0_5705_4af3_ab7bc1e94468d6ef" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 151 1 0 "f47ebfbd_5444_4ef1_aeb1d0603943b552" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ExportColumnsToExcelXMLFile(i_strTableName, i_strFullFileName, i_strColumnNames, i_bOverwriteExistingFile, i_strSheetName, i_iBooleanExportFormat, i_bWriteHeader);
+// }} ""
+// {{ 152 1 0 "7d4dc4c6_bccd_4a38_85656c3c077507d7" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 153 1 0 "2f1b7063_0b50_4158_955cb0f92c1eb1ac" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 154 1 0 "5d760d43_5929_454e_b8153d628a98549b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 155 1 0 "7d4dc4c6_bccd_4a38_85656c3c077507d7" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 156 1 0 "ff889820_7244_4a35_945a29e67a1cc4a9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 157 1 0 "1d67bad6_e732_49fc_9c76c7a27b896c43" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 158 1 0 "4f22c763_ed86_4943_be40a0b1e8152c43" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 159 1 0 "1d67bad6_e732_49fc_9c76c7a27b896c43" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 160 1 0 "97cd08e7_d6bb_472c_9df56ea802aac3e7" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 161 1 0 "1d67bad6_e732_49fc_9c76c7a27b896c43" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ExportColumnsToExcelXMLFile" "End"
+}
+// }} ""
+// {{{ 5 "ExportSelectedToExcelXMLFile" "Begin"
+function ExportSelectedToExcelXMLFile( variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ExportSelectedToExcelXMLFile" "InitLocals"
+// }} ""
+// {{ 217 1 0 "4e000eb9_4f44_4daf_abc90d9cf9447322" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 219 1 0 "d82a8176_d4a6_444d_a363db46028e694c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 220 1 0 "04366bed_7f3a_4536_8b46a59607195601" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 221 1 0 "4a6aba97_a531_46e6_92f9865b115922c3" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 222 1 0 "b95b7b85_340c_40de_851affccdb5a9c2d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 223 1 0 "42e1b6d5_b86b_45be_8572120e34be2bc0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ExportSelectedToExcelXMLFile(i_strFullFileName, i_bOverwriteExistingFile, i_strSheetName, i_iBooleanExportFormat, i_bWriteHeader);
+// }} ""
+// {{ 224 1 0 "ba87f23f_b610_42f1_927d0758c947c702" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 225 1 0 "50abf01f_15c8_4b8e_870c13bee4cc77f3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 226 1 0 "66b1cc72_be7e_4e64_96ef30ff1fd5d91e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 227 1 0 "ba87f23f_b610_42f1_927d0758c947c702" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 228 1 0 "70e7f42b_6e39_4cc0_a21cc099bf7e2440" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 229 1 0 "78837abe_7264_49a6_abf0be795c7ed73e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 230 1 0 "007ffc63_a0c0_4b9e_8a5ce38e980cd76e" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 231 1 0 "78837abe_7264_49a6_abf0be795c7ed73e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 232 1 0 "954bf793_d354_45a3_a138bfe9b24f92a7" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 233 1 0 "78837abe_7264_49a6_abf0be795c7ed73e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ExportSelectedToExcelXMLFile" "End"
+}
+// }} ""
+// {{{ 5 "AddColumn" "Begin"
+function AddColumn( variable i_strTableName, variable i_strColumnName, variable i_iColumnType, variable i_bAllowDBNull, variable i_oValue ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "AddColumn" "InitLocals"
+// }} ""
+// {{ 1 1 0 "ed679306_7be6_4bc7_9830319f066e4a8a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 3 1 0 "a9e3b79a_a56d_4f37_9b8f5ba7ff2f5c7d" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 4 1 0 "e2d26092_ddf0_4224_95a5c520b00885ff" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 5 1 0 "d183e508_1397_4080_8131d5a3bbeb1f05" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 6 1 0 "347a4113_a6cd_4a2a_909b3fa7b1973752" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 7 1 0 "ddab48e3_38ce_46d9_9f2a7a8e0d3edaba" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::AddColumn(i_strTableName, i_strColumnName, i_iColumnType, i_bAllowDBNull, i_oValue);
+// }} ""
+// {{ 8 1 0 "81935622_db3d_4a73_81c4010b00b6d46a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 9 1 0 "a6f5b0b9_7fe1_4735_8d4e9ea83d524aa8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 10 1 0 "0a49d5eb_5620_4785_98f8287e015da000" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 11 1 0 "81935622_db3d_4a73_81c4010b00b6d46a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 12 1 0 "5fe7acd7_9a43_42aa_ae3fb85a1c112083" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 13 1 0 "d9a8bf0f_7d6a_45c3_874cbbfa0790476e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 14 1 0 "06dafe9e_3b5b_4b23_bc7b9c68a8781bbd" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 15 1 0 "d9a8bf0f_7d6a_45c3_874cbbfa0790476e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 16 1 0 "099d1133_2ce3_4b4e_bafa3cf6283ccd75" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 17 1 0 "d9a8bf0f_7d6a_45c3_874cbbfa0790476e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "AddColumn" "End"
+}
+// }} ""
+// {{{ 5 "RemoveColumn" "Begin"
+function RemoveColumn( variable i_strTableName, variable i_strColumnName ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "RemoveColumn" "InitLocals"
+// }} ""
+// {{ 499 1 0 "d42ca5f2_eb69_4931_bac0daef6ddcacb0" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 501 1 0 "96f2c2a3_ca93_4d01_b9b68627090be29f" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 502 1 0 "a0bf331b_7f06_460f_949957c7cd72dbe1" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 503 1 0 "6754d7a1_436a_4015_8e78c6157d7cf30c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 504 1 0 "01bd987b_4708_408d_88f7bbab2ad602be" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 505 1 0 "7a46bbc0_8bb1_413a_9d5468ab39a71799" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::RemoveColumn(i_strTableName, i_strColumnName);
+// }} ""
+// {{ 506 1 0 "734a7607_5c39_47b6_904b03f0d2805a70" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 507 1 0 "05013f06_0999_4c3e_a57fe092a5890a84" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 508 1 0 "cc3357ff_aa9a_4e20_a660948792cfc2fb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 509 1 0 "734a7607_5c39_47b6_904b03f0d2805a70" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 510 1 0 "557321d1_6a61_45bf_b3e7c3b9390e049f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 511 1 0 "ec42f776_1c0d_45cb_99b9ae44ceac0f57" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 512 1 0 "ed2b6c41_b5eb_441d_891a79950c4ee69c" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 513 1 0 "ec42f776_1c0d_45cb_99b9ae44ceac0f57" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 514 1 0 "35fb6fe7_7ce1_495e_aebf41d3bda0ec7a" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 515 1 0 "ec42f776_1c0d_45cb_99b9ae44ceac0f57" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "RemoveColumn" "End"
+}
+// }} ""
+// {{{ 5 "ImportFromXMLFile" "Begin"
+function ImportFromXMLFile( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrColumnTypes[], variable & i_arrAllowDBNull[], variable i_strFullFileName ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ImportFromXMLFile" "InitLocals"
+// }} ""
+// {{ 418 1 0 "225d3330_34f5_4b85_90cfc523c9f37598" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 420 1 0 "0ceedff5_67ca_497c_a5ccdbf56e0d980e" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 421 1 0 "41cf1848_c9a2_4afa_8ba829ca83902d13" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 422 1 0 "64e77168_f15f_44f6_a799d863a812044c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 423 1 0 "af4c7dd8_0601_4e3d_8709aa4742025728" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 424 1 0 "8ee85e32_04d8_43ed_b1e7d27534d0a060" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ImportFromXMLFile(i_strTableName, i_arrColumnNames, i_arrColumnTypes, i_arrAllowDBNull, i_strFullFileName);
+// }} ""
+// {{ 425 1 0 "6c346d5f_227d_4176_84cb8ca3b50509db" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 426 1 0 "60feeb24_669c_43af_9ace078bd30e4ade" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 427 1 0 "fa0a861f_49b8_4136_a642c8aa2f509ca9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 428 1 0 "6c346d5f_227d_4176_84cb8ca3b50509db" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 429 1 0 "8871e945_fbd6_47c0_95513ef8e78cc274" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 430 1 0 "ec2ec9c1_aa20_4f4a_a6eabd7bace2b6c3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 431 1 0 "8d944e46_62a0_4139_915c374709df31d7" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 432 1 0 "ec2ec9c1_aa20_4f4a_a6eabd7bace2b6c3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 433 1 0 "e1fe941a_12c1_41d6_87cbbb004a221d41" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 434 1 0 "ec2ec9c1_aa20_4f4a_a6eabd7bace2b6c3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ImportFromXMLFile" "End"
+}
+// }} ""
+// {{{ 5 "ExportToXMLFile" "Begin"
+function ExportToXMLFile( variable i_strTableName, variable i_strFullFileName, variable i_bOverwriteExistingFile ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ExportToXMLFile" "InitLocals"
+// }} ""
+// {{ 307 1 0 "f4b33809_ae3f_449f_91dcd77eabfa441e" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 309 1 0 "ed9cc19b_9e21_4f22_90cd3bf1e4b9fffc" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 310 1 0 "da60c1fa_1825_4527_b473289c9f879455" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 311 1 0 "214afdfe_eb8e_42ab_acd62e94370eea23" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 312 1 0 "ab7169bd_cb60_4ab4_888431bf0ddef7ec" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 313 1 0 "448afd09_b0b9_4655_b1f7aef8b6d3b762" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ExportToXMLFile(i_strTableName, i_strFullFileName, i_bOverwriteExistingFile);
+// }} ""
+// {{ 314 1 0 "e7bcba91_894c_4ef2_84da25c0b914e5f4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 315 1 0 "1fcb51f2_c8b0_47cb_810892d311a0d9b5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 316 1 0 "9888289a_28b0_4110_aaf672c47263714b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 317 1 0 "e7bcba91_894c_4ef2_84da25c0b914e5f4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 318 1 0 "8dfd5b6a_14f8_4b25_94743a4fc4342a8b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 319 1 0 "7435470a_2558_4573_bea7f431c45e7910" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 320 1 0 "f421daae_36bb_43db_a8e71515b82131b3" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 321 1 0 "7435470a_2558_4573_bea7f431c45e7910" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 322 1 0 "5d40eda2_9610_4087_8fc380d772b539bf" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 323 1 0 "7435470a_2558_4573_bea7f431c45e7910" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ExportToXMLFile" "End"
+}
+// }} ""
+// {{{ 5 "ExportColumnsToXMLFile" "Begin"
+function ExportColumnsToXMLFile( variable i_strTableName, variable i_strFullFileName, variable i_strColumnNames, variable i_bOverwriteExistingFile ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ExportColumnsToXMLFile" "InitLocals"
+// }} ""
+// {{ 163 1 0 "024c1a1b_412f_4e77_9ffb3cfd0a39cfa2" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 165 1 0 "a39a79f8_ec7b_495a_b7a3762acc202eaa" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 166 1 0 "42332c1b_e54f_40bb_bcca34b5e7c2ab20" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 167 1 0 "ff4407ba_59f6_43fa_8e0716193cb27adf" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 168 1 0 "a17b6f23_843f_47eb_b2dbd3a76941f98e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 169 1 0 "3a43a586_6a6b_4c24_8cb31ff9abc3e8bf" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ExportColumnsToXMLFile(i_strTableName, i_strFullFileName, i_strColumnNames, i_bOverwriteExistingFile);
+// }} ""
+// {{ 170 1 0 "ffa115e7_a411_4504_b57537d0d4cbaf9e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 171 1 0 "4e8d8cf1_ba02_49ad_b3840ee28f730767" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 172 1 0 "27df7e19_cadc_44ed_adde29b447ccd21b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 173 1 0 "ffa115e7_a411_4504_b57537d0d4cbaf9e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 174 1 0 "2a8ea3cf_2985_4329_bf939660973e16b2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 175 1 0 "1ac1ccd3_74f9_4fbe_af0003c06e9bccde" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 176 1 0 "2b39621b_5b6d_494d_9a3a70a98e016184" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 177 1 0 "1ac1ccd3_74f9_4fbe_af0003c06e9bccde" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 178 1 0 "bf4394d3_44e3_4653_b8c96ce346351bb9" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 179 1 0 "1ac1ccd3_74f9_4fbe_af0003c06e9bccde" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ExportColumnsToXMLFile" "End"
+}
+// }} ""
+// {{{ 5 "ExportSelectedToXMLFile" "Begin"
+function ExportSelectedToXMLFile( variable i_strFullFileName, variable i_bOverwriteExistingFile ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ExportSelectedToXMLFile" "InitLocals"
+// }} ""
+// {{ 235 1 0 "f5b75cb0_bc2f_4de6_ad6603cd9d4b2d8d" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 237 1 0 "4cdf89b2_c4f3_43f4_8476285f7b450d4f" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 238 1 0 "6f37df37_c86c_4c1b_847d5f90ed020a91" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 239 1 0 "6efd473a_14be_4939_9897baa9c7e1face" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 240 1 0 "0ccf5a34_b523_4386_b14437768b336bd8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 241 1 0 "89b1adec_a2af_480a_8a99059cc61aff76" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ExportSelectedToXMLFile(i_strFullFileName, i_bOverwriteExistingFile);
+// }} ""
+// {{ 242 1 0 "afa0fa24_5726_4fd2_94c5fa3c28f42f47" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 243 1 0 "cd4ebdcf_c13d_40e3_b790cf88f39d8c38" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 244 1 0 "866646cb_1e4b_4852_a9c982e04e25724d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 245 1 0 "afa0fa24_5726_4fd2_94c5fa3c28f42f47" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 246 1 0 "4a9be933_5633_455a_9fe25f096e506848" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 247 1 0 "f5a5b8f6_f0a3_4915_9d2252fa211b1ca8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 248 1 0 "5007e33c_256b_49c6_b10bcff9c8b98dd5" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 249 1 0 "f5a5b8f6_f0a3_4915_9d2252fa211b1ca8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 250 1 0 "969f91df_4549_4880_8cb6087d12f959c6" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 251 1 0 "f5a5b8f6_f0a3_4915_9d2252fa211b1ca8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ExportSelectedToXMLFile" "End"
+}
+// }} ""
+// {{{ 5 "SaveDataManagerContent" "Begin"
+function SaveDataManagerContent( variable i_strFullFileName, variable i_bOverwriteExistingFile ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "SaveDataManagerContent" "InitLocals"
+// }} ""
+// {{ 571 1 0 "f41a6dfc_a741_46b1_a8e61d3b0bee426f" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 573 1 0 "316910a7_9c1d_40b4_89ae6be04afbb8cf" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 574 1 0 "89911c7d_313f_47bd_b3c684bcc5f75710" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 575 1 0 "579c82ca_7a35_430d_b67ad59653d97590" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 576 1 0 "aadf0681_9151_4211_bfdc1a121c06b1e0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 577 1 0 "9920eb6e_2b8b_4508_8235bc94897ae3e4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::SaveDataManagerContent(i_strFullFileName, i_bOverwriteExistingFile);
+// }} ""
+// {{ 578 1 0 "27bd8940_020d_4438_ba9f6ca25bda1543" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 579 1 0 "24eea186_4972_4e6b_af89dccefd3c364c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 580 1 0 "bd312181_2b2f_4237_a26f32ad7a38aee0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 581 1 0 "27bd8940_020d_4438_ba9f6ca25bda1543" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 582 1 0 "3a8b93d9_adce_4bf6_aa2be62c311986d6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 583 1 0 "26300e05_444b_4fd4_a21752083221b0c2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 584 1 0 "840879ef_cefe_4d95_b3e807fa197b8b3d" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 585 1 0 "26300e05_444b_4fd4_a21752083221b0c2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 586 1 0 "91bfb6de_630c_42a5_929795631ec54b65" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 587 1 0 "26300e05_444b_4fd4_a21752083221b0c2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "SaveDataManagerContent" "End"
+}
+// }} ""
+// {{{ 5 "LoadDataManagerContent" "Begin"
+function LoadDataManagerContent( variable i_strFullFileName ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "LoadDataManagerContent" "InitLocals"
+// }} ""
+// {{ 481 1 0 "84807589_24f3_4fd0_b9728d39e01501df" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 483 1 0 "b76c4236_e731_4cd5_8df3b115a98ac989" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 484 1 0 "4d817766_714e_4114_bd4fcf9b84b0ac04" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 485 1 0 "a3ab38df_c1c0_4542_b55bad097cb157ab" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 486 1 0 "a8d2ab3f_b091_45e4_9af03328b39b754a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 487 1 0 "b6a1df12_b4c5_4080_80ba6300f1c7f7c0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::LoadDataManagerContent(i_strFullFileName);
+// }} ""
+// {{ 488 1 0 "72eb418b_7a8e_417b_890b8a959d1e19c5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 489 1 0 "d1b67016_a4ef_4cc6_8aa79b340d0afcb3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 490 1 0 "9a998e2c_61e2_4978_bf07b645b9cc4bcb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 491 1 0 "72eb418b_7a8e_417b_890b8a959d1e19c5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 492 1 0 "b9ce0aaa_d760_42f1_8a121096ada9628d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 493 1 0 "132ccbc1_51ec_4c93_be0578b0f53f9eee" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 494 1 0 "6f4286fc_db92_47d2_83833ec1a1751bc0" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 495 1 0 "132ccbc1_51ec_4c93_be0578b0f53f9eee" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 496 1 0 "ac9925a1_3bff_4992_a45afe7d18e2f8e5" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 497 1 0 "132ccbc1_51ec_4c93_be0578b0f53f9eee" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "LoadDataManagerContent" "End"
+}
+// }} ""
+// {{{ 5 "ExportToCSVFile" "Begin"
+function ExportToCSVFile( variable i_strTableName, variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSeparator, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ExportToCSVFile" "InitLocals"
+// }} ""
+// {{ 253 1 0 "a4623c19_de76_48de_9fba2dc1bfc8ff7a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 255 1 0 "3b0fef97_73db_496f_8db332b541579427" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 256 1 0 "3d45c585_4ed5_499f_b67700bbe3e2b582" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 257 1 0 "1d3bcc6b_399a_4641_b571fd22d8419981" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 258 1 0 "8eeaf9ae_2f52_4a08_a6b055035b56d82b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 259 1 0 "f39aa1b6_2787_4fff_baab9a319f3e8898" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ExportToCSVFile(i_strTableName, i_strFullFileName, i_bOverwriteExistingFile, i_strSeparator, i_iBooleanExportFormat, i_bWriteHeader);
+// }} ""
+// {{ 260 1 0 "9f03ec4a_50d4_4c2f_91baea896f63f4aa" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 261 1 0 "4e8cf4df_0e70_423b_acca5b8fbf664a7b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 262 1 0 "c8a7f3ca_d3aa_425c_a19b833d5787ecc7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 263 1 0 "9f03ec4a_50d4_4c2f_91baea896f63f4aa" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 264 1 0 "c448ecf0_7e0d_4bb6_8c2ec2d5eca9b819" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 265 1 0 "d0d81b79_bd78_4ab1_a606dacf2f76db39" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 266 1 0 "ce266fc6_d364_450a_a7b6742d592188a1" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 267 1 0 "d0d81b79_bd78_4ab1_a606dacf2f76db39" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 268 1 0 "e5c2cfaf_9f7d_4bab_b72829da3a63afb5" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 269 1 0 "d0d81b79_bd78_4ab1_a606dacf2f76db39" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ExportToCSVFile" "End"
+}
+// }} ""
+// {{{ 5 "RenameColumn" "Begin"
+function RenameColumn( variable i_strTableName, variable i_strActualColumnName, variable i_strNewColumnName ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "RenameColumn" "InitLocals"
+// }} ""
+// {{ 535 1 0 "8c8f878e_9af3_4cd0_ab4b146d45880c9f" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 537 1 0 "f70638b9_0c83_404e_91cdbaa63d2c3efe" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 538 1 0 "799fe175_cce4_46bc_80676c09d7a0386e" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 539 1 0 "b1a8b52e_8d29_4ff2_a5ca6477675941c0" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 540 1 0 "aede30a5_4f02_4a27_be8f29a422882d00" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 541 1 0 "693bd813_93f8_421f_bec1743dc3f7d7b7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::RenameColumn(i_strTableName, i_strActualColumnName, i_strNewColumnName);
+// }} ""
+// {{ 542 1 0 "1f61867f_eb9f_46f9_98bb5397007f217d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 543 1 0 "e293699d_51ac_47b0_9610c343087f22ab" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 544 1 0 "bc4affc8_07f9_4f1f_b85a2b76caf5ff9e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 545 1 0 "1f61867f_eb9f_46f9_98bb5397007f217d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 546 1 0 "fd7a4283_0027_4288_a24df939a56bb051" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 547 1 0 "daa21be9_a1c6_498c_912884b92f259179" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 548 1 0 "f58934f9_1e0d_42b0_b6d327c644cc9882" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 549 1 0 "daa21be9_a1c6_498c_912884b92f259179" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 550 1 0 "a44e798f_0321_4ba5_9aa2ab328dc3b937" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 551 1 0 "daa21be9_a1c6_498c_912884b92f259179" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "RenameColumn" "End"
+}
+// }} ""
+// {{{ 5 "ExecuteSelectAllLineByLineCommand" "Begin"
+function ExecuteSelectAllLineByLineCommand( variable i_strTableName, variable & o_iRowsAffected ) variable {
+// }} ""
+private variable strFunctionName;
+private variable strExceptionID;
+private variable strErrorMessage;
+// {{ 5 "ExecuteSelectAllLineByLineCommand" "InitLocals"
+o_iRowsAffected = 0;
+// }} ""
+// {{ 73 1 0 "2936d692_47ca_4e0e_8aa24af27c7450f6" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strFunctionName = "";
+// }} ""
+strFunctionName = GetFunctionName();
+// {{ 75 1 0 "91731eb2_20f8_4b37_a6adc038ebedee14" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 76 1 0 "1ce4c7fe_7729_45d3_b003cc4fe8acc9ae" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_InitInterface();
+// }} ""
+// {{ 77 1 0 "55ea1550_b794_4477_933adb79702b0376" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 78 1 0 "f4012bc0_0b85_4392_9376eae4c9824b16" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynEnterCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{{ 79 1 0 "cc32dc29_55e9_452e_84c4de8635b8da0b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strExceptionID = DATAMANAGERINTERFACEBASE::ExecuteSelectAllLineByLineCommand(i_strTableName, o_iRowsAffected);
+// }} ""
+// {{ 80 1 0 "78333b56_905b_4863_a4104ad6f65f4b18" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID != "")
+{
+// }} ""
+// {{{ 81 1 0 "17f36c75_2cff_4a37_bbb14e2bc2fc3ed9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DATAMANAGERINTERFACEBASE::GetErrorMessage(strExceptionID, strErrorMessage);
+// }} ""
+// {{{ 82 1 0 "5d3f5826_af11_4b5f_81a7890690a18a22" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Release_Trace8(strFunctionName, ": error occured! ", " exception id = '", strExceptionID, "', error message = '", strErrorMessage, "'", "");
+// }} ""
+// {{ 83 1 0 "78333b56_905b_4863_a4104ad6f65f4b18" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 84 1 0 "368df7ab_01e8_4bb2_b9ac403787c2fc69" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SynLeaveCriticalSection(gDATAMANAGERINTERFACEBASEiManagerCriticalSection);
+// }} ""
+// {{ 85 1 0 "aa8d2df3_3254_472a_be1bbce48d4c00ff" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (strExceptionID == "")
+{
+// }} ""
+// {{{ 86 1 0 "25abdd66_f1a3_4bb9_b9210b371e420ed3" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 87 1 0 "aa8d2df3_3254_472a_be1bbce48d4c00ff" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 88 1 0 "717c3b9f_95c3_46bd_8a6c5585b43ff0f0" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 89 1 0 "aa8d2df3_3254_472a_be1bbce48d4c00ff" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "ExecuteSelectAllLineByLineCommand" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=ch33$$valid=0$$time=2023-06-16 21:55$$checksum=ec703141$$length=083$$

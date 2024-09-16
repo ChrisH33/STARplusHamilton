@@ -1,0 +1,18 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 3/9/2011 4:48:03 PM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace WELL_FORMAT {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function A01_to_A1( variable & io_well ) void { }
+function A1_to_A01( variable & io_well ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Administrator$$valid=0$$time=2011-03-09 16:48$$checksum=ea604a4f$$length=090$$

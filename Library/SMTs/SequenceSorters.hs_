@@ -1,0 +1,20 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 1/16/2014 2:49:29 PM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace SEQUENCESORTERS {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Sort_PairedSequences( device & ML_STAR, sequence & ioSequenceToSort, sequence & ioSeqPairedSequence ) void { }
+function Sort_PairedSequences_WithVolumeArray( device & ML_STAR, sequence & ioSequenceToSort, sequence & ioSeqPairedSequence, variable & ioArrayOfVolumes[] ) void { }
+function Sort_Sequence( device & ML_STAR, sequence & ioSequenceToSort ) void { }
+function Sort_Sequence_WithVolumeArray( device & ML_STAR, sequence & ioSequenceToSort, variable & ioArrayOfVolumes[] ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=albanettit$$valid=0$$time=2014-01-16 14:49$$checksum=87745fc7$$length=087$$

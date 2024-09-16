@@ -1,0 +1,77 @@
+// This function have been extracted from the Easypick Library
+#include "HSLStrLib.hsl"
+
+#ifndef __HSLChannelPattern_hsl__
+#define __HSLChannelPattern_hsl__ 1
+
+
+namespace HSLChannelPattern
+{
+// ChannelPattern_LeftAdjust() --------------------------------------------------------------
+      // Linksbuendiges Channelpattern
+      function ChannelPattern_LeftAdjust(
+                                          variable iNumberOfChannels,      // Anzahl Kanaele
+                                          variable iTotalNumberOfChannels  // Anzahl Kanaele total
+                                        ) variable                         // Return: Channel pattern
+      {
+        variable strEinzen;
+        variable strNullen;
+        variable ChannelPattern;
+
+
+         strEinzen = "11111111111111111111111111111111";
+         strNullen = "00000000000000000000000000000000";
+         ChannelPattern= StrLeft( StrLeft(strEinzen,iNumberOfChannels) + strNullen ,iTotalNumberOfChannels);
+
+
+         return(ChannelPattern);
+      }
+      // ------------------------------------------------------------------------------------------
+
+      // ChannelPattern_RightAdjust() -------------------------------------------------------------
+      // Rechtsbuendiges Channelpattern
+      function ChannelPattern_RightAdjust(
+                                           variable iNumberOfChannels,      // Anzahl Kanaele
+                                           variable iTotalNumberOfChannels  // Anzahl Kanaele total
+                                         ) variable                         // Return: Channel pattern
+      {
+        variable strEinzen;
+        variable strNullen;
+        variable ChannelPattern;
+
+
+         strEinzen = "11111111111111111111111111111111";
+         strNullen = "00000000000000000000000000000000";
+         ChannelPattern= StrRight( strNullen + StrLeft(strEinzen,iNumberOfChannels) ,iTotalNumberOfChannels);
+         
+        
+
+
+         return(ChannelPattern);
+      }
+      // ------------------------------------------------------------------------------------------
+
+      // ChannelPattern_SingleAdjust() ------------------------------------------------------------
+      // Channelpattern eines einzigen Kanals
+      function ChannelPattern_SingleAdjust(
+                                            variable iSingleChannel,         // Kanal
+                                            variable iTotalNumberOfChannels  // Anzahl Kanaele total
+                                          ) variable                         // Return: Channel pattern
+      {
+        variable strEinzen;
+        variable strNullen;
+        variable ChannelPattern;
+
+
+
+         strNullen = "00000000000000000000000000000000";
+         ChannelPattern= StrLeft( StrLeft(strNullen,iSingleChannel-1) + "1" + strNullen ,iTotalNumberOfChannels);
+
+
+
+         return(ChannelPattern);
+      }
+
+}
+#endif //__HSLChannelPattern_hsl__
+// $$author=Cuevas_A$$valid=0$$time=2011-11-02 14:24$$checksum=aeb04245$$length=085$$

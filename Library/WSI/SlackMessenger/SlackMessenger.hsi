@@ -1,0 +1,250 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "WSI\\HSLGetSerialNumber_WSI.hsl"
+#include "HSLFileDirectoryLib.hsl"
+#include "HSLStrLib.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+#include "HSLPTLLib.hsl"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace SLACKMESSENGER {
+// }} ""
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function Update( device & ML_STAR, variable _intState, variable _strSlackMessageDirectory ) void ;
+private function _Abstract(  ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "Update" "Begin"
+function Update( device & ML_STAR, variable _intState, variable _strSlackMessageDirectory ) void {
+// }} ""
+private variable _strSlackMessagePath;
+private file _hnd;
+private variable _strSerialNumber;
+private variable _blnExists;
+private variable _strSchemaPath;
+private variable _strMethod;
+private variable _arrStates[];
+private variable _strMessage;
+private variable _intStatesArraySize;
+private variable _strSlackMessageDirectory_FileCheck;
+private variable _blnProceed;
+// {{ 5 "Update" "InitLocals"
+// }} ""
+// {{ 1 1 0 "d96f61a5_07a5_4f44_acd1bf188c02ffa0" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 2 1 0 "b8b63983_f989_421e_9ec14f6198c57cb0" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 3 1 0 "4673ab79_ee6e_4be6_b409b437a464eb33" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_blnProceed = 0;
+// }} ""
+// {{{ 4 1 0 "97d48b8d_2ecd_473c_b70bd9cca51ef941" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strSlackMessageDirectory_FileCheck = StrConcat4(_strSlackMessageDirectory, Translate("\\Important_DoNotDelete.bmp"), Translate(""), Translate(""));
+// }} ""
+// {{{ 5 1 0 "d2fcbc7d_269f_4836_945e5a18fa0ae41b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_blnExists = FileDirectoryLib::CheckIfDirectoryExists(_strSlackMessageDirectory);
+// }} ""
+// {{ 6 1 0 "52d5338f_7f7d_4961_90052a02db8965cb" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_blnExists == 1)
+{
+// }} ""
+// {{{ 7 1 0 "593c9375_bbcc_47fa_b4d150ea353e9062" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_blnExists = FileDirectoryLib::CheckIfFileExists(_strSlackMessageDirectory_FileCheck);
+// }} ""
+// {{ 8 1 0 "153aa3be_d95d_4ed3_8854dc12eedf43c4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_blnExists == 1)
+{
+// }} ""
+// {{ 9 1 0 "f525b10f_eb0f_4f59_b7f7192e1985ed35" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_blnProceed = 1;
+// }} ""
+// {{ 10 1 0 "153aa3be_d95d_4ed3_8854dc12eedf43c4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 11 1 0 "52d5338f_7f7d_4961_90052a02db8965cb" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 12 1 0 "82e50ba7_96a1_4a8e_b060e38931e9d3f3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strSlackMessageDirectory = StrConcat2(_strSlackMessageDirectory, Translate("\\Upload"));
+// }} ""
+// {{ 13 1 0 "b8b63983_f989_421e_9ec14f6198c57cb0" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 14 1 0 "773ab9f3_04e1_4ee1_a18be5fde76042de" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_blnProceed == 1)
+{
+// }} ""
+// {{ 15 1 0 "f4ca8fe8_9c4e_4f81_b7d7bef8249fcc1a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>> Slack Directory has been validated. Proceed <<<<<"));
+// }} ""
+// {{ 16 1 0 "c75e1a47_1ef5_481c_92d32e07c9e5d0d7" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 17 1 0 "d2ebc313_7b9e_454a_890be867b0e08853" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+_arrStates.SetSize(0);
+// }} ""
+// {{ 18 1 0 "26e66925_5da0_4084_baa2750e2bb0acfe" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+_arrStates.AddAsLast(Translate("Completed"));
+// }} ""
+// {{ 19 1 0 "84f26488_b3f5_45cc_9d323974742ee24e" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+_arrStates.AddAsLast(Translate("Aborted"));
+// }} ""
+// {{ 20 1 0 "7fabfb5e_9dbb_48dc_bb240a66851429f3" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+_arrStates.AddAsLast(Translate("Tip Reload"));
+// }} ""
+// {{ 21 1 0 "e03a59f1_a22c_4a3a_97a2eb4c6725c9c1" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+_arrStates.AddAsLast(Translate("Scheduled User Intervention"));
+// }} ""
+// {{ 22 1 0 "583bd816_dcb6_425a_84f2ee783bdf680e" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+_arrStates.AddAsLast(Translate("Other"));
+// }} ""
+// {{ 23 1 0 "1e75085f_0a79_40cb_95b9f753b3374ef5" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+_intStatesArraySize=_arrStates.GetSize();
+// }} ""
+// {{ 24 1 0 "21f2e3f3_8d02_4625_b01e9f4938821bb4" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 25 1 0 "9be7a947_d572_4f57_9e33ade1afb0884f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strMethod = GetMethodName(0);
+// }} ""
+// {{{ 26 1 0 "c86c1b59_68fb_42b9_934db5457dacea99" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strSerialNumber = GetSerialNumber(ML_STAR, 0);
+// }} ""
+// {{{ 27 1 0 "f2bf26c7_b183_4c4b_b47b735be67606b6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strSlackMessagePath = StrConcat4(_strSlackMessageDirectory, Translate("\\"), _strSerialNumber, Translate("_Update.txt"));
+// }} ""
+// {{ 28 1 0 "bdab84ba_f88b_415e_8658bd29db220063" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+onerror goto errLabel_EBE20A4A1D99401dB4B09B3B5EC3DE97 ;
+err.Clear();
+// }} ""
+// {{ 29 1 0 "219e709b_0b57_4e6f_ac424ec30075d606" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 30 1 0 "da1e0742_2f64_47a5_90c1352c950326ea" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_intState <= _intStatesArraySize)
+{
+// }} ""
+// {{ 31 1 0 "f92b3b06_106d_43bd_8cc88e441cfd12d4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_intState > 0)
+{
+// }} ""
+// {{ 32 1 0 "98ec0479_683e_488b_ae3fb86cac2b7e2d" "{67A8F1C9-6546-41e9-AD2F-3C54F7818853}"
+_strMessage=_arrStates.GetAt(_intState-1);
+// }} ""
+// {{ 33 1 0 "f92b3b06_106d_43bd_8cc88e441cfd12d4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 34 1 0 "da1e0742_2f64_47a5_90c1352c950326ea" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 35 1 0 "eef4c66f_0164_4299_962a74cbfa35f06c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 36 1 0 "a9791a2c_9f36_44ec_a1d340080d987e2f" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+_hnd.AddField("Instrument", _strSerialNumber, hslString, 255);
+_hnd.AddField("State", _strMessage, hslString, 255);
+_hnd.AddField("Method", _strMethod, hslString, 255);
+_hnd.SetDelimiter(hslCSVDelimited);
+if( 0 == _hnd.Open(_strSlackMessagePath, hslWrite) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, _strSlackMessagePath, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 37 1 0 "4919e8df_1abc_481b_8e44b7c71c456236" "{B31F3537-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == _hnd.WriteRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1473380096, MECC::IDS::stepNameFileWrite, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 38 1 0 "8e01ee5a_e167_46e7_87aa5b980805c8cd" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != _hnd.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+_hnd.RemoveFields();
+// }} ""
+// {{ 39 1 0 "ab8d7a77_5c7a_4dbc_8a3e0154fc70cb41" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 40 1 0 "d9d7d1b2_2f15_414b_836dacdfb411a5e6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strSchemaPath = StrConcat4(_strSlackMessageDirectory, Translate("\\schema.ini"), Translate(""), Translate(""));
+// }} ""
+// {{{ 41 1 0 "3ba90e4b_0dfd_4786_bd3ed9664e8f3a88" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+FileDirectoryLib::DeleteFile(_strSchemaPath);
+// }} ""
+// {{{ 42 1 0 "f8080c35_7024_4273_9babc120aff835b0" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return;
+// }} ""
+// {{ 43 1 0 "bdab84ba_f88b_415e_8658bd29db220063" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+errLabel_EBE20A4A1D99401dB4B09B3B5EC3DE97 : {}
+onerror goto 0;
+if (err.GetId() != 0)   /* skip handler if no error */
+{
+// }} ""
+// {{ 44 1 0 "b73d013a_e4f8_449c_a7ce4b7a374d8f89" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>> Issues generating slack update file <<<<<"));
+// }} ""
+// {{ 45 1 0 "bdab84ba_f88b_415e_8658bd29db220063" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+}   /* end if from skip handler if no error */
+// }} ""
+// {{ 46 1 0 "773ab9f3_04e1_4ee1_a18be5fde76042de" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 47 1 0 "7cadb935_e2f4_4f4d_9f352721f56fd0e7" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate(">>>>> Slack upload directory could not be located <<<<<"));
+// }} ""
+// {{{ 48 1 0 "c384d2b9_8f2d_41e4_bffc1c6eb988a43a" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return;
+// }} ""
+// {{ 49 1 0 "773ab9f3_04e1_4ee1_a18be5fde76042de" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "Update" "End"
+}
+// }} ""
+// {{{ 5 "_Abstract" "Begin"
+private function _Abstract(  ) void {
+// }} ""
+// {{ 5 "_Abstract" "InitLocals"
+// }} ""
+// {{ 51 1 0 "60500964_af1c_43e7_be1c04fe040b3845" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 52 1 0 "df8ef3ac_2397_4540_aeea1851c6fc1061" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 5 "_Abstract" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=ch33$$valid=0$$time=2024-08-30 17:00$$checksum=e666d0a9$$length=083$$

@@ -1,0 +1,18 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 3/10/2011 10:16:08 AM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace CREATE_CHANNEL_PATTERN {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Create_Channel_Pattern_1ml( device & ML_STAR, variable i_numberchannels, variable & o_channel_pattern ) void { }
+function Create_Channel_Pattern_5ml( device & ML_STAR, variable i_numberchannels, variable & o_channel_pattern ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Administrator$$valid=0$$time=2011-03-10 10:16$$checksum=af84fa91$$length=090$$

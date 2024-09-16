@@ -1,0 +1,17 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 4/2/2021 2:30:03 PM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace STACKREDUCER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function StackReducer( variable NumberOfPlatesOnStacker, sequence originalDeStackSeq, sequence & adjustedDeStackSeq, variable maxPlatesPerStack, device & ML_STAR ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Hutchens_W$$valid=0$$time=2021-04-02 14:30$$checksum=882d922a$$length=087$$

@@ -1,0 +1,19 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 27/10/2023 19:17:52
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace CHECKCARRIERPRESENCE {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function CheckCarrierPresenceByArrOfLabIDs( device & iInstrument, variable & iArrLabIDs[], variable & oArrLabIDsNotLoaded[] ) variable {  return (0); }
+function CheckCarrierPresenceByLabID( device & iInstrument, variable iLabIDOfCarrier ) variable {  return (0); }
+function CheckCarrierPresenceByTrackNumber( device & iInstrument, variable iTrackNumber ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2023-10-27 19:17$$checksum=c2cbf3a9$$length=081$$

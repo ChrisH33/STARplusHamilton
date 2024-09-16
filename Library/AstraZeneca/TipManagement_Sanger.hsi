@@ -1,0 +1,240 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "HSLFilLib.hsl"
+#include "HSLStrLib.hsl"
+#include "HSLSeqLib.hsl"
+#include "HSLDeckVisualize.hsl"
+#include "HSLML_STARLib.hsl"
+#include "HSLUtilLib2.hsl"
+#include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl"
+#include "HSLLabwrAccess\\HSLLabwrAccess.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+#include "HSLPTLLib.hsl"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace TIPMANAGEMENT_SANGER {
+// }} ""
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function A_VersionInfo(  ) void ;
+function Channels_ModifyTipNumbers( device & ML_STAR, sequence & io_seqTip, variable i_strTipCounter, variable i_intTipNumber, variable i_varDialogTimeout, variable i_strTipDescription ) void ;
+function _GetDBFilePath( variable & o_strTipDBPath ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "A_VersionInfo" "Begin"
+function A_VersionInfo(  ) void {
+// }} ""
+// {{ 5 "A_VersionInfo" "InitLocals"
+// }} ""
+// {{ 1 1 0 "2b7a3586_3748_415b_832097aab8973429" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 5 "A_VersionInfo" "End"
+}
+// }} ""
+// {{{ 5 "_GetDBFilePath" "Begin"
+function _GetDBFilePath( variable & o_strTipDBPath ) void {
+// }} ""
+private variable _strTipDBPath;
+private variable _strSysPath;
+// {{ 5 "_GetDBFilePath" "InitLocals"
+o_strTipDBPath = 0;
+// }} ""
+// {{{ 35 1 0 "6d6399f8_3915_47bc_aaa15d31ff971276" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strSysPath = FilGetSystemPath();
+// }} ""
+// {{{ 36 1 0 "908a671d_2dfa_4e71_8eca11a7178b5c84" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+o_strTipDBPath = StrConcat2(_strSysPath, Translate("\\CustomizedTipManagement.mdb"));
+// }} ""
+// {{{ 5 "_GetDBFilePath" "End"
+}
+// }} ""
+// {{{ 5 "Channels_ModifyTipNumbers" "Begin"
+function Channels_ModifyTipNumbers( device & ML_STAR, sequence & io_seqTip, variable i_strTipCounter, variable i_intTipNumber, variable i_varDialogTimeout, variable i_strTipDescription ) void {
+// }} ""
+private variable _blnSimMode;
+private sequence _seqTipComplete;
+private dialog dialogHandle7AFC810273954247BC43EB765187EC71;
+private dialog dialogHandleC8B6953A48C4440c8FFB50082970FDDC;
+private variable filter_text;
+private variable tips_needed;
+private variable tip_size;
+private dialog dialogHandleCBBC598707CA46deA7D6C15A9CD59EB8;
+private variable _strTipCounter;
+private variable _strTipDBPath;
+private variable _intCurrentPosition;
+private variable _intEndPosition;
+private variable _loopCounter1;
+private variable _hndTipManagement_CurrentPosition;
+private variable _sqlCommand;
+private variable _hndTipManagement_EndPosition;
+private variable _hndTipManagement_TipCounter;
+private file _hndTipManagement;
+// {{ 5 "Channels_ModifyTipNumbers" "InitLocals"
+// }} ""
+// {{ 3 1 0 "a953142e_0ee6_46d9_a38a85b33c15fc98" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 4 1 0 "29bbbfc7_e42a_469f_afee7ee8d26786bc" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_blnSimMode = HSLML_STAR::IsSimulatorMode(ML_STAR);
+// }} ""
+// {{ 5 1 0 "ce13f488_3268_4d4e_901a1c50a4f4b884" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_blnSimMode == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 6 1 0 "b5de4073_431e_4c39_882ed65278bfbeb0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+i_strTipCounter = StrConcat2(i_strTipCounter, Translate("_sim"));
+// }} ""
+// {{ 7 1 0 "ce13f488_3268_4d4e_901a1c50a4f4b884" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 8 1 0 "1824f88f_c65e_4fe9_b5bb03aac216d257" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 9 1 0 "81176fb7_8b37_498c_af946095a639c923" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_GetDBFilePath(_strTipDBPath);
+// }} ""
+// {{{ 10 1 0 "8e8e034b_7868_4fe4_827990eb160d32e5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_sqlCommand = StrConcat4(Translate("SELECT * FROM [TipCounters] WHERE [TipCounter] = '"), i_strTipCounter, Translate("'"), Translate(""));
+// }} ""
+// {{ 11 1 0 "54cc4d81_be0b_42b8_a3bf0154f8b21f92" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+_loopCounter1 = 0;
+while (1 == 1)
+{
+_loopCounter1 = _loopCounter1 + 1;
+// }} ""
+// {{ 12 1 0 "ca6cbb63_c292_4c76_a80a3bc2d6e31de9" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_loopCounter1 == 5)
+{
+// }} ""
+// {{ 13 1 0 "eca402fe_b827_4a3c_8f0d038826b73457" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 14 1 0 "ca6cbb63_c292_4c76_a80a3bc2d6e31de9" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 15 1 0 "e4f89b46_97e0_4565_a2e3a3c63e38241a" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+onerror goto errLabel_11CACD2DFEF34be69893302A4861E5CA ;
+err.Clear();
+// }} ""
+// {{ 16 1 0 "1fa43ae3_23e5_446f_9199d67e0037b2ed" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+_hndTipManagement.AddField("TipCounter", i_strTipCounter, hslString, 255);
+_hndTipManagement.AddField("CurrentPosition", _intCurrentPosition, hslInteger);
+_hndTipManagement.AddField("EndPosition", _intEndPosition, hslInteger);
+if( 0 == _hndTipManagement.Open(_strTipDBPath + " " + "TipCounters", hslAppend, _sqlCommand) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, _strTipDBPath, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 17 1 0 "98ccdd6f_0bb2_47ed_8595ea3f6d3a3576" "{B31F3536-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == _hndTipManagement.ReadRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1490157312, MECC::IDS::stepNameFileRead, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 18 1 0 "0005364a_e4db_4afb_8bbd783c8d56cbc5" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != _hndTipManagement.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+_hndTipManagement.RemoveFields();
+// }} ""
+// {{ 19 1 0 "e7c34e3f_d55f_4c81_833cc847f5826f7c" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 20 1 0 "e4f89b46_97e0_4565_a2e3a3c63e38241a" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+errLabel_11CACD2DFEF34be69893302A4861E5CA : {}
+onerror goto 0;
+if (err.GetId() != 0)   /* skip handler if no error */
+{
+// }} ""
+// {{ 21 1 0 "464a7b48_5423_4dba_ab7d7ed12021f810" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 22 1 0 "502b1abc_384c_4c51_a8964c747efdd428" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != _hndTipManagement.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+_hndTipManagement.RemoveFields();
+// }} ""
+// {{ 23 1 0 "4170311f_8d04_4a91_a8fb220aa01112b7" "{B31F353B-5D80-11d4-A5EB-0050DA737D89}"
+_intCurrentPosition = io_seqTip.GetCurrentPosition();
+// }} ""
+// {{ 24 1 0 "8be73783_16e3_4e36_9275da10b2f2d8df" "{B31F353D-5D80-11d4-A5EB-0050DA737D89}"
+_intEndPosition = io_seqTip.GetCount();
+// }} ""
+// {{ 25 1 0 "66609e2e_c9e3_4e94_923bd272753b6ac9" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+_hndTipManagement.AddField("TipCounter", i_strTipCounter, hslString, 255);
+_hndTipManagement.AddField("CurrentPosition", _intCurrentPosition, hslInteger);
+_hndTipManagement.AddField("EndPosition", _intEndPosition, hslInteger);
+if( 0 == _hndTipManagement.Open(_strTipDBPath + " " + "TipCounters", hslAppend) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, _strTipDBPath, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 26 1 0 "c933b312_a889_4ecc_894eec7ccd6141ac" "{B31F3537-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == _hndTipManagement.WriteRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1473380096, MECC::IDS::stepNameFileWrite, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 27 1 0 "81459315_b722_4ac8_89ffb224be10ddfd" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != _hndTipManagement.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+_hndTipManagement.RemoveFields();
+// }} ""
+// {{ 28 1 0 "e4f89b46_97e0_4565_a2e3a3c63e38241a" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+}   /* end if from skip handler if no error */
+// }} ""
+// {{ 29 1 0 "54cc4d81_be0b_42b8_a3bf0154f8b21f92" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 30 1 0 "5ff6bdd5_7c33_468b_b99fe03515547085" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 31 1 0 "feae09aa_9d54_4309_975968bbe6d25d8e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqCopySequence(_seqTipComplete, io_seqTip);
+// }} ""
+// {{{ 32 1 0 "2fe93b48_5caf_4457_b702c4f48733a8b9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DeckVisualize::UpdateUsedPositions(ML_STAR, _seqTipComplete, 6, Translate(""));
+// }} ""
+// {{ 33 1 0 "d37a3329_9ad8_4830_a402c7fb7c777905" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleCBBC598707CA46deA7D6C15A9CD59EB8.SetOutput(Translate("Please load at least "), i_intTipNumber, Translate(" "), i_strTipDescription, Translate("tips at the flashing position and edit the tip counter."), Translate(""), Translate(""));
+dialogHandleCBBC598707CA46deA7D6C15A9CD59EB8.ShowOutput(Translate("Load Instruction"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 5 "Channels_ModifyTipNumbers" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=ch33$$valid=0$$time=2023-02-13 15:38$$checksum=9700f37c$$length=083$$

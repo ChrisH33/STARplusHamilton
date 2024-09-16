@@ -1,0 +1,18 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 11/11/2021 10:42:10 AM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace DATA_CONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function INIT_InitializeController( device & ML_STAR ) void { }
+function INIT_InitializeFile(  ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Bare_B$$valid=0$$time=2021-11-11 10:42$$checksum=019ee683$$length=083$$

@@ -1,0 +1,59 @@
+HxCfgFile,3;
+
+ConfigIsValid,Y;
+
+DataDef,RECTRACK,3,default,
+{
+BackgrndClr, "16777215",
+Barcode.Unique, "0",
+Barcode.Value, "",
+Bitmap, "G:\\Robotics\\Newtech and OEM Components\\Produkte\\ML_STAR_Carrier\\Carrier\\185_053_PLT_PCR_TIP_B00\\Labware\\Data\\IVDLabware\\Roche\\Roche_PCR96.bmp",
+BitmapRel, ".\\Roche_PCR96.bmp",
+BndryX, "14",
+BndryY, "11.5",
+CategoryCnt, "0",
+Cntr.1.base, "-6",
+Cntr.1.file, "G:\\Robotics\\Newtech and OEM Components\\Produkte\\ML_STAR_Carrier\\Carrier\\185_053_PLT_PCR_TIP_B00\\Labware\\Data\\IVDLabware\\Roche\\roche_mts_pcr96.ctr",
+Cntr.1.fileRel, ".\\roche_mts_pcr96.ctr",
+Cntr.1.offsetx, "0",
+Cntr.1.offsety, "0",
+Columns, "12",
+ConnectedCtr, "0",
+DataType, "1",
+Description, "Roche PCR plate",
+Dim.Dx, "127",
+Dim.Dy, "86",
+Dim.Dz, "17",
+Dx, "9",
+Dy, "9",
+GrpCnt, "0",
+Hole.Shape, "0",
+Hole.X, "5.5",
+Hole.Y, "5.5",
+Hole.Z, "5.5",
+IX.First, "1",
+IX.Inc, "0",
+IX.Index, "1",
+IX.Start, "0",
+Image3D, "G:\\Robotics\\Newtech and OEM Components\\Produkte\\ML_STAR_Carrier\\Carrier\\185_053_PLT_PCR_TIP_B00\\Labware\\Data\\IVDLabware\\Roche\\Roche_MTS_PCR96.png",
+ImageRel, ".\\Roche_MTS_PCR96.png",
+Options, "0",
+Rows, "8",
+ReadOnly, "1",
+SegmentCount_x, "0",
+SegmentCount_y, "0",
+Shape, "1",
+SingleCntr, "1",
+StackHt, "0",
+Stagger, "0",
+UseBndry, "1",
+ViewName, "Roche_MTS_PCR96",
+Visible, "0"
+};
+
+DataDef,HxPars,3,AuditTrailData,
+[
+")"
+];
+
+* $$author=rdemarmels$$valid=1$$time=2008-09-18 14:57$$checksum=f072b7d2$$length=086$$

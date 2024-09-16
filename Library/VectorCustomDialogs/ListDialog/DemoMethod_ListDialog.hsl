@@ -1,0 +1,99 @@
+ namespace _Method { #include "VectorCustomDialogs\\VectorCustomDialogs.hsl" } 
+ namespace _Method { #include "HSLStrLib.hsl" } 
+ namespace _Method { #include "ASWStandard\\TraceLevel\\TraceLevel.hsl" } 
+ namespace _Method { #include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl" } 
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable intListLoopCounter;
+variable arrList[];
+variable strListSelection;
+variable blnSuccessfulExecuted;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{{ 1 1 0 "1c01d8bb_b4e3_4458_8c777264038bfa37" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::SetTraceLevel(TRACE_LEVEL_DEBUG);
+// }} ""
+// {{{ 2 1 0 "ba2a3b0f_7bbf_4759_88f5d4f2dde88668" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::Initialize();
+// }} ""
+// {{ 3 1 0 "f1eebce0_0078_404c_b998e2ceacb4cc7d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 4 1 0 "e27bdfc5_7622_4786_9a03535b6a18be48" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'Initialize' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 5 1 0 "5d820dde_fc3a_4a5f_a7fa64502bb7ab71" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 6 1 0 "f1eebce0_0078_404c_b998e2ceacb4cc7d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 7 1 0 "88cf7f28_4205_4261_95ebd9ab0a7e4dbe" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(intListLoopCounter = 0; intListLoopCounter < 10;)
+{
+intListLoopCounter = intListLoopCounter + 1;
+// }} ""
+// {{{ 8 1 0 "7216a993_806b_4546_977b5fdae4bcc621" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strListSelection = StrConcat4(Translate("Reagent "), intListLoopCounter, Translate(""), Translate(""));
+// }} ""
+// {{ 9 1 0 "578c6290_976b_4cda_ae9b6d54c142f2a1" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrList.AddAsLast(strListSelection);
+// }} ""
+// {{ 10 1 0 "88cf7f28_4205_4261_95ebd9ab0a7e4dbe" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 11 1 0 "7cfa8d59_6f67_491b_86a5459b9618baf5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::ListDialog(Translate("Reagent selection"), VectorCustomDialogs::IconType::Question, VectorCustomDialogs::ButtonType::OkCancel, 500, 0, 10, Translate("Please select the Reagent to execute"), Translate("Press 'ok' to continue"), arrList);
+// }} ""
+// {{ 12 1 0 "172e5dae_d360_4212_a83e2e87fa8649f6" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 13 1 0 "5de2dd36_b3e7_4c5e_8316a56394950b8d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'ListDialog' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 14 1 0 "a539f022_6461_4c82_9f65f80ee270a9ac" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 15 1 0 "172e5dae_d360_4212_a83e2e87fa8649f6" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 16 1 0 "3d6e99e0_f866_4aaf_ad09ecf6ac28531f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::Terminate();
+// }} ""
+// {{ 17 1 0 "c7353b04_0a28_4409_ac8df4b3e046908a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 18 1 0 "0cd7e9f1_5469_4eb3_b0592ce7b7367653" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'Terminate' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 19 1 0 "fb01c0ac_d1f5_456b_af9e0a2e6a7b35a5" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 20 1 0 "c7353b04_0a28_4409_ac8df4b3e046908a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=MKnopp$$valid=0$$time=2019-08-06 10:41$$checksum=7898d1f1$$length=085$$

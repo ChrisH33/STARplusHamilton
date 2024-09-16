@@ -1,0 +1,23 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 16/02/2024 10:35:02
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace CENTRIFUGECONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function CloseCentrifuge(  ) variable {  return (0); }
+function Initialize(  ) variable {  return (0); }
+function MoveToPosition( variable i_strPosition ) variable {  return (0); }
+function OpenCentrifuge(  ) variable {  return (0); }
+function StartCentrifuge( variable i_intSpeed, variable i_intDirection, variable i_intDuration, variable i_blnWaitForStop ) variable {  return (0); }
+function Terminate(  ) variable {  return (0); }
+function WaitForStop(  ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2024-02-16 10:35$$checksum=f766a7a6$$length=081$$

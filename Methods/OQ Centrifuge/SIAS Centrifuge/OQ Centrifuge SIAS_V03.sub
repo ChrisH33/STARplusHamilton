@@ -1,0 +1,369 @@
+// {{{ 2 "SubmethodForwardDeclaration" ""
+private function SiasCentrifuge(  ) void ;
+function OnAbort(  ) void ;
+// }} ""
+// {{{ 5 "OnAbort" "Begin"
+function OnAbort(  ) void {
+// }} ""
+private dialog dialogHandleDA018AD899CD45548808F0FC1046E49E;
+private dialog dialogHandle5515B67FD087413c8E0B1B0B2874BB84;
+private dialog dialogHandleE5AB7E92C8B74b0dBE0BAB73FE3052AD;
+// {{ 5 "OnAbort" "InitLocals"
+// }} ""
+// {{ 86 1 0 "2f894a65_88c9_4b73_9b28b5aa528b2ef2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intReturnValueSpinLoaded != HSLSiasCentrifuge::Enums::ErrorCode::None)
+{
+// }} ""
+// {{ 87 1 0 "52a2e5ec_68a9_49cb_acde2e3e9a84fda5" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle5515B67FD087413c8E0B1B0B2874BB84.SetOutput(Translate("The centrifuge could not spin with the requested speed"), "\n", Translate(""), "\n", Translate("Check the weight unbalance of the labware and the stability of the workbench"), "\n");
+dialogHandle5515B67FD087413c8E0B1B0B2874BB84.ShowOutput(Translate("Error"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 88 1 0 "2f894a65_88c9_4b73_9b28b5aa528b2ef2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 89 1 0 "edcb4af7_29c5_47c3_a8876d164e6d905a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (buckets_loaded == 1)
+{
+// }} ""
+// {{ 90 1 0 "8ef4f748_a8c9_49a5_ab90f04502b890b6" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 91 1 0 "a4ba7193_1e9a_44af_b20640c0cb2491e6" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+intReturnValue = SIASCENTRIFUGE::MoveToPosition(intModuleID, pos1, HSLSiasCentrifuge::Enums::ErrorRecovery::Retry);
+// }} ""
+// {{ 92 1 0 "a405cf78_f890_45bb_9e6739d4871ccc9c" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleDA018AD899CD45548808F0FC1046E49E.SetOutput(Translate("Please remove the labware from Position A"), "\n", Translate("ATTENTION. The lid will close."));
+dialogHandleDA018AD899CD45548808F0FC1046E49E.ShowOutput(Translate("Remove labware"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 93 1 0 "31428896_7aa7_490f_bd331b329a6b0d09" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+intReturnValue = SIASCENTRIFUGE::MoveToPosition(intModuleID, pos2, HSLSiasCentrifuge::Enums::ErrorRecovery::Retry);
+// }} ""
+// {{ 94 1 0 "7834aa5a_d34d_455d_9abfdb53db685a13" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleE5AB7E92C8B74b0dBE0BAB73FE3052AD.SetOutput(Translate("Remove the labware from Position B"), "\n", Translate("ATTENTION. The lid will close."));
+dialogHandleE5AB7E92C8B74b0dBE0BAB73FE3052AD.ShowOutput(Translate("Remove labware"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 95 1 0 "8ef4f748_a8c9_49a5_ab90f04502b890b6" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 96 1 0 "edcb4af7_29c5_47c3_a8876d164e6d905a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 97 1 0 "04cb3357_bf62_448a_bfe9878cc832bba0" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+SIASCENTRIFUGE::Terminate(intModuleID);
+// }} ""
+// {{{ 5 "OnAbort" "End"
+}
+// }} ""
+// {{{ 5 "SiasCentrifuge" "Begin"
+private function SiasCentrifuge(  ) void {
+// }} ""
+private dialog dialogHandle54EE3E8A4DC4449896DB1EA4BDF5B66E;
+private dialog dialogHandleE4A14DE59D3F408aB1A55CAF0FF8143E;
+private dialog dialogHandle7460764AF7D04fb58DCC822ADCB096A9;
+private dialog dialogHandleCEFBE2ACEC9749bbB760A4EDD8B26E2F;
+private dialog dialogHandleC6F8D2126CC54fbd87052E81D2D6D89C;
+private dialog dialogHandle6FEE7B5FA6E44ef1ABBF919BE51F600A;
+private dialog dialogHandle78EC98258E48415eB7EAADA2331B9A7C;
+private dialog dialogHandle3526DA27F209490f86908B779D202075;
+private dialog dialogHandleE2AA0E169567492599BBFCDA7A48B09A;
+private dialog dialogHandleF891E760809C4531AEE5874247EF6B87;
+private dialog dialogHandleBAAB015CF6A448b2AB48675247961CE5;
+private dialog dialogHandleF596B85F00FE4e36827847D94961423A;
+private dialog dialogHandleF0BA7BC2C384462cAF0AF5BE6D175352;
+private dialog dialogHandleE53F0F2BAEB64415A0110A78B193AF42;
+private dialog dialogHandleD516F07FFE1C434a90AF51A12A1D6512;
+private dialog dialogHandleF08BDB461155490390BA1AEC74AE2CB1;
+private dialog dialogHandleDE7B1255AF1D4d39A5DAD6D2F3CCA99B;
+private dialog dialogHandle87ABA63FFD954754BCE658067096730A;
+private dialog dialogHandleE0B6E37BE5AB4bf6BB08263DDEA5F0E8;
+private dialog dialogHandle818A2CB44DE6410eA8019692B9C67F1F;
+private dialog dialogHandle87EF4128798946bc8968B7B99118C557;
+// {{ 5 "SiasCentrifuge" "InitLocals"
+// }} ""
+// {{ 4 1 0 "699a6965_3bce_49a9_b33ca75aaa4a8e01" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 5 1 0 "dda98622_98b1_4318_a00266c1b11066be" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+pos1 = 1;
+// }} ""
+// {{ 6 1 0 "4f069d1f_a548_4088_862b94dfce125ce9" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+pos2 = 11;
+// }} ""
+// {{ 7 1 0 "9aaaf290_84d5_4dca_84485071daf8d785" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intModuleID = 121;
+// }} ""
+// {{ 8 1 0 "c9c33d9b_e5bf_49f9_a71d60f64adffa4c" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strModuleName = "HolaCentrifuge";
+// }} ""
+// {{ 9 1 0 "9f06f314_288d_4f0e_afff7cfd48478b66" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intReturnValue = 0;
+// }} ""
+// {{ 10 1 0 "451656e3_b6ac_4d6d_9e8e4f2cb19b842f" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intReturnValueSpinLoaded = 0;
+// }} ""
+// {{ 11 1 0 "ff34e76d_5fc4_430e_aaec9dd9e10d07d9" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+Simulation_mode = 0;
+// }} ""
+// {{ 12 1 0 "8c8cf27e_bf71_4bd0_8eeedd4b2a1c8172" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+given_speed = 1000;
+// }} ""
+// {{ 13 1 0 "e2c7ac00_ddd3_4249_a1305ed3c171c7eb" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+buckets_loaded = 0;
+// }} ""
+// {{ 14 1 0 "699a6965_3bce_49a9_b33ca75aaa4a8e01" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+/* {{ 1 "" "0" */ if(0){  /* }} "" */
+// {{{ 15 1 0 "86044ba8_ace0_4aaa_881249208ae7ee54" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLSiasCentrifuge::SetSimulationMode(Simulation_mode);
+// }} ""
+/* {{ 1 "" "1" */ } /* }} "" */
+// {{ 16 1 0 "00e4f707_b6b3_49ca_ab068e9b9b3ee0ed" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 17 1 0 "3be97b93_5fb4_4e5e_bd7554e7e4b8f91a" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleC6F8D2126CC54fbd87052E81D2D6D89C.SetOutput(Translate("The centrifuge will be initialized!"));
+dialogHandleC6F8D2126CC54fbd87052E81D2D6D89C.ShowOutput(Translate("Initialize"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 18 1 0 "6924ff57_72c1_42b8_8b4f6a242d3cc52f" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+intReturnValue = SIASCENTRIFUGE::Initialize(intModuleID, strModuleName, HSLSiasCentrifuge::Enums::ErrorRecovery::Retry);
+// }} ""
+// {{ 19 1 0 "86fea7d0_564e_4e70_a1d45ac9e88570aa" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intReturnValue != HSLSiasCentrifuge::Enums::ErrorCode::None)
+{
+// }} ""
+// {{ 20 1 0 "576c0a55_5503_4e92_b0031995a9697209" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle6FEE7B5FA6E44ef1ABBF919BE51F600A.SetOutput(Translate("The centrifuge could not be initialized, check the USB cable and the CAN configuration"));
+dialogHandle6FEE7B5FA6E44ef1ABBF919BE51F600A.ShowOutput(Translate("Error"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 21 1 0 "182361d9_18f8_4a1f_821acb3192b18400" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 22 1 0 "86fea7d0_564e_4e70_a1d45ac9e88570aa" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 23 1 0 "6f52d654_0c4a_4cb0_985648dbe5a2390c" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleE4A14DE59D3F408aB1A55CAF0FF8143E.SetOutput(Translate("The initialization and communication test was successfully performed!"));
+dialogHandleE4A14DE59D3F408aB1A55CAF0FF8143E.ShowOutput(Translate("Init test"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 24 1 0 "00e4f707_b6b3_49ca_ab068e9b9b3ee0ed" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 25 1 0 "1c275b9d_20df_4d10_af061ce4c0877549" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 26 1 0 "9d30bbeb_f96a_45ec_85a2d9bf2de10f2c" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleF0BA7BC2C384462cAF0AF5BE6D175352.SetOutput(Translate("Positioning Test "), "\n", Translate(""), "\n", Translate("The centrifuge will open with the rotor on position  A "), "\n");
+dialogHandleF0BA7BC2C384462cAF0AF5BE6D175352.ShowOutput(Translate("Move to Position 1"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 27 1 0 "63d5c24a_a463_462a_9312095f0caf94ca" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+intReturnValue = SIASCENTRIFUGE::MoveToPosition(intModuleID, pos1, HSLSiasCentrifuge::Enums::ErrorRecovery::Retry);
+// }} ""
+// {{ 28 1 0 "b579639c_1766_42d3_82f6e1d0093916e2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intReturnValue != HSLSiasCentrifuge::Enums::ErrorCode::None)
+{
+// }} ""
+// {{ 29 1 0 "00835634_5a1c_40bc_8963e282b3810635" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 30 1 0 "37b87cdd_35d1_455e_a809de41ab9155d4" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle7460764AF7D04fb58DCC822ADCB096A9.SetOutput(Translate("The centrifuge could not perform the requested action. The method will be aborted!"));
+dialogHandle7460764AF7D04fb58DCC822ADCB096A9.ShowOutput(Translate("Error"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 31 1 0 "b579639c_1766_42d3_82f6e1d0093916e2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 32 1 0 "f828dba7_d4fc_4682_a4f0b9dfdc6f821f" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleF08BDB461155490390BA1AEC74AE2CB1.SetOutput(Translate("-Verify that the long side of the bucket is perfectly parallel with the long side of the opening"), "\n", Translate(""), "\n", Translate("-Gently swing the bucket and verify that it returns to the horizontal position"), "\n", Translate(""), "\n", Translate("-Press OK when finish. "), "\n");
+dialogHandleF08BDB461155490390BA1AEC74AE2CB1.ShowOutput(Translate("Check bucket"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 33 1 0 "b579639c_1766_42d3_82f6e1d0093916e2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 34 1 0 "9b6ddee8_59cb_4017_9dbdd0525086d370" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleE0B6E37BE5AB4bf6BB08263DDEA5F0E8.SetOutput(Translate("The centrifuge will open with the rotor on position B"), "\n", Translate(""), "\n", Translate("ATTENTION. The lid will close."), "\n");
+dialogHandleE0B6E37BE5AB4bf6BB08263DDEA5F0E8.ShowOutput(Translate("Move to Position 2"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 35 1 0 "242690ec_fe5d_445e_bbbcd8e55d00ba82" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+intReturnValue = SIASCENTRIFUGE::MoveToPosition(intModuleID, pos2, HSLSiasCentrifuge::Enums::ErrorRecovery::Retry);
+// }} ""
+// {{ 36 1 0 "c93efe81_c8c9_4453_bad8198dee8d4baf" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intReturnValue != HSLSiasCentrifuge::Enums::ErrorCode::None)
+{
+// }} ""
+// {{ 37 1 0 "cbf99647_7cc8_4805_b536d6b524b86283" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 38 1 0 "7b42ce5a_13a0_432e_a200e72726efd1da" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle3526DA27F209490f86908B779D202075.SetOutput(Translate("The centrifuge could not perform the requested action. The method will be aborted!"));
+dialogHandle3526DA27F209490f86908B779D202075.ShowOutput(Translate("Error"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 39 1 0 "c93efe81_c8c9_4453_bad8198dee8d4baf" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 40 1 0 "07c1be93_ba4a_4545_baf22d9e84222a5f" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle87ABA63FFD954754BCE658067096730A.SetOutput(Translate("-Verify that the long side of the bucket is perfectly parallel with the long side of the opening"), "\n", Translate(""), "\n", Translate("-Gently swing the bucket and verify that it returns to the horizontal position"), "\n", Translate(""), "\n", Translate("-Press OK when finished. "), "\n");
+dialogHandle87ABA63FFD954754BCE658067096730A.ShowOutput(Translate("Check bucket"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 41 1 0 "c93efe81_c8c9_4453_bad8198dee8d4baf" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 42 1 0 "931be1ea_a7b1_4b1b_84073b54c0995db6" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle78EC98258E48415eB7EAADA2331B9A7C.SetOutput(Translate("The positioning test was successfully performed!"));
+dialogHandle78EC98258E48415eB7EAADA2331B9A7C.ShowOutput(Translate("Positioning test"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 43 1 0 "1c275b9d_20df_4d10_af061ce4c0877549" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 44 1 0 "50f2c670_1aef_442b_9b57a56820b2fcc8" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 45 1 0 "ac89314f_bef9_4c26_9330d417af1da29a" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleBAAB015CF6A448b2AB48675247961CE5.SetOutput(Translate("Rotor Test"), "\n", Translate(""), "\n", Translate("Manually spin the rotor  360° and verify that it moves smoothly"), "\n", Translate(""), "\n", Translate("Press OK when finished"), "\n");
+dialogHandleBAAB015CF6A448b2AB48675247961CE5.ShowOutput(Translate("Check the rotor"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 46 1 0 "d880586c_bdbc_4a10_8c7bfc002e741638" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+intReturnValue = SIASCENTRIFUGE::Initialize(intModuleID, strModuleName, HSLSiasCentrifuge::Enums::ErrorRecovery::Retry);
+// }} ""
+// {{ 47 1 0 "3d921c49_791a_4509_8495193a2b5c1d67" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleDE7B1255AF1D4d39A5DAD6D2F3CCA99B.SetOutput(Translate("The rotor test was successfully performed!"));
+dialogHandleDE7B1255AF1D4d39A5DAD6D2F3CCA99B.ShowOutput(Translate("Rotor test"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 48 1 0 "50f2c670_1aef_442b_9b57a56820b2fcc8" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 49 1 0 "938e7043_740f_47a0_be47e07eec94f40b" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 50 1 0 "f435f11f_e1c4_479c_b4454478fcf7b3d3" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+intReturnValue = SIASCENTRIFUGE::MoveToPosition(intModuleID, pos1, HSLSiasCentrifuge::Enums::ErrorRecovery::Retry);
+// }} ""
+// {{ 51 1 0 "dff662be_6f10_43fc_925f7ec68068438f" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle87EF4128798946bc8968B7B99118C557.SetOutput(Translate("Spin Test"), "\n", Translate(""), "\n", Translate("Prepare 2 identical Labwares (Plates, tube racks) that will be used by the customer."), "\n", Translate("The 2 Labwares must be of the same weight (maximally allowded difference =  6 grams)"), "\n", Translate(""), "\n", Translate("Place one Labware into the Centrifuge Bucket! "), "\n", Translate(""), "\n", Translate("Click OK when finished"), "\n", Translate(""), "\n", Translate("ATTENTION. The lid will close."), "\n");
+dialogHandle87EF4128798946bc8968B7B99118C557.ShowOutput(Translate("Spin test"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 52 1 0 "7b6233d2_24db_44c8_b94b93569bdef9da" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+intReturnValue = SIASCENTRIFUGE::MoveToPosition(intModuleID, pos2, HSLSiasCentrifuge::Enums::ErrorRecovery::Retry);
+// }} ""
+// {{ 53 1 0 "edefe186_9f64_4f04_b39a3ddde4fa8359" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleE53F0F2BAEB64415A0110A78B193AF42.SetOutput(Translate("Place the second Labware into the Centrifuge Bucket!"), "\n", Translate(""), "\n", Translate("Click OK when finished"), "\n", Translate(""), "\n", Translate("ATTENTION. The lid will close."), "\n");
+dialogHandleE53F0F2BAEB64415A0110A78B193AF42.ShowOutput(Translate("Spin test"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 54 1 0 "0b4947a0_6377_42e9_a998abf2f985fc05" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+given_speed = 1000;
+// }} ""
+// {{ 55 1 0 "f8a2a159_5ee7_41ba_9ad7a13b324e2fd7" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+buckets_loaded = 1;
+// }} ""
+// {{ 56 1 0 "1d866c43_a952_486d_91e56add0a37614c" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < 4;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{{ 57 1 0 "f4342a4d_c520_4fe8_81e5ec8525d443a1" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+intReturnValueSpinLoaded = SIASCENTRIFUGE::Spin(intModuleID, 60, given_speed, 100, HSLSiasCentrifuge::Enums::ErrorRecovery::None);
+// }} ""
+// {{ 58 1 0 "7aa26ba0_46a5_437e_949e01c04168c223" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intReturnValueSpinLoaded != HSLSiasCentrifuge::Enums::ErrorCode::None)
+{
+// }} ""
+// {{ 59 1 0 "0fa8184d_ea2c_42fd_9827006cb497a8cd" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 60 1 0 "7aa26ba0_46a5_437e_949e01c04168c223" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 61 1 0 "eac4a561_e489_4548_b2c06d3611572b54" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+TempVar = given_speed;
+// }} ""
+// {{{ 62 1 0 "5606bce5_2177_4b8f_8e53adcbc179dd72" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+StrIStr(TempVar);
+// }} ""
+// {{ 63 1 0 "b4548142_63e3_4fb9_9d44042c2b025f3e" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleD516F07FFE1C434a90AF51A12A1D6512.SetOutput(Translate("The test with "), TempVar, Translate(" RPM was successfully performed"));
+dialogHandleD516F07FFE1C434a90AF51A12A1D6512.ShowOutput(Translate("Success"), hslOKOnly | hslInformation | hslDefButton1, 2);
+// }} ""
+// {{ 64 1 0 "7aa26ba0_46a5_437e_949e01c04168c223" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 65 1 0 "815758fd_0436_4821_b6963eaf3c013285" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+given_speed = given_speed + 1000;
+// }} ""
+// {{ 66 1 0 "1d866c43_a952_486d_91e56add0a37614c" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 67 1 0 "169a65ba_41bb_40fe_bdc00d9467fb779e" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleE2AA0E169567492599BBFCDA7A48B09A.SetOutput(Translate("The spin test was successfully performed!"));
+dialogHandleE2AA0E169567492599BBFCDA7A48B09A.ShowOutput(Translate("Spin test"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 68 1 0 "938e7043_740f_47a0_be47e07eec94f40b" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 69 1 0 "92673c28_184f_4190_bd3890f959f4d6fc" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 70 1 0 "21bbe24b_bca3_42b6_a884d9dc17b69833" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+intReturnValue = SIASCENTRIFUGE::MoveToPosition(intModuleID, pos1, HSLSiasCentrifuge::Enums::ErrorRecovery::Retry);
+// }} ""
+// {{ 71 1 0 "18244246_5153_466a_ad94131c4873b6a1" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intReturnValue != HSLSiasCentrifuge::Enums::ErrorCode::None)
+{
+// }} ""
+// {{ 72 1 0 "84c136f4_62dc_41e2_9e7ed8346b707861" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 73 1 0 "840d2392_ac95_47f0_b17c1be14c184f81" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleCEFBE2ACEC9749bbB760A4EDD8B26E2F.SetOutput(Translate("The centrifuge could not perform the requested action. The method will be aborted!"));
+dialogHandleCEFBE2ACEC9749bbB760A4EDD8B26E2F.ShowOutput(Translate("Error"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 74 1 0 "18244246_5153_466a_ad94131c4873b6a1" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 75 1 0 "6834650d_2ac9_4ae6_aa3661ea5bc34985" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleF891E760809C4531AEE5874247EF6B87.SetOutput(Translate("Please remove the Labware from position  A"), "\n", Translate(""), "\n", Translate("ATTENTION. The lid will close."), "\n");
+dialogHandleF891E760809C4531AEE5874247EF6B87.ShowOutput(Translate("Remove labware"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 76 1 0 "3a0b2880_05a7_49dd_b09572565b111b56" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+intReturnValue = SIASCENTRIFUGE::MoveToPosition(intModuleID, pos2, HSLSiasCentrifuge::Enums::ErrorRecovery::Retry);
+// }} ""
+// {{ 77 1 0 "c39d915d_7d16_41ca_9f2d80486d8ddc12" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intReturnValue != HSLSiasCentrifuge::Enums::ErrorCode::None)
+{
+// }} ""
+// {{ 78 1 0 "74434486_10af_4708_a7c20363117b2270" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 79 1 0 "7529bfff_47c5_4dd5_8f892c7079640155" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle54EE3E8A4DC4449896DB1EA4BDF5B66E.SetOutput(Translate("The centrifuge could not perform the requested action. The method will be aborted!"));
+dialogHandle54EE3E8A4DC4449896DB1EA4BDF5B66E.ShowOutput(Translate("Error"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 80 1 0 "c39d915d_7d16_41ca_9f2d80486d8ddc12" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 81 1 0 "c8eaad62_abe3_4bfe_80aad10a01be0dc4" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle818A2CB44DE6410eA8019692B9C67F1F.SetOutput(Translate("Remove the labware from position B"), "\n", Translate(""), "\n", Translate("ATTENTION. The lid will close."), "\n");
+dialogHandle818A2CB44DE6410eA8019692B9C67F1F.ShowOutput(Translate("Remove labware"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 82 1 0 "92673c28_184f_4190_bd3890f959f4d6fc" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 83 1 0 "e97077b0_50c8_4c2e_a61831cf9ffb5b6b" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+SIASCENTRIFUGE::Terminate(intModuleID);
+// }} ""
+// {{ 84 1 0 "c77b137c_dec2_45ac_b66b6c0a3cec4c61" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleF596B85F00FE4e36827847D94961423A.SetOutput(Translate("Congratulations!"), "\n", Translate(""), "\n", Translate("The centrifuge has passed the OQ test"), "\n");
+dialogHandleF596B85F00FE4e36827847D94961423A.ShowOutput(Translate("End of OQ"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 5 "SiasCentrifuge" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// $$author=Hamilton$$valid=0$$time=2023-12-22 11:56$$checksum=4f23d3a8$$length=087$$

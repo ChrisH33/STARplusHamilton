@@ -1,0 +1,74 @@
+#include "STARplus_TestBed.res"
+ namespace _Method { #include "WSI\\VariColumn_96Head.hs_" } 
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+global device ML_STAR ("STARplus_TestBed.lay", "ML_STAR", hslTrue);
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+ namespace _Method { #include "HSLPTLLib.hsl" } 
+ namespace _Method { #include "HSLSTCCLib.hs_" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+VARICOLUMN_96HEAD::_InitLibrary();
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{ 1 1 0 "48ada0d5_7897_45de_b1d58975f2beda39" "ML_STAR:{1C0C0CB0-7C87-11D3-AD83-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1C0C0CB0_7C87_11D3_AD83_0004ACB1DCB2("48ada0d5_7897_45de_b1d58975f2beda39"); // Initialize
+}
+// }} ""
+// {{{ 2 1 0 "9246f266_5d07_45cc_93c3b26d29bc5062" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+VARICOLUMN_96HEAD::Load_GUI(3, 1);
+// }} ""
+// {{{ 3 1 0 "b36714e5_0e95_488c_b9f3747d510cd8c5" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+VARICOLUMN_96HEAD::Tip_PickUp_Column(ML_STAR, ML_STAR.Core96_TipSupport_ST_L_0001, ML_STAR.MlStar300ulStandardVolumeTipWithFilter);
+// }} ""
+// {{{ 4 1 0 "1502ed20_fc19_45c2_8a1687f25b99804f" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+VARICOLUMN_96HEAD::PipettingOffset();
+// }} ""
+// {{ 5 1 0 "1af92a9e_9db4_45d3_ab66616e04431b85" "ML_STAR:{E294A9A7-BEFC-4000-9A4C-926B91B8DE1C}"
+{
+	ML_STAR._E294A9A7_BEFC_4000_9A4C_926B91B8DE1C("1af92a9e_9db4_45d3_ab66616e04431b85"); // EasyHead96Aspirate
+}
+// }} ""
+// {{ 6 1 0 "79a2f9cd_1637_4a99_9561b7208aa4e40c" "ML_STAR:{7DE53592-BBE5-4f1d-B657-161F1AAECA3E}"
+{
+	ML_STAR._7DE53592_BBE5_4f1d_B657_161F1AAECA3E("79a2f9cd_1637_4a99_9561b7208aa4e40c"); // EasyHead96Dispense
+}
+// }} ""
+// {{{ 7 1 0 "e60bd90d_a19a_4a42_be5c8389393b465f" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+VARICOLUMN_96HEAD::PipettingOffset();
+// }} ""
+// {{{ 8 1 0 "49f1d9a9_a8cb_40ba_843fd5d8c7823706" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+VARICOLUMN_96HEAD::Tip_Eject_Column(ML_STAR, 2);
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+VARICOLUMN_96HEAD::_ExitLibrary();
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=ch33$$valid=0$$time=2024-06-05 13:23$$checksum=55982b8e$$length=083$$

@@ -1,0 +1,1601 @@
+//*************************************************************************************************
+// Copyright (C) by HAMILTON USA
+// All rights reserved.
+//
+// Library: Autoload Control Library
+// 
+// Authors:    Sebastian Smith
+//             Gareth Ferneyhough
+//             Will Turman
+//
+// Modification History: 
+//    11/21/2012 -   Added YMoveRelative2(). Exposed InitializeLibrary() function.
+//    11/26/2012 -   v1.0
+//    01/07/2013 -   Validated
+//    01/07/2013 -   v1.1
+//    02/22/2013 -   Validated
+//    03/20/2013 -   Added UnloadCarrier2() 
+//    03/22/2013 -   v1.1.1.0
+//    06/23/2014 -   v1.2 Implemented return values for YMoveAbsolute and YMoveRelaive
+//    08/13/2014 -   v1.2 Implemented Loading Light Functions
+//*************************************************************************************************
+//device ML_Star;
+#ifndef _HSL_Autoload_hsl_
+#define _HSL_Autoload_hsl_ 1
+
+
+
+#ifndef HSL_RUNTIME
+namespace Autoload
+{
+
+   function InitializeLibrary()
+      void { return ;}
+
+   // ---------------------------------------------------------------------------------------------
+   // X drive
+   // ---------------------------------------------------------------------------------------------
+
+   function XInitialize(
+      device& mlStar)                        // In: Device type
+      void { return; }
+
+   function XMoveAbsolute(
+      device& mlStar,                        // In: Device type
+      variable mmPosition)                   // In: Floating point type
+      void { return; }
+
+   function XMoveRelative(
+      device& mlStar,                        // In: Device type
+      variable mmDistance,                   // In: Floating point type
+      variable negativeDirection)            // In: Boolean type
+      void { return; }
+
+   function XMoveToSlot(
+      device& mlStar,                        // In: Device type
+      variable slot)                         // In: Integer type
+      void { return; } 
+
+   function XPosition(
+      device& mlStar)                        // In: Device type
+      variable { return(0.0); }
+
+   function XPowerOff(
+      device& mlStar)                        // In: Device type
+      void { return; }
+
+   // ---------------------------------------------------------------------------------------------
+   // Y drive
+   // ---------------------------------------------------------------------------------------------
+
+   function YInitialize(
+      device& mlStar)                        // In: Device type
+      void { return; }
+
+   function YMoveAbsolute(
+      device& mlStar,                        // In: Device type
+      variable mmPosition)                   // In: Floating point type
+      void { return; }
+
+   function YMoveAbsolute2(
+      device& mlStar,                        // In: Device type
+      variable mmPosition,                   // In: Floating point type
+      variable currentLimit)                 // In: Integer type 0..7
+      void { return; }
+
+   function YMoveRelative(
+      device& mlStar,                        // In: Device type
+      variable mmDistance,                   // In: Floating point type
+      variable negativeDirection)            // In: Boolean type
+      void { return; } 
+      
+   function YMoveRelative2(
+      device& mlStar,                        // In: Device type
+      variable mmDistance,                   // In: Floating point type
+      variable negativeDirection,            // In: Boolean type
+      variable currentLimit,                 // In: Integer type 0..7
+      variable maxSpeed)                     // In: Integer type 20-2500
+      void { return; } 
+
+   function YPosition(
+      device& mlStar)                        // In: Device type
+      variable { return(0.0); }
+
+   function YPowerOff(
+      device& mlStar)                        // In: Device type
+      void { return; }
+
+   function YToDeck(
+      device& mlStar)                        // In: Device type
+      void { return; }
+
+   function YToID(
+      device& mlStar)                        // In: Device type
+      void { return; }
+
+   function YToTray(
+      device& mlStar)                        // In: Device type
+      void { return; }
+
+   // ---------------------------------------------------------------------------------------------
+   // Z drive
+   // ---------------------------------------------------------------------------------------------
+
+   function ZDisengage(
+      device& mlStar)                        // In: Device type
+      void { return; }  
+
+   function ZEngage(
+      device& mlStar)                        // In: Device type
+      void { return; }
+
+   function ZInitialize(
+      device& mlStar)                        // In: Device type
+      void { return; }
+
+   function ZMoveAbsolute(
+      device& mlStar,                        // In: Device type
+      variable mmPosition)                   // In: Floating point type
+      void { return; }
+
+   function ZMoveRelative(
+      device& mlStar,                        // In: Device type
+      variable mmDistance,                   // In: Floating point type
+      variable negativeDirection)            // In: Boolean type
+      void { return; }
+
+   function ZPosition(
+      device& mlStar)                        // In: Device type 
+      variable { return(0.0); }
+
+   function ZPowerOff(
+      device& mlStar)                        // In: Device type
+      void { return; }
+
+   // ---------------------------------------------------------------------------------------------
+   // Scanner rotation drive
+   // ---------------------------------------------------------------------------------------------
+
+   function SHorizontal(
+      device& mlStar)                        // In: Device type
+      void { return; }
+
+   function SOrientation(
+      device& mlStar)                        // In: Device type
+      void { return; }
+
+   function SPowerOff(
+      device& mlStar)                        // In: Device type
+      void { return; }
+
+   function SVertical(
+      device& mlStar)                        // In: Device type
+      void { return; }
+   
+   // ---------------------------------------------------------------------------------------------
+   // Module
+   // ---------------------------------------------------------------------------------------------
+
+   function DetectCarrierPresence(
+      device& mlStar,                        // In: Device type
+      variable slot)                         // In: Integer type
+      void { return; }  
+
+   function IdentifyCarrier(
+      device& mlStar,                        // In: Device type
+      variable slot)                         // In: Integer type
+      variable { return("No Carrier"); }
+
+   function Initialize(
+      device& mlStar)                        // In: Device type
+      void { return; }
+
+   function UnloadCarrier(
+      device& mlStar,                        // In: Device type
+      variable slot)                         // In: Integer type
+      void { return; }
+
+   function UnloadCarrier2(
+      device& mlStar,                        // In: Device type
+      variable slot)                         // In: Integer type
+      void { return; }
+
+   // ---------------------------------------------------------------------------------------------
+   // Library Function
+   // ---------------------------------------------------------------------------------------------
+
+   function Version()
+   variable { return(""); }
+
+   // ---------------------------------------------------------------------------------------------
+   // Loading Light Functions
+   // ---------------------------------------------------------------------------------------------
+
+   function UpdateLoadingLEDs( device& Ml_Star, variable intRightTrack, variable intWidthInTracks ) void 
+   { 
+      return; 
+   }
+
+   function HexToBinary( variable& strHex ) variable
+   {
+      return("");
+   }
+
+   function BinaryToHex(variable& strBinary) variable
+   {
+      return("");
+   }
+
+
+}
+#endif
+
+#ifdef HSL_RUNTIME
+
+#include "HSLStrLib.hsl"
+
+namespace Autoload
+{
+   // TODO: Error Handling
+
+   // ---------------------------------------------------------------------------------------------
+   // Fields
+   // ---------------------------------------------------------------------------------------------
+
+   static const variable _autoload("I0");       // Autoload module
+   static variable _initializedLib(hslFalse);   // Library initialization state
+   static const variable _x(0);                 // X drive (Indexes into drive resolution array)
+   static const variable _y(1);                 // Y drive
+   static const variable _z(2);                 // Z drive
+   static variable _resolution[];               // Drive resolutions  
+   static const variable _vertical(0);          // Vertical orientation of scanner drive
+   static const variable _horizontal(1);        // Horizontal orientation of scanner drive
+   static const variable _unknown(2);           // Unknown orientation of scanner drive
+   variable _version("1.2.0");                  // Autoload library version
+ 
+
+   // ---------------------------------------------------------------------------------------------
+   // Library initialization
+   // ---------------------------------------------------------------------------------------------
+
+   // Function: 
+   //    - InitializeAutoloadLibrary
+   //
+   // Purpose: 
+   //    - Initialize the Autoload library
+   //
+   // Arguments:
+   //    - None
+   //
+   // Returns:
+   //    - None
+   function InitializeLibrary()
+   {
+      if (!_initializedLib)
+      {
+         _resolution.SetSize(3);
+         _resolution[_x] = 0.1;                       // X Drive resolution
+         _resolution[_y] = 0.06404424;                // Y Drive resolution
+         _resolution[_z] = 0.00416667;                // Z Drive resolution
+
+         _initializedLib = hslTrue;
+
+         // Record the version of the Autoload library to the Trace file
+         Trace( "Autoload Library Version : ", _version );
+      }
+
+      return(_initializedLib);
+   }
+
+   // ---------------------------------------------------------------------------------------------
+   // Helper Functions
+   // ---------------------------------------------------------------------------------------------
+   
+   // Function: 
+   //    - CommandSuccessful
+   //
+   // Purpose: 
+   //    - Test the array of return values from a ML Star firmware command to see if an error
+   //      occurred
+   //
+   // Arguments:
+   //    - variable& commandRetval[] = Array of string variables.  An array of return values from a 
+   //      firmware command
+   //
+   // Returns:
+   //    - True if no error was encountered
+   function CommandSuccessful(variable& commandRetval[]) variable
+   {
+      variable retval(hslFalse);
+      variable success("00");
+      variable output;
+      variable index;
+      variable errNum;
+
+      if (commandRetval.GetSize() == 4)
+      {
+         output = commandRetval[3];
+         index = StrFind(output, "er");
+         errNum = StrMid(output, index + 2, 2);
+         
+         if (errNum == success)
+         {
+            retval = hslTrue;
+         }
+      }
+
+      return(retval);
+   }
+   
+   // Function: 
+   //    - ErrorCode
+   //
+   // Purpose: 
+   //    - Extract the error code from the return values from a ML Star firmware command
+   //
+   // Arguments:
+   //    - variable& commandRetval[] = Array of string variables.  An array of return values from a 
+   //      firmware command
+   //
+   // Returns:
+   //    - Two digit error value as string
+   function ErrorCode(variable& commandRetval[]) variable
+   {
+      variable retval("00");
+      variable output;
+      variable index;
+      variable errNum;
+
+      if (commandRetval.GetSize() == 4)
+      {
+         output = commandRetval[3];
+         index = StrFind(output, "er");
+         errNum = StrMid(output, index + 2, 2);
+         
+         retval = errNum;
+      }
+
+      return(retval);
+   }
+
+   // Function: 
+   //    - MMToCounts
+   //
+   // Purpose: 
+   //    - Convert millimeters to counts for each drive.
+   //
+   // Arguments:
+   //    - variable mm = Floating point variable.  Distance in millimeters
+   //    - variabe drive = Integer variable. An integer representing the drive.  Constants 
+   //      _x, _y, _z have been defined for this purpose.
+   //
+   // Returns:
+   //    - The mm distance in counts.
+   function MMToCounts(variable mm, variable drive) variable
+   {
+      // TODO: Round, and ensure return value is an integer
+      variable counts;
+      counts = Ceiling(mm / _resolution.GetAt(drive), hslFalse);
+      return(counts);
+   }
+
+   // Function: 
+   //    - InToPaddedString
+   //
+   // Purpose: 
+   //    - Convert an integer to a string.  Left pad the string with "0".  Strings of this form
+   //      are required by firware.
+   //
+   // Arguments:
+   //    - variable int = Integer variable.  The integer to be converted to a string
+   //    - variable count = Integer variable.  The number of characters in the resultant string.
+   //
+   // Returns:
+   //    - A string reprenting a padded integer.
+   function IntToPaddedString(variable int, variable count) variable
+   {
+      // TODO: Error if count < int
+      return(StrFillLeft(IStr(int), "0", count));
+   }
+
+   // ---------------------------------------------------------------------------------------------
+   // X Drive Functions
+   // ---------------------------------------------------------------------------------------------
+
+   // Function: 
+   //    - AutoloadXInitialize
+   //
+   // Purpose: 
+   //    - Initialize the X drive
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - None
+   function XInitialize(device& mlStar) variable[]
+   { 
+      variable cmd(_autoload + "XI");
+      variable params("");
+      variable returnValues[];
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "f042b95d_5292_46d6_9e887c85750c5dbd" ); // FirmwareCommand
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadXMoveAbsolute
+   //
+   // Purpose: 
+   //    - Move the X drive to an absolute position.
+   //
+   // Arguments:
+   //    - device& mlstar = ML Star device
+   //    - variable mmPosition = Floating point variable. Desired position in millimeters
+   //
+   // Returns:
+   //    - None
+   function XMoveAbsolute(device& mlStar, variable mmPosition) variable[] 
+   {
+      variable cmd(_autoload + "XA");
+      variable params;
+      variable returnValues[];
+      variable cntPosition;
+
+      cntPosition = MMToCounts(mmPosition, _x);
+      if (cntPosition >= 0 && cntPosition <= 12500)
+      {
+         params = "xa" + IntToPaddedString(cntPosition, 5);
+         returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "e25ba2d0_cd76_430a_b9809146d0648a67" ); // FirmwareCommand
+      }
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadXMoveRelative
+   //
+   // Purpose: 
+   //    - Move the X drive relatively by a distance.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //    - variable mmDistance = Floating point variable. Distance to move in millimeters
+   //    - variable negativeDirection = Boolean variable. If True, the drive will move in the negative direction.
+   //
+   // Returns:
+   //    - None
+   function XMoveRelative(device& mlStar, variable mmDistance, variable negativeDirection) variable[]
+   {
+      variable cmd(_autoload + "XS");
+      variable params;
+      variable returnValues[];
+      variable cntDistance;
+
+      cntDistance = MMToCounts(mmDistance, _x);      
+      // TODO: Check distance for travel limits
+      if (cntDistance >= 0 && cntDistance <= 12500)
+      {
+         params = "xs" + IntToPaddedString(cntDistance, 5);
+         if (negativeDirection)
+         {
+            params = params + "xt1";
+         }
+         else
+         {
+            params = params + "xt0";
+         }
+         returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "1080a8cd_f5bb_48e0_90dcfb1d89edac57" ); // FirmwareCommand
+         return(returnValues);
+      }
+   }
+
+   // Function: 
+   //    - AutoloadXMoveToSlot
+   //
+   // Purpose: 
+   //    - Move the X drive to a slot
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //    - variable slot = Integer value representing a slot.  0 <= slot <= 54.
+   //
+   // Returns:
+   //    - None
+   function XMoveToSlot(device& mlStar, variable slot) variable[]
+   {
+      variable cmd(_autoload + "XP");
+      variable params;
+      variable returnValues[];
+
+      if (slot >= 0 && slot <= 54)
+      {
+         params = "xp" + IntToPaddedString(slot, 2);
+         returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "642e4ad3_8d98_4d7a_b5cda4c4adc7d767" ); // FirmwareCommand
+      }
+
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadXPosition
+   //
+   // Purpose: 
+   //    - Get the position of the X drive in millimeters.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - Firmware position in millimeters.
+   function XPosition(device& mlStar) variable
+   {
+      variable retval(0.0);
+      variable cmd(_autoload + "RX");
+      variable params("");
+      variable returnValues[];
+      variable index;
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "9ce340b2_c702_4655_8276a8cf2641150e" ); // FirmwareCommand
+
+      if (CommandSuccessful(returnValues))
+      {
+         index = StrFind(returnValues[3], "rx");
+         // FW position
+         // Syntax error in _resolution[_x].  Need to use _resolution.GetAt(_x).
+         retval = FVal(StrMid(returnValues[3], index + 2, 6)) * _resolution.GetAt(_x);
+      }
+
+      return(retval);
+   }
+
+   // Function: 
+   //    - AutoloadXPowerOff
+   //
+   // Purpose: 
+   //    - Turns power off to the X drive.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - None
+   function XPowerOff(device& mlStar) variable[]
+   { 
+      variable cmd(_autoload + "XO");
+      variable params("");
+      variable returnValues[];
+      
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "4d6787b4_fdbf_4307_bdb17377c30028dd" ); // FirmwareCommand
+      return(returnValues);
+   }
+
+   // ---------------------------------------------------------------------------------------------
+   // Y Drive Functions
+   // ---------------------------------------------------------------------------------------------
+
+   // Function: 
+   //    - AutoloadYInitialize
+   //
+   // Purpose: 
+   //    - Initializes the Y drive
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - True if the drive initialized.
+   function YInitialize(device& mlStar) variable[]
+   {
+      variable cmd(_autoload + "YI");
+      variable params("");
+      variable returnValues[];
+      variable retval(hslFalse);
+      
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "610dfe4f_f769_4c09_875ec0440cea66d2" ); // FirmwareCommand
+      if (CommandSuccessful(returnValues))
+      {
+         retval = hslTrue;
+      }
+
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadYMoveAbsolute
+   //
+   // Purpose: 
+   //    - Move the Y drive to an absolute position.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //    - variable mmPosition = Floating point variable. Desired position in millimeters
+   //
+   // Returns:
+   //    - True if the position was reached.
+   function YMoveAbsolute(device& mlStar, variable mmPosition) variable[]
+   {
+      variable cmd(_autoload + "YA");
+      variable params;
+      variable returnValues[];
+      variable cntPosition;
+      variable retval(hslFalse);
+      
+      cntPosition = MMToCounts(mmPosition, _y);
+      if (cntPosition >= 0 && cntPosition <= 9999)
+      {
+         params = "ya" + IntToPaddedString(cntPosition, 4) + "yw7";
+         returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "1eef15be_6473_45ea_a779f41dd0729f63" ); // FirmwareCommand
+         if (CommandSuccessful(returnValues))
+         {
+            retval = hslTrue;
+         }
+      }
+
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadYMoveAbsolute2
+   //
+   // Purpose: 
+   //    - Move the Y drive to an absolute position.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //    - variable mmPosition = Floating point variable. Desired position in millimeters
+   //    - variable currentLimit = Integer variable.  Current limit 0..7.  7 is highest current.
+   //
+   // Returns:
+   //    - Return values from firmware call.
+   function YMoveAbsolute2(device& mlStar, variable mmPosition, variable currentLimit) variable[]
+   {
+      variable cmd(_autoload + "YA");
+      variable params;
+      variable abs;
+      variable returnValues[];
+      variable cntPosition;
+      // TODO: change the return type later
+      
+      cntPosition = MMToCounts(mmPosition, _y);
+      // TODO: Raise error
+      if (currentLimit < 0 || currentLimit > 7)
+      {
+      }
+
+      // TODO: Raise error
+      if (cntPosition >= 0 && cntPosition <= 9999)
+      {
+         abs = "ya" + IntToPaddedString(cntPosition, 4);
+         // Command at passed current limit
+         // Current limit is not reset after command termination
+         params = abs + "yw" + IStr(currentLimit);
+         returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "1eef15be_6473_45ea_a779f41dd0729f63" ); // FirmwareCommand
+      }
+
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadYMoveRelative
+   //
+   // Purpose: 
+   //    - Move the Y drive relatively by a distance.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //    - variable mmDistance = Floating point variable. Distance to move in millimeters
+   //    - variable negativeDirection = Boolean variable. If True, the drive will move in the negative direction.
+   //
+   // Returns:
+   //    - None
+   function YMoveRelative(device& mlStar, variable mmDistance, variable negativeDirection) variable[]
+   {
+      variable cmd(_autoload + "YS");
+      variable params;
+      variable returnValues[];
+      variable cntDistance;
+      
+      cntDistance = MMToCounts(mmDistance, _y);
+      // TODO: Check distance for travel limits
+      if (cntDistance >= 0 && cntDistance <= 9999)
+      {
+         params = "ys" + IntToPaddedString(cntDistance, 4);
+         if (negativeDirection)
+         {
+            params = params + "yt0";
+         }
+         else
+         {
+            params = params + "yt1";
+         }
+
+         returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "02a95824_3c7c_4982_8ef0b62323383e98" ); // FirmwareCommand
+
+      }
+      return(returnValues);
+   }
+
+
+   // Function: 
+   //    - AutoloadYMoveRelative2
+   //
+   // Purpose: 
+   //    - Move the Y drive relatively by a distance with specified current limit and max speed.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //    - variable mmDistance = Floating point variable. Distance to move in millimeters
+   //    - variable negativeDirection = Boolean variable. If True, the drive will move in the negative direction.
+   //
+   // Returns:
+   //    - None
+   function YMoveRelative2(device& mlStar, variable mmDistance, variable negativeDirection, variable currentLimit, variable maxSpeed) variable[]
+   {
+      variable cmd(_autoload + "YS");
+      variable params;
+      variable returnValues[];
+      variable cntDistance;
+      
+      cntDistance = MMToCounts(mmDistance, _y);
+      // TODO: Check distance for travel limits
+      if (cntDistance >= 0 && cntDistance <= 9999)
+      {
+         params = "ys" + IntToPaddedString(cntDistance, 4);
+         if (negativeDirection)
+         {
+            params = params + "yt0";
+         }
+         else
+         {
+            params = params + "yt1";
+         }
+
+       params = params + "yv" + IntToPaddedString(maxSpeed, 4) + "yw" + IStr(currentLimit);
+       
+       returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "6d6220fb_6fb7_4bf6_826c784e33d8be94" ); // FirmwareCommand
+      }      
+      return(returnValues);
+   }
+     
+   // Function: 
+   //    - AutoloadYPositon
+   //
+   // Purpose: 
+   //    - Get the position of the Y drive in millimeters.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - Firmware position in millimeters.
+   function YPosition(device& mlStar) variable
+   {
+      variable retval(0.0);
+      variable cmd(_autoload + "RY");
+      variable params("");
+      variable returnValues[];
+      variable index;
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "46d4d229_ed58_49a8_8e12a6b44663f8ac" ); // FirmwareCommand
+
+      // TODO: Parse output
+      if (CommandSuccessful(returnValues))
+      {
+         index = StrFind(returnValues[3], "ry");
+         // FW position
+         // Syntax error in _resolution[_y].  Need to use _resolution.GetAt(_y).
+         retval = FVal(StrMid(returnValues[3], index + 2, 5)) * _resolution.GetAt(_y);       
+      }
+
+      return(retval);
+   }
+
+   // Function: 
+   //    - AutoloadYPowerOff
+   //
+   // Purpose: 
+   //    - Turns power off to the Y drive.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - None
+   function YPowerOff(device& mlStar) variable[]
+   {
+      variable cmd(_autoload + "YO");
+      variable params("");
+      variable returnValues[];
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "1f1c047f_9edf_4bf2_8f35d7475d82dc08" ); // FirmwareCommand
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadYToDeck
+   //
+   // Purpose: 
+   //    - Moves a carrier into the deck until it stops at the sensor rail
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - None
+   function YToDeck(device& mlStar) variable[]
+   {
+      variable cmd(_autoload + "YP");
+      // The carrier is not locking into the sensor rail using the default command.
+      // Added "yw0" to see if this raises or lowers the current limit.
+      // Ideally, a higher current limit will cause the carrier to lock into the sensor rail.
+      variable params("yp2");
+      variable returnValues[];
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "1c0453c1_26bf_4028_b86128b7f57631dd" ); // FirmwareCommand
+      return (returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadYToID
+   //
+   // Purpose: 
+   //    - Moves a carrier to the identification position
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - None
+   function YToID(device& mlStar) variable[]
+   {
+      variable cmd(_autoload + "YP");
+      variable params("yp1");
+      variable returnValues[];
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "d761e7a1_3ed7_40dc_85d49585387d7742" ); // FirmwareCommand
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadYToTray
+   //
+   // Purpose: 
+   //    - Moves a carrier to the loading tray position.  The carrier can be re-engaged by the
+   //      autoload.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - None
+   function YToTray(device& mlStar) variable[]
+   {
+      variable cmd(_autoload + "YP");
+      variable params("yp0");
+      variable returnValues[];
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "e637cd9f_a26f_43a7_8b422b837d6de293" ); // FirmwareCommand
+      return(returnValues);
+
+   }
+   
+   // ---------------------------------------------------------------------------------------------
+   // Z Drive Functions
+   // ---------------------------------------------------------------------------------------------
+   
+   // Function: 
+   //    - AutoloadZDisengage
+   //
+   // Purpose: 
+   //    - Disengage the drive wheels from the carrier.  The drive wheels will be dropped to their
+   //      minimum position.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - True if disengage was successful.
+   function ZDisengage(device& mlStar) variable[]
+   {
+      variable cmd(_autoload + "ZP");
+      variable params("zp0");
+      variable returnValues[];
+      variable retval(hslFalse);
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "96774988_c421_42cd_a68ca2a50105ee99" ); // FirmwareCommand
+      if (CommandSuccessful(returnValues))
+      {
+         retval = hslTrue;
+      }
+
+      return(returnValues);
+   }
+  
+   // Function: 
+   //    - AutoloadZEngage
+   //
+   // Purpose: 
+   //    - Engage the drive wheels with the carrier.  The drive wheels will be in their maximum
+   //      position.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - None
+   function ZEngage(device& mlStar) variable[]
+   {
+      variable cmd(_autoload + "ZP");
+      variable params("zp1");
+      variable returnValues[];
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "1eaacc42_d2df_47f6_98e786463de27c60" ); // FirmwareCommand
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadZInitialize
+   //
+   // Purpose: 
+   //    - Initialize the Y drive
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - None
+   function ZInitialize(device& mlStar) variable[]
+   {
+      variable cmd(_autoload + "ZI");
+      variable params("");
+      variable returnValues[];
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "42e10c9a_65e0_4f56_b640ae605079918b" ); // FirmwareCommand
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadZMoveAbsolute
+   //
+   // Purpose: 
+   //    - Move the Z drive to an absolute position.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //    - variable mmPosition = Floating point variable. Desired position in millimeters
+   //
+   // Returns:
+   //    - None
+   function ZMoveAbsolute(device& mlStar, variable mmPosition) variable[]
+   {
+      variable cmd(_autoload + "ZA");
+      variable params;
+      variable returnValues[];
+      variable cntPosition;
+
+      cntPosition = MMToCounts(mmPosition, _z);
+      if (cntPosition >= 0 && cntPosition <= 3000)
+      {
+         params = "za" + IntToPaddedString(cntPosition, 4);
+         returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "c68f1223_5791_44e1_b7f5ca56c1cd2ee3" ); // FirmwareCommand
+      }
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadZMoveRelative
+   //
+   // Purpose: 
+   //    - Move the Z drive relatively by a distance.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //    - variable mmDistance = Floating point variable. Distance to move in millimeters
+   //    - variable negativeDirection = Boolean variable. If True, the drive will move in the negative direction.
+   //
+   // Returns:
+   //    - None
+   function ZMoveRelative(device& mlStar, variable mmDistance, variable negativeDirection) variable[]
+   {
+      variable cmd(_autoload + "ZS");
+      variable params;
+      variable returnValues[];
+      variable cntDistance;      
+
+      cntDistance = MMToCounts(mmDistance, _z);
+      // TODO: Check distance for travel limits
+      if (cntDistance >= 0 && cntDistance <= 9999)
+      {
+         params = "zs" + IntToPaddedString(cntDistance, 4);
+         if (negativeDirection)
+         {
+            params = params + "zt0";
+         }
+         else
+         {
+            params = params + "zt1";
+         }
+         
+         returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "ee18ed21_4b84_4ab6_b62c0016441768fe" ); // FirmwareCommand
+         return(returnValues);
+      }
+   }
+
+   // Function: 
+   //    - AutoloadZPositon
+   //
+   // Purpose: 
+   //    - Get the position of the Z drive in millimeters.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - Firmware position in millimeters.
+   function ZPosition(device& mlStar) variable
+   {
+      variable retval(0.0);
+      variable cmd(_autoload + "RZ");
+      variable params("");
+      variable returnValues[];
+      variable index;
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "281bad40_4926_4e1c_8be85ba1d0467b3b" ); // FirmwareCommand
+
+      if (CommandSuccessful(returnValues))
+      {
+         index = StrFind(returnValues[3], "rz");
+         // Syntax error in _resolution[_z].  Need to use _resolution.GetAt(_z).
+         retval = FVal(StrMid(returnValues[3], index + 2, 5)) * _resolution.GetAt(_z);
+      }
+
+      return(retval);
+   }
+
+   // Function: 
+   //    - AutoloadZPowerOff
+   //
+   // Purpose: 
+   //    - Turns power off to the Z drive.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - None
+   function ZPowerOff(device& mlStar) variable[]
+   {
+      variable cmd(_autoload + "ZO");
+      variable params("");
+      variable returnValues[];
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "4ec8fabc_8bd4_4169_96725a7059114938" ); // FirmwareCommand
+      return(returnValues);
+   }  
+
+   // ---------------------------------------------------------------------------------------------
+   // Scanner Rotation Drive Functions
+   // ---------------------------------------------------------------------------------------------
+
+   // Function: 
+   //    - AutoloadSHorizontal
+   //
+   // Purpose: 
+   //    - Move the scanner rotation drive such that the scanner is in the horizontal orientation.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - None
+   function SHorizontal(device& mlStar) variable[]
+   {
+      variable cmd(_autoload + "SP");
+      variable params("sp1");
+      variable returnValues[];
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "688c980e_18d8_4dc9_b30977682526ab38" ); // FirmwareCommand
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadSOrientation
+   //
+   // Purpose: 
+   //    - Get the orientation of the scanner rotation drive.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //      - Interger variable.  The orientation of the scanner drive.  The variables _horizontal, _vertical, and _unknown 
+   //        represent the possible orientations.  
+   function SOrientation(device& mlStar) variable[]
+   {
+      variable cmd(_autoload + "RS");
+      variable params("");
+      variable returnValues[];
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "5a2cad23_d61f_4397_94d68dc6e28550be" ); // FirmwareCommand
+
+      // TODO: Parse results
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadSPowerOff
+   //
+   // Purpose: 
+   //    - Turns power off to the scanner rotation drive.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - None
+   function SPowerOff(device& mlStar) variable[]
+   {
+      variable cmd(_autoload + "SO");
+      variable params("");
+      variable returnValues[];
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "d0580ac0_2400_4c3e_b0deff8ddbed9b82" ); // FirmwareCommand
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadSVertical
+   //
+   // Purpose: 
+   //    - Move the scanner rotation drive such that the scanner is in the vertical orientation.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - None
+   function SVertical(device& mlStar) variable[]   
+   {
+      variable cmd(_autoload + "SP");
+      variable params("sp0");
+      variable returnValues[];
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "6c6be6dd_54b4_432f_8b1836c9ada8e66b" ); // FirmwareCommand
+      return(returnValues);
+   }
+
+   // ---------------------------------------------------------------------------------------------
+   // Module Functions
+   // ---------------------------------------------------------------------------------------------
+
+   // Function: 
+   //    - AutoloadDetectCarrierPresence
+   //
+   // Purpose: 
+   //    - Uses the autoload to detect the presence of a carrier on the load tray.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //    - variable slot = Integer variable.  The slot to scan with the autoload.
+   //
+   // Returns:
+   //    - None
+   function DetectCarrierPresence(device& mlStar, variable slot) variable
+   {
+      variable cmd(_autoload + "CT");
+      variable params;
+      variable returnValues[];
+      variable ctResult;
+      variable index;
+      variable retval(hslFalse);
+
+      if (slot >= 0 && slot <= 54)
+      {
+         params = "xp" + IntToPaddedString(slot, 2);
+         returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "f56b9581_d90d_45c5_a4722931f8db0b24" ); // FirmwareCommand
+         if (CommandSuccessful(returnValues))
+         {
+            index = StrFind(returnValues[3], "ct");
+            ctResult = StrMid(returnValues[3], index + 2, 2);
+         
+            // 1 = carrier present
+            // 0 = carrier not present
+            // Set result to true if there is a carrier present
+            if (ctResult == "1")
+            {
+               retval = hslTrue;
+            }
+         }
+      }
+
+      return(retval);
+   }  
+
+   // Function: 
+   //    - AutoloadIdentifyCarrier
+   //
+   // Purpose: 
+   //    - Reads the barcode identification off of a carrier on the load tray if it is present.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //    - variable slot = Integer variable.  The slot from which to identify the carrier.
+   //
+   // Returns:
+   //    - A string variable representing the carrier's barcode identification.
+   //    - "No carrier" if no carrier detected.
+   //  - "Error loading carrier for identification" if we recieve and autoload failure on carrier loading.
+   function IdentifyCarrier(device& mlStar, variable slot) variable
+   {
+      variable cmd(_autoload + "CI");
+      variable params;
+      variable returnValues[];
+      variable index;
+      variable numChars;
+      variable tmpString;
+      variable offset;
+      variable identity("No carrier");
+      
+      if (slot >= 0 && slot <= 54)
+      {
+         params = "xp" + IntToPaddedString(slot, 2);
+         returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "2ef57124_fc2f_44d0_864a99d1f4d1b015" ); // FirmwareCommand
+         if (CommandSuccessful(returnValues))
+         {
+            tmpString = returnValues[3];
+            index = StrFind(tmpString, "bb/");
+            
+            if (index >= 0)
+            {
+               offset = 3; // skip: "bb/##"
+               //identity = StrMid(tmpString, index + offset, 4);  // Grab the mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "1fc98f06_0fae_4a68_b681b5f6cbe9bef1" ); type.  Barcode = 8 chars. First 4 chars are type, last 4 are ID
+               numChars = StrIVal(StrMid(tmpString, index + offset, 2));
+               identity = StrRight(tmpString, numChars);
+            }
+         }
+       else if(ErrorCode(returnValues) == "81")
+       {
+         identity = "No carrier";
+       }
+         else
+         {
+            identity = "Error loading carrier for identification";
+         }
+      }
+     
+      return(identity);
+   }
+
+   // Function: 
+   //    - AutoloadInitialize
+   //
+   // Purpose: 
+   //    - Initializes all drives of the autoload device.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - None
+   function Initialize(device& mlStar) variable[]
+   {
+      variable cmd(_autoload + "II");
+      variable params("");
+      variable returnValues[];
+
+      returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "19a346e7_1271_4c46_ad257c072c5665e0" ); // FirmwareCommand
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadUnloadCarrier
+   //
+   // Purpose: 
+   //    - Moves a carrier from the deck to the load tray. The carrier can be reloaded.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - None
+   function UnloadCarrier(device& mlStar, variable slot) variable[]
+   {
+      variable cmd(_autoload + "CR");
+      variable params;
+      variable returnValues[];
+
+      if (slot >= 0 && slot <= 54)
+      {
+         params = "xp" + IntToPaddedString(slot, 2);
+         returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "77e4a6ca_773d_47f9_a33d3070cbde3dec" ); // FirmwareCommand
+   // FirmwareCommand
+      }
+      return(returnValues);
+   }
+
+   // Function: 
+   //    - AutoloadUnloadCarrier2
+   //
+   // Purpose: 
+   //    - Moves a carrier from the deck to the load tray. The carrier cannot be reloaded.
+   //
+   // Arguments:
+   //    - device& mlStar = ML Star device
+   //
+   // Returns:
+   //    - None
+   function UnloadCarrier2(device& mlStar, variable slot) variable[]
+   {
+      variable cmd(_autoload + "CW");
+      variable params;
+      variable returnValues[];
+
+      if (slot >= 0 && slot <= 54)
+      {
+         params = "xp" + IntToPaddedString(slot, 2);
+         returnValues = mlStar._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "4da405e2_4b02_4828_afb3d3372b197708" ); // FirmwareCommand
+      }
+      return(returnValues);
+   }
+
+   // ---------------------------------------------------------------------------------------------
+   // Library Functions
+   // ---------------------------------------------------------------------------------------------
+
+   // Function: 
+   //    - Version
+   //
+   // Purpose: 
+   //    - Reports the version string of the library
+   //
+   // Arguments:
+   //    - None
+   //
+   // Returns:
+   //    - String
+   function Version() variable
+   {
+      return(_version);
+   }
+
+   // ---------------------------------------------------------------------------------------------
+   // Loading Light Functions
+   // ---------------------------------------------------------------------------------------------
+
+   // Function: 
+   //    - HexToBinary
+   //
+   // Purpose: 
+   //    - Converts a Hex String into a Binary String (i.e. the 14 character Loading Light hex string) 
+   //
+   // Arguments:
+   //    - strHex (string) a string of Hex characters (0-F)
+   //
+   // Returns:
+   //    - strBinary (string) a Binary output of the Hex input
+
+   function HexToBinary(variable& strHex) variable
+   {
+
+      variable intLength(0);
+      variable i;
+      variable strHexChar("");
+      variable strBinary("");
+      variable strRemaining("");
+      variable intBase10(0);
+      variable intBit(0);
+      variable intBits[](4);
+      variable intBitArray[];
+
+      strRemaining = strHex;
+      intLength = StrGetLength(strRemaining);
+
+      while(intLength > 0)
+      {
+         
+         strHexChar = StrRight(strRemaining, 1);
+         //Trace(strHexChar);
+         strHexChar = "0x" + strHexChar;
+         intBase10 = IVal(strHexChar);
+
+         for(i = 0; i <= 3; i++)
+         {
+            intBit = intBase10 % 2;
+            intBits[i] = intBit;
+            intBase10 = intBase10 / 2;
+         }
+
+         for(i = 0; i < intBits.GetSize(); i++)
+         {
+            strBinary = strBinary + IStr(intBits[i]);
+         }
+         
+         strRemaining = StrMid(strRemaining, 0, StrGetLength(strRemaining) - 1);
+         intLength = StrGetLength(strRemaining);
+
+      }
+
+      //Trace(strBinary);
+      return(strBinary);
+
+   }
+
+
+   // Function: 
+   //    - BinaryToHex
+   //
+   // Purpose: 
+   //    - Converts a Binary String into a Hex String (i.e. "11110000" into "FF") 
+   //
+   // Arguments:
+   //    - strBinary (string) a string of Binary characters (i.e."01000110")
+   //
+   // Returns:
+   //    - strHex (string) a Hex output of the Binary input
+
+
+   function BinaryToHex(variable& strBinary) variable
+   {
+
+      variable strHexBits;
+      variable strHexChar;
+      variable strHex("");
+      variable strRemaining;
+      variable intLength(0);
+      variable i(0);
+      variable intBase10(0);
+      variable strBit;
+      variable intBit;
+
+      strRemaining = strBinary; 
+
+      intLength = StrGetLength(strRemaining);
+
+      while(intLength != 0)
+      {
+         strHexBits = StrRight(strRemaining, 4);
+
+         for (i = 0; i < 4; i++)
+         {
+            strBit = StrLeft(strHexBits, 1);
+            intBit = IVal(strBit);
+            intBase10 = intBase10 + (intBit * (2^i));
+            strHexBits = StrMid(strHexBits, 1, StrGetLength(strHexBits));
+         }
+
+         if(intBase10 <= 9){ strHexChar = IStr(intBase10); }
+         if(intBase10 == 10){ strHexChar = "A"; }
+         if(intBase10 == 11){ strHexChar = "B"; }
+         if(intBase10 == 12){ strHexChar = "C"; }
+         if(intBase10 == 13){ strHexChar = "D"; }
+         if(intBase10 == 14){ strHexChar = "E"; }
+         if(intBase10 == 15){ strHexChar = "F"; }
+
+         //Trace(strHexChar, " - ", intBase10);
+
+         strHex = strHex + strHexChar;
+
+         strRemaining = StrMid(strRemaining, 0, StrGetLength(strRemaining) - 4);
+         intLength = StrGetLength(strRemaining);
+         intBase10 = 0;
+
+      }  
+
+      //Trace(strHex);
+      return(strHex);
+
+   }
+
+   // Function: 
+   //    - UpdateLoadingLEDs
+   //
+   // Purpose: 
+   //    - Sets the Loading Light LEDs to On/Off/Flashing
+   //
+   // Arguments:
+   //    - Ml_Star (device)
+   //    - intRightTrack (integer) Right end of the Loading Lights to set (or the right track of a carrier)
+   //    - intWidthInTracks (integer) Number of Tracks to set the loading tracks to the left of intRightTrack
+   //    - intMode (integer) 0 = Off, 1 = On, 2 = Flashing    
+   //  
+   // Returns:
+   //    - 0
+
+
+   function UpdateLoadingLEDs(device& Ml_Star, variable intRightTrack, variable intWidthInTracks, variable intMode ) variable 
+   {
+
+      // Mode 
+      // 0 = Off, 1 = On, 2 = Flash 3 = Flash Off
+
+      variable arrLEDstatus[];
+      variable strLEDHexValues;
+      variable arrBinaryLEDs[];
+      variable arrFlashingLEDs[];
+      variable strFlashingLEDs;
+      variable strBinaryLEDs;
+      variable intBinaryLED;
+      variable i(0);
+      variable ledCommand("");
+      variable strRemaining;
+      variable intLength;
+
+      arrLEDstatus = Ml_Star._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "e00f1bd0_28d1_4509_96cde94db87bb6af" ); // FirmwareCommand
+      strLEDHexValues = StrMid(arrLEDstatus[3], 9, 14);   
+      
+      //Trace(strLEDHexValues);
+
+      strBinaryLEDs = HexToBinary(strLEDHexValues);
+      //
+      //Trace(strBinaryLEDs );
+      //strBinaryLEDs = StrLeft(strBinaryLEDs, 54);
+      
+      strRemaining = strBinaryLEDs;
+
+      intLength = StrGetLength(strRemaining);
+
+      while(intLength != 0)
+      {
+         intBinaryLED = IVal(StrLeft(strRemaining, 1));
+         arrBinaryLEDs.AddAsLast(intBinaryLED);
+         arrFlashingLEDs.AddAsLast(0);
+         strRemaining = StrMid(strRemaining, 1, StrGetLength(strRemaining));
+         intLength = StrGetLength(strRemaining);
+      }
+
+      for(i = intRightTrack - intWidthInTracks - 1 ; i < intRightTrack - 1; i++)
+      {
+         if(intMode == 0){ arrBinaryLEDs[i + 1] = 0; }
+         if(intMode == 1){ arrBinaryLEDs[i + 1] = 1; }
+         if(intMode == 2){ arrFlashingLEDs[i + 1] = 1; }
+         if(intMode == 3){ arrFlashingLEDs[i + 1] = 0; }
+      }
+
+      strBinaryLEDs = "";
+      strFlashingLEDs = "";
+      
+      for(i = 0; i < arrBinaryLEDs.GetSize(); i++ )
+      {
+         strBinaryLEDs = strBinaryLEDs + IStr(arrBinaryLEDs[i]);
+         strFlashingLEDs = strFlashingLEDs + IStr(arrFlashingLEDs[i]);
+      }
+      
+      //"cl[00000000000000..7FFFFFFFFFFFFF]" - LEDs On(1)/Off(0)
+      //"cb[00000000000000..7FFFFFFFFFFFFF]" - LEDs Flash(1)
+
+      if( intMode == 0 )
+      { 
+         ledCommand = "cl"; 
+         strLEDHexValues = BinaryToHex(strBinaryLEDs);
+      }
+      if( intMode == 1 )
+      { 
+         ledCommand = "cl"; 
+         strLEDHexValues = BinaryToHex(strBinaryLEDs);
+      }
+      if( intMode == 2 )
+      { 
+         ledCommand = "cb"; 
+         strLEDHexValues = BinaryToHex(strFlashingLEDs);
+      }
+      if( intMode == 3 )
+      { 
+         ledCommand = "cb"; 
+         strLEDHexValues = BinaryToHex(strFlashingLEDs);
+      }
+
+
+      ledCommand = ledCommand + strLEDHexValues;
+      //Trace("led Command: ", ledCommand);
+      //Send ledCommand to Instrument
+      Ml_Star._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "459cf7c0_102f_4904_b13b894442dcb475" ); // FirmwareCommand
+
+      return(0);
+
+   }
+
+}        // end namespace 
+
+#endif   // HSL_RUNTIME
+
+#endif   // _HSL_LibraryName_hsl_
+// $$author=Turman_w$$valid=0$$time=2014-09-03 13:12$$checksum=3b3df5f0$$length=085$$

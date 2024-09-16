@@ -1,0 +1,70 @@
+ namespace _Method { #include "Hamilton HSLCap\\HSLCap.hsl" } 
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable Scap1;
+variable Scap2;
+timer timer1;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{{ 1 1 0 "f82ff1f7_e940_4914_917542f7c2d550e0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLCap::Connect(9, Scap1);
+// }} ""
+// {{{ 2 1 0 "3b0ab0b4_4368_406f_ab5544487fbee435" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLCap::Connect(10, Scap2);
+// }} ""
+// {{{ 3 1 0 "c61701a1_54c5_49c9_a01f8abc5eaccc4a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLCap::SetFanSpeed(Scap1, 50);
+// }} ""
+// {{{ 4 1 0 "3b16a919_33d5_4da9_aa50233f9d9481fe" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLCap::SetFanSpeed(Scap2, 50);
+// }} ""
+// {{{ 5 1 0 "ad1ca795_18ca_47d2_9bda3a30ebab79e5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLCap::SetFanState(Scap1, 1);
+// }} ""
+// {{{ 6 1 0 "47f6d2fb_6d08_4089_8a5f81ceb0a45876" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLCap::SetFanState(Scap2, 1);
+// }} ""
+// {{{ 7 1 0 "dc611f7f_da71_4eec_beae3289238a31c9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLCap::SetLightState(Scap1, 1);
+// }} ""
+// {{{ 8 1 0 "dc1340dc_47a2_4c2b_bea098b6bfd293e0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLCap::SetLightState(Scap2, 1);
+// }} ""
+// {{ 9 1 0 "59430036_bb00_4c92_aa18a3b8eb1928e8" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.SetTimer(30) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 10 1 0 "e3f23c46_3298_41cc_abaf936f654da90e" "{B31F353F-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.WaitTimer(hslTrue, hslTrue) )
+{
+    MECC::RaiseRuntimeErrorEx(-1339162368, MECC::IDS::stepNameTimerWait, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 11 1 0 "76ee4559_e104_4b62_b99efc90151b7499" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLCap::Disconnect(Scap1);
+// }} ""
+// {{{ 12 1 0 "c6765021_5a03_4d18_aedf4a8eb73ac8df" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLCap::Disconnect(Scap2);
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=Hamilton$$valid=0$$time=2023-09-26 09:58$$checksum=c2e83039$$length=087$$

@@ -1,0 +1,83 @@
+// ===========================================================================
+// A customized driver for the C10 Thermo Cytomats
+//
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+// ===========================================================================
+//
+// Modification History
+//    2016-01-22  V1.0: Stefan Reckow,   created based on ThermoCytomat library V1.7
+// ===========================================================================
+
+
+#ifndef __HSL_CUSTOMIZED_C10_THERMO_CYTOMAT_hsl__
+#define __HSL_CUSTOMIZED_C10_THERMO_CYTOMAT_hsl__ 1
+
+
+
+#ifndef HSL_RUNTIME
+
+namespace HSLThermoCytomat
+{
+
+   namespace TraceLevel
+   {
+      const variable None(0);
+      const variable Normal(1);
+      const variable Debug(2);
+   }
+
+
+	/*********************************************************************
+	*
+	* Interface
+	*
+	*********************************************************************/   
+
+   function Initialize( variable iComPort, variable iNumberOfSlots, variable iTraceLevel, variable iSimulate ,variable iShortFileNameOfAccessDatabase ) variable {return (0);}
+
+   function Terminate( variable iComPort) variable {return (0);}
+
+   function GetNumberOfEmptyPositions(variable iComPort, variable & oNumberOfEmptyPositions)variable {return (0);}   
+
+   function GetPlateByBarcode( variable iComPort, variable iBarcode ) variable {return (0);}
+
+   function StorePlateByPosition( variable iComPort, variable & iPosition, variable iOptionalBarcode  ) variable {return (0);}
+   
+   function GetPlateData( variable iComPort , variable iPosition, variable& oBarcode , variable & oOccupied ) variable {return (0);}
+
+   function SetPlateData( variable iComPort, variable iLocation, variable iOccupationState, variable iOptionalBarcode ) variable {return (0);}
+
+   function GetPlatePositionByBarcode( variable iComPort, variable iBarcode, variable& oPosition ) variable {return (0);}
+
+   function SendCommand(variable i_intComPort, variable i_strCommand , variable& o_strResponse) {return (0);}
+
+   function GetCytomatErrorDescription(variable iErrorCode, variable & oErrorDescription ) variable {return (0);}
+
+   function GetNextEmptyPosition(variable iComPort,variable iSearchStartPosition,variable iSearchEndPosition, variable & oEmptyPositions)variable {return (0);}
+
+   function ClearDatabase(variable iComPort) variable {return (0);}
+
+
+   function InitializeTransferStation( variable iComPort, variable iTransferPositionsMax ) variable {return (0);}
+
+   function MoveTransferStation( variable iComPort, variable iTargetPosition ) variable {return (0);}
+
+   function GetTransferState(variable iComPort, variable & oStationNumberBeforeGate, variable & oOccupancyStateStation2, variable & oOccupancyStateStation1) variable {return (0);}
+
+}	//end namespace 
+#endif	
+
+	/*********************************************************************
+	*
+	* Implementations
+	*
+	*********************************************************************/
+
+
+#ifdef HSL_RUNTIME
+#include "CellCultureAutomation\\ExecutingLayer\\DeviceController\\C10_CustomizedThermoCytomat.hs_"
+#endif
+
+#endif
+// $$author=KJGX688$$valid=0$$time=2019-01-08 13:23$$checksum=0c68f5b7$$length=084$$

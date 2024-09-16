@@ -1,0 +1,2039 @@
+// ===========================================================================
+// A customized driver for the C10 Thermo Cytomats
+//
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+// ===========================================================================
+//
+// Modification History
+//    2016-01-22  V1.0: Stefan Reckow,   created based on ThermoCytomat library V1.7
+// ===========================================================================
+
+
+#pragma once
+
+#ifndef __HSLStrLib_hsl__
+#include "HSLStrLib.hsl"
+#endif
+
+#ifndef __HSL_THERMO_CYTOMATCOMPORT_hsl__
+#include "HSLCytomat\ThermoCytomatComport.hsl" 
+#endif
+
+#ifndef __HSL_THERMO_CYTOMATCOMANDS_hsl__
+#include "HSLCytomat\ThermoCytomatComands.hs_" 
+#endif
+
+#ifndef __HSL_THERMO_CYTOMATFILEHANDLING_hsl__
+#include "HSLCytomat\ThermoFilehandling.hs_" 
+#endif
+
+#ifndef __ASWGLOBAL_hsl__
+#include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl" 
+#endif
+
+namespace HSLThermoCytomat
+{
+
+	/*********************************************************************
+	*
+	* Definitions
+	*
+	*********************************************************************/
+
+   static global variable HSLThermoCytomat_firstInitialize(0);
+
+	/*********************************************************************
+	*
+	* Error Definitions
+	*
+	*********************************************************************/
+
+	const static variable CMD_START   ( 1 );
+	const static variable CMD_COMPLET ( 2 );
+	const static variable CMD_ERROR   ( 5 );   // to prevent suspicious Phoenix error messages
+	const static variable CMD_PROGRESS( 4 );
+	const static variable CMD_ERRCOMPL( 5 );
+
+
+   /* Array management of cytomat -- Begin*/
+
+   global static variable arrCytomatComport[];              // Comport identify the cytomat and where to send commands
+   global static variable arrCytomatInitialiezed[];         // Check if the Cyomat was correct initialiezed
+   global static variable arrCytomatType[];                 // Type of Cytomat (C2,C24,C48,C6000)
+   global static variable arrCytomatSlots[];                // Number of maximal Slots
+   global static variable arrCytomatSimulate[];
+   global static variable arrCytomatTracelevel[];
+   global static variable arrCytomatFile[];                 // Path of the Location File   
+   
+   global static variable arrCytomatLinear[];               // Cytomat with moveable Linear Station
+   global static variable arrCytomatLinearPositons[];       // Number of the positions from the Transferstations
+
+   global static variable arrCytomatTemperatur[];           // Cytomat with activ Temperatur
+   global static variable arrCytomatTemperaturMinimum[];    // minimal Temperatur to set
+   global static variable arrCytomatTemperaturMaximum[];    // maximal Temperatur to set
+
+   global static variable arrCytomatCO2[];                  // Cytomat with activ CO2
+   global static variable arrCytomatCO2Minimum[];           // minimal CO2 to set
+   global static variable arrCytomatCO2Maximum[];           // maximal CO2 to set
+
+   global static variable arrCytomatShaker[];               // Cytomat with Shaker
+   global static variable arrCytomatShakerPositons[];       // Cytomat number of maximal Shakers
+
+   global static variable arrCytomatDelidder[];             // Cytomat with delidder
+
+   static function AddCytomatToArray( variable iComPort, variable iType, variable iSlots, variable iSimulate, variable iTracelevel, variable iFile) variable;
+
+   static function RemoveCytomatFromArray( variable iComPort ) variable;
+
+   static function CytomatExist( variable iComPort, variable& oPositionArray ) variable;
+
+   static function InitArraysFirstInitialieze() variable;
+
+   /* Array management of cytomat -- Begin*/
+
+
+   /* Global exported variables -- Begin*/
+
+   namespace TraceLevel
+   {
+      const variable None(0);
+      const variable Normal(1);
+      const variable Debug(2);
+   }
+
+   namespace ScanMode
+   {
+      const variable ScanBarcode(hslFalse);
+      const variable ScanBarcodesAndPerformPlatePresenceCheck(hslTrue);
+   }
+   namespace CytomatType
+   {
+      const variable Unknown("");
+      const variable C10("C10");
+   }
+   /* Global exported variables -- End*/
+
+   function Initialize( variable iComPort, variable iNumberOfSlots, variable iTraceLevel, variable iSimulate ,variable iShortFileNameOfAccessDatabase ) variable;
+
+   function Terminate( variable iComPort) variable;
+
+   function GetNumberOfEmptyPositions(variable iComPort, variable & oNumberOfEmptyPositions)variable;
+
+   function GetPlateByBarcode( variable iComPort, variable iBarcode ) variable;
+
+   function StorePlateByPosition( variable iComPort, variable & iPosition, variable iOptionalBarcode  ) variable;
+   
+   function GetPlateData( variable iComPort , variable iPosition, variable& oBarcode , variable & oOccupied ) variable;
+
+   function SetPlateData( variable iComPort, variable iLocation, variable iOccupationState, variable iOptionalBarcode ) variable;
+
+   function GetPlatePositionByBarcode( variable iComPort, variable iBarcode, variable& oPosition ) variable;
+
+   function SendCommand(variable i_intComPort, variable i_strCommand , variable& o_strResponse) variable;
+
+   function GetCytomatErrorDescription(variable iErrorCode, variable & oErrorDescription ) variable;
+
+   function GetNextEmptyPosition(variable iComPort,variable iSearchStartPosition,variable iSearchEndPosition, variable & oEmptyPositions)variable;
+
+   function ClearDatabase(variable iComPort) variable;
+
+
+   function InitializeTransferStation( variable iComPort, variable iTransferPositionsMax ) variable;
+
+   function MoveTransferStation( variable iComPort, variable iTargetPosition ) variable;
+
+   function GetTransferState(variable iComPort, variable & oStationNumberBeforeGate, variable & oOccupancyStateStation2, variable & oOccupancyStateStation1) variable;
+
+   /* Static Functions -- Begin */
+
+
+   /* function to check input parameter -- Begin*/
+
+   static function CheckComport( variable iComPort ) variable;
+
+   static function CheckType( variable iType ) variable;
+
+   static function CheckSlotNumberMaximal( variable iSlotNumber ) variable; 
+
+   static function CheckTraceLevel( variable iTraceLevel ) variable;
+
+   static function CheckSimulate( variable iSimulate ) variable;
+
+   static function CheckFile( variable iFile ) variable;
+
+   static function CheckPlatePosition( variable iComPort, variable iPosition ) variable;
+
+   static function CheckPlatePositionStore( variable iComPort, variable iPosition ) variable;
+
+   static function CheckPlateBarcode( variable iBarcode ) variable;
+
+   static function CheckCommand( variable iCommand) variable;
+
+   static function CheckTransferPositionsMax( variable iTransferMax) variable;
+
+   static function CheckTransferPosition( variable iComPort, variable iTransferPosition) variable;
+
+   static function CheckTemperatur( variable iComPort,variable iTemperatur) variable;
+
+   static function CheckSetTemperatur( variable iComPort,variable iTemperatur) variable;
+
+   static function CheckCO2( variable iComPort,variable iCO2) variable;
+
+   static function CheckSetCO2( variable iComPort,variable iCO2) variable;
+
+   static function CheckMaximalShakerPositions( variable iMaxPositions) variable;
+
+   static function CheckShaker( variable iComPort , variable iShaker ) variable;
+
+   static function CheckShakeSpeed(variable iSpeed) variable;
+
+   static function CheckInteger( variable iInteger ) variable;
+
+   static function CheckFloat( variable iFloat ) variable;
+
+   static function CheckString( variable iString ) variable;
+
+   static function CheckBool( variable iBool ) variable;
+
+   /* function to check input parameter -- End */
+
+
+   /* Work with database -- Begin */
+
+   static function ChangeOccupiedStateByPosition(variable iFile ,variable iPosition ,variable iBarcode,variable iOccupied) variable;
+
+   /* Work with database -- End */
+
+   /* Work -- Begin */
+
+   static function FormatBarcodeFromCytomat(variable ibarcode ) variable;
+
+   static function CheckLocationOccupancyState(variable iComPort, variable iPosition, variable& foundPlate) variable;
+
+   static function ScanPosition(variable iComPort, variable iPosition, variable& oBarcode);
+
+   static function WaitForDelidder(variable iComPort) variable;
+
+   static function GetErrorForDeliderState(variable delidderState) variable;
+
+   static function ExtractTemperatur( variable iCommandReturn, variable& oCurrentTemperatur) variable;
+   /* Work  -- End */
+
+
+   /* Static Functions -- End */
+
+
+	/*********************************************************************
+	*
+	* Implementations
+	*
+	*********************************************************************/ 
+
+   function Initialize( variable iComPort, variable iNumberOfSlots, variable iTraceLevel, variable iSimulate ,variable iShortFileNameOfAccessDatabase ) variable
+   {
+      variable errCode;  
+      variable exist(hslFalse);
+      variable comportSettings("");
+      variable PositionArray(-1);
+      variable bIsCarousel(ASWGLOBAL::BOOL::FALSE);
+
+      //Library first called
+      if(0 == HSLThermoCytomat_firstInitialize)
+      {
+         InitArraysFirstInitialieze();
+      }
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+      errCode = CheckComport(iComPort);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iComPort was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+      errCode = CheckSlotNumberMaximal(iNumberOfSlots);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iNumberOfSlots was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+      errCode = CheckTraceLevel(iTraceLevel);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iTraceLevel was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+      errCode = CheckSimulate(iSimulate);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iSimulate was not in Range or from wrong type." ,TraceLevel::Normal);
+			return( errCode );        
+      }
+
+      errCode = CheckFile(iShortFileNameOfAccessDatabase);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iLocationFile was not in Range or from wrong type." ,TraceLevel::Normal);
+			return( errCode );  
+      }
+		// -------------------------------------------------------------------------
+		// working area
+		// -------------------------------------------------------------------------
+      if( HSLCytomatGlobalCommands::ERROR_ALLREADY_INITIALIZED == CytomatExist(iComPort, PositionArray) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Cytomat on ComPort allready initialized." ,TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NONE );            
+      }
+      
+      // get Cytomat connection settings
+      comportSettings = HSLCytomatGlobalCommands::HSLThermoCytomatComport_Portsettings_CytomatC10;        
+
+      // Cytomat with Karousel? ignore C10 because slow movement command unknown
+      bIsCarousel = ASWGLOBAL::BOOL::FALSE;           
+
+      errCode = HSLThermoCytomatComport::SetPort( iComPort, comportSettings , iTraceLevel , iSimulate, bIsCarousel);
+      if(errCode == HSLCytomatGlobalCommands::ERROR_NONE)
+      { 
+          AddCytomatToArray( iComPort, CytomatType::C10, iNumberOfSlots, iSimulate, iTraceLevel, iShortFileNameOfAccessDatabase);    
+          HSLThermoCytomat_firstInitialize++;
+          CytomatExist(iComPort, PositionArray);
+      }
+      else
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Cytomat can not connect to ComPort." ,TraceLevel::Normal);
+			return( errCode );       
+      }
+
+      errCode = HSLThermoCytomatFilehandling::CheckDatabaseExist(iShortFileNameOfAccessDatabase,exist);
+
+      if(exist == ASWGLOBAL::BOOL::FALSE)
+      {
+         errCode = HSLThermoCytomatFilehandling::CreateAccessDB( arrCytomatFile.GetAt(PositionArray) , arrCytomatSlots.GetAt(PositionArray) );
+         if(HSLCytomatGlobalCommands::ERROR_NONE != errCode)
+         {
+            HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Cytomat on ComPort can not create the Access database for storing the locations." ,TraceLevel::Normal);
+   			return( errCode );            
+         }
+      }
+
+      return(errCode);
+   }   
+
+   function GetPlateByBarcode( variable iComPort, variable iBarcode ) variable
+   {
+      variable errCode;
+      variable position(0);
+      variable response("");
+      variable stringCommand("");
+      variable PositionArray(-1);
+      variable occupied(hslFalse);
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+      errCode = CheckComport(iComPort);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iComPort was not in Range or from wrong type." ,TraceLevel::Normal);
+			return( errCode );        
+      }
+
+		// -------------------------------------------------------------------------
+		// working area
+		// -------------------------------------------------------------------------
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( iComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " Cytomat on ComPort not initialized." ,TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      }
+
+      errCode = CheckPlateBarcode(iBarcode);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " The parameter iBarcode was not in Range or from wrong type." ,TraceLevel::Normal);
+			return( errCode );        
+      }
+
+      if(arrCytomatSimulate.GetAt(PositionArray) == ASWGLOBAL::BOOL::TRUE)
+      {
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+      }
+
+      errCode = HSLThermoCytomatFilehandling::SelectLocation(arrCytomatFile.GetAt(PositionArray), HSLThermoCytomatFilehandling::ColumnOccupied, iBarcode, HSLThermoCytomatFilehandling::ColumnBarcode, occupied);
+      if( HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         if(errCode == HSLCytomatGlobalCommands::ERROR_READ_ACCESS_NO_INSERT)
+         {
+            errCode = HSLCytomatGlobalCommands::ERROR_NO_BARCODE_KNOWN;
+            return( errCode ); 
+         }
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " The critical error during get plate by Barcoden." ,TraceLevel::Normal);
+			return( errCode );      
+      }
+
+      errCode = HSLThermoCytomatFilehandling::SelectLocation(arrCytomatFile.GetAt(PositionArray), HSLThermoCytomatFilehandling::ColumnLocation, iBarcode, HSLThermoCytomatFilehandling::ColumnBarcode, position);
+      if( HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         if(errCode == HSLCytomatGlobalCommands::ERROR_READ_ACCESS_NO_INSERT)
+         {
+            errCode = HSLCytomatGlobalCommands::ERROR_NO_BARCODE_KNOWN;
+            return( errCode ); 
+         }
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " The critical error during get plate by Barcoden." ,TraceLevel::Normal);
+			return( errCode );      
+      }
+
+      if((occupied == HSLCytomatGlobalCommands::LocationNotOccupied )||(position > arrCytomatSlots.GetAt(PositionArray)))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " No plate was found with Barcode." ,TraceLevel::Normal);
+         errCode = HSLCytomatGlobalCommands::ERROR_NO_BARCODE_KNOWN;
+         return( errCode ); 
+      }
+
+      if(position < 10)
+      {
+         stringCommand = HSLCytomatGlobalCommands::GetCommandGetPlate() + "00" + IStr(position);
+      }
+      if((position > 9) && (position < 100))
+      {
+         stringCommand = HSLCytomatGlobalCommands::GetCommandGetPlate() + "0" + IStr(position);
+      }
+      if((position > 99) && (position < 1000))
+      {
+         stringCommand = HSLCytomatGlobalCommands::GetCommandGetPlate() + "" + IStr(position);
+      }
+
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray),arrCytomatTracelevel.GetAt(PositionArray), stringCommand, ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " It was not possible to get the plate with Barcode." ,TraceLevel::Normal);
+			return( errCode );  
+      }  
+
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray), HSLCytomatGlobalCommands::GetCommandBusy(), ASWGLOBAL::BOOL::FALSE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " It was not possible to store the plate on position.",TraceLevel::Normal);
+			return( errCode );  
+      }   
+
+      errCode = HSLCytomatGlobalCommands::CheckHandlerBit(response);
+      if(errCode == ASWGLOBAL::BOOL::TRUE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_GET_PLATE;
+         return(errCode);
+      }
+
+      errCode = HSLCytomatGlobalCommands::CheckTransferBit(response);
+      if(errCode != ASWGLOBAL::BOOL::TRUE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_GET_PLATE;
+         return(errCode);
+      }
+
+      errCode = HSLCytomatGlobalCommands::CheckErrorBit(response);
+      if(errCode == ASWGLOBAL::BOOL::TRUE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_GET_PLATE;
+         return(errCode);
+      }
+
+      errCode = ChangeOccupiedStateByPosition( arrCytomatFile.GetAt(PositionArray) ,position , "", HSLCytomatGlobalCommands::LocationNotOccupied );
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " It was not possible to change the plate state in the database on Position." ,TraceLevel::Normal);
+			return( errCode );  
+      }   
+
+      return(errCode);   
+   }
+
+   function StorePlateByPosition( variable iComPort, variable & iPosition, variable iOptionalBarcode  ) variable
+   {
+      variable errCode;
+      variable response("");
+      variable PositionArray(-1);
+      variable occupied(hslFalse);
+      variable stringCommand("");
+      variable barcode("");
+
+      variable oStationNumberBeforeGate(0);
+      variable oOccupancyStateBeforeGate(0);
+      variable oOccupancyStateExtendedPlatform(0);
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+      errCode = CheckComport(iComPort);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " The parameter iComPort was not in Range or from wrong type." ,TraceLevel::Normal);
+			return( errCode );        
+      }
+
+      errCode = CheckBool(iOptionalBarcode);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " The parameter iOptionalBarcode was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+		// -------------------------------------------------------------------------
+		// working area
+		// -------------------------------------------------------------------------
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( iComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR,  " Cytomat on ComPort not initialized." ,TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      } 
+
+      errCode = CheckPlatePositionStore(iComPort, iPosition);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " The parameter iPosition was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      } 
+
+      if(arrCytomatSimulate.GetAt(PositionArray) == ASWGLOBAL::BOOL::TRUE)
+      {
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+      }
+
+      if(iPosition == 0)
+      {
+         errCode = HSLThermoCytomatFilehandling::SelectLocation(arrCytomatFile.GetAt(PositionArray), HSLThermoCytomatFilehandling::ColumnLocation, IStr(HSLCytomatGlobalCommands::LocationNotOccupied), HSLThermoCytomatFilehandling::ColumnOccupied, iPosition);
+         if( HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+         {
+            HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " The critical error during store plate by Barcode.",TraceLevel::Normal);
+      		return( errCode );                  
+         }      
+      }
+      
+
+      errCode = HSLThermoCytomatFilehandling::SelectLocation(arrCytomatFile.GetAt(PositionArray), HSLThermoCytomatFilehandling::ColumnOccupied, IStr(iPosition), HSLThermoCytomatFilehandling::ColumnLocation, occupied);
+      if( HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " The critical error during store plate on iPosition.",TraceLevel::Normal);
+			return( errCode );      
+      }
+
+      if(occupied == HSLCytomatGlobalCommands::LocationOccupied )
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " The position is allready occupied.",TraceLevel::Normal);
+         errCode = HSLCytomatGlobalCommands::ERROR_STORE_PLATE;
+         return( errCode ); 
+      }
+
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray), HSLCytomatGlobalCommands::GetCommandBusy(), ASWGLOBAL::BOOL::FALSE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " It was not possible to store the plate on position.",TraceLevel::Normal);
+			return( errCode );  
+      }      
+
+      if(iPosition < 10)
+      {
+         stringCommand = HSLCytomatGlobalCommands::GetCommandStorePlate() + "00" + IStr(iPosition);
+      }
+      if((iPosition > 9) && (iPosition < 100))
+      {
+         stringCommand = HSLCytomatGlobalCommands::GetCommandStorePlate() + "0" + IStr(iPosition);
+      }
+      if((iPosition > 99) && (iPosition < 1000))
+      {
+         stringCommand = HSLCytomatGlobalCommands::GetCommandStorePlate() + "" + IStr(iPosition);
+      }
+
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray), stringCommand, ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " It was not possible to store the plate on position.",TraceLevel::Normal);
+			return( errCode );  
+      }      
+
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray), HSLCytomatGlobalCommands::GetCommandBusy(), ASWGLOBAL::BOOL::FALSE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+			return( errCode );  
+      } 
+
+      errCode = HSLCytomatGlobalCommands::CheckHandlerBit(response);
+      if(errCode == ASWGLOBAL::BOOL::TRUE)
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " CheckHandlerBit() failed (response: " + response + ")",TraceLevel::Normal);
+         errCode = HSLCytomatGlobalCommands::ERROR_STORE_PLATE;
+         return(errCode);
+      }      
+
+      errCode = GetTransferState(iComPort, oStationNumberBeforeGate, oOccupancyStateBeforeGate, oOccupancyStateExtendedPlatform);
+      if(errCode == ASWGLOBAL::BOOL::TRUE || oOccupancyStateBeforeGate == 1)
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " GetTransferState() failed",TraceLevel::Normal);
+         errCode = HSLCytomatGlobalCommands::ERROR_STORE_PLATE;
+         return(errCode);
+      }
+
+      errCode = HSLCytomatGlobalCommands::CheckErrorBit(response);
+      if(errCode == ASWGLOBAL::BOOL::TRUE)
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " CheckErrorBit() failed (response: " + response + ")",TraceLevel::Normal);
+         errCode = HSLCytomatGlobalCommands::ERROR_STORE_PLATE;
+         return(errCode);
+      }
+
+      if( ASWGLOBAL::BOOL::TRUE == iOptionalBarcode )
+      {
+         errCode = ScanPosition(iComPort, iPosition, barcode);
+         if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+         {
+            HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " It was not possible to read the barcode of the plate on position.",TraceLevel::Normal);
+   			return( errCode );  
+         } 
+      }   
+
+      errCode = ChangeOccupiedStateByPosition( arrCytomatFile.GetAt(PositionArray) , iPosition , barcode, HSLCytomatGlobalCommands::LocationOccupied );
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " It was not possible to change the plate state in the database on Position.",TraceLevel::Normal);
+			return( errCode );  
+      }   
+
+      return(errCode);  
+   }   
+
+   function SendCommand(variable i_intComPort, variable i_strCommand , variable& o_strResponse) variable
+   {
+      variable errCode;
+      variable PositionArray(-1);
+
+      // -------------------------------------------------------------------------
+      // check parameters
+      // -------------------------------------------------------------------------
+      errCode = CheckComport(i_intComPort);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " The parameter iComPort was not in Range or from wrong type.",TraceLevel::Normal);
+         return( errCode );
+      }
+
+      errCode = CheckCommand(i_strCommand);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " The parameter iCommand was not in Range or from wrong type." ,TraceLevel::Normal);
+         return( errCode );        
+      }      
+
+      // -------------------------------------------------------------------------
+      // working area
+     // -------------------------------------------------------------------------
+      o_strResponse="";
+
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( i_intComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " Cytomat on ComPort not initialized.",TraceLevel::Normal);
+         return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      }
+
+      if(arrCytomatSimulate.GetAt(PositionArray) == ASWGLOBAL::BOOL::TRUE)
+      {
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+      }
+
+      errCode = HSLThermoCytomatComport::ProcessCommand(i_intComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , i_strCommand , ASWGLOBAL::BOOL::TRUE , o_strResponse);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " It was not possible to perform the command.",TraceLevel::Normal);
+         return( errCode );  
+      }
+
+      return(errCode);  
+   }
+
+   function SetPlateData( variable iComPort, variable iLocation, variable iOccupationState, variable iOptionalBarcode ) variable
+   {
+      variable errCode;
+      variable PositionArray(-1);
+      
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+      errCode = CheckComport(iComPort);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " The parameter iComPort was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+      errCode = CheckPlateBarcode(iOptionalBarcode);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " The parameter iOptionalBarcode was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+		// -------------------------------------------------------------------------
+		// working area
+		// -------------------------------------------------------------------------
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( iComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " Cytomat on ComPort not initialized.",TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      }
+
+      errCode = CheckPlatePosition(iComPort, iLocation);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iLocation was not in Range or from wrong type." ,TraceLevel::Normal);
+			return( errCode );        
+      }
+
+      errCode = CheckBool(iOccupationState);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iOccupationState was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+      if(iOccupationState == HSLCytomatGlobalCommands::LocationNotOccupied)
+      {
+         iOptionalBarcode = "";
+      }
+
+      if(arrCytomatSimulate.GetAt(PositionArray) == ASWGLOBAL::BOOL::TRUE)
+      {
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+      }
+
+      errCode = ChangeOccupiedStateByPosition( arrCytomatFile.GetAt(PositionArray) ,iLocation , iOptionalBarcode, iOccupationState);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," It was not possible to change the plate state in the database on Position.",TraceLevel::Normal);
+			return( errCode );  
+      } 
+
+      return(errCode);   
+   }
+
+   function GetPlatePositionByBarcode( variable iComPort, variable iBarcode, variable& oPosition ) variable
+   {
+      variable errCode;
+      variable PositionArray(-1);
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+      errCode = CheckComport(iComPort);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iComPort was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+      errCode = CheckPlateBarcode(iBarcode);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iBarcode was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+		// -------------------------------------------------------------------------
+		// working area
+		// -------------------------------------------------------------------------
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( iComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " Cytomat on ComPort not initialized." ,TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      }
+
+      if(arrCytomatSimulate.GetAt(PositionArray) == ASWGLOBAL::BOOL::TRUE)
+      {
+         oPosition = 0;
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+      }
+
+      errCode = HSLThermoCytomatFilehandling::SelectLocation(arrCytomatFile.GetAt(PositionArray), HSLThermoCytomatFilehandling::ColumnLocation, iBarcode, HSLThermoCytomatFilehandling::ColumnBarcode, oPosition);
+      if( HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         if( HSLCytomatGlobalCommands::ERROR_READ_ACCESS_NO_INSERT == errCode )
+         {
+            errCode = HSLCytomatGlobalCommands::ERROR_NO_BARCODE_KNOWN;
+            oPosition = 0;
+   			return( errCode );      
+         }
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " The critical error during lookup Barcode." ,TraceLevel::Normal);
+			return( errCode );      
+      }
+
+      return(errCode);   
+   }
+
+   function GetPlateData( variable iComPort , variable iPosition, variable& oBarcode, variable & oOccupied) variable
+   {
+      variable errCode;
+      variable occupied(hslFalse);
+      variable PositionArray(-1);
+
+      oOccupied = 0;
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+      errCode = CheckComport(iComPort);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " The parameter iComPort was not in Range or from wrong type." ,TraceLevel::Normal);
+			return( errCode );        
+      }
+
+		// -------------------------------------------------------------------------
+		// working area
+		// -------------------------------------------------------------------------
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( iComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " Cytomat on ComPort not initialized." ,TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      }
+
+      errCode = CheckPlatePosition(iComPort, iPosition);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iPosition was not in Range or from wrong type." ,TraceLevel::Normal);
+			return( errCode );        
+      }
+
+      if(arrCytomatSimulate.GetAt(PositionArray) == ASWGLOBAL::BOOL::TRUE)
+      {
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+      }
+
+      errCode = HSLThermoCytomatFilehandling::SelectLocation(arrCytomatFile.GetAt(PositionArray), HSLThermoCytomatFilehandling::ColumnOccupied, IStr(iPosition), HSLThermoCytomatFilehandling::ColumnLocation, occupied);
+      if( HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         oOccupied = occupied;
+         oBarcode = "";
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The critical error during lookup Position."  ,TraceLevel::Normal);
+			return( errCode );      
+      }
+
+      oOccupied = occupied; 
+      if(occupied == hslFalse)
+      {
+         oBarcode = "";
+         return(HSLCytomatGlobalCommands::ERROR_NONE); 
+      }
+
+      errCode = HSLThermoCytomatFilehandling::SelectLocation(arrCytomatFile.GetAt(PositionArray), HSLThermoCytomatFilehandling::ColumnBarcode, IStr(iPosition), HSLThermoCytomatFilehandling::ColumnLocation, oBarcode);
+      if( HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         if( HSLCytomatGlobalCommands::ERROR_READ_ACCESS_NO_INSERT == errCode )
+         {
+            oBarcode = "";
+   			return( errCode );      
+         }
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The critical error during lookup Position."  ,TraceLevel::Normal);
+			return( errCode );      
+      }
+
+      if(oBarcode == "")
+      {
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+      }
+
+
+      return(errCode);   
+   }
+
+   function ClearDatabase(variable iComPort) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable PositionArray(-1);   
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+      errCode = CheckComport(iComPort);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iComPort was not in Range or from wrong type."  ,TraceLevel::Normal);
+			return( errCode );        
+      }
+
+		// -------------------------------------------------------------------------
+		// working area
+		// -------------------------------------------------------------------------
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( iComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Cytomat on ComPort not initialized." ,TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      }
+
+      if(arrCytomatSimulate.GetAt(PositionArray) == ASWGLOBAL::BOOL::TRUE)
+      {
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+      }
+
+      errCode = HSLThermoCytomatFilehandling::CreateAccessDB( arrCytomatFile.GetAt(PositionArray) , arrCytomatSlots.GetAt(PositionArray) );
+      if(HSLCytomatGlobalCommands::ERROR_NONE != errCode)
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Cytomat on ComPort can not create the Access database for storing the locations." ,TraceLevel::Normal);
+         return( errCode );            
+      }
+
+      return(errCode);
+   }
+
+
+   function Terminate( variable iComPort) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable PositionArray(-1);
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+      errCode = CheckComport(iComPort);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iComPort was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+
+		// -------------------------------------------------------------------------
+		// working area
+		// -------------------------------------------------------------------------
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( iComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Cytomat on ComPort not initialized.",TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      }
+
+      if(arrCytomatSimulate.GetAt(PositionArray) == ASWGLOBAL::BOOL::TRUE)
+      {
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+      }
+
+      errCode = HSLThermoCytomatComport::Terminate( iComPort );
+      if(HSLCytomatGlobalCommands::ERROR_NONE != errCode)
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Error on Cytomat with ComPort can not disconnect form Comport.",TraceLevel::Normal);
+			return( errCode );            
+      }
+
+      RemoveCytomatFromArray( iComPort );      
+
+      HSLThermoCytomat_firstInitialize--;
+
+      if(0 == HSLThermoCytomat_firstInitialize)
+      {
+         InitArraysFirstInitialieze();
+      }
+
+      return(errCode);
+   }
+
+   function GetNumberOfEmptyPositions(variable iComPort, variable & oNumberOfEmptyPositions)variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable PositionArray(-1);
+      
+      oNumberOfEmptyPositions = 0;
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+      errCode = CheckComport(iComPort);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iComPort was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+
+		// -------------------------------------------------------------------------
+		// working area
+		// -------------------------------------------------------------------------
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( iComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Cytomat on ComPort not initialized.",TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      }
+
+      if(arrCytomatSimulate.GetAt(PositionArray) == ASWGLOBAL::BOOL::TRUE)
+      {
+         oNumberOfEmptyPositions = arrCytomatSlots.GetAt(PositionArray);
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+      }
+
+      if(HSLThermoCytomatFilehandling::GetNumberOfEmptyPositions(arrCytomatFile.GetAt(PositionArray) , oNumberOfEmptyPositions) == ASWGLOBAL::BOOL::TRUE)
+      {
+         oNumberOfEmptyPositions = 0;
+         return(errCode);
+      }
+
+      return(errCode);
+
+   }
+
+   function GetNextEmptyPosition(variable iComPort,variable iSearchStartPosition,variable iSearchEndPosition, variable & oEmptyPosition)variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable PositionArray(-1);
+      
+      oEmptyPosition = 0;
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+      errCode = CheckComport(iComPort);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iComPort was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+
+		// -------------------------------------------------------------------------
+		// working area
+		// -------------------------------------------------------------------------
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( iComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Cytomat on ComPort not initialized.",TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      }
+
+      
+      if(arrCytomatSimulate.GetAt(PositionArray) == ASWGLOBAL::BOOL::TRUE)
+      {
+         oEmptyPosition = 1;
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+      }
+      
+
+      if(HSLThermoCytomatFilehandling::GetNextEmptyPosition(arrCytomatFile.GetAt(PositionArray), iSearchStartPosition, iSearchEndPosition, oEmptyPosition) != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         oEmptyPosition = 0;
+         return(errCode);
+      }
+
+      return(errCode);
+
+   }
+
+
+   /* Supported by all kind of Cytomat -- End */ 
+
+
+
+   /* Supported by Cytomat with a linear station -- Begin */
+
+   function InitializeTransferStation( variable iComPort, variable iTransferPositionsMax ) variable
+   {
+      variable errCode;
+      variable PositionArray(-1);
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+      errCode = CheckComport(iComPort);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iComPort was not in Range or from wrong type." ,TraceLevel::Normal);
+			return( errCode );        
+      }
+
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( iComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " Cytomat on ComPort not initialized." ,TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      }
+
+      errCode = CheckTransferPositionsMax(iTransferPositionsMax);
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iTransferPositionsMax was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+		// -------------------------------------------------------------------------
+		// working area
+		// -------------------------------------------------------------------------
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( iComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Cytomat on ComPort not initialized.",TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      }
+
+      arrCytomatLinearPositons.SetAt(PositionArray, iTransferPositionsMax);
+      arrCytomatLinear.SetAt(PositionArray,ASWGLOBAL::BOOL::TRUE);
+
+      return(errCode);   
+   }
+
+   function MoveTransferStation( variable iComPort, variable iTargetPosition ) variable
+   {
+      variable errCode;
+      variable PositionArray(-1);
+      variable response("");
+      variable command("");
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+      errCode = CheckComport( iComPort );
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iComPort was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( iComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " Cytomat on ComPort not initialized." ,TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      }
+
+      errCode = CheckTransferPosition( iComPort, iTargetPosition );
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iTargetPosition was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+		// -------------------------------------------------------------------------
+		// working area
+		// -------------------------------------------------------------------------
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( iComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Cytomat on ComPort not initialized.",TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      }
+
+      if(arrCytomatLinear.GetAt(PositionArray) == hslFalse)
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Linear Transferstation not initializied.",TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );          
+      }
+
+      if(arrCytomatSimulate.GetAt(PositionArray) == ASWGLOBAL::BOOL::TRUE)
+      {
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+      }
+
+      if(iTargetPosition < 10)
+      {
+         command = HSLCytomatGlobalCommands::GetCommandMoveTransfer() + "00" + IStr(iTargetPosition);
+      }
+
+      if((iTargetPosition < 100)&&(iTargetPosition >= 10))
+      {
+         command = HSLCytomatGlobalCommands::GetCommandMoveTransfer() + "0" + IStr(iTargetPosition);
+      }
+
+      if((iTargetPosition < 1000)&&(iTargetPosition >= 100))
+      {
+         command = HSLCytomatGlobalCommands::GetCommandMoveTransfer() + IStr(iTargetPosition);
+      }
+
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , command , ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," It was not possible to move to transfer position to " + IStr(iTargetPosition) + ".",TraceLevel::Normal);
+			return( errCode );  
+      }  
+
+      return(errCode);   
+   }
+
+
+  function GetTransferState(variable iComPort, variable & oStationNumberBeforeGate, variable & oOccupancyStateStation2, variable & oOccupancyStateStation1) variable
+   {
+      variable errCode;
+      variable PositionArray(-1);
+      variable response("");
+      variable success(0);
+      
+      oStationNumberBeforeGate = 0;
+      oOccupancyStateStation2 = 0;
+      oOccupancyStateStation1 = 0;
+
+		// -------------------------------------------------------------------------
+		// check parameters
+		// -------------------------------------------------------------------------
+      errCode = CheckComport( iComPort );
+      if ((HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE == errCode )  || (HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE == errCode))
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," The parameter iComPort was not in Range or from wrong type.",TraceLevel::Normal);
+			return( errCode );        
+      }
+
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( iComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR, " Cytomat on ComPort not initialized." ,TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      }
+
+		// -------------------------------------------------------------------------
+		// working area
+		// -------------------------------------------------------------------------
+      if( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED == CytomatExist( iComPort, PositionArray ) ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Cytomat on ComPort not initialized.",TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );            
+      }
+
+      if(arrCytomatLinear.GetAt(PositionArray) == hslFalse)
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Linear Transferstation not initializied.",TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED );          
+      }
+
+      if(arrCytomatSimulate.GetAt(PositionArray) == ASWGLOBAL::BOOL::TRUE)
+      {
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+      }
+
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetSwapState() , ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," It was not possible to get information for the transfer position.",TraceLevel::Normal);
+			return( errCode );  
+      }  
+
+      success = HSLCytomatGlobalCommands::ProcessTransferStationStateReturn(response, oStationNumberBeforeGate, oOccupancyStateStation2, oOccupancyStateStation1);
+      if(success == ASWGLOBAL::BOOL::FALSE)
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Unexpected response from GetSwapState(): " + response ,TraceLevel::Normal);
+         errCode = HSLCytomatGlobalCommands::ERROR_COMMAND_WRONG;
+      }
+
+      return(errCode);   
+   }
+
+   /* Supported by Cytomat with a linear station -- End */
+
+   function GetCytomatErrorDescription(variable iErrorCode, variable & oErrorDescription ) variable
+   {
+      variable errCode;
+
+      oErrorDescription = "";
+
+      errCode = CheckInteger(iErrorCode);
+      if( HSLCytomatGlobalCommands::ERROR_NONE != errCode ) 
+      {
+         HSLCytomatGlobalCommands::FormatTraceCytomat(GetFunctionName(),CMD_ERROR," Error code was from wrong type.",TraceLevel::Normal);
+			return( HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE );            
+      } 
+      
+      HSLCytomatGlobalCommands::GetCytomatErrorDescription(iErrorCode,oErrorDescription);
+
+      return(HSLCytomatGlobalCommands::ERROR_NONE );
+   }
+
+   /* intepentend functions -- End*/
+
+
+
+   /* static functions -- Begin*/
+
+    static function InitArraysFirstInitialieze() variable
+    {
+         arrCytomatComport.SetSize(0);
+         arrCytomatInitialiezed.SetSize(0);
+         arrCytomatType.SetSize(0);
+         arrCytomatSlots.SetSize(0);
+         arrCytomatSimulate.SetSize(0);
+         arrCytomatTracelevel.SetSize(0); 
+         arrCytomatFile.SetSize(0);  
+         arrCytomatLinear.SetSize(0);
+         arrCytomatLinearPositons.SetSize(0);
+         arrCytomatTemperatur.SetSize(0);
+         arrCytomatTemperaturMinimum.SetSize(0);
+         arrCytomatTemperaturMaximum.SetSize(0);
+         arrCytomatCO2.SetSize(0);
+         arrCytomatCO2Minimum.SetSize(0);
+         arrCytomatCO2Maximum.SetSize(0);
+         arrCytomatShaker.SetSize(0);
+         arrCytomatShakerPositons.SetSize(0);    
+         arrCytomatDelidder.SetSize(0);    
+
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+     }
+
+     static function AddCytomatToArray( variable iComPort, variable iType, variable iSlots, variable iSimulate, variable iTracelevel, variable iFile) variable
+     {
+         variable Type, Slots, Simulate, TraceLevel, File, Linear, LinearPositions, Temperatur, TemperaturMinimum, TemperaturMaximum, CO2,
+                  CO2Minimum, CO2Maximum, Shaker, ShakerPositions;
+
+         arrCytomatComport.AddAsLast( iComPort );
+         arrCytomatInitialiezed.AddAsLast( ASWGLOBAL::BOOL::TRUE );
+         arrCytomatType.AddAsLast( iType );
+         arrCytomatSlots.AddAsLast( iSlots );
+         arrCytomatSimulate.AddAsLast( iSimulate );
+         arrCytomatTracelevel.AddAsLast( iTracelevel ); 
+         arrCytomatFile.AddAsLast( iFile );  
+         arrCytomatLinear.AddAsLast( ASWGLOBAL::BOOL::FALSE );
+         arrCytomatLinearPositons.AddAsLast( 0 );
+         arrCytomatTemperatur.AddAsLast( ASWGLOBAL::BOOL::FALSE );
+         arrCytomatTemperaturMinimum.AddAsLast( 0 );
+         arrCytomatTemperaturMaximum.AddAsLast( 0 );
+         arrCytomatCO2.AddAsLast( ASWGLOBAL::BOOL::FALSE );
+         arrCytomatCO2Minimum.AddAsLast( 0 );
+         arrCytomatCO2Maximum.AddAsLast( 0 );
+         arrCytomatShaker.AddAsLast( ASWGLOBAL::BOOL::FALSE );
+         arrCytomatShakerPositons.AddAsLast(0);
+         arrCytomatDelidder.AddAsLast(ASWGLOBAL::BOOL::FALSE);
+     
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+     }
+
+     static function RemoveCytomatFromArray( variable iComPort ) variable
+     {
+         variable PositionArray;
+         variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+         variable Type, Slots, Simulate, TraceLevel, File, Linear, LinearPositions, Temperatur, TemperaturMinimum, TemperaturMaximum, CO2,
+                  CO2Minimum, CO2Maximum, Shaker, ShakerPositions;
+
+         CytomatExist(iComPort, PositionArray);   
+
+         arrCytomatComport.RemoveElementAt( PositionArray );
+         arrCytomatInitialiezed.RemoveElementAt( PositionArray );
+         arrCytomatType.RemoveElementAt( PositionArray );
+         arrCytomatSlots.RemoveElementAt( PositionArray );
+         arrCytomatSimulate.RemoveElementAt( PositionArray );
+         arrCytomatTracelevel.RemoveElementAt( PositionArray );
+         arrCytomatFile.RemoveElementAt( PositionArray );
+         arrCytomatLinear.RemoveElementAt( PositionArray );
+         arrCytomatLinearPositons.RemoveElementAt( PositionArray );
+         arrCytomatTemperatur.RemoveElementAt( PositionArray );
+         arrCytomatTemperaturMinimum.RemoveElementAt( PositionArray );
+         arrCytomatTemperaturMaximum.RemoveElementAt( PositionArray );
+         arrCytomatCO2.RemoveElementAt( PositionArray );
+         arrCytomatCO2Minimum.RemoveElementAt( PositionArray );
+         arrCytomatCO2Maximum.RemoveElementAt( PositionArray );
+         arrCytomatShaker.RemoveElementAt( PositionArray );
+         arrCytomatShakerPositons.RemoveElementAt( PositionArray );
+         arrCytomatDelidder.RemoveElementAt( PositionArray );     
+
+         return(HSLCytomatGlobalCommands::ERROR_NONE);
+     }
+
+
+     static function CytomatExist(variable iComPort , variable& oPositionArray) variable
+     {
+         variable i;
+         variable errCode(HSLCytomatGlobalCommands::ERROR_NOT_INITIALIZED);
+
+         oPositionArray = -1;
+         for(i = 0; i < arrCytomatComport.GetSize();i++)
+         {
+            if(arrCytomatComport.GetAt(i) == iComPort)
+            {
+               oPositionArray = i;
+               errCode = HSLCytomatGlobalCommands::ERROR_ALLREADY_INITIALIZED;  
+               break;
+            }
+         }
+         return(errCode);
+     }
+
+   static function CheckComport( variable iComPort ) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+
+      errCode = CheckInteger(iComPort);
+
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }
+
+      if((iComPort <= 0) || (iComPort > 255))
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE; 
+         return(errCode);         
+      }
+
+      return(errCode); 
+
+   }
+
+   static function CheckSlotNumberMaximal( variable iSlotNumber ) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+
+      errCode = CheckInteger(iSlotNumber);
+
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }    
+
+      if(iSlotNumber <= 0)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE;     
+      }
+
+      return(errCode);  
+   }
+
+   static function CheckTraceLevel( variable iTraceLevel ) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+
+      errCode = CheckInteger(iTraceLevel);
+
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }    
+
+      if((iTraceLevel == TraceLevel::None) || (iTraceLevel == TraceLevel::Normal) || (iTraceLevel == TraceLevel::Debug))
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_NONE;
+      }
+      else
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE;     
+      }
+
+      return(errCode);   
+   }
+
+   static function CheckSimulate( variable iSimulate ) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+
+      errCode = CheckBool(iSimulate);
+
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }    
+      return(errCode);
+   }
+
+   static function CheckFile( variable iFile ) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+
+      errCode = CheckString(iFile);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }    
+
+      if((0 > StrFind(iFile,"\\")) && (1 <= StrFind(iFile,".mdb")))
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_NONE;
+      }
+      else
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE;
+      }
+
+      return(errCode);   
+   }
+
+   static function CheckPlatePosition( variable iComPort, variable iPosition ) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable PositionArray(-1);
+      
+      errCode = CheckInteger(iPosition);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }   
+
+      CytomatExist(iComPort, PositionArray);
+      if((iPosition <= 0) || (iPosition > arrCytomatSlots.GetAt(PositionArray)))
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE;
+      }
+
+      return(errCode);   
+   }
+
+   static function CheckPlatePositionStore( variable iComPort, variable iPosition ) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable PositionArray(-1);
+      
+      errCode = CheckInteger(iPosition);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }   
+
+      CytomatExist(iComPort, PositionArray);
+      if((iPosition < 0) || (iPosition > arrCytomatSlots.GetAt(PositionArray)))
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE;
+      }
+
+      return(errCode);   
+   }
+
+   static function CheckPlateBarcode( variable iBarcode ) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable PositionArray(-1);
+      
+      errCode = CheckString(iBarcode);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }   
+
+      return(errCode);     
+   }
+
+   static function CheckCommand( variable iCommand) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      
+      errCode = CheckString(iCommand);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }   
+
+      return(errCode);    
+   }
+
+   static function CheckTransferPositionsMax( variable iTransferMax) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable PositionArray(0);
+      
+      errCode = CheckInteger(iTransferMax);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }   
+
+      return(errCode);    
+   }
+
+   static function CheckTransferPosition( variable iComPort, variable iTransferPosition) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable PositionArray(0);
+      
+      errCode = CheckInteger(iTransferPosition);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }   
+
+      CytomatExist(iComPort, PositionArray);
+      if((iTransferPosition < 1) || (iTransferPosition > arrCytomatLinearPositons.GetAt(PositionArray)))
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE;
+      }
+
+
+      return(errCode);    
+   }
+
+   static function CheckTemperatur( variable iComPort,variable iTemperatur) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable PositionArray(0);
+      
+      errCode = CheckFloat(iTemperatur);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }   
+
+      return(errCode);    
+   }
+
+   static function CheckSetTemperatur( variable iComPort,variable iTemperatur) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable PositionArray(0);
+      
+      errCode = CheckFloat(iTemperatur);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }   
+
+      CytomatExist(iComPort, PositionArray);
+      if((iTemperatur < arrCytomatTemperaturMinimum.GetAt(PositionArray)) || (iTemperatur > arrCytomatTemperaturMaximum.GetAt(PositionArray)))
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE;
+      }
+
+
+      return(errCode);    
+   }
+
+   static function CheckCO2( variable iComPort, variable iCO2) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable PositionArray(0);
+      
+      errCode = CheckFloat(iCO2);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }   
+
+      CytomatExist(iComPort, PositionArray);
+      if((iCO2 < 0.0) || (iCO2 > 100.0))
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE;
+      }
+
+
+      return(errCode);    
+   }
+
+   static function CheckSetCO2( variable iComPort,variable iCO2) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable PositionArray(0);
+      
+      errCode = CheckFloat(iCO2);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }   
+
+      CytomatExist(iComPort, PositionArray);
+      if((iCO2 < arrCytomatCO2Minimum.GetAt(PositionArray)) || (iCO2 > arrCytomatCO2Maximum.GetAt(PositionArray)))
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE;
+      }
+
+
+      return(errCode);    
+   }
+
+   static function CheckMaximalShakerPositions( variable iMaxPositions) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+
+
+      errCode = CheckInteger(iMaxPositions);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }
+
+      if(iMaxPositions <= 0)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE; 
+         return(errCode);         
+      }
+
+      return(errCode);  
+   }
+
+   static function CheckShaker( variable iComPort , variable iShaker ) variable
+   {  
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable PositionArray(-1);
+      
+      errCode = CheckInteger(iShaker);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }   
+
+      CytomatExist(iComPort, PositionArray);
+      if((iShaker < 0) || (iShaker > arrCytomatShakerPositons.GetAt(PositionArray)))
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE;
+      }
+
+      return(errCode);    
+   }
+
+   static function CheckShakeSpeed(variable iSpeed) variable
+   {  
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+
+      errCode = CheckInteger(iSpeed);
+      if(errCode != HSLCytomatGlobalCommands::ERROR_NONE)
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE; 
+         return(errCode);
+      }   
+
+      if((iSpeed < 200) || (iSpeed > 1500))
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE;
+      }
+
+      return(errCode);    
+   }
+
+   static function CheckInteger( variable iInteger ) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+
+      if( GetType(iInteger) != "i" )
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE;
+      }
+      return(errCode);
+   }
+
+   static function CheckFloat( variable iFloat ) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+
+      if( GetType(iFloat) != "f" )
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE;
+      }
+      return(errCode);
+   }
+
+   static function CheckString( variable iString ) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+
+      if( GetType(iString) != "s" )
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE;
+      }
+      return(errCode);
+   }
+
+
+   static function CheckBool( variable iBool ) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+
+      if( GetType(iBool) != "i" )
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OF_WRONG_TYPE;
+         return(errCode);
+      }
+
+      if( (iBool == ASWGLOBAL::BOOL::TRUE) || (iBool == hslFalse ))
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_NONE;
+      }
+      else
+      {
+         errCode = HSLCytomatGlobalCommands::ERROR_PRM_OUT_OF_RANGE;
+      }
+
+      return(errCode);
+   }
+
+
+   /* static functions -- End*/
+
+   /* Work with database -- Begin */
+
+   static function ChangeOccupiedStateByPosition(variable iFile ,variable iPosition ,variable iBarcode,variable iOccupied) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable value(0);      
+
+
+      // Set Occupation state
+      errCode = HSLThermoCytomatFilehandling::UpdateLocation( iFile,IStr(iOccupied), HSLThermoCytomatFilehandling::ColumnOccupied, IStr(iPosition), HSLThermoCytomatFilehandling::ColumnLocation, value );   
+      if( HSLCytomatGlobalCommands::ERROR_NONE != errCode ) 
+      {
+         return(errCode);
+      }  
+
+      // Set Barcode
+      errCode = HSLThermoCytomatFilehandling::UpdateLocation( iFile,iBarcode, HSLThermoCytomatFilehandling::ColumnBarcode, IStr(iPosition), HSLThermoCytomatFilehandling::ColumnLocation, value );   
+      if( HSLCytomatGlobalCommands::ERROR_NONE != errCode ) 
+      {
+         return(errCode);
+      }  
+
+      // Set DateTime
+      errCode = HSLThermoCytomatFilehandling::UpdateLocation( iFile, HSLThermoCytomatFilehandling::GetDateTime(), HSLThermoCytomatFilehandling::ColumnDate, IStr(iPosition), HSLThermoCytomatFilehandling::ColumnLocation, value );   
+      if( HSLCytomatGlobalCommands::ERROR_NONE != errCode ) 
+      {
+         return(errCode);
+      }  
+
+      return(errCode);
+   }
+
+   /* Work with database -- End */
+
+   /* Work -- Begin */
+
+   static function FormatBarcodeFromCytomat(variable ibarcode ) variable
+   {
+         variable retBarcode("");
+
+         if(StrFind(ibarcode,"sc ") >= 0)
+         {
+            StrReplace(ibarcode,"sc ", "");
+            retBarcode = ibarcode;
+         }
+         if(StrFind(ibarcode,"bc ") >= 0)
+         {
+            StrReplace(ibarcode,"bc ", "");
+            retBarcode = ibarcode;
+         }
+
+
+         StrReplace(ibarcode," ", "");
+
+         if((StrGetLength(ibarcode) > 0)&&(StrGetLength(ibarcode) < 2))
+         {
+            ibarcode = "";
+         }
+
+         return(ibarcode);
+   }
+
+   static function CheckLocationOccupancyState(variable iComPort, variable iPosition, variable& foundPlate) variable
+   {
+      
+      variable positionString(0);
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable response("");
+      variable PositionArray(0);
+
+      if(iPosition < 10)
+      {
+         positionString = "00" + IStr(iPosition);
+      }
+
+      if((iPosition > 9)&&(iPosition < 100))
+      {
+         positionString = "0" + IStr(iPosition);
+      }
+
+      if((iPosition > 99)&&(iPosition < 1000))
+      {
+         positionString = "" + IStr(iPosition);
+      }
+
+      CytomatExist(iComPort, PositionArray);
+
+
+      //move carousel to position
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandKarouselToPosition() + positionString, ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         return( errCode );  
+      }
+
+
+      //rotate handler to stacker to "001"
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandScanRotateHandlerToStacker() + "001", ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         return( errCode );  
+      }    
+
+   	//lower handler to location
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandScanHandlerLowerToPosition() + positionString, ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         return( errCode );  
+      }
+
+   	errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandScanHandlerHigherToPosition() + positionString , ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         return( errCode );  
+      }
+
+   	//extend arm
+   	errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandScanExtentArm(), ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         return( errCode );  
+      }
+
+   	//raise arm
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandScanHandlerHigherToPosition() + positionString, ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         return( errCode );  
+      }
+
+   	//retract arm
+   	errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandScanRetractArm(), ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         return( errCode );  
+      }
+
+   	//check Busy
+   	errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandBusy(), ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         return( errCode );  
+      }
+
+
+      foundPlate = HSLCytomatGlobalCommands::CheckHandlerBit(response);
+
+   	//extend arm
+   	errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandScanExtentArm(), ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         return( errCode );  
+      }
+
+
+   	//lower handler to location
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandScanHandlerLowerToPosition() + positionString, ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         return( errCode );  
+      }
+
+   	//retract arm
+   	errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandScanRetractArm(), ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         return( errCode );  
+      }
+
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandMoveHandlerWait() , ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+   		return( errCode );  
+      }
+
+      return(errCode);
+   }
+ 
+   static function ScanPosition(variable iComPort, variable iPosition, variable& oBarcode)
+   {
+      variable positionString(0);
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable response("");
+      variable PositionArray(0);
+
+      if(iPosition < 10)
+      {
+         positionString = "00" + IStr(iPosition);
+      }
+
+      if((iPosition > 9)&&(iPosition < 100))
+      {
+         positionString = "0" + IStr(iPosition);
+      }
+
+      if((iPosition > 99)&&(iPosition < 1000))
+      {
+         positionString = "" + IStr(iPosition);
+      }
+
+
+      CytomatExist(iComPort, PositionArray);
+
+
+
+      //rotate handler to stacker to "001"
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandScanRotateHandlerToStacker() + "001", ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+         return( errCode );  
+      }
+      
+
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandScanHandlerLowerToPosition() + positionString, ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+   		return( errCode );  
+      }
+
+		// Read Barcode Position
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandScanReadBarcodePosition() + positionString, ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+   		return( errCode );  
+      }
+
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandScanGetBarcodePosition() , ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+   		return( errCode );  
+      }
+
+      oBarcode = FormatBarcodeFromCytomat(response);
+
+      errCode = HSLThermoCytomatComport::ProcessCommand(iComPort,arrCytomatLinear.GetAt(PositionArray), arrCytomatTracelevel.GetAt(PositionArray) , HSLCytomatGlobalCommands::GetCommandMoveHandlerWait() , ASWGLOBAL::BOOL::TRUE , response);
+      if (HSLCytomatGlobalCommands::ERROR_NONE != errCode )
+      {
+   		return( errCode );  
+      }
+
+      return(errCode);
+
+   }
+    
+   static function ExtractTemperatur( variable iCommandReturn, variable& oCurrentTemperatur) variable
+   {
+      variable errCode(HSLCytomatGlobalCommands::ERROR_NONE);
+      variable StringPosition(0);
+      variable StringLength(0);
+      variable SubString("");
+
+      onerror goto errorhandler; 
+
+      oCurrentTemperatur = 0;
+
+      if(8 >= StrGetLength(iCommandReturn) && StrFind(iCommandReturn,"it") < 0)
+      {
+         return(HSLCytomatGlobalCommands::ERROR_WRONG_RETURN_FROMAT);
+      }
+
+      StringPosition = StrFind(iCommandReturn," ");
+      SubString = StrMid(iCommandReturn,0, StringPosition + 1);
+      StrReplace(iCommandReturn, SubString, "");
+      StringPosition = StrFind(iCommandReturn," ");
+      SubString = StrMid(iCommandReturn,0, StringPosition + 1);
+      StrReplace(iCommandReturn, SubString, "");
+
+      oCurrentTemperatur = FVal(iCommandReturn);
+
+      return(errCode);
+   
+      errorhandler:
+      {
+         return(HSLCytomatGlobalCommands::ERROR_WRONG_RETURN_FROMAT);
+      }
+   }
+
+   /* Work  -- End */
+
+}	//end namespace 
+
+// $$author=Hamilton Admin$$valid=0$$time=2016-01-28 14:01$$checksum=4d461a3f$$length=091$$

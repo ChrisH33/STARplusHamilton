@@ -1,0 +1,17 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 14/02/2023 11:23:49
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace VENUS4_INIT {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Initialise( device & ML_Star, variable i_blnOnOff ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2023-02-14 11:23$$checksum=c7dd2f01$$length=081$$

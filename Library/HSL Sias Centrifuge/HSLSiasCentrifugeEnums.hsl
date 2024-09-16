@@ -1,0 +1,35 @@
+// ======================================================================
+// Driver for the Sias Centrifuge
+//
+// Copyright(C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+// ======================================================================
+//
+// Modification History
+//    2010-06-26, V1.0: Dominik Wittmer, created 
+// ======================================================================
+
+#ifndef __HSLSiasCentrifugeEnums_hsl__
+  #define __HSLSiasCentrifugeEnums_hsl__ 1
+
+
+  namespace HSLSiasCentrifuge
+  {
+
+    //Enums
+    namespace Enums
+    {
+      namespace ErrorRecovery
+      {
+        const variable None(0);
+        const variable Retry(1);
+      }
+
+      namespace ErrorCode
+      {
+        const variable None(0);
+      }
+    }
+  }
+#endif
+// $$author=dwittmer$$valid=0$$time=2011-06-07 14:45$$checksum=3453569d$$length=085$$

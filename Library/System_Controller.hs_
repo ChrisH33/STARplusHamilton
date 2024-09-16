@@ -1,0 +1,19 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 05/04/2023 17:33:49
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace SYSTEM_CONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function InitializeController( device & ML_STAR, sequence i_seqChannelWastePosition ) void { }
+function InitializeSystem( device & ML_STAR ) void { }
+function TerminateSystem( device & ML_STAR ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2023-04-05 17:33$$checksum=40d27fd2$$length=081$$

@@ -1,0 +1,40 @@
+{
+  "Device": "Hamilton Heater Shaker",
+  "Simulation": true,
+  "ErrorDialog": true,
+  "HHSConnectionType": false,
+  "LastErrorReturn": 0,
+  "TestTemperature": 37.0,
+  "TestShakeSpeed": 200,
+  "TestShakeDuration": 20,
+  "TemperatureTolerance": 0.5,
+  "hamiltonheatershakers": [
+    {
+      "hhs": 1,
+      "hhs_node_id": 1,
+      "hhs_dip_switch": 0,
+      "hhs_device_id": 1,
+      "active": 1,
+      "occupied": 0,
+      "barcode": ""
+    },
+    {
+      "hhs": 2,
+      "hhs_node_id": 2,
+      "hhs_dip_switch": 1,
+      "hhs_device_id": 2,
+      "active": 1,
+      "occupied": 0,
+      "barcode": ""
+    },
+    {
+      "hhs": 3,
+      "hhs_node_id": 3,
+      "hhs_dip_switch": 2,
+      "hhs_device_id": 3,
+      "active": 1,
+      "occupied": 0,
+      "barcode": ""
+    }
+  ]
+}

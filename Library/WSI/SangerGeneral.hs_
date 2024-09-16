@@ -1,0 +1,30 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 11/09/2024 08:54:58
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace SANGERGENERAL {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function DeleteSchema( variable _strFolderPath ) void { }
+function DoorLock( device & ML_STAR, variable _blnSim, variable _blnLock ) void { }
+function FourWellHandling( sequence & _seq, variable _strCP, variable _intWellCount ) variable {  return (0); }
+function GetAvailableSeqPositions( sequence & _seq ) variable {  return (0); }
+function GetDaysSinceClean( variable _blnAdmin ) variable {  return (0); }
+function ReloadTips( device & ML_STAR, variable _strTipCounter, variable _blnUserPrompt ) void { }
+function SetCleanDate( variable _strCardID ) void { }
+function StatusDisplay_Init( variable _blnTraceMethodName ) variable {  return (0); }
+function StatusDisplay_Update( variable _strMessage1, variable _strMessage2, variable _blnTrace ) variable {  return (0); }
+function TipCheck( sequence & _seqTips, variable _strTipCounter, variable _intTipsNeeded ) variable {  return (0); }
+function TipPickup( device & ML_STAR, variable _strChannelPattern, sequence & _seqTip, variable _strTipCounter, variable _blnTesting ) void { }
+function UpdateUsers_DateLastUsed( variable _strCurrentUserPrefix ) void { }
+function VolumePlausibilityCheck( variable _intVolumeToTransfer, variable _strLC ) void { }
+function WorklistEntryValidation( variable varEntry, variable blnRemoveSpaces ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2024-09-11 08:54$$checksum=40976ebe$$length=081$$

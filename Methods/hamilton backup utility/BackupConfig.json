@@ -1,0 +1,9 @@
+{
+    "Backup Folder Path": "D:\\Hamilton\\Chris PC\\",
+    "Force Close Run Control": true,
+    "Backup Frequency": "%d%b%Y",
+    "Acceptable File Formats": [".med", ".smt"],
+    "Testing Mode": false,
+    "Input Check": true,
+    "Backup Number": 20
+}

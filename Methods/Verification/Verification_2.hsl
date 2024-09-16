@@ -1,0 +1,1022 @@
+/***************************************************************************************************
+*  Method     : Verification_2.hsl
+*  Copyright by HAMILTON Bonaduz AG, CH-7402 Bonaduz
+****************************************************************************************************
+*
+*  Description : Main Method for Verification 2, executable on software version >= 3.2
+*						- read Instrumenten configuration
+*						- read layout information from the modified deck layout (if available)
+*						- read corresponding verfification status
+*						- display "available" and requested verification steps
+*						- display dialog for enviroment conditions
+*						- display dialog for needed verification tools
+*						- activate selected device verification according following pre-defined sequence:
+*
+*							Description 							(>= SW version Biotec/IVD) - pre-condition
+*						------------------------------------------------------------
+*						1. Cover-Safety 									(>= V4.0 / V4.2)		- none
+*						2a.Barcode Autoload								(>= V3.2 / V4.2)		- none
+*						2b.Barcode Twister								(>= V4.4 / V4.4)		- none 
+*						3. X-Y-Z-Verification 1000ul single Heads (>= V3.2 / V4.2)		- Daily maintenance check (for IVD)
+*						4. Shaker- Verification							(>= V4.2 / V4.2)		- X-Y-Z-Verification 1000ul single Heads
+*						 - Start Heating up for Temperature Verification 					- except for extended report mode 
+*						5.	X-Y-Z-Verification 96er multi Head		(>= V3.2 / ---)		- none
+*						6.	X-Y-Z-Verification 384er multi Head		(>= V4.1 / --- )		- none
+*						7. X-Y-Z-Verification 5ml single Heads 	(>= V4.2 / V4.2)		- Daily maintenance check (for IVD)
+*						8. X-Y-Z-Verification Nanopipettor			(>= tbd  / ---)		- none
+*						9. Volume CO-RE 384-Probe Head				(>= V4.1 / ---)		- X-Y-Z-Verification CO-RE 384-Probe Head
+*						10a.Volume CO-RE 96-Probe Head Type:300ul	(>= V3.2 / ---)		- X-Y-Z-Verification CO-RE 96-Probe Head
+*						10b.Volume CO-RE 96-Probe Head Type:1000ul (>= V4.1 / ---)		- X-Y-Z-Verification CO-RE 96-Probe Head
+*						11.Volume 1000ul single Heads 				(>= V3.2 / V4.2)		- X-Y-Z-Verification 1000ul single Heads
+*						12.Volume 5ml single Heads 					(>= V4.2 / V4.2)		- X-Y-Z-Verification 5ml single Heads
+*						13.Volume Nanopipettor							(>= n.a. / n.a.)		- X-Y-Z-Verification Nanopipettor
+*						14.easyPunch Verification						(>= V4.4 / ---)		- none
+*
+* 						- Start Heating up for Temperature Verification 					- in case of extended report mode 
+*						- after each volume verification and at end of steps above
+*						15a.Temperature- Verification	TCC			(>= V3.2 / --- )		- after heat-up time
+*						15b.Temperature- Verification	HHS,...  	(>= V4.2 / V4.2)		- after heat-up time
+*
+*						16. Device Verification HHS 3G            (>= V4.2 / V4.2)		- none
+*						 
+* ==================================================================================================
+*/
+
+	variable verificationSW_Version("1101");	// verification main SW version
+
+/* Modification History:
+*  ----------------------
+*  Rev 2.1  2023-10-03 Marino Bantli  / Module: Build 1101
+*              Added firmware command on 96 head volume verification to avoid z-axis steploss
+* --------------------------------------------------------------------------------------------------
+*  Rev 2.0  2023-08-16 Marino Bantli  / Module: Build 1100
+*              Fixed various bugs regarding HHS3G verification
+*              Changed Adobe Reader root path
+* --------------------------------------------------------------------------------------------------
+*  Rev 1.9  2023-03-21 Marino Bantli  / Module: Build 1080 
+*              Implementation of the function "ChangeLabwareProperty", which is used to alter the
+*              tip pickup mode to blow out previously used tips on pickup
+* --------------------------------------------------------------------------------------------------
+*  Rev 1.8  2023-03-09 Marino Bantli  / Module: Build 1070 
+*              Edited excel templates to unify the usage of "Trueness" across IVD and Biotech editions.
+*              Before it was mixed usage of "Trueness" and "Accuracy"
+* --------------------------------------------------------------------------------------------------
+*  Rev 1.7  2022-12-07 Erich Caflisch  / ECO11008587  / Module: Build 1060 
+*              New lowest SW-version: Version 4.2.0 instead of 3.2.0
+*              Implementation of device verification Hamilton Heater Shaker 3G
+*              Correction and opimization of 
+*              - Balance position check with lowest selected channel (not always with channel #1)
+*              - 16 channel instrument with optimized space between channels
+*              - Search for Adobe program with help of user  request
+*              - User option to abort if volume verification already failed at first criteria
+*              - New aspiration start position within liquid bei multiple tip use for 96er multiprobe heads
+*              - Barcode report with barcode verification carrier information
+* --------------------------------------------------------------------------------------------------
+*  Rev 1.6  2021-10-11 Erich Caflisch  / ECO11007671  / Module: Build 1050 
+*              Change of verification interval to 400 days in case of CORE II PipHead installation, 
+*                else 200 days for all verification features 
+*              Synchronisation of summary and individual verifcation stati for PipChannels at beginning
+* --------------------------------------------------------------------------------------------------
+*  Rev 1.51 2021-08-12 Erich Caflisch / ECO11006154  / Module: Build 1041   
+*              Corrections in manual 
+*              Corrections in device "Cooling Carrier Module CCM" executions
+* --------------------------------------------------------------------------------------------------
+*  Rev 1.5 2021-02-01 Erich Caflisch / ECO11006154  / Module: Build 1040   
+*              New device "Cooling Carrier Module CCM" included, 
+*            	Only temperature sensor verification, i.e. check if internal sensor(s) are similar to reference (IR-) 
+*              New report for sensor verification
+*              Corrected twister calculation for right channel type
+*              IR Sensor serial number request for temperature verification extended
+* --------------------------------------------------------------------------------------------------
+*  Rev 1.42  2020-10-13 Erich Caflisch ECO 14'650 / Module: Build 1028
+*              Corrected display of volume verification expiry date in case of multiple channel selection
+*  Rev 1.41  2020-02-06 Erich Caflisch ECO 14'650 / Module: Build 1027
+*              Corrected execution of 5ml pip channels volume verification   
+*  Rev 1.4  2018-04-12 Erich Caflisch ECO 14'650 / Module: Build 1026
+*              Add temparture verification of MFX cooling heating module 
+*              Optimized verification executions of easy punch verification   
+*              Exclude easyPunch verification from IVD configuration        
+*  --------------------------------------------------------------------------------------------------
+*  Rev 1.31 2016-09-02 Erich Caflisch ECO 14'650 / Module: Build 1025   
+*					Remove re-start if summary of verification  is failed
+*  Rev 1.3 2016-03-14 Erich Caflisch ECO 14'650 / Module: Build 1025   
+*					Add individual selection of pipetting channels
+*					Optimized verification executions
+*                   - 5ml Pipetting Channel volume verification
+*                   - multiProbe Heads volume verifications
+*                   - twister verification
+*                   - easy punch verification
+*                   - 2D autoload feature
+*              Reset pdf creator application options at the end
+*					Open start dialog automatically again if summary of verification  is failed
+*  --------------------------------------------------------------------------------------------------
+*  Rev 1.2 2013-09-04 Erich Caflisch ECO 13'197 / Module: Build 1020   
+*					Add easy Punch verification for SW version >= 4.4
+*					Add twister verification for SW version >= 4.4
+*					Extended reporting option included				
+*  --------------------------------------------------------------------------------------------------
+*  Rev 1.1 2011-09-14 Erich Caflisch ECO 12'600 / Module: Build 1011   
+*					Additional text at end of run to remove Mini-CD 
+*					
+*  --------------------------------------------------------------------------------------------------
+*  Rev 1.0 2010-07-19 Erich Caflisch:  / Verification Version : "1001"
+*               	First released version for software version >=3.2.0
+*						Nanopipettor Verification NOT included
+*  --------------------------------------------------------------------------------------------------
+*  Rev 0.1 2007-11-08	Erich Caflisch: First test version, based on field verification 1
+*
+****************************************************************************************************/
+
+//device ML_STAR("Verification_Starlet.lay");
+	// -----------------------------------------------------------------------------
+	// Debug switch for this file
+	// -----------------------------------------------------------------------------
+	//		#define _DEBUG_VolVer 1
+
+	//==============================================================================
+	// declaration of general variables and constants
+	//==============================================================================
+	variable minBalanceTrack(4);					// define minimal track position for balance carrier
+	//------------------------------------------------------------------------------
+
+	// -----------------------------------------------------------------------------
+	// Included libraries
+	// -----------------------------------------------------------------------------
+
+	#include "Verification_2_CoverSafety.hsl"
+	#include "Verification_2_Barcode.hsl"
+	#include "Verification_2_Twister.hsl"
+
+	#include "IVD_Verification_2_XYZ_1000ulSingleChannels.hsl"
+	#include "IVD_Verification_2_XYZ_5mlSingleChannels.hsl"
+	#include "IVD_Verification_2_Volume_1000ulSingleChannels.hsl"
+
+	#include "Verification_2_XYZ_384erPipHead.hsl"
+	#include "Verification_2_XYZ_96erPipHead.hsl"
+	#include "Verification_2_XYZ_1000ulSingleChannels.hsl"
+	#include "Verification_2_XYZ_5mlSingleChannels.hsl"
+	#include "Verification_2_XYZ_NanoPipettter.hsl"
+
+	#include "Verification_2_Volume_384erPipHead.hsl"
+	#include "Verification_2_Volume_300ul_96erPipHead.hsl"
+	#include "Verification_2_Volume_1000ul_96erPipHead.hsl"
+	#include "Verification_2_Volume_1000ulSingleChannels.hsl"
+	#include "Verification_2_Volume_5mlSingleChannels.hsl"
+	#include "Verification_2_Volume_NanoPipettter.hsl"
+
+	#include "Verification_2_easyPunch.hsl"
+
+	#include "Verification_2_Temperature.hsl"
+	#include "Verification_2_Shaker.hsl"
+   #include "Verification_2_Device_HHS_3G.hsl"
+
+	//==============================================================================
+	// prototyping local functions
+	//==============================================================================
+
+	//------------------------------------------------------------------------------
+	private function EndOfRunDialog() variable
+	//------------------------------------------------------------------------------
+	{
+		variable pictureFile("");			// picture file name (in subdirectory "..\\Methods\Verification\Pictures\""
+		variable dialogTitle("");			//	dialog titel information
+		variable warning(""), response("");				//	
+      variable buttonsType(hslOKOnly);
+      variable status(hslTrue);
+
+		dialogTitle 		= LdT("Verification Completed:");
+
+		if((PID::summaryStatus == PS::failed) || (PID::summaryRemainingDays< 0))
+		{
+			status      = hslFalse;
+			pictureFile = "Verification_failed.jpg";		
+			warning 		= LdT("WARNING:") + " " + LdT("Verification for at least one process is required!");
+			buttonsType = hslOKOnly;
+		}
+		else
+		{
+			status      = hslTrue;
+			pictureFile = "Verification_passed.jpg";
+			//buttonsType = hslYesNo;
+         if(PID::summaryRemainingDays > 0)
+         {
+         	warning     = LdT("Note:") + "  " + LdT("Next Verification is required in");
+            warning     = warning + StrConcat4(" ",PID::summaryRemainingDays,""," ") + LdT("days") + ".";	
+         }				
+		}
+
+		VerTool::NewTextLine(1, LdT("Remove all Verification Labware from the Deck:"));
+		VerTool::NewTextLine(0," -----------------------------------------------------");
+		VerTool::NewTextLine(0," ");
+		VerTool::NewTextLine(0, "- " + LdT("Consumables"));
+		VerTool::NewTextLine(0," ");
+		VerTool::NewTextLine(0, "- " + LdT("Carrier"));
+
+		if (PS::showBalanceData > 0)
+		{	// Check balance
+			//------------------------------------------------------------------------------
+			VerTool::NewTextLine(0," ");
+			VerTool::NewTextLine(0, "- " + LdT("Balance"));
+		}
+
+		if (PS::showPhotoCheckPlateData > 0)
+		{	//------------------------------------------------------------------------------
+			response = "er00";	
+			VerTool::Reader_OpenDoor();
+			VerTool::NewTextLine(0," ");
+			VerTool::NewTextLine(0,"- " + LdT("If present, remove the Plate"));
+			VerTool::NewTextLine(0, "     " + LdT("and then 96 Plate Bar from the Reader384."));
+			if(Reader::newReferenceData) 
+			{
+				VerTool::NewTextLine(0," ");
+				VerTool::NewTextLine(0,"- " + LdT("If present, remove the mini CD from the CD-ROM drive."));
+			}
+			VerTool::NewTextLine(0," ");
+			VerTool::NewTextLine(0,"- " +  LdT("Disconnect the Reader384 at the end of the run."));		
+		}
+		if(PID::summaryStatus == PS::successful)
+		{
+			VerTool::NewTextLine(0," ");
+			VerTool::NewTextLine(0," ");
+			//VerTool::NewTextLine(0, LdT("Press 'Yes'  to end the Verification."));
+			//VerTool::NewTextLine(0, LdT("Press 'No'   to open the Verification Selection dialog again."));		
+		}
+		response = VerTool::DialogInfoData(dialogTitle, pictureFile, VerDef::dialogText, warning, buttonsType, 1, "","","");
+		if(response == hslNo) status = hslFalse;
+
+		if (PS::showPhotoCheckPlateData > 0)
+		{	// --  Close reader door and switch to idle mode
+			VerTool::Reader_IdleMode();
+		}
+
+      loop(20) Trace(""); //
+
+      return(status);
+	}  // -- end of function "EndOfRunDialog"
+
+
+	//------------------------------------------------------------------------------
+	function SetVerificationDisplayData(
+					variable description,
+					variable processID,
+					variable status,					
+					variable processDate,		
+					variable dataInfoType,	// data information type : G = general, 
+													//	V1 = 1000ul pipChannel volume, V5 = 5ml pipChannel volume
+					variable& timeOffset								
+												)  //variable
+	//------------------------------------------------------------------------------
+	{
+		variable processStatus(0);
+		variable requestedAction(0);	
+		variable expiryDate, dateOkay, remarks("");				
+		variable	remainingDays;
+			
+		requestedAction 	= 0;
+		processStatus 		= VerDef::valid;
+		remainingDays		= VerTool::ValidateDate(processDate, timeOffset, expiryDate, dateOkay, remarks);
+      //Trace("Test: SetVerificationDisplayData : processID ==>",processID,"<  processDate ==>",processDate,"<  timeOffset ==>", timeOffset,"<   expiryDate  ==>", expiryDate ,"<  Remaining days =>",remainingDays,"<==");
+
+		if (status == 0) 
+		{
+			requestedAction 		= 1;
+			processStatus 			= VerDef::failed;
+			remarks					= VerDef::failed;
+			if( dataInfoType == PID::General) PID::summaryStatus 	= PS::failed;
+		}
+
+		if (VerTool::ValidateDate(processDate, timeOffset, expiryDate, dateOkay, remarks) < 0) 
+		{
+			requestedAction 		= 1;
+			processStatus 			= VerDef::invalid;
+			remarks					= VerDef::invalid;
+			if( dataInfoType == PID::General) PID::summaryStatus 	= PS::failed;
+		}
+		//Trace("Test: SetVerificationDisplayData : PID::summaryStatus ==>",PID::summaryStatus);
+		if( dataInfoType == PID::General)
+		{
+			if (PID::summaryRemainingDays > remainingDays) PID::summaryRemainingDays = remainingDays;	
+			G_VAR::arrProcessID.AddAsLast(processID );
+			G_VAR::arrStatus.AddAsLast(processStatus);
+//	   	G_VAR::arrVerificationInterval.AddAsLast(timeOffset);
+			G_VAR::arrRemainingDays.AddAsLast( remainingDays );
+			G_VAR::arrDescription.AddAsLast( description);
+			G_VAR::arrExpiryDate.AddAsLast(StrConcat2(expiryDate,""));
+			G_VAR::arrInputRemarks.AddAsLast(StrConcat2(remarks,""));
+			G_VAR::arrAction.AddAsLast(requestedAction);
+		}
+
+		if( dataInfoType == PID::Vol_1000ulCh)
+		{
+			V1_VAR::arrProcessDate.AddAsLast(processDate);
+			V1_VAR::arrStatus.AddAsLast(processStatus);
+//			V1_VAR::arrVerificationInterval.AddAsLast(timeOffset);
+			V1_VAR::arrRemainingDays.AddAsLast(remainingDays );
+			V1_VAR::arrDescription.AddAsLast(description );
+			V1_VAR::arrExpiryDate.AddAsLast(expiryDate);
+			V1_VAR::arrInputRemarks.AddAsLast(remarks );
+			V1_VAR::arrAction.AddAsLast(requestedAction);
+   	}
+
+		if( dataInfoType == PID::Vol_5mlCh)
+		{
+			V5_VAR::arrProcessDate.AddAsLast(processDate);
+			V5_VAR::arrStatus.AddAsLast(processStatus);
+//			V5_VAR::arrVerificationInterval.AddAsLast(timeOffset);
+			V5_VAR::arrRemainingDays.AddAsLast(remainingDays );
+			V5_VAR::arrDescription.AddAsLast(description );
+			V5_VAR::arrExpiryDate.AddAsLast(expiryDate);
+			V5_VAR::arrInputRemarks.AddAsLast(remarks );
+			V5_VAR::arrAction.AddAsLast(requestedAction);
+   	}
+			
+	}  // -- end of function "SetVerificationDisplayData"
+
+ 	//------------------------------------------------------------------------------
+	function  GetSummaryProcessDataFromSingleChannelsInfo(variable channelTypeID, variable NumberOfChannels, variable& sumProcessedState, variable& sumExpiryDate)
+   {
+      variable i;
+      variable processID("");
+      variable processedDate, processedTime;
+      variable processedState,remainingDays, minimumRemainingDays;
+      variable verInterval;
+      variable expiryDate, dateOkay, remarks;
+      
+      processedState = 1;
+      minimumRemainingDays =9999;  // very large
+		for(i = 0; i < NumberOfChannels; i++)
+		{
+			if(channelTypeID == PID::Vol_5mlChannel)  processID   = StrConcat2(PID::Vol_5mlCh,i+1);
+         else                                      processID   = StrConcat2(PID::Vol_1000ulCh,i+1);
+
+			VerTool::GetProcessDataFromFile(processID, processedState, processedDate , processedTime, verInterval);
+         //Trace("Test: Summary Synchro of ", processID,"  processedState =>",processedState,"  processedDate    =>",processedDate, " verInterval ==> ",verInterval, "<==");	
+         if( processedState < 1) sumProcessedState = 0;
+         remainingDays = VerTool::ValidateDate(processedDate, verInterval, expiryDate, dateOkay, remarks);		
+			if(remainingDays < minimumRemainingDays ) 
+         {
+            minimumRemainingDays = remainingDays;														
+         }   
+		   //Trace("Test: Summary Synchro of ", processID,"  index =>",i,"  remainingDays    =>",remainingDays, " minimumRemainingDays ==> ",minimumRemainingDays, "<==");			
+		}
+	   processedDate = GetDate("%Y-%m-%d");
+      VerTool::ValidateDate(processedDate, minimumRemainingDays, sumExpiryDate , dateOkay, remarks);
+      //Trace("Test: Summary Synchro of ", channelTypeID,"<   expiryDate =>",sumExpiryDate,"  dateOkay    =>",dateOkay);
+
+      //      sumExpiryDate = expiryDate;
+      //      else         sumExpiryDate = "2000-01-01";
+      //sumExpiryDate = expiryDate;
+	}  // -- end of function "GetSummaryProcessDataFromSingleChannelsInfo"
+
+	//------------------------------------------------------------------------------
+	function GetVerificationConfiguration(variable layoutFileName) //variable
+	{
+		
+		variable i, index, armConfig;
+		variable description;
+		variable processedState;			
+		variable processedDate, processedTime;		
+		variable expiryDate;							
+		variable verInterval(VerDef::_200Days);							
+		variable inputRemarks;
+		variable requestedAction;					
+		variable processID;
+		dialog 	userDialog;
+		device 	ML_STAR(layoutFileName);
+
+		i= 0;
+		index = 0;
+		// data of general steps
+		G_VAR::arrProcessID.SetSize( 0 );
+		G_VAR::arrStatus.SetSize( 0 );
+//		G_VAR::arrVerificationInterval.SetSize( 0 );
+		G_VAR::arrRemainingDays.SetSize( 0 );
+		G_VAR::arrDescription.SetSize( 0 );
+		G_VAR::arrExpiryDate.SetSize( 0 );
+		G_VAR::arrInputRemarks.SetSize( 0 );
+		G_VAR::arrAction.SetSize( 0 );
+		// data of individual 1000ul pipetting channels steps
+		V1_VAR::arrProcessDate.SetSize(0);
+		V1_VAR::arrStatus.SetSize(0);
+//		V1_VAR::arrVerificationInterval.SetSize(0);
+		V1_VAR::arrRemainingDays.SetSize(0);
+		V1_VAR::arrDescription.SetSize(0);
+		V1_VAR::arrInputRemarks.SetSize(0);
+		V1_VAR::arrExpiryDate.SetSize(0);
+		V1_VAR::arrAction.SetSize(0);
+		// data of individual 5ml pipetting channels steps
+		V5_VAR::arrProcessDate.SetSize(0);
+		V5_VAR::arrStatus.SetSize(0);
+//		V5_VAR::arrVerificationInterval.SetSize(0);
+		V5_VAR::arrRemainingDays.SetSize(0);
+		V5_VAR::arrDescription.SetSize(0);
+		V5_VAR::arrInputRemarks.SetSize(0);
+		V5_VAR::arrExpiryDate.SetSize(0);
+		V5_VAR::arrAction.SetSize(0);
+
+		// Get extended report options
+		VerOpt::GetExtendedReportOptions();
+
+		VerTool::InitializeDataVariables();
+		// Get ML-Star Configuration
+		VerTool::GetStarConfiguration(ML_STAR);
+
+// Update verifications configuration data according pre-defined deck layout
+// VerTool::UpdateVerificationDataDueToDeckInfo(ML_STAR);
+      //Trace("Test: VerDef::SimulationMode =>",VerDef::SimulationMode,"<  of Type  =>",GetType(VerDef::SimulationMode) ,"<==");
+
+		if (VerDef::SimulationMode > 0 )
+		{		
+			VerDef::SimulationMode = 1;
+         userDialog.SetInputSize( 20);
+      //----  Default values as test settings:
+         //VerDef::SWVersionNumber						= 4.2 ;
+         //VerDef::CoverLocking							= 0;	
+         //VerDef::AutoLoad								= 0;	
+         //VerDef::Twisters								= 0;	
+         //VerDef::InstrumentNumberOfChannels		= 0;
+         //VerDef::RasterOf_1000ulChannels			= 18;
+         //VerDef::InstrumentNumberOf_5mlChannels = 0;
+         //VerDef::multi96PipHead						= 0	 ;
+         //VerDef::multi384PipHead						= 0; //
+         //VerDef::easyPunch								= 0; //
+         //RPD::extendedReportMode 						= 1;
+         //VerDef::isIVD 									= 0;
+         //VerDef::hasLeftArm(hslFalse);				// true, if instrument has a left arm configured
+         //VerDef::hasRightArm(hslFalse);				// true, if instrument has a right arm configured
+
+      //---- End of default values test settings:
+			userDialog.SetInputField( i, "Software version", 	hslFloat, VerDef::SWVersionNumber);		i++;
+			userDialog.SetInputField( i, "Cover locking", 		hslInteger, VerDef::CoverLocking);		i++;
+			userDialog.SetInputField( i, "Auto load (1= Scanner, 2 = 2D Reader)", 			hslInteger, VerDef::AutoLoad);			i++;
+			userDialog.SetInputField( i, "Number of Twisters", hslInteger, VerDef::Twisters);			i++;
+			userDialog.SetInputField( i, "Number of 1000ul pip.Channels", hslInteger, VerDef::InstrumentNumberOfChannels);	i++;
+			userDialog.SetInputField( i, "Raster of 1000ul pip.Channels", hslInteger, VerDef::RasterOf_1000ulChannels);	i++;
+			userDialog.SetInputField( i, "Number of 5ml pip.Channels", hslInteger, VerDef::InstrumentNumberOf_5mlChannels);i++;
+			userDialog.SetInputField( i, "CO-RE 96-Probe Head (1=300ul, 2=1000ul, 3 = WA, 4 = TADM)", 	hslInteger, VerDef::multi96PipHead);	i++;
+			userDialog.SetInputField( i, "CO-RE 384-Probe Head (1= 30ul,2=50ul, 3=STP)", 		hslInteger, VerDef::multi384PipHead);	i++;
+			userDialog.SetInputField( i, "easyPunch", 			hslInteger, VerDef::easyPunch);			i++;
+         userDialog.SetInputField( i, "Simulation mode HHS 3G devices (0, 1)", hslInteger, VerDef::SimulationMode);i++;
+         userDialog.SetInputField( i, "IVD mode (0, 1)", 				hslInteger,VerDef::isIVD);					i++;
+			//userDialog.SetInputField( i, "Extended reporting", hslInteger,RPD::extendedReportMode );	i++;
+			userDialog.SetInputField( i, "Operating System",	hslFloat,VerDef::operatingSystem);		i++;
+			armConfig = 0;
+			if(VerDef::hasLeftArm) armConfig = armConfig + 1;
+			if(VerDef::hasRightArm) armConfig = armConfig + 2;
+			userDialog.SetInputField( i, "Arm configuration (1 , 2, 3 = both)",		hslInteger, armConfig);	i++;
+			userDialog.SetInputSize( i);
+
+			userDialog.ShowInput( "Simulated configuration data", hslInfinite);
+			i= 0;			 
+			VerDef::SWVersionNumber 					= userDialog.GetInputField( i );			i++;
+			VerDef::CoverLocking 						= userDialog.GetInputField( i );			i++;
+			VerDef::AutoLoad								= userDialog.GetInputField( i );			i++;
+			VerDef::Twisters								= userDialog.GetInputField( i );			i++;
+			VerDef::InstrumentNumberOfChannels		= userDialog.GetInputField( i );			i++;
+			VerDef::RasterOf_1000ulChannels			= userDialog.GetInputField( i );			i++;
+			VerDef::InstrumentNumberOf_5mlChannels	= userDialog.GetInputField( i );			i++;
+			VerDef::multi96PipHead 						= userDialog.GetInputField( i );			i++;
+			VerDef::multi384PipHead						= userDialog.GetInputField( i );			i++;
+			VerDef::easyPunch								= userDialog.GetInputField( i );			i++;
+         VerDef::SimulationModeDevices	  			= userDialog.GetInputField( i );			i++;
+			VerDef::isIVD 									= userDialog.GetInputField( i );			i++;
+			//RPD::extendedReportMode						= userDialog.GetInputField( i );			i++;
+			VerDef::operatingSystem						= userDialog.GetInputField( i );			i++;
+
+			if(VerDef::isIVD > 0 )VerDef::isIVD = hslTrue; 
+			else 						 VerDef::isIVD = hslFalse; 	
+			armConfig = userDialog.GetInputField( i );			i++;
+			if(armConfig > 1 ) 	VerDef::hasRightArm	= hslTrue; 
+			else 						VerDef::hasRightArm	= hslFalse; 
+			if(armConfig == 2 )	VerDef::hasLeftArm 	= hslFalse; 
+			else 						VerDef::hasLeftArm 	= hslTrue; 
+		}
+
+      //Trace("Test: Arm configuration : Left arm =>",VerDef::hasLeftArm,"<  right arm ==>",VerDef::hasRightArm,"<==");
+
+      // Get verification intervall, depending on PipHead configuration
+         VerTool::Check_PipHead_Configuration(ML_STAR); // set VerDef::setVerifyInterval, either 200 days or 400 days
+ 
+		// Update verifications configuration data according pre-defined deck layout
+		   VerTool::UpdateVerificationDataDueToDeckInfo(ML_STAR);
+        
+		// initialize summary state
+   		PID::summaryStatus 			= PS::successful;
+   		PID::summaryRemainingDays 	= 9999;					// very large 
+   		processID = PID::Summary;
+   		VerTool::GetProcessDataFromInstrument( ML_STAR, processID, processedState, processedDate, processedTime, verInterval);
+
+		// 1.) Cover => verification status Cover-Safety
+			if((VerDef::CoverLocking > 0) && (VerDef::SWVersionNumber >= 4.0))
+			{
+				processID 	= PID::CoverSafety;
+				verInterval = VerDef::setVerifyInterval;
+				VerTool::GetProcessDataFromInstrument( ML_STAR, processID, processedState, processedDate, processedTime, verInterval);
+				SetVerificationDisplayData(LdT("Cover Safety Verification"), processID, processedState, processedDate, PID::General, verInterval);
+				PID::doCoverSafety_Verification = G_VAR::arrStatus.GetSize();
+			}
+
+		// 2a.) Autoload installed 	=> verification status Barcode
+			if(VerDef::AutoLoad > 0)
+			{
+				processID 	= PID::Barcode;
+				verInterval = VerDef::setVerifyInterval;
+				VerTool::GetProcessDataFromInstrument( ML_STAR, processID, processedState, processedDate, processedTime, verInterval);
+				SetVerificationDisplayData(LdT("Barcode Verification of Autoload"), processID, processedState, processedDate, PID::General, verInterval);
+				PID::doBarcode_Verification = G_VAR::arrStatus.GetSize();
+			}
+
+		// 2b.) Twisters installed 	=> verification status Barcode
+			if((VerDef::Twisters > 0) && (VerDef::SWVersionNumber >= 4.4))
+			{
+				processID 	= PID::Twister;
+				verInterval = VerDef::setVerifyInterval;
+				VerTool::GetProcessDataFromInstrument( ML_STAR, processID, processedState, processedDate, processedTime, verInterval);
+				SetVerificationDisplayData(LdT("Barcode Verification of Twisters"), processID, processedState, processedDate, PID::General, verInterval);
+				PID::doTwister_Verification = G_VAR::arrStatus.GetSize();
+			}
+
+		// 3.) 1000ul single Heads	=> verification stati X-Y-Z-Verification 
+			if(VerDef::InstrumentNumberOfChannels > 0)
+			{
+				processID 	= PID::XYZ_1000ulChannel;
+				verInterval = VerDef::setVerifyInterval;
+				VerTool::GetProcessDataFromInstrument( ML_STAR, processID, processedState, processedDate, processedTime, verInterval);
+				SetVerificationDisplayData(LdT("1000µl Pipetting Channels Position Verification"), processID, processedState, processedDate, PID::General, verInterval);
+				PID::doXYZ_Pos_1000ul_Channel_Verification = G_VAR::arrStatus.GetSize();
+			}
+
+		// 4.) Shaker : HHS, ..		=> type and position => verification stati shaking (frequence, amplitude)
+			if((VerDef::numberOfShakerSites > 0) && (VerDef::SWVersionNumber >= 4.2))
+			{
+				processID 	= PID::ShakerSummary;
+				verInterval = 0;
+				VerTool::GetProcessDataFromInstrument( ML_STAR, processID, processedState, processedDate, processedTime, 0);
+				SetVerificationDisplayData(LdT("Shaker Verification"), processID, processedState, processedDate, PID::General, verInterval);
+				PID::doShaker_Verification = G_VAR::arrStatus.GetSize();
+//Trace("VerDef::numberOfShakerSites =>",VerDef::numberOfShakerSites,"<  PID::doShaker_Verification  =>",PID::doShaker_Verification ,"<==");
+			}
+
+		// 5.) 96er multi Head	=> verification stati X-Y-Z-Verification 
+			if((VerDef::multi96PipHead > 0) && (!VerDef::isIVD))
+			{
+				processID 	= PID::XYZ_multi96PipHead;
+				verInterval = VerDef::setVerifyInterval;
+				VerTool::GetProcessDataFromInstrument( ML_STAR, processID, processedState, processedDate, processedTime, verInterval);
+				SetVerificationDisplayData(LdT("CO-RE 96-Probe Head Position Verification"), processID, processedState, processedDate, PID::General, verInterval);
+				PID::doXYZ_Pos_96mpH_Verification = G_VAR::arrStatus.GetSize();
+			}
+		// 6.) 384er multi Head	=> verification stati X-Y-Z-Verification 
+			if((VerDef::multi384PipHead > 0) && (VerDef::SWVersionNumber >= 4.1) && (!VerDef::isIVD))
+			{
+				processID 	= PID::XYZ_multi384PipHead;
+				verInterval = VerDef::setVerifyInterval;
+				VerTool::GetProcessDataFromInstrument( ML_STAR, processID, processedState, processedDate, processedTime, verInterval);
+				SetVerificationDisplayData(LdT("CO-RE 384-Probe Head Position Verification"), processID, processedState, processedDate, PID::General, verInterval);
+				PID::doXYZ_Pos_384mPh_Verification = G_VAR::arrStatus.GetSize();
+			}
+
+		// 7.) 5ml single Heads 		=> verification stati X-Y-Z-Verification
+         //		Trace("VerDef::InstrumentNumberOf_5mlChannels =>",VerDef::InstrumentNumberOf_5mlChannels,"<  VerDef::SWVersionNumber =>",VerDef::SWVersionNumber,"<==");
+			if((VerDef::InstrumentNumberOf_5mlChannels > 0) && (VerDef::SWVersionNumber >= 4.2))
+			{
+				processID 	= PID::XYZ_5mlChannel;
+				verInterval = VerDef::setVerifyInterval;
+				VerTool::GetProcessDataFromInstrument( ML_STAR, processID, processedState, processedDate, processedTime, verInterval);
+				SetVerificationDisplayData(LdT("5ml Pipetting Channels Position Verification"), processID, processedState, processedDate, PID::General, verInterval);
+				PID::doXYZ_Pos_5ml_Channel_Verification  = G_VAR::arrStatus.GetSize();
+			}
+
+		// 8.) NanoPipetter			=> verification stati X-Y-Z-Verification
+		//	if()
+			{
+		//		PID::doXYZ_Pos_NanoPip_Verification = G_VAR::arrStatus.GetSize();
+			}
+
+		// 9.) 384er multi Head	=> verification stati Volume
+			if((VerDef::multi384PipHead > 0) && (VerDef::SWVersionNumber >= 4.1) && (!VerDef::isIVD))
+			{
+				minBalanceTrack = 7;
+				processID 	= PID::Vol_multi384PipHead;
+				verInterval = VerDef::setVerifyInterval;
+				VerTool::GetProcessDataFromInstrument( ML_STAR, processID, processedState, processedDate, processedTime, verInterval);
+				SetVerificationDisplayData(LdT("Volume Verification CO-RE 384-Probe Head"), processID, processedState, processedDate, PID::General, verInterval);
+				PID::doVolume_384mpH_Verification = G_VAR::arrStatus.GetSize();
+			}
+
+		// 10.) 96er multi Head	=> verification stati Volume
+			if((VerDef::multi96PipHead > 0) && (!VerDef::isIVD))
+			{
+				minBalanceTrack = 7;
+				processID 	= PID::Vol_multi96PipHead;
+				verInterval = VerDef::setVerifyInterval;
+				VerTool::GetProcessDataFromInstrument( ML_STAR, processID, processedState, processedDate, processedTime, verInterval);
+				SetVerificationDisplayData(LdT("Volume Verification CO-RE 96-Probe Head"), processID, processedState, processedDate, PID::General, verInterval);
+				PID::doVolume_96mpH_Verification = G_VAR::arrStatus.GetSize();
+			}
+
+		// 11.) 1000ul single Heads	=> verification stati Volume
+			if(VerDef::InstrumentNumberOfChannels > 0)
+			{
+				processID 	= PID::Vol_1000ulChannel;
+				verInterval = VerDef::setVerifyInterval;
+				VerTool::GetProcessDataFromInstrument( ML_STAR, processID, processedState, processedDate, processedTime, verInterval);
+				if(VerDef::isIVD)	
+            { // multiple channels selection with summary expiry date stored on instrument
+               GetSummaryProcessDataFromSingleChannelsInfo(processID, VerDef::InstrumentNumberOfChannels, processedState, processedDate);
+               verInterval = 0;    
+            }
+				SetVerificationDisplayData(LdT("Volume Verification 1000µl Pipetting Channels"), processID, processedState, processedDate, PID::General, verInterval);
+				PID::doVolume_1000ul_Channel_Verification  = G_VAR::arrStatus.GetSize();
+				if(!VerDef::isIVD) minBalanceTrack = 7;
+
+			}
+
+		// 12.) 5ml single Heads 		=> verification stati Volume
+			//		Trace("VerDef::InstrumentNumberOf_5mlChannels =>",VerDef::InstrumentNumberOf_5mlChannels,"<  VerDef::SWVersionNumber =>",VerDef::SWVersionNumber,"<==");
+			if((VerDef::InstrumentNumberOf_5mlChannels > 0) && (VerDef::SWVersionNumber >= 4.2))
+			{
+				processID 	= PID::Vol_5mlChannel;
+				verInterval = VerDef::setVerifyInterval;   // old with no single channel selection
+				VerTool::GetProcessDataFromInstrument( ML_STAR, processID, processedState, processedDate, processedTime, verInterval);
+				verInterval = 0;    // multiple channels selection with summary expiry date stored on instrument
+            GetSummaryProcessDataFromSingleChannelsInfo(processID, VerDef::InstrumentNumberOf_5mlChannels, processedState, processedDate);
+				SetVerificationDisplayData(LdT("Volume Verification 5ml Pipetting Channels"), processID, processedState, processedDate, PID::General, verInterval);
+				PID::doVolume_5ml_Channel_Verification  = G_VAR::arrStatus.GetSize();
+			}
+
+		// 13:) NanoPipetter			=> verification stati Volume
+		//	if()
+		//	{
+         //	PID::doVolume_NanoPip_Verification = G_VAR::arrStatus.GetSize();
+		//	}
+
+		// 14.) easyPunch installed 	=> verification status easyPunch
+			if((VerDef::easyPunch > 0)  && (!VerDef::isIVD))
+			{
+				processID 	= PID::EasyPunch;
+				verInterval = VerDef::setVerifyInterval;
+				VerTool::GetProcessDataFromInstrument( ML_STAR, processID, processedState, processedDate, processedTime, verInterval);
+				SetVerificationDisplayData(LdT("easyPunch Verification"), processID, processedState, processedDate, PID::General, verInterval);
+				PID::doEasyPunch_Verification = G_VAR::arrStatus.GetSize();
+			}
+
+		// 15.) Temperature: TTC, HHS, ..			=> type and position => verification stati temperature
+			if(VerDef::numberOfTemperatureSites > 0)
+			{
+				processID 	= PID::TemperatureSummary;
+				verInterval = 0;
+				VerTool::GetProcessDataFromInstrument( ML_STAR, processID, processedState, processedDate, processedTime, 0);
+				SetVerificationDisplayData(LdT("Temperature Verification"), processID, processedState, processedDate, PID::General, verInterval);
+				PID::doTemperature_Verification = G_VAR::arrStatus.GetSize();
+            //Trace("VerDef::numberOfTemperatureSites =>",VerDef::numberOfTemperatureSites,"<  PID::doTemperature_Verification  =>",PID::doTemperature_Verification ,"<==");
+			}
+
+		// 16.) Device: HHS 3G, ..			=> type and position => verification stati device
+         // Interface to devices cannot be executed parallel to ML-STAR communication
+         // Function "D_VER::GetProcessDataFromDevices" must be executed after ending this function (GetVerificationConfiguration)
+         if(VerDef::numberOfDeviceSites > 0)
+			{
+				processID 	   = PID::DeviceSummary;
+            processedState = 1; // will be defined in function "D_VER::GetProcessDataFromDevices"
+            processedDate  = GetDate("%Y-%m-%d"); // dummy date; real date will be defined in function "D_VER::GetProcessDataFromDevices"
+           	verInterval = 0;
+				SetVerificationDisplayData(LdT("Device Verification of ´HHS 3G´ "), processID, processedState, processedDate, PID::General, verInterval);
+				PID::doDevice_Verification = G_VAR::arrStatus.GetSize();
+            Trace("VerDef::numberOfDeviceSites =>",VerDef::numberOfDeviceSites,"<  PID::doDevice_Verification  =>",PID::doDevice_Verification ,"<==");
+			}
+      //VerTool::TraceArray("Test: GetVerificationConfiguration: --- G_VAR::arrStatus ----", G_VAR::arrStatus);
+      //VerTool::TraceArray("Test: GetVerificationConfiguration: --- G_VAR::arrVerificationInterval ----", G_VAR::arrVerificationInterval);
+
+		// Individual 1000ul pipetting channels volume verifcation (for IVD application only)
+			if(VerDef::isIVD)
+			{
+				for(i = 0; i < VerDef::InstrumentNumberOfChannels; i++)
+				{
+					processID   = StrConcat2(PID::Vol_1000ulCh,i+1);
+					description = StrConcat4(LdT("Channel Number"), " ",i+1,"");
+					VerTool::GetProcessDataFromFile(processID, processedState, processedDate , processedTime, verInterval);
+					SetVerificationDisplayData(description, processID, processedState, processedDate, PID::Vol_1000ulCh, verInterval);
+				}
+			}
+		// Individual 5ml pipetting channels volume verifcation
+			for(i = 0; i < VerDef::InstrumentNumberOf_5mlChannels; i++)
+			{
+				processID   = StrConcat2(PID::Vol_5mlCh,i+1);
+				description = StrConcat4(LdT("Channel Number"), " ",i+1,"");
+				VerTool::GetProcessDataFromFile(processID, processedState, processedDate , processedTime, verInterval);
+				SetVerificationDisplayData(description, processID, processedState, processedDate, PID::Vol_5mlCh, verInterval);
+			}
+      
+      // Get device  (HHS 3G) information direct from devices
+	   //------------------------------------------------------------------------------
+         //Trace("Test: Start GetProcessDataFromDevices  ---> PID::summaryStatus ==>",  PID::summaryStatus);
+         D_VER::GetProcessDataFromDevices(ML_STAR);
+         //VerTool::TraceArray("Test: GetVerificationConfiguration: --- D_VAR::arrStatus ----", D_VAR::arrStatus);
+
+         //Trace("Test: -- end of function ´GetVerificationConfiguration´");
+	}  // -- end of function "GetVerificationConfiguration"
+
+	//==============================================================================
+	function execVerificationSteps(variable& layoutName, variable& instrumentNo) variable  // hslOkay, hslCanel, hslAbort
+	//==============================================================================
+
+	{
+		variable returnCode(0);
+		variable arrRetValues[];
+		variable installationData;
+		variable heatingUpPhase;
+		variable userResponse;
+		dialog 	userDlg;
+		device 	ML_STAR(layoutName);
+
+		// Initialization of ML_STAR
+		// --------------------------------------------------------------------------
+			//Trace("Test: instrumentNo =>",instrumentNo,"<   layoutFileName =>",layoutName,"<  ML-STAR instrument serial number =>", VerDef::InstrumentSerialNo);
+
+			arrRetValues = ML_STAR.Initialize( "32e13df9_93c4_4469_a92ed5e537142612" );
+
+      //Trace("Test 1:        -----  VerDef::numberOfTemperatureSites =>",VerDef::numberOfTemperatureSites,"<  PID::doTemperature_Verification  =>",PID::doTemperature_Verification ,"<==");
+      //Trace("Test 1:        -----  VerDef::numberOfSensorSites  =>",VerDef::numberOfSensorSites ,"<==");
+
+		// Activate shaker control of present devices 
+		// --------------------------------------------------------------------------
+			S_VER::Initialize_Shaker_Devices(ML_STAR);
+
+
+		// -----------  Check tools for volume verifications
+//			VerDef::useOfWindShield = hslTrue;
+			VerDef::useOfWindShield = hslFalse;
+			if (PS::showBalanceData > 0)
+			{	// temporary user selection:
+				//------------------------------------------------------------------------------	
+//				if(!VerDef::isIVD)
+//				{
+//					userDlg.SetOutput("\n\n  "+ LdT("Do you want to run the Verification with Plate Windshield ?") + "\n\n" );
+//					userResponse = userDlg.ShowOutput( LdT("User Selection:"), hslYesNo | hslQuestion, hslInfinite );
+//					if(userResponse == hslNo) VerDef::useOfWindShield = hslFalse;
+//				}
+				// Connect balance
+				//------------------------------------------------------------------------------	
+				//VerDef::SimulationModeBalance = hslFalse;
+				if(VerTool::Install_Balance(ML_STAR, minBalanceTrack) == hslCancel) return(hslCancel);
+			}
+
+			if (PS::showPhotoCheckPlateData > 0)
+			{	//------------------------------------------------------------------------------
+	//VerDef::SimulationModeReader = hslFalse;
+				if (VerTool::Install_Photometer() == hslCancel) return(hslCancel);
+			}
+
+
+		// Step 1)  Execute Cover Safety Verification
+		//------------------------------------------------------------------------------
+		if(PID::doCoverSafety_Verification > 0) CoverSafety_Verification(ML_STAR);
+
+
+		// Step 2a)  Execute Barcode Verification of Autoload
+		//------------------------------------------------------------------------------
+		if(PID::doBarcode_Verification > 0) 	Barcode_Verification(ML_STAR);
+
+		// Step 2b)  Execute Barcode Verification of Twister
+		//------------------------------------------------------------------------------
+		if(PID::doTwister_Verification > 0) 	BarcodeVerification_Twisters(ML_STAR);
+
+
+		// Step 3) Execute 1000ul Channel XYZ Verification
+		//------------------------------------------------------------------------------
+		if(PID::doXYZ_Pos_1000ul_Channel_Verification > 0) 
+		{
+			if (VerDef::isIVD)	
+			{
+            //Trace("Test: IVD_XYZ_Verification_1000ulpipHeads started");
+				IVD_XYZ_Verification_1000ulpipHeads(ML_STAR);
+			}
+				else 					XYZ_Verification_1000ulpipHeads(ML_STAR);
+		}
+
+		// Step 4) Execute Shaker- Verification
+		//------------------------------------------------------------------------------	
+		if(PID::doShaker_Verification > 0)
+		{
+         //Trace("Test: 'Shaker_Verification' started");
+			S_VER::Shaker_Verification(ML_STAR);
+		}
+		
+		// Activate temperature control of present devices , except for extended report mode 
+		// --------------------------------------------------------------------------
+         //Trace("Test 2a:        -----  VerDef::numberOfTemperatureSites =>",VerDef::numberOfTemperatureSites,"<  PID::doTemperature_Verification  =>",PID::doTemperature_Verification ,"<==");
+		heatingUpPhase = T_VER::noMoreHeatingUp; 
+		if(RPD::extendedReportMode == 0)
+		{	heatingUpPhase = 1;
+			T_VER::HeatUp_Temperature_Devices(ML_STAR, heatingUpPhase);
+		}
+		// Step 5) Execute 96er multi pipetting Head XYZ Verification
+		//------------------------------------------------------------------------------
+		if((PID::doXYZ_Pos_96mpH_Verification > 0) && !VerDef::isIVD)	XYZ_Verification_96erPipHead(ML_STAR);
+		
+		// Step 6)  Execute 384er multi pipetting Head XYZ Verification
+		//------------------------------------------------------------------------------
+		if((PID::doXYZ_Pos_384mPh_Verification > 0) && !VerDef::isIVD)	XYZ_Verification_384erPipHead(ML_STAR);
+
+		// Step 7) Execute 5ml Channel XYZ Verification
+		//------------------------------------------------------------------------------
+		if(PID::doXYZ_Pos_5ml_Channel_Verification  > 0) 
+			if (VerDef::isIVD)	
+			{
+            //Trace("Test: IVD_XYZ_Verification_5mlpipHeads started");
+					IVD_XYZ_Verification_5mlpipHeads(ML_STAR);
+			}
+			else 	XYZ_Verification_5mlpipHeads(ML_STAR);
+
+
+		// Step 8) Execute Nano Pipetter XYZ Verification
+		//------------------------------------------------------------------------------
+		if((PID::doXYZ_Pos_NanoPip_Verification > 0) && !VerDef::isIVD)	XYZ_Verification_NanoPipetter(ML_STAR);
+
+		// Intermezzo) Check temperature devices and if possible perform Temperature Verification
+		//----------------------------------------------------------------------------------------
+ 		T_VER::Temperature_Verification(ML_STAR, 0, heatingUpPhase);
+
+		// Check balance (warm up time at least of 30min)
+		//----------------------------------------------------------------------------------------
+			if (PS::showBalanceData > 0)
+			{	// Check balance
+				//------------------------------------------------------------------------------
+				if ( VerTool::Check_Balance(ML_STAR)== hslFalse) return(hslCancel);
+			}
+
+		// Step 9) Execute 384er multi pipetting Head Volume Verification
+		//------------------------------------------------------------------------------
+		if((PID::doVolume_384mpH_Verification > 0) && !VerDef::isIVD) VolumeVerification_384erPipHead(ML_STAR);	
+
+		// Intermezzo) Check temperature devices and if possible perform Temperature Verification
+		//----------------------------------------------------------------------------------------
+ 		T_VER::Temperature_Verification(ML_STAR, 0, heatingUpPhase);
+
+		//  Step 10) Execute 96er multi pipetting Head Volume Verification
+		//------------------------------------------------------------------------------
+		if((PID::doVolume_96mpH_Verification > 0) && !VerDef::isIVD)	
+		{	
+      //Trace("--- - VerDef::multi96PipHead =>",VerDef::multi96PipHead,"<==");
+				if(VerDef::multi96PipHead == 1)
+				{	// execute 96er multi pipetting Head Volume Verification: Type 300ul 
+					VolumeVerification_300ul96erPipHead(ML_STAR);
+				} 
+				else 
+				{ // execute 96er multi pipetting Head Volume Verification: Type 1000ul 
+					VolumeVerification_1000ul96erPipHead(ML_STAR);
+				}
+		}
+
+		// Intermezzo) Check temperature devices and if possible perform Temperature Verification
+		//----------------------------------------------------------------------------------------
+ 		T_VER::Temperature_Verification(ML_STAR, 0, heatingUpPhase);
+
+		//  Step 11)  Execute 1000ul Channel Volume Verification
+		//------------------------------------------------------------------------------
+		if(PID::doVolume_1000ul_Channel_Verification > 0)
+
+			if (VerDef::isIVD)	
+			{
+				//Trace("Test: IVD_VolumeVerification_1000ulpipHeads started");
+				IVD_VolumeVerification_1000ulpipHeads(ML_STAR);
+			}
+			else 	VolumeVerification_1000ulpipHeads(ML_STAR);
+
+		// Intermezzo) Check temperature devices and if possible perform Temperature Verification
+		//----------------------------------------------------------------------------------------
+ 		T_VER::Temperature_Verification(ML_STAR, 0, heatingUpPhase);
+
+		// Step 12) Execute 5ml Channel Volume Verification
+		//------------------------------------------------------------------------------		
+		if(PID::doVolume_5ml_Channel_Verification  > 0) VolumeVerification_5mlpipHeads(ML_STAR);
+
+		// Intermezzo) Check temperature devices and if possible perform Temperature Verification
+		//----------------------------------------------------------------------------------------
+ 		T_VER::Temperature_Verification(ML_STAR, 0, heatingUpPhase);
+
+		// Step 13) Execute Nano Pipetter Volume Verification
+		//------------------------------------------------------------------------------
+		if((PID::doVolume_NanoPip_Verification > 0) && !VerDef::isIVD)	VolumeVerification_NanoPipetter(ML_STAR);
+
+		// Step 14)  Execute easyPunch Verification
+		//------------------------------------------------------------------------------
+		if((PID::doEasyPunch_Verification > 0) && !VerDef::isIVD) easyPunch_Verification(ML_STAR);
+
+		// Step 15) Execute Temperature- Verification					
+		//------------------------------------------------------------------------------
+		//Trace("Test 15:        -----  VerDef::numberOfTemperatureSites =>",VerDef::numberOfTemperatureSites,"<  PID::doTemperature_Verification  =>",PID::doTemperature_Verification ,"<==");
+		if(PID::doTemperature_Verification > 0) 		
+		{
+			// Activate temperature control of present devices , in case ofextended report mode 
+			if(RPD::extendedReportMode > 0)
+			{	heatingUpPhase = 1;
+				T_VER::HeatUp_Temperature_Devices(ML_STAR, heatingUpPhase);
+			}
+			//Trace("Test: 'Temperature_Verification' started. heatingUpPhase =>", heatingUpPhase);
+			T_VER::Temperature_Verification(ML_STAR, 1, heatingUpPhase);
+			// phase for a second target temperature
+			//Trace("Test: 'Temperature_Verification' started. heatingUpPhase =>", heatingUpPhase);
+			T_VER::Temperature_Verification(ML_STAR, 1, heatingUpPhase);
+			// evaluate temperature measurement date for defined devices 
+			T_VER::Evaluate_Temperature_Verification(ML_STAR);
+		}
+
+		// Step 16) Execute Device Verification		Note: No other ML-STAR command shall ececuted during this procedure			
+		//--------------------------------------------------------------------------------------------------------------
+		//Trace("Test 16:        -----  VerDef::numberOfTemperatureSites =>",VerDef::numberOfTemperatureSites,"<  PID::doTemperature_Verification  =>",PID::doTemperature_Verification ,"<==");
+		
+		VerTool::MoveToEndPositions(ML_STAR);              //   Move STAR to idle positions before device verification
+	   VerTool::CoverLock( ML_STAR , VerDef::coverUnlock); // lock front cover for better access
+	
+      if(PID::doDevice_Verification > 0) 		
+		{
+         //Trace("Test: execDeviceSteps: Start of function D_VER::Device_Verification  ---->");  
+         D_VER::Device_Verification(ML_STAR);
+         //Trace("Test: execDeviceSteps;  ----- End of function D_VER::Device_Verification ");  
+      }
+	}  // -- end of function "execDeviceSteps"
+
+//==============================================================================
+	method main()
+//==============================================================================
+{
+	variable instrumentNo;
+	variable dialogTitle;
+	variable userResponse;
+
+	// Define versification version
+		VerDef::FVK2_ReleaseVersion = " FVK2: " + verificationSW_Version + "/%s1";  // %s1 placeholder for module version
+
+	loop(1) 
+	{
+
+	// Get instrument configuration and read corresponding verfification status
+	//------------------------------------------------------------------------------
+		VerTool::GetConfigurationData(VerDef::layoutFileName, instrumentNo);
+      //Trace("Test: Start GetVerificationConfiguration  ---> PID::summaryStatus ==>",  PID::summaryStatus);
+		GetVerificationConfiguration(VerDef::layoutFileName);
+
+	// check presence of programs and minimal STAR software version
+	//------------------------------------------------------------------------------
+      //Trace("Test: -- ´start of function ´VerTool::CheckPrograms");
+		if (!VerTool::CheckPrograms("4.2.0")) return;
+	
+	// Display "available" and requested general verification steps
+	//------------------------------------------------------------------------------
+      //Trace("Test: -- ´start of function ´VerTool::ShowVerificationData, General ---> PID::summaryStatus ==>",  PID::summaryStatus, " PID::summaryRemainingDays =>",PID::summaryRemainingDays  );
+		if( VerTool::ShowVerificationData(LdT("The following 'Verification Processes' are available :"), PID::General) == hslCancel) return;
+
+	// Display "available" 1000ul pipetting channels volume verification 
+	//------------------------------------------------------------------------------
+		if( VerTool::ShowVerificationData(LdT("Individual selection of ´1000ul Pipetting Channel Volume Verification' :"), PID::Vol_1000ulCh) == hslCancel) return;
+
+	// Display "available" 5ml pipetting channels volume verification 
+	//------------------------------------------------------------------------------
+		if( VerTool::ShowVerificationData(LdT("Individual selection of ´5ml Pipetting Channel Volume Verification' :"), PID::Vol_5mlCh) == hslCancel) return;
+
+	// Display "available" and requested temperature verification sites 
+	//------------------------------------------------------------------------------
+		if( VerTool::ShowVerificationData(LdT("Selection of 'Temperature Verification' sites:"), PID::Temperature) == hslCancel) return;
+
+	// Display "available" and requested shaker verification sites 
+	//------------------------------------------------------------------------------
+		if( VerTool::ShowVerificationData(LdT("Selection of 'Shaker Verification' sites:"), PID::Shaker) == hslCancel) return;
+
+	// Display "available" and requested device verification sites (HHS 3G)
+	//------------------------------------------------------------------------------
+		if( VerTool::ShowVerificationData(LdT("Selection of 'Device Verification HHS 3G' sites:"), PID::Device) == hslCancel) return;
+
+	// Check and define environment conditions and verification tool definitions
+	//------------------------------------------------------------------------------
+	// define environment conditions
+		dialogTitle = LdT("Environment Conditions:");
+		if (VerTool::DialogEnvironmentData(dialogTitle) == hslCancel ) return;
+
+	// Check and define device settings
+	//------------------------------------------------------------------------------
+	// define environment conditions
+      D_VER::CheckAndSetDevices();
+
+	// define verification tool definitions				
+		dialogTitle = LdT("Test Equipment Definitions:");	
+		if (VerTool::DialogVerifcationToolData(dialogTitle) == hslCancel ) return;
+
+      
+	// Execute function & device verification procedures
+	//------------------------------------------------------------------------------	
+      //Trace("Test: Start execVerificationSteps (VerDef::layoutFileName =>",VerDef::layoutFileName, "<  instrumentNo ==>",instrumentNo);
+      //Trace("Test: Start execVerificationSteps  ---> PID::summaryStatus ==>",  PID::summaryStatus);
+		execVerificationSteps(VerDef::layoutFileName, instrumentNo);	
+      //Trace("Test: Start execDeviceSteps  ---> PID::summaryStatus ==>",  PID::summaryStatus);
+
+	// End of run (Dialog)
+	//------------------------------------------------------------------------------	
+		if(EndOfRunDialog() )return;
+	}
+//==============================================================================
+} // --- end of Main
+//==============================================================================
+
+// $$author=Administrator$$valid=1$$time=2023-10-03 11:21$$checksum=33c830a9$$length=090$$

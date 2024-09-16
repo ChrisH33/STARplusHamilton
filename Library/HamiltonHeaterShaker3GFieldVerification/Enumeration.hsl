@@ -1,0 +1,82 @@
+//----------------------------------------------------------------------------------------
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+//
+// Project              : ASW Development Tools
+// Description          : Library containing helper functions used in other libraries
+//
+// Phoenix Version     : 4.5.0.7977
+// ML_STAR Version     : 4.5.0.5217
+//
+// Revision history:
+// - LWietbrock   2022-29-06   library created
+//
+//----------------------------------------------------------------------------------------
+
+
+#ifndef __ASW_HHS3GFIELDVERIFICATIONENUMS_hsl__
+#define __ASW_HHS3GFIELDVERIFICATIONENUMS_hsl__  1
+
+//*********************************************************************
+// Includes
+//*********************************************************************
+
+namespace HamiltonHeaterShaker3G
+{
+   namespace FieldVerification
+   {
+      namespace VerificationResult
+      {
+         const variable Failed(0);
+         const variable Passed(1);
+      }
+
+      namespace VerificationReturnCode
+      {
+         const variable Success(0);
+         const variable AbortedByUser(1);
+         const variable UnexpectedError(2);
+         const variable FirmwareError(3);
+      }
+
+
+      namespace VerificationStep
+      {
+         const variable ShakerOrbitTest("ShakerOrbitTest");
+         const variable ShakerSpeedTest("ShakerSpeedTest");
+         const variable HeatingCurveTest("HeatingCurveTest");
+         const variable CoolDown("CoolDown");
+         const variable ControlledHeating("ControlledHeating");
+      }
+
+      namespace VerificationStageStatus
+      {
+         const static variable Pending(0);
+         const static variable InProgress(1);
+         const static variable Done(2);
+         const static variable Aborted(3);
+      }
+
+       namespace TraceStatus
+      {
+         static const variable Start                        (1);
+         static const variable Complete                     (2);
+         static const variable Error                        (3);
+         static const variable Progress                     (4);
+         static const variable CompleteWithError            (5);
+      }
+
+      namespace TraceLevel
+      {
+         static const variable None                         (0);
+         static const variable Release                      (1);
+         static const variable Debug                        (2);
+      }
+
+
+   }
+}
+
+
+#endif
+// $$author=gsaJira$$valid=1$$time=2023-08-08 16:57$$checksum=7eb4be26$$length=086$$

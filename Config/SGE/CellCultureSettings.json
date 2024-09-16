@@ -1,0 +1,121 @@
+{
+    "approvedProcessConfig": [
+        "mediachange",
+        "testWorkflow"
+    ],
+    
+    "approvedLabwareConfig": [
+        "autoflask"
+    ],
+
+    "autoflaskConfig": [{
+        "wellNumber": 1,
+        "pipettingMediaToWasteConfig":[{
+            "4mLLC": "4mlTF_Water_DispenseJet_Empty",
+            "tiltAngle": 10,
+            "tiltSpeed": 6,
+            "labwareVolume": 20
+        }],
+        "mediachangeConfig":[{
+            "exactProcessName": "mediachange",
+            "maxSourcePlateNumber": 10,
+            "maxDestinationPlateNumber": 10
+        }],
+        "passageConfig":[{
+            "exactProcessName": "passage",
+            "maxSourcePlateNumber": 5,
+            "maxDestinationPlateNumber": 10
+        }],
+        "labwareConfig":[{
+            "gripHeight": 8,
+            "gripWidth": 79,
+            "gripWidthOpen": 86,
+            "gripForce": 5,
+            "gripSpeed": 277.8,
+            "zSpeedGet": 127.8,
+            "zSpeedPlace": 128.7,
+            "xAcceleration": 1,
+            "platePress": 1,
+            "tolerance": 2
+        }]  
+    }],
+  
+    "starPlusConfig": [{
+        "fanSpeed": 0,
+        "uvMaxTime": 600,
+        "uvMaxTimeSim": 15,
+        "uvLight": true,
+        "maxTimeBetweenUV": 1.5,
+        "maxTimeBetweenDeepClean": 4,
+        "channelForCOREGrips": 4,
+        "clampTiltSpeed": 2,
+        "kennyTimeout": 2,
+        "kennyComport": "COM8",
+        "tiltClampComport": 0,
+        "scapComport1": 9,
+        "scapComport2": 10,
+        "hhsCount": 2
+
+    }],
+    
+    "imageFilePath": [{
+        "folderPath": "C:\\Program Files (x86)\\HAMILTON\\Methods\\Sanger\\SGE\\Resources\\Images\\",
+        "test": "Test.jpg",
+        "deckClear": ""
+    }],
+
+    "mediachangeWorkflow": [
+        "transportCORE_LoadingToTilt",
+        "pipettingTiltToWaste_20mL",
+        "pipettingMediaToTilt_20mL",
+        "transportCORE_TiltToLoading",
+        "increment_NextSet"
+    ],
+
+    "dissociationWorkflow": [
+        "pipettingTiltToWaste_20mL",
+        "pipettingTrypLEToTilt_X",
+        "transportCORE_TiltToHHS",
+        "incubate_Start",
+        "incbuate_WaitFor7min",
+        "transportCORE_HHSToTilt",
+        "pipettingMediaToTilt_X",
+        "sway_Start",
+        "sway_WaitFor1Min"
+    ],
+
+    "passage1Workflow": [
+        "transportCORE_LoadingToTilt",
+        "dissociationWorkflow_10mL",
+        "cellCount",
+        "calculateTransferVolumes",
+        "transportCORE_StorageToTilt",
+        "pipettingMediaToTilt",
+        "pipettingCellToTilt"
+    ],
+
+    "seedingWorkflow": [
+
+    ],
+
+    "passageWorkflow": [
+        "transportCORE_LoadingToTilt",
+
+        "userInput_SplitRatio",
+        "sway_WaitFor1Min",
+        "transportCORE_Tilt2ToHolding",
+        "transportCORE_ActiveToTilt",
+        "pipettingTiltToWaste_User",
+        "pipettingTiltToTilt_User",
+        "pipettingTilt1ToWaste_x",
+        "transportCORE_Tilt1ToWaste",
+        "TransportCORE_Tilt2ToLoading",
+        "transportCORE_HoldingToTilt1",
+        "transportCORE_ActivetoTilt",
+        "pipettingTiltToTilt_User",
+        "pipettingTilt1ToWaste_x",
+        "transportCORE_Tilt1ToWaste",
+        "TransportCORE_Tilt2ToLoading",
+        "increment_NextSet"
+    ]
+}

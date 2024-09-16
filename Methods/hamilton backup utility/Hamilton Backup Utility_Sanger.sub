@@ -1,0 +1,43 @@
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function OnAbort(  ) void ;
+// }} ""
+// {{{ 5 "OnAbort" "Begin"
+function OnAbort(  ) void {
+// }} ""
+// {{ 5 "OnAbort" "InitLocals"
+// }} ""
+// {{ 30 1 0 "d4a87ddb_e43f_425c_a9a643426fe56367" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 31 1 0 "36513980_ee0d_46f7_99ce0e24b123364e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strBackupFileCheck = StrConcat4(strHamiltonFolderPath, Translate("\\"), Translate("Backup Aborted.txt"), Translate(""));
+// }} ""
+// {{ 32 1 0 "00c802d1_3ca3_4176_a53b126297275bfa" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+hndText.AddField("Complete", var, hslString, 255);
+hndText.SetDelimiter(hslCSVDelimited);
+if( 0 == hndText.Open(strBackupFileCheck, hslWrite) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, strBackupFileCheck, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 33 1 0 "179344e4_8e44_4050_ab3f5b350cf9af45" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+var = Translate("success");
+// }} ""
+// {{ 34 1 0 "45ed1f1b_b8dc_4125_bf9c8c54bcb16733" "{B31F3537-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == hndText.WriteRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1473380096, MECC::IDS::stepNameFileWrite, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 35 1 0 "926f0a6b_c1e2_4b9d_80cf0ded57fcb802" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != hndText.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+hndText.RemoveFields();
+// }} ""
+// {{{ 5 "OnAbort" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// $$author=ch33$$valid=0$$time=2023-10-27 07:57$$checksum=8159a2e7$$length=083$$

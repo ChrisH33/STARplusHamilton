@@ -1,0 +1,951 @@
+//
+// Library: Cognex 2D Barcode Scanner Library 
+// 
+// Author: Will Turman
+//
+//
+// Modification History
+//	10/29/2013 - Created
+//  06/15/2014 - Updated with Region of Interest and Autoload functionality
+//  09/04/2014 - Updated with IVD/non-IVD Unload, Loading Light Functionality
+
+#ifndef __HSLCognexScan_hsl__
+#define __HSLCognexScan_hsl__  1
+
+//---------------------------------------------------------------
+// Function Definitions
+//---------------------------------------------------------------
+
+#ifndef HSL_RUNTIME
+
+namespace CognexScan
+{
+
+	//-----General Cognex Functions-----//
+
+	function Initialize(variable ipAddress) void 
+	{ 
+		return; 
+	}
+
+	function ReadBarcode(variable& barcode, variable& readError) void
+	{ 
+		return; 
+	}	
+
+	function OptimizeBarcodeSettings() void
+	{ 
+		return; 
+	}
+
+	function SetRegionOfInterest(variable& intLeft, variable& intRight, variable& intTop, variable& intBottom) void
+	{ 
+		return; 
+	}
+
+	function Disconnect() void 
+	{ 
+		return;
+	}
+
+	function SetFocus(variable& intFocus) void
+	{
+		return;
+	}
+
+	function SetBrightness(variable& intExposure) void
+	{
+		return;
+	}
+
+	//-----Cognex AutoLoad Functions-----//
+
+	//function ParseCarrierProperties(device& Ml_Star, variable& labwareId) void 
+	//{ 
+	//	return; 
+	//}
+
+	//function GetLabwareTrack(device& Ml_Star, variable& labwareId) void 
+	//{ 
+	//	return; 
+	//}
+
+	//function SetLabwareRegionOfInterest(device& Ml_Star, variable& labwareId, variable& strStackPosition) variable 
+	//{ 
+	//	return(0); 
+	//}
+
+	function ScannerOrientationHorizontal(device& Ml_Star) void 
+	{ 
+		return; 
+	}
+
+	function ScannerOrientationVertical(device& Ml_Star) void 
+	{ 
+		return; 
+	}
+
+	function CognexAutoLoad(device& Ml_Star, variable& labwareId, variable& arrBarcodes[]) void
+	{ 
+		return; 
+	}
+
+	function CognexAutoUnload(device& Ml_Star, variable& labwareId) void
+	{ 
+		return; 
+	}
+	
+}
+
+#endif
+
+#ifdef HSL_RUNTIME
+
+#include "HSLStrLib.hsl"
+#include "HSLDevLib.hsl"
+#include "HSLKitLotLib.hsl"
+#include "AutoloadLib.hsl"
+#include "HSLUtilLib.hsl"
+
+
+namespace CognexScan
+{
+	//global object
+	object CognexCOM;
+
+	//return constants 
+    const variable CMD_FAIL(0);
+    const variable CMD_START(1);
+    const variable CMD_COMPLETE(2);
+    const variable CMD_ERROR(3);
+    const variable CMD_PROGRESS(4);
+    const variable CMD_ERRCOMPLETE(5);
+
+    static const variable _verticaloffset(10.0);
+    static const variable _horizontaloffset(45.0);
+	
+	variable simulation(1);
+	variable CognexInitialized(hslFalse);
+	variable IVDSystem(hslFalse); 
+	variable lastError;
+	variable errorMessage; 
+
+
+	function SetErrorCode(variable id, variable description, variable functionName) void
+    {
+    	Trace("Set Error Code");
+
+      	err.Clear();
+      	err.SetId(IVal(id));
+      	err.SetDescription(description);
+      	FormatTrace( functionName, "()", CMD_ERROR, " ", id, " ", description );
+    
+    }
+
+
+    function CheckResult(variable& fwCommandReturn[], variable expectedResult) variable 
+    {
+
+    	variable retval(hslFalse);
+    	variable output;
+    	variable index;
+    	variable errCode;
+
+    	if(fwCommandReturn.GetSize() == 4)
+    	{
+    		output = fwCommandReturn[3];
+    		index = StrFind(output, "er");
+    		errCode = StrMid(output, index + 2, 2);
+    	}
+
+    	if (errCode == expectedResult)
+    	{
+    		retval = hslTrue;
+    	}
+
+    	if (errCode != expectedResult)
+    	{
+    		lastError = errCode;
+    	}
+    	return(retval);
+
+    }
+
+
+	function Initialize( variable ipAddress ) variable 
+	{
+
+		FormatTrace(GetFunctionName(), "()", CMD_START);
+
+        if( GetSimulationMode() == simulation )
+        {
+            FormatTrace( GetFunctionName(), "()", CMD_COMPLETE, "simulated" );
+            return(0);
+        }
+
+		CognexCOM.CreateObject( "Hamilton.DataMan.DM200COM", hslTrue );
+		if ( CognexCOM.IsNull( ) )
+    	{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, "DataManCOM object creation failed." );
+    		return(1);
+  		}
+
+   		if( !CognexCOM.InitializeScanner( ipAddress ) )
+		{
+			errorMessage = CognexCOM.LastErrorString();
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, errorMessage );
+			return(1);
+		}
+
+		if ( Util::GetIVDSystem() == 1 ) 
+		{
+			IVDSystem = hslTrue;
+		}
+
+		CognexInitialized = hslTrue;
+		FormatTrace(GetFunctionName(), "()", CMD_COMPLETE);
+		return(0);
+	}
+
+
+	function SplitString( variable strInput, variable strDelimiter) variable[]
+	{
+		
+		variable arrSplitString[];
+		variable strRemaining;
+		variable intIndex;
+		variable strCurrent;
+		variable hslTrue(1);
+
+		arrSplitString.SetSize(0);
+		strRemaining = strInput;
+
+		while(hslTrue == 1)
+		{
+			//search for delimiter
+			intIndex = StrFind(strRemaining, strDelimiter);
+
+			//split if delimiter is found
+			if(intIndex != -1)
+			{
+				
+				strCurrent = StrLeft(strRemaining, intIndex);
+				strRemaining = StrRight(strRemaining, StrGetLength(strRemaining) - StrGetLength(strDelimiter) - intIndex);
+				StrTrimLeft(strCurrent, "");
+				StrTrimRight(strCurrent, "");
+
+				arrSplitString.AddAsLast(strCurrent);
+
+			}
+			//save remaining value if delimiter is not found
+			else
+			{
+
+				StrTrimLeft(strRemaining, "");
+				StrTrimRight(strRemaining, "");
+				arrSplitString.AddAsLast(strRemaining);
+
+				//exit loop
+				break;
+			}
+		}
+
+		return(arrSplitString);
+	}
+
+
+	function ParseContent( variable str, variable startTag, variable endTag ) variable
+	{
+	
+		variable retval;
+		variable strLen;
+		variable startPos;
+		variable endPos;
+		strLen = StrGetLength( startTag );
+		startPos = StrFind( str, startTag );
+		endPos = StrFind( str, endTag );
+
+		return( StrMid( str, startPos + StrGetLength( startTag ), endPos - startPos - strLen ) );
+	
+	}
+
+
+	function ParseSimpleML(variable str) variable []
+	{
+	
+		variable retval[];
+		variable startTag;
+		variable endTag;
+
+		//Parse sample_time
+		startTag = "<sample_time>";
+		endTag = "</sample_time>";
+		retval.AddAsLast( ParseContent( str, startTag, endTag ) );
+
+		//Parse symbology
+		startTag = "<symbology>";
+		endTag = "</symbology>";
+		retval.AddAsLast( ParseContent( str, startTag, endTag ) );
+
+		//Parse barcode 
+		startTag = "<barcode>";
+		endTag = "</barcode>";
+		retval.AddAsLast( ParseContent( str, startTag, endTag ) );
+
+		//Parse position
+		startTag = "<position>";
+		endTag = "</position>";
+		retval.AddAsLast( ParseContent( str, startTag, endTag ) );
+
+		//Parse trigger_time
+		startTag = "<trigger_time>";
+		endTag = "</trigger_time>";
+		retval.AddAsLast( ParseContent( str, startTag, endTag ) );
+
+		//Parse error 
+		startTag = "<error>";
+		endTag = "</error>";
+		retval.AddAsLast( ParseContent( str, startTag, endTag ) );
+
+		return( retval );
+	
+	}
+
+
+	function OptimizeBarcodeSettings()
+	{
+        FormatTrace(GetFunctionName(), "()", CMD_START);
+
+        if( GetSimulationMode() == simulation )
+        {
+            FormatTrace( GetFunctionName(), "()", CMD_COMPLETE, "simulated" );
+            return(0);
+        }
+
+		if( CognexCOM.IsNull() )
+		{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, "Initialize Cognex library before calling calling member functions." );
+    		return(1);
+		}
+
+		if( !CognexCOM.OptimizeBrightness() )
+		{
+			errorMessage = CognexCOM.LastErrorString();
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, errorMessage );
+			return(1);
+		}
+
+		FormatTrace( GetFunctionName(), "()", CMD_PROGRESS, "Cognex Brigntness Optimized" );
+
+		if( !CognexCOM.OptimizeFocus() )
+		{
+			errorMessage = CognexCOM.LastErrorString();
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, errorMessage );
+			return(1);
+		}
+
+		FormatTrace( GetFunctionName(), "()", CMD_PROGRESS, "Cognex Focus Optimized" );
+
+		FormatTrace(GetFunctionName(), "()", CMD_COMPLETE);
+		return(0);
+	}
+
+
+	function SetBrightness(variable& intExposure)
+	{
+		FormatTrace(GetFunctionName(), "()", CMD_START);
+
+		if(!CognexCOM.SetBrightness(intExposure))
+		{
+			errorMessage = CognexCOM.LastErrorString();
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, errorMessage );
+		}
+
+		FormatTrace(GetFunctionName(), "()", CMD_COMPLETE);
+
+		return(0);
+	}
+	
+
+	function SetFocus(variable& intFocus)
+	{
+		FormatTrace(GetFunctionName(), "()", CMD_START);
+
+		if(!CognexCOM.SetFocus(intFocus))
+		{	
+			errorMessage = CognexCOM.LastErrorString();
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, errorMessage );
+			return(1);
+		}
+
+		FormatTrace(GetFunctionName(), "()", CMD_COMPLETE);
+
+		return(0);
+	}
+	
+
+	function SetRegionOfInterest(variable& intLeft, variable& intRight, variable& intTop, variable& intBottom) 
+	{
+
+		variable strLeft("");
+		variable strRight("");
+		variable strTop("");
+		variable strBottom("");
+
+		strLeft = IStr(intLeft);
+		strRight = IStr(intRight);
+		strTop = IStr(intTop);
+		strBottom = IStr(intBottom);
+
+		FormatTrace(GetFunctionName(), "()", CMD_START);
+
+		if( GetSimulationMode() == simulation )
+        {
+            FormatTrace( GetFunctionName(), "()", CMD_COMPLETE, "simulated" );
+            return(0);
+        }
+
+		if( CognexCOM.IsNull() )
+		{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, "Initialize Cognex library before calling calling member functions." );
+    		return(1);
+		}
+
+		if( !CognexCOM.SetRegionOfInterest( intLeft, intRight, intTop, intBottom) )
+		{
+			errorMessage = CognexCOM.LastErrorString();
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, errorMessage );
+			return(1);
+		}
+
+		FormatTrace( GetFunctionName(), "()", CMD_PROGRESS, "Region of Interest Set: Left: " + strLeft + " Right: " + strRight + " Top: " + strTop + " Bottom: " + strBottom );
+
+		FormatTrace(GetFunctionName(), "()", CMD_COMPLETE);
+
+		return(0);
+	}
+
+
+	function SetLabwareRegionOfInterest(device& Ml_Star, variable& labwareId, variable& strStackPosition) 
+	{
+
+		//Set Region of Interest Values to use full image by default
+		variable intLeft(0);
+		variable intRight(752);
+		variable intTop(0);
+		variable intBottom(480);
+		
+		//Initialize Carrier Property Variables
+		variable strRegionOfInterest("");
+		variable strRegionPropertyBase("CognexRegionOfInterest");
+		variable strRegionProperty("");
+
+		variable arrROI[];
+		variable modLeft(0);
+
+		FormatTrace(GetFunctionName(), "()", CMD_START);
+
+		strRegionProperty = strRegionPropertyBase + strStackPosition;
+
+		strRegionOfInterest = DevGetLabwareData(Ml_Star, labwareId, strRegionProperty);
+
+		//Set Region of Interest if "CognexRegionOfInterest" Property is defined
+		if(strRegionOfInterest != "")
+		{
+
+			FormatTrace(GetFunctionName(), "()", CMD_PROGRESS, strRegionProperty, ": ", strRegionOfInterest);
+			
+			arrROI = SplitString(strRegionOfInterest, ",");
+
+			intLeft = IVal(arrROI[0]);
+			intRight = IVal(arrROI[1]);
+			intTop = IVal(arrROI[2]);
+			intBottom = IVal(arrROI[3]);
+
+			if( !CognexCOM.SetRegionOfInterest( intLeft, intRight, intTop, intBottom) )
+			{
+				errorMessage = CognexCOM.LastErrorString();
+				FormatTrace( GetFunctionName(), "()", CMD_ERROR, errorMessage );
+				return(1);
+			}
+			
+
+			//FormatTrace(GetFunctionName(), "()", CMD_PROGRESS, "Carrier Region of Interest: ", strRegionOfInterest);
+			
+		}
+
+		if(strRegionOfInterest == "")
+		{
+			FormatTrace(GetFunctionName(), "()", CMD_PROGRESS, "Carrier Region of Interest not set, using full image. ");
+		}
+
+		FormatTrace(GetFunctionName(), "()", CMD_COMPLETE);	
+		return(0);
+
+	}
+
+
+	function ReadBarcode( variable& barcode, variable& readerror) 
+	{
+
+		variable numberOfCodes(1);
+		variable returnValues[];
+		variable tokens[];
+		variable index(0);
+
+		FormatTrace(GetFunctionName(), "()", CMD_START);
+
+		if( GetSimulationMode() == simulation )
+        {
+            FormatTrace( GetFunctionName(), "()", CMD_COMPLETE, "simulated" );
+            return(0);
+        }
+
+		if( CognexCOM.IsNull() )
+		{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, "Initialize Cognex library before calling calling member functions." );
+    		return(1);
+		}
+
+		CognexCOM.Trigger(numberOfCodes);
+		
+		returnValues = CognexCOM.Disseminate();
+
+		FormatTrace( GetFunctionName(), "()", CMD_PROGRESS, returnValues[0]);
+
+		tokens = ParseSimpleML(returnValues.GetAt(index));
+		
+		//tokens[0] = Time
+		//tokens[1] = Symbology
+		//tokens[2] = Barcode string
+		//tokens[3] = X1, Y1, X2, Y2, X3, Y3, X4, Y4
+		//tokens[4] = Trigger Time
+		//tokens[5] = Error
+
+		if( tokens.GetSize() == 6 )
+		{
+			barcode = tokens[2];
+			readerror = tokens[5];
+		}
+		
+		FormatTrace(GetFunctionName(), "()", CMD_PROGRESS, barcode);
+
+		FormatTrace(GetFunctionName(), "()", CMD_COMPLETE);
+	
+	}
+
+
+	function ScannerOrientationHorizontal(device& Ml_Star)
+	{
+		if( GetSimulationMode() == simulation )
+        {
+            FormatTrace( GetFunctionName(), "()", 2, "simulated" );
+            return(0);
+        }
+		Autoload::SHorizontal(Ml_Star);
+	
+	}
+
+
+	function ScannerOrientationVertical(device& Ml_Star)
+	{
+		if( GetSimulationMode() == simulation )
+        {
+            FormatTrace( GetFunctionName(), "()", 2, "simulated" );
+            return(0);
+        }
+		Autoload::SVertical(Ml_Star);
+	
+	}
+
+
+	function Disconnect()
+	{
+
+		FormatTrace(GetFunctionName(), "()", CMD_START);
+	
+       	if( GetSimulationMode() == simulation )
+        {
+            FormatTrace( GetFunctionName(), "()", 2, "simulated" );
+            return(0);
+        }
+
+        if( !CognexCOM.IsNull() )
+		{
+			CognexCOM.Dispose();
+			FormatTrace( GetFunctionName(), "()", CMD_PROGRESS, "Cognex Connection Disposed" );
+			CognexCOM.ReleaseObject();
+			FormatTrace( GetFunctionName(), "()", CMD_PROGRESS, "Cognex Object Released" );
+		}
+
+		FormatTrace(GetFunctionName(), "()", CMD_COMPLETE);
+
+		return(0);
+
+	}
+
+	//-------------------------- Cognex Autoload Functions -------------------------//
+
+	function ParseCarrierProperties(device& Ml_Star, variable& labwareId) variable[]
+	{
+		variable barcodepositions;
+		variable barcodesafterfirst;
+		variable rasterwidth;
+		variable firstposition;
+		variable isautoload;
+		variable barcodeorientation;
+
+		variable retval;
+		variable arrCarrierValues[](6);
+		variable keys[](5);
+		variable properties[](5);
+
+		keys[0] = "MlStarCarCountOfBCPos";
+		keys[1] = "MlStarCarRasterWidth";
+		keys[2] = "MlStarCarFirstBCPos";
+		keys[3] = "MlStarCarIsAutoLoad";
+		keys[4] = "MlStarCarBCOrientation";
+
+		retval = Ml_Star.GetLabwareData(labwareId, keys, properties);
+
+		barcodepositions = IVal(properties[0]);
+		barcodesafterfirst = barcodepositions - 1;
+		rasterwidth = FVal(properties[1]);
+		rasterwidth = rasterwidth / 10; //convert to millimeters.
+		firstposition = FVal(properties[2]);
+		firstposition = firstposition / 10; //convert to millimeters
+		isautoload = IVal(properties[3]);
+		barcodeorientation = IVal(properties[4]);
+		
+		arrCarrierValues[0] = barcodepositions;
+		arrCarrierValues[1] = barcodesafterfirst;
+		arrCarrierValues[2] = rasterwidth;
+		arrCarrierValues[3] = firstposition;
+		arrCarrierValues[4] = isautoload;
+		arrCarrierValues[5] = barcodeorientation;
+
+		return(arrCarrierValues);
+
+	}
+
+	function GetLabwareTrack(device& Ml_Star, variable& labwareId)
+	{
+		
+		variable xpos;
+		variable track_width(22.5);
+		variable track_adjustment(77.5);
+		variable vartype;
+		variable retval; 
+		variable track;
+		variable carrierWidth;
+		variable position[](5);
+
+		Ml_Star.GetLabwarePosition(labwareId, position);
+		
+		//Trace("x position: ", position[0]);
+		//Trace("y position: ", position[1]);
+		//Trace("z position: ", position[2]);
+
+		xpos = position[0];
+
+		track = (xpos - track_adjustment) / track_width;
+
+		vartype = GetType(track);
+		track = IVal(FStr(track));
+		vartype = GetType(track);
+
+		carrierWidth = DevGetLabwareData(Ml_Star, labwareId, "MlStarCarWidthAsT");
+
+		track = StrIVal(carrierWidth) + track - 1;
+
+		return(track); //returns left-hand track/slot of carrier
+	
+	}
+
+	function CognexAutoLoad(device& Ml_Star, variable& labwareId, variable& arrBarcodes[])
+	{
+		variable arrReturn[];
+
+		variable track;
+		variable intWidthInTracks;
+		variable identity;
+		variable adjFirstPos; 
+		variable i(0);
+		variable idx(0);
+		variable barcodeMask; 
+		variable returnValues[];
+		variable tokens[];
+		variable index(0);
+		variable numBarcodes(1);
+		variable returnValue;
+
+		variable arrCarrierData[];
+		variable intBarcodePositions(0);
+		variable intBarcodesAfterFirst(0);
+		variable fltRasterWidth(0.0);
+		variable fltFirstPosition(0.0);
+		variable intIsAutoload(0);
+		variable intBarcodeOrientation(0);
+
+		variable strPlatesPerPosition("");
+		variable intPlatesPerPosition(1);
+		variable strStackPosition("");
+
+		FormatTrace(GetFunctionName(), "()", CMD_START);
+		
+		if( GetSimulationMode() == simulation )
+        {
+            FormatTrace( GetFunctionName(), "()", 2, "simulated" );
+            return(0);
+        }
+
+		if( CognexCOM.IsNull() )
+		{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, "Initialize Cognex library before calling calling member functions." );
+    		return(1);
+		}
+
+		if( !CognexInitialized )
+		{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, "Cognex Scanner not initialized");
+			return(1);
+		}
+		
+		arrCarrierData = ParseCarrierProperties(Ml_Star, labwareId);
+
+		intBarcodePositions = arrCarrierData[0];
+		intBarcodesAfterFirst=  arrCarrierData[1];
+		fltRasterWidth = arrCarrierData[2];
+		fltFirstPosition = arrCarrierData[3];
+		intIsAutoload = arrCarrierData[4];
+		intBarcodeOrientation = arrCarrierData[5];
+
+		track = GetLabwareTrack(Ml_Star, labwareId);
+		intWidthInTracks = IVal(DevGetLabwareData(Ml_Star, labwareId, "MlStarCarWidthAsT"));
+
+		//Determine the number of (stacked?) plates per carrier position 
+		strPlatesPerPosition = DevGetLabwareData(Ml_Star, labwareId, "CognexBarcodesPerPosition");
+		if(strPlatesPerPosition != "")
+		{
+			intPlatesPerPosition = IVal(strPlatesPerPosition);
+		}
+		
+		Autoload::InitializeLibrary();
+
+		//Set LED Loading Lights to Flash for tracks occupied by carrier
+		Autoload::UpdateLoadingLEDs(Ml_Star, track, intWidthInTracks, 2);
+
+		//Move autoload to track to load carrier
+		arrReturn = Autoload::XMoveToSlot(Ml_Star, track);
+		if(!CheckResult(arrReturn, "00"))
+		{
+			SetErrorCode(lastError, "Autoload X Drive Error", GetFunctionName());
+		}
+
+		//Initialize autoload Y-Drive
+		arrReturn = Autoload::YInitialize(Ml_Star);
+		if(!CheckResult(arrReturn, "00"))
+		{
+			SetErrorCode(lastError, "Autoload Y Initialization Error", GetFunctionName());
+			return(1);
+		}
+
+		identity = Autoload::IdentifyCarrier(Ml_Star, track);
+		Trace(identity);
+		if(identity == "No carrier")
+		{
+			FormatTrace( GetFunctionName(), "()", CMD_ERROR, "Carrier not found on Autoload tray." );
+    		return(1);
+		}
+
+		if(identity == "Error loading carrier for identification")
+        {
+        	FormatTrace( GetFunctionName(), "()", CMD_ERROR, "Error loading carrier for identification" );
+        	arrReturn = Autoload::YMoveAbsolute(Ml_Star, 0);
+        	arrReturn = Autoload::ZDisengage(Ml_Star);
+			return(1);
+        }
+
+        if(identity != "") 
+        {
+        	DevGetBarcodeData(Ml_Star, labwareId, "", barcodeMask);
+        	if(HSLKitLot::CheckBarcode(barcodeMask, identity) == -1)
+        	{
+        		arrReturn = Autoload::YMoveAbsolute(Ml_Star, 0);
+        		arrReturn = Autoload::ZDisengage(Ml_Star);
+        		FormatTrace( GetFunctionName(), "()", CMD_ERROR, "Unexpected carrier found on loading tray. Expected carrier: ", labwareId );
+    			return(1);
+        	}
+        }
+		
+		arrReturn = Autoload::YMoveAbsolute(Ml_Star, 0);
+		if(!CheckResult(arrReturn, "00"))
+		{
+			SetErrorCode(lastError, "Autoload Y Drive Error", GetFunctionName());
+			return(1);
+		}
+
+		if (intBarcodeOrientation == 1)
+		{
+			arrReturn = Autoload::SHorizontal(Ml_Star);
+			if(!CheckResult(arrReturn, "00"))
+			{ 
+				SetErrorCode(lastError, "Error - Autoload Rotating to Horizontal Position", GetFunctionName());
+				return(1);
+			}
+			adjFirstPos = fltFirstPosition + _horizontaloffset;
+		}
+
+		if (intBarcodeOrientation == 0)
+		{
+			adjFirstPos = fltFirstPosition + _verticaloffset;
+		}
+		
+		//Load carrier to first position
+		arrReturn = Autoload::YMoveRelative(Ml_Star, adjFirstPos, 1);
+  		if (!CheckResult(arrReturn, "00"))
+     	{
+     		SetErrorCode(lastError, "Autoload Y Drive Error", GetFunctionName());
+			return(1);
+     	}
+
+		//Read barcode(s) at first carrier position
+     	for(i = 1; i <= intPlatesPerPosition; i++)
+     	{
+			strStackPosition = IStr(i);
+     		SetLabwareRegionOfInterest(Ml_Star, labwareId, strStackPosition);
+     		//Trigger a barcode read
+			CognexCOM.Trigger(numBarcodes);	
+		}
+
+		//Load/Read barcodes at remaining carrier positions 
+		for(i = 0; i < intBarcodesAfterFirst; i++)
+		{
+			arrReturn = Autoload::YMoveRelative(Ml_Star, fltRasterWidth, 1);
+			if (!CheckResult(arrReturn, "00"))
+     		{
+	     		SetErrorCode(lastError, "Autoload Y Drive Error", GetFunctionName());
+				return(1);
+     		}
+			
+			//Read barcode(s) at remaining carrier positions
+	     	for(idx = 1; idx <= intPlatesPerPosition; idx++)
+	     	{
+				strStackPosition = IStr(idx);
+	     		SetLabwareRegionOfInterest(Ml_Star, labwareId, strStackPosition);
+	     		//Trigger a barcode read
+				CognexCOM.Trigger(numBarcodes);	
+			}
+		}
+
+		arrReturn = Autoload::YToDeck(Ml_Star);
+		if (!CheckResult(arrReturn, "00"))
+ 		{
+     		SetErrorCode(lastError, "Autoload Y Drive Error", GetFunctionName());
+			return(1);
+ 		}
+
+		// Push the carrier the final two mm towards the deck
+		arrReturn = Autoload::YMoveRelative2(Ml_Star, 2, 1, 7, 200);
+		if (!CheckResult(arrReturn, "00"))
+ 		{
+     		SetErrorCode(lastError, "Autoload Y Drive Error Seating Carrier", GetFunctionName());
+			return(1);
+ 		}
+
+		// Reset the Y movement values to defaults
+		arrReturn = Autoload::YMoveRelative2(Ml_Star, 0, 0, 7, 2000);
+		if (!CheckResult(arrReturn, "00"))
+ 		{
+     		SetErrorCode(lastError, "Autoload Y Drive Firmware Reset Error", GetFunctionName());
+			return(1);
+ 		}
+		//Set the scanner orientation to Vertical
+		arrReturn = Autoload::SVertical(Ml_Star);
+		if (!CheckResult(arrReturn, "00"))
+ 		{
+     		SetErrorCode(lastError, "Autoload Rotation Drive To Vertical Error", GetFunctionName());
+			return(1);
+ 		}
+
+		//Disengage Autoload drive
+		arrReturn = Autoload::ZDisengage(Ml_Star);
+		if (!CheckResult(arrReturn, "00"))
+ 		{
+     		SetErrorCode(lastError, "Autoload Z Drive Disengage Error", GetFunctionName());
+			return(1);
+ 		}
+
+		//Output Array of Barcodes
+		returnValues = CognexCOM.Disseminate();
+
+		for ( index = 0; index < returnValues.GetSize(); index++ )
+		{
+
+			tokens = ParseSimpleML(returnValues.GetAt(index));
+
+			//tokens[0] = Time
+			//tokens[1] = Symbology
+			//tokens[2] = Barcode string
+			//tokens[3] = X1, Y1, X2, Y2, X3, Y3, X4, Y4
+			//tokens[4] = Trigger Time
+			//tokens[5] = Error
+			if( tokens.GetSize() == 6 )
+			{
+				FormatTrace(GetFunctionName(), "()", CMD_PROGRESS, "Barcode Position ", index + 1, ": ", tokens[2]);
+				arrBarcodes.AddAsLast( tokens[2] );
+			}
+
+		}	
+	
+		//Turn Flashing off for LEDs occupied by the carrier
+		returnValue = Autoload::UpdateLoadingLEDs(Ml_Star, track, intWidthInTracks, 3);
+
+		//Set LED Loading Lights to On for tracks occupied by carrier
+		returnValue = Autoload::UpdateLoadingLEDs(Ml_Star, track, intWidthInTracks, 1);
+
+		//Reset Cognex Region of Interest
+		CognexCOM.SetRegionOfInterest( 0, 752, 0, 480);
+
+		FormatTrace(GetFunctionName(), "()", CMD_COMPLETE);
+		return(0);
+	}
+
+	function CognexAutoUnload(device& Ml_Star, variable& labwareId)
+	{
+		
+		variable intTrack;
+		variable intWidthInTracks;
+
+		FormatTrace(GetFunctionName(), "()", CMD_START);
+
+		if( GetSimulationMode() == simulation )
+        {
+            FormatTrace( GetFunctionName(), "()", 2, "simulated" );
+            return(0);
+        }
+
+		intTrack = GetLabwareTrack(Ml_Star, labwareId);
+		intWidthInTracks = IVal(DevGetLabwareData(Ml_Star, labwareId, "MlStarCarWidthAsT"));
+
+		Autoload::UpdateLoadingLEDs(Ml_Star, intTrack, intWidthInTracks, 2);
+
+		if (IVDSystem == hslFalse){
+			Autoload::UnloadCarrier(Ml_Star, intTrack);
+		}
+		if (IVDSystem == hslTrue){
+			Autoload::UnloadCarrier2(Ml_Star, intTrack);
+		}
+		Autoload::UpdateLoadingLEDs(Ml_Star, intTrack, intWidthInTracks, 3);
+		Autoload::UpdateLoadingLEDs(Ml_Star, intTrack, intWidthInTracks, 0);
+
+		FormatTrace(GetFunctionName(), "()", CMD_COMPLETE);
+		return(0);
+	}
+
+}
+
+#endif //HSL_RUNTIME
+
+#endif // _HSL__CognexScan_hsl__
+// $$author=Turman_w$$valid=0$$time=2014-08-06 09:46$$checksum=f8095a4b$$length=087$$

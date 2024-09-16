@@ -1,0 +1,112 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+#include "HSLPTLLib.hsl"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace PARK_96HEAD {
+// }} ""
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function move_COREII_96head_to_front( device & ML_STAR ) void ;
+function move_COREii_96head_to_back( device & ML_STAR ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "move_COREII_96head_to_front" "Begin"
+function move_COREII_96head_to_front( device & ML_STAR ) void {
+// }} ""
+// {{ 5 "move_COREII_96head_to_front" "InitLocals"
+// }} ""
+// {{ 1 1 0 "556b1493_96d8_4629_88c139f986cbecdc" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 2 1 0 "f31ae08d_090e_45a6_ab4ada22d40754b7" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 3 1 0 "d56dd73b_f7bc_45f9_865777dfbcaca0c6" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("d56dd73b_f7bc_45f9_865777dfbcaca0c6"); // FirmwareCommand
+}
+// }} ""
+// {{ 4 1 0 "1d76028f_e356_4602_9e4569511411b1f1" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 5 1 0 "f1a77d94_6924_49b3_a5df07cbd7e47a9a" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("f1a77d94_6924_49b3_a5df07cbd7e47a9a"); // FirmwareCommand
+}
+// }} ""
+// {{ 6 1 0 "d4852cbd_dda6_4801_a448500263dfc689" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("d4852cbd_dda6_4801_a448500263dfc689"); // FirmwareCommand
+}
+// }} ""
+// {{{ 5 "move_COREII_96head_to_front" "End"
+}
+// }} ""
+// {{{ 5 "move_COREii_96head_to_back" "Begin"
+function move_COREii_96head_to_back( device & ML_STAR ) void {
+// }} ""
+// {{ 5 "move_COREii_96head_to_back" "InitLocals"
+// }} ""
+// {{ 8 1 0 "421c6d5c_ea7d_4a82_bded5f972d37d27d" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 9 1 0 "832b6633_6954_49cf_8244aea0ae894643" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 10 1 0 "fc277d62_e081_46ab_9c88784698b1da09" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("fc277d62_e081_46ab_9c88784698b1da09"); // FirmwareCommand
+}
+// }} ""
+// {{ 11 1 0 "a2e68b70_384b_47a5_b9c570d894784432" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 12 1 0 "a54a77fd_28de_4b87_98b2677cd983756a" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("a54a77fd_28de_4b87_98b2677cd983756a"); // FirmwareCommand
+}
+// }} ""
+// {{ 13 1 0 "9dd0f226_92fe_4c06_a8c558596cd89652" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("9dd0f226_92fe_4c06_a8c558596cd89652"); // FirmwareCommand
+}
+// }} ""
+// {{{ 5 "move_COREii_96head_to_back" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=Hamilton$$valid=0$$time=2011-08-15 11:42$$checksum=4f3be54c$$length=087$$

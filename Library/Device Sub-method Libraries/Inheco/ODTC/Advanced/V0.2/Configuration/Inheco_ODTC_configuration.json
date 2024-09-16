@@ -1,0 +1,19 @@
+{
+    "strComputerIP": "192.168.1.100",
+    "ODTCs":
+    [
+        {
+        "intDeviceID": 1,
+        "strPMS_ID": "",
+        "strDeviceIPAddress": "192.168.1.50",
+        "strDevicePort": "",
+        "intTimeout": 120,
+        "intRunDuration": 0,
+        "intRequestID": 0,
+        "strLockID": "0",
+        "intLastErrorReturn": 0,
+        "strLastErrorMessage": ""
+        }
+   ]
+  
+}

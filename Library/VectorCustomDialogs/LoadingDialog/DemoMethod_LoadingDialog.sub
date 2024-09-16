@@ -1,0 +1,19 @@
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function OnAbort(  ) void ;
+// }} ""
+// {{{ 5 "OnAbort" "Begin"
+function OnAbort(  ) void {
+// }} ""
+// {{ 5 "OnAbort" "InitLocals"
+// }} ""
+// {{{ 57 1 0 "05a83532_e7ec_48dc_9012527140d0a24d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+VectorCustomDialogs::MessageDialog(Translate(""), 74, 0, 0, 0, 0, Translate(""));
+// }} ""
+// {{{ 58 1 0 "26059ed8_e16b_4cb8_9f661f27ebf8120e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+VectorCustomDialogs::Terminate();
+// }} ""
+// {{{ 5 "OnAbort" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// $$author=MKnopp$$valid=0$$time=2019-08-06 11:03$$checksum=288b8006$$length=085$$

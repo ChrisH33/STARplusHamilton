@@ -1,0 +1,228 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl"
+#include "ASWStandard\\TraceLevel\\TraceLevel.hsl"
+#include "CellCultureAutomation\\ExecutingLayer\\STARController\\TransportControllerDefinitions.hsl"
+#include "CellCultureAutomation\\Common\\Enums.hsl"
+#include "HSLUtilLib.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+#include "HSLPTLLib.hsl"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace SLOW_ISWAP_SPEED {
+// }} ""
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function FirmwareCommandSet_iSWAPRotationReset( device & ML_STAR ) void ;
+function FirmwareCommandSet_iSWAPRotationSlower( device & ML_STAR, variable i_enmPlateType ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "FirmwareCommandSet_iSWAPRotationSlower" "Begin"
+function FirmwareCommandSet_iSWAPRotationSlower( device & ML_STAR, variable i_enmPlateType ) void {
+// }} ""
+// {{ 5 "FirmwareCommandSet_iSWAPRotationSlower" "InitLocals"
+// }} ""
+// {{ 20 1 0 "27ecb308_ff7b_4d1e_8af040e0c5a64b50" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 21 1 0 "a84c4c63_37e5_4924_b3eb9523853dbf9f" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 22 1 0 "07e37703_7297_46ba_87160b5ee5cfc236" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("07e37703_7297_46ba_87160b5ee5cfc236"); // FirmwareCommand
+}
+// }} ""
+// {{ 23 1 0 "e9ad53a1_e5e3_4bfa_9734c96366e68bd0" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 24 1 0 "85b248d8_cec0_4cdc_ab564a6dfffa906c" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("85b248d8_cec0_4cdc_ab564a6dfffa906c"); // FirmwareCommand
+}
+// }} ""
+// {{ 25 1 0 "ad4a7ed5_1b41_41c4_97f4b673208b5ce0" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 26 1 0 "b152a55c_90a1_4e89_a4392efc1d488dca" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("b152a55c_90a1_4e89_a4392efc1d488dca"); // FirmwareCommand
+}
+// }} ""
+// {{ 27 1 0 "ef8faee8_f1f5_415b_8116aeffdff31c5d" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 28 1 0 "3339f6fd_0466_4bc8_89cff52a7b1ad5d6" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("3339f6fd_0466_4bc8_89cff52a7b1ad5d6"); // FirmwareCommand
+}
+// }} ""
+// {{ 29 1 0 "8c540f23_2db4_48fc_8741b3cf23310c8e" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 30 1 0 "b7f0ada1_5a37_4ec2_9e5b5f28a94998be" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("b7f0ada1_5a37_4ec2_9e5b5f28a94998be"); // FirmwareCommand
+}
+// }} ""
+// {{ 31 1 0 "6d11ebd0_2dd0_4fbd_8986fc3e01c3448b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 32 1 0 "5a87c67a_4e9b_482d_992959993a57795b" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("5a87c67a_4e9b_482d_992959993a57795b"); // FirmwareCommand
+}
+// }} ""
+// {{ 33 1 0 "665e19a2_1532_4cd2_a8f8e6eb87ce77f4" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 34 1 0 "31fa55c2_8779_4e43_b6bd3d4aa80e83cf" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("31fa55c2_8779_4e43_b6bd3d4aa80e83cf"); // FirmwareCommand
+}
+// }} ""
+// {{ 35 1 0 "cc59f0d2_bb0c_452c_91e67339368ef8d7" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 36 1 0 "560ef39b_d3f1_44c7_8e1bf9a73a78153b" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("560ef39b_d3f1_44c7_8e1bf9a73a78153b"); // FirmwareCommand
+}
+// }} ""
+// {{ 37 1 0 "5596b29c_f44f_4d99_b9a5e43a946ba89b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 38 1 0 "b674b7d4_24e2_47ca_8b0c2f499fc066e7" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("b674b7d4_24e2_47ca_8b0c2f499fc066e7"); // FirmwareCommand
+}
+// }} ""
+// {{{ 5 "FirmwareCommandSet_iSWAPRotationSlower" "End"
+}
+// }} ""
+// {{{ 5 "FirmwareCommandSet_iSWAPRotationReset" "Begin"
+function FirmwareCommandSet_iSWAPRotationReset( device & ML_STAR ) void {
+// }} ""
+// {{ 5 "FirmwareCommandSet_iSWAPRotationReset" "InitLocals"
+// }} ""
+// {{ 1 1 0 "9199ab32_3aa8_4f6b_b713e0d1914980fe" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 2 1 0 "7babc8b8_cef9_470f_a173894f275253f3" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("7babc8b8_cef9_470f_a173894f275253f3"); // FirmwareCommand
+}
+// }} ""
+// {{ 3 1 0 "448a7878_bd4c_41cc_9bc905561cfa6752" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 4 1 0 "c74f520c_dda7_4f76_953d963c020711a1" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("c74f520c_dda7_4f76_953d963c020711a1"); // FirmwareCommand
+}
+// }} ""
+// {{ 5 1 0 "c6427093_6ea2_4ab5_b253e9e29140b1dc" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 6 1 0 "c53cfc47_6a60_42d2_92a0ac7ab1a14503" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("c53cfc47_6a60_42d2_92a0ac7ab1a14503"); // FirmwareCommand
+}
+// }} ""
+// {{ 7 1 0 "d7305b30_405e_44ba_a7808a660151c6e2" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 8 1 0 "385d4ba7_48b4_41ea_8d9e4f39d88097dd" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("385d4ba7_48b4_41ea_8d9e4f39d88097dd"); // FirmwareCommand
+}
+// }} ""
+// {{ 9 1 0 "b076a111_906f_49e7_9a86e4af2a7234a4" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 10 1 0 "421d05da_a83b_44de_a2052ab246b2e4c4" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("421d05da_a83b_44de_a2052ab246b2e4c4"); // FirmwareCommand
+}
+// }} ""
+// {{ 11 1 0 "30ea72a1_f232_4cf3_8ab0f2b9b7d2da27" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 12 1 0 "ef2ee101_2f02_4293_b45646a8ece777e6" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("ef2ee101_2f02_4293_b45646a8ece777e6"); // FirmwareCommand
+}
+// }} ""
+// {{ 13 1 0 "35ef15f1_fa9f_4d6c_86248e9c95c33037" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 14 1 0 "0f59978e_9cf6_45ea_b0410fff0d73af95" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("0f59978e_9cf6_45ea_b0410fff0d73af95"); // FirmwareCommand
+}
+// }} ""
+// {{ 15 1 0 "1780287a_38dd_41b0_bda628a024132834" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 16 1 0 "6f15528f_5e85_4a63_b794fff32da211bf" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("6f15528f_5e85_4a63_b794fff32da211bf"); // FirmwareCommand
+}
+// }} ""
+// {{ 17 1 0 "4f9b0664_8a17_4a3d_b0684196c8bc3404" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 18 1 0 "56234392_2ed5_4649_91064416aba5c961" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("56234392_2ed5_4649_91064416aba5c961"); // FirmwareCommand
+}
+// }} ""
+// {{{ 5 "FirmwareCommandSet_iSWAPRotationReset" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=Windows10$$valid=0$$time=2020-07-03 15:17$$checksum=dc1af947$$length=088$$

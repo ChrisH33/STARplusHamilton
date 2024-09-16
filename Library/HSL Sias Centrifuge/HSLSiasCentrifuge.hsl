@@ -1,0 +1,766 @@
+// ======================================================================
+// Driver for the Sias Centrifuge
+//
+// Copyright(C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+// ======================================================================
+//
+// Modification History
+//    2010-06-26, V1.0: Dominik Wittmer, created 
+// ======================================================================
+
+#ifndef __HSLSiasCentrifuge_hsl__
+  #define __HSLSiasCentrifuge_hsl__ 1
+
+  #ifndef __HSLStrLib_hsl__
+    #include "HSLStrLib.hsl"
+  #endif
+
+  #ifndef _HSLTimLib_hsl__
+    #include "HSLTimLib.hsl"
+  #endif
+
+  #ifndef __TraceLevel_hsl__
+    #include "ASWStandard\\TraceLevel\\TraceLevel.hsl"
+  #endif
+
+  #ifndef __ASWGLOBAL_hsl__
+    #include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl"
+  #endif
+
+  #ifndef __HSLSiasCentrifugeEnums_hsl__
+    #include "HSLSiasCentrifugeEnums.hsl"
+  #endif
+
+  
+
+  
+  namespace HSLSiasCentrifuge
+  {
+
+    // constants for FormatTrace
+    const static variable CMD_START         (1);
+    const static variable CMD_COMPLET       (2);
+    const static variable CMD_ERROR         (3);
+    const static variable CMD_PROGRESS      (4);
+    const static variable CMD_ERRCOMPL      (5);
+
+    const static variable HSLSiasCentrifuge_LibraryModuleName       ("HSLSiasCentrifuge");
+    const static variable HSLSiasCentrifuge_LibraryClassName       ("Hamilton.Sias.Centrifuge");
+
+    // static variables
+    static global variable HSLSiasCentrifuge_LibraryInitialized   (ASWGLOBAL::BOOL::FALSE);
+    static global variable HSLSiasCentrifuge_LibraryTraceLevel       (TRACE_LEVEL_DEBUG);
+    static global variable HSLSiasCentrifuge_LibrarySimulationMode   (ASWGLOBAL::BOOL::FALSE);
+
+    // comobject
+    static global object HSLSiasCentrifuge_ComInterface;
+
+     //declaration of functions
+    function Initialize(variable i_intModuleID, variable i_strModuleName) variable;
+    function Reinit(variable i_intModuleID) variable;
+    function Terminate(variable i_intModuleID) variable;
+    function CloseCover(variable i_intModuleID) variable;
+    function MoveToPosition(variable i_intModuleID,variable i_intPosition) variable;
+    function TimeMove(variable i_intModuleID,variable i_intTime, variable i_intSpeed, variable i_intRamp) variable;
+    function TimeMoveExtended(variable i_intModuleID,variable i_arrTime[], variable i_arrSpeed[], variable i_arrRamp[]) variable;
+    function SetTraceLevel(variable i_intTraceLevel) variable;
+    function SetSimulationMode(variable i_blnSimulate) variable;
+
+    // declarations of helper functions
+    private function StatusTrace(variable iState,  variable iTraceLevel, variable iTraceString, variable iFunctionName) void;
+    private function CheckBool(variable iVariable, variable iTraceEntry,variable& o_intErrorCode,variable& o_strErrorDescription) variable;
+    private function CheckInteger(variable iVariable, variable iTraceEntry,variable& o_intErrorCode,variable& o_strErrorDescription) variable;
+    private function CheckIntegerRange(variable iVariable, variable iTraceEntry, variable iMin, variable iMax,variable& o_intErrorCode,variable& o_strErrorDescription) variable;
+    private function CheckFloat(variable iVariable, variable iTraceEntry,variable& o_intErrorCode,variable& o_strErrorDescription) variable;
+    private function CheckFloatRange(variable iVariable, variable iTraceEntry, variable iMin, variable iMax,variable& o_intErrorCode,variable& o_strErrorDescription) variable;
+    private function CheckString(variable iVariable, variable iTraceEntry,variable& o_intErrorCode,variable& o_strErrorDescription) variable;
+    private function CheckInit(variable iInitFunctionName,variable& o_intErrorCode,variable& o_strErrorDescription) variable;
+
+
+
+    //********************************************************************************
+    //* functions
+    //********************************************************************************
+
+   //----------------------------------------------------------------------------------------------
+    //function Initialize
+   //----------------------------------------------------------------------------------------------
+    function Initialize(variable i_intModuleID,
+                        variable i_strModuleName
+                        ) variable
+    {
+
+      
+      variable strFunctionName(GetFunctionName());
+      variable strErrorDescription("");
+      variable intReturnCode(HSLSiasCentrifuge::Enums::ErrorCode::None);
+
+
+      if(!CheckIntegerRange(i_intModuleID, "i_intModuleID",1,255,intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+      if(!CheckString(i_strModuleName, "i_strModuleName",intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+ 
+      intReturnCode = HSLSiasCentrifuge::Enums::ErrorCode::None;
+
+      // set internal values
+      HSLSiasCentrifuge_LibraryTraceLevel = TRACELEVEL::GetTraceLevel();
+
+
+      StatusTrace(CMD_START, TRACE_LEVEL_DEBUG,"ModuleID " + IStr(i_intModuleID) + ", ModuleName" + i_strModuleName, strFunctionName);
+
+      if(HSLSiasCentrifuge_LibrarySimulationMode)
+      {
+        StatusTrace(CMD_COMPLET, TRACE_LEVEL_RELEASE, "running in simulation mode", strFunctionName);
+        HSLSiasCentrifuge_LibraryInitialized = ASWGLOBAL::BOOL::TRUE;
+        return(intReturnCode);
+      }
+
+      // Activate error handler
+      onerror goto CreateObjectError;
+
+      // Create the object
+      StatusTrace(CMD_PROGRESS, TRACE_LEVEL_DEBUG, "create object", strFunctionName);
+      HSLSiasCentrifuge_ComInterface.CreateObject(HSLSiasCentrifuge_LibraryClassName);
+
+      //Set the can net name
+      HSLSiasCentrifuge_ComInterface.CanNetName = "1MBit";
+
+      //Initialize the centrifuge
+      StatusTrace(CMD_PROGRESS, TRACE_LEVEL_DEBUG, "init object", strFunctionName);
+      intReturnCode = HSLSiasCentrifuge_ComInterface.Initialize(i_intModuleID,i_strModuleName);
+      if(intReturnCode != HSLSiasCentrifuge::Enums::ErrorCode::None)
+      {
+        strErrorDescription = HSLSiasCentrifuge_ComInterface.GetErrorText(intReturnCode);
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return(intReturnCode);
+      }
+
+     
+      HSLSiasCentrifuge_ComInterface.SetTraceLevel(HSLSiasCentrifuge_LibraryTraceLevel);
+      HSLSiasCentrifuge_LibraryInitialized = ASWGLOBAL::BOOL::TRUE;
+
+      StatusTrace(CMD_COMPLET, TRACE_LEVEL_DEBUG, "", strFunctionName);
+      return(intReturnCode);
+
+      CreateObjectError:
+      {
+        intReturnCode = -1000;
+        strErrorDescription = "Error Create object";
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+      }
+
+      return(intReturnCode);
+    } // Initialize
+
+
+    //----------------------------------------------------------------------------------------------
+    //function Reinit
+    //----------------------------------------------------------------------------------------------
+    function Reinit(variable i_intModuleID) variable
+    {
+      variable strFunctionName(GetFunctionName());
+      variable strErrorDescription("");
+      variable intReturnCode(HSLSiasCentrifuge::Enums::ErrorCode::None);
+
+      if(!CheckInit("Initialize()",intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+      if(!CheckIntegerRange(i_intModuleID, "i_intModuleID",1,255,intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+
+      StatusTrace(CMD_START, TRACE_LEVEL_DEBUG, "", strFunctionName);
+      intReturnCode = HSLSiasCentrifuge::Enums::ErrorCode::None;
+
+      if(HSLSiasCentrifuge_LibrarySimulationMode)
+      {
+        StatusTrace(CMD_COMPLET, TRACE_LEVEL_RELEASE, "running in simulation mode", strFunctionName);
+        HSLSiasCentrifuge_LibraryInitialized = ASWGLOBAL::BOOL::TRUE;
+        return(intReturnCode);
+      }
+
+      // Activate error handler
+      onerror goto UNEXPECTED;
+    
+      HSLSiasCentrifuge_ComInterface.Reinit(i_intModuleID);
+
+      StatusTrace(CMD_COMPLET, TRACE_LEVEL_DEBUG, "", strFunctionName);
+
+      return (intReturnCode);
+
+      UNEXPECTED:
+      {
+        intReturnCode = -1000;
+        strErrorDescription = "Unexpected error occurred";
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+      }
+      return(intReturnCode);
+    } // Reinit
+
+    //----------------------------------------------------------------------------------------------
+    //function Terminate
+    //----------------------------------------------------------------------------------------------
+    function Terminate(variable i_intModuleID) variable
+    {
+      variable strFunctionName(GetFunctionName());
+      variable strErrorDescription("");
+      variable intReturnCode(HSLSiasCentrifuge::Enums::ErrorCode::None);
+
+      if(!CheckInit("Initialize()",intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+      if(!CheckIntegerRange(i_intModuleID, "i_intModuleID",1,255,intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+
+      StatusTrace(CMD_START, TRACE_LEVEL_DEBUG, "", strFunctionName);
+      intReturnCode = HSLSiasCentrifuge::Enums::ErrorCode::None;
+
+      if(HSLSiasCentrifuge_LibrarySimulationMode)
+      {
+        StatusTrace(CMD_COMPLET, TRACE_LEVEL_RELEASE, "running in simulation mode", strFunctionName);
+        HSLSiasCentrifuge_LibraryInitialized = ASWGLOBAL::BOOL::TRUE;
+        return(intReturnCode);
+      }
+
+      // Activate error handler
+      onerror goto UNEXPECTED;
+    
+      HSLSiasCentrifuge_ComInterface.Terminate(i_intModuleID);
+
+      StatusTrace(CMD_COMPLET, TRACE_LEVEL_DEBUG, "", strFunctionName);
+
+      return (intReturnCode);
+
+      UNEXPECTED:
+      {
+        intReturnCode = -1000;
+        strErrorDescription = "Unexpected error occurred";
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+      }
+      return(intReturnCode);
+    } // Terminate
+
+
+    //----------------------------------------------------------------------------------------------
+    //function CloseCover
+    //----------------------------------------------------------------------------------------------
+    function CloseCover(variable i_intModuleID) variable
+    {
+      variable strFunctionName(GetFunctionName());
+      variable strErrorDescription("");
+      variable intReturnCode(HSLSiasCentrifuge::Enums::ErrorCode::None);
+
+      if(!CheckInit("Initialize()",intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+      if(!CheckIntegerRange(i_intModuleID, "i_intModuleID",1,255,intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+
+      StatusTrace(CMD_START, TRACE_LEVEL_DEBUG, "", strFunctionName);
+      intReturnCode = HSLSiasCentrifuge::Enums::ErrorCode::None;
+
+      if(HSLSiasCentrifuge_LibrarySimulationMode)
+      {
+        StatusTrace(CMD_COMPLET, TRACE_LEVEL_RELEASE, "running in simulation mode", strFunctionName);
+        HSLSiasCentrifuge_LibraryInitialized = ASWGLOBAL::BOOL::TRUE;
+        return(intReturnCode);
+      }
+
+      // Activate error handler
+      onerror goto UNEXPECTED;
+    
+      intReturnCode = HSLSiasCentrifuge_ComInterface.CloseCover(i_intModuleID);
+
+      if(intReturnCode != HSLSiasCentrifuge::Enums::ErrorCode::None)
+      {
+        strErrorDescription = HSLSiasCentrifuge_ComInterface.GetErrorText(intReturnCode);
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return(intReturnCode);
+      }
+
+      StatusTrace(CMD_COMPLET, TRACE_LEVEL_DEBUG, "", strFunctionName);
+
+      return (intReturnCode);
+
+      UNEXPECTED:
+      {
+        intReturnCode = -1000;
+        strErrorDescription = "Unexpected error occurred";
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+      }
+      return(intReturnCode);
+    } // CloseCover
+
+    //----------------------------------------------------------------------------------------------
+    //function MoveToPosition
+    //----------------------------------------------------------------------------------------------
+    function MoveToPosition(variable i_intModuleID,variable i_intPosition) variable
+    {
+      variable strFunctionName(GetFunctionName());
+      variable strErrorDescription("");
+      variable intReturnCode(HSLSiasCentrifuge::Enums::ErrorCode::None);
+
+      if(!CheckInit("Initialize()",intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+      if(!CheckIntegerRange(i_intModuleID, "i_intModuleID",1,255,intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+      if(!CheckIntegerRange(i_intPosition, "i_intPosition",0,23,intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+      StatusTrace(CMD_START, TRACE_LEVEL_DEBUG, "", strFunctionName);
+      intReturnCode = HSLSiasCentrifuge::Enums::ErrorCode::None;
+
+      if(HSLSiasCentrifuge_LibrarySimulationMode)
+      {
+        StatusTrace(CMD_COMPLET, TRACE_LEVEL_RELEASE, "running in simulation mode", strFunctionName);
+        HSLSiasCentrifuge_LibraryInitialized = ASWGLOBAL::BOOL::TRUE;
+        return(intReturnCode);
+      }
+
+      // Activate error handler
+      onerror goto UNEXPECTED;
+    
+      intReturnCode = HSLSiasCentrifuge_ComInterface.MoveToPosition(i_intModuleID,i_intPosition);
+
+      if(intReturnCode != HSLSiasCentrifuge::Enums::ErrorCode::None)
+      {
+        strErrorDescription = HSLSiasCentrifuge_ComInterface.GetErrorText(intReturnCode);
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return(intReturnCode);
+      }
+
+      StatusTrace(CMD_COMPLET, TRACE_LEVEL_DEBUG, "", strFunctionName);
+
+      return (intReturnCode);
+
+      UNEXPECTED:
+      {
+        intReturnCode = -1000;
+        strErrorDescription = "Unexpected error occurred";
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+      }
+      return(intReturnCode);
+    } // MoveToPosition
+
+
+    //----------------------------------------------------------------------------------------------
+    //function TimeMove
+    //----------------------------------------------------------------------------------------------
+    function TimeMove(variable i_intModuleID,variable i_intTime, variable i_intSpeed, variable i_intRamp) variable
+    {
+      variable strFunctionName(GetFunctionName());
+      variable strErrorDescription("");
+      variable intReturnCode(HSLSiasCentrifuge::Enums::ErrorCode::None);
+
+      if(!CheckInit("Initialize()",intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+      if(!CheckIntegerRange(i_intModuleID, "i_intModuleID",1,255,intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+      if(!CheckIntegerRange(i_intTime, "i_intTime",1,32767,intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+      if(!CheckIntegerRange(i_intSpeed, "i_intSpeed",1,32767,intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+      if(!CheckIntegerRange(i_intRamp, "i_intRamp",1,32767,intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+
+      StatusTrace(CMD_START, TRACE_LEVEL_DEBUG, "", strFunctionName);
+      intReturnCode = HSLSiasCentrifuge::Enums::ErrorCode::None;
+
+      if(HSLSiasCentrifuge_LibrarySimulationMode)
+      {
+        StatusTrace(CMD_COMPLET, TRACE_LEVEL_RELEASE, "running in simulation mode", strFunctionName);
+        HSLSiasCentrifuge_LibraryInitialized = ASWGLOBAL::BOOL::TRUE;
+        return(intReturnCode);
+      }
+
+       // Activate error handler
+      onerror goto UNEXPECTED;
+    
+      intReturnCode = HSLSiasCentrifuge_ComInterface.TimeMove(i_intModuleID,i_intTime,i_intSpeed,i_intRamp);
+
+      if(intReturnCode != HSLSiasCentrifuge::Enums::ErrorCode::None)
+      {
+        strErrorDescription = HSLSiasCentrifuge_ComInterface.GetErrorText(intReturnCode);
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return(intReturnCode);
+      }
+
+      StatusTrace(CMD_COMPLET, TRACE_LEVEL_DEBUG, "", strFunctionName);
+
+      return (intReturnCode);
+
+      UNEXPECTED:
+      {
+        intReturnCode = -1000;
+        strErrorDescription = "Unexpected error occurred";
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+      }
+      return(intReturnCode);
+
+    } // TimeMove
+
+    
+    //----------------------------------------------------------------------------------------------
+    //function TimeMoveExtended
+    //----------------------------------------------------------------------------------------------
+    function TimeMoveExtended(variable i_intModuleID,variable i_arrTime[], variable i_arrSpeed[], variable i_arrRamp[]) variable
+    {
+      variable strFunctionName(GetFunctionName());
+      variable strErrorDescription("");
+      variable intReturnCode(HSLSiasCentrifuge::Enums::ErrorCode::None);
+
+      variable intStepSize(0);
+      variable intLoopCounterSteps(0);
+
+
+      if(!CheckInit("Initialize()",intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+      if(!CheckIntegerRange(i_intModuleID, "i_intModuleID",1,255,intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+
+      intStepSize = i_arrTime.GetSize();
+
+      for (intLoopCounterSteps = 0;intLoopCounterSteps < intStepSize; intLoopCounterSteps++)
+      {
+        if(!CheckIntegerRange(i_arrTime[intLoopCounterSteps], "i_arrTime",1,32767,intReturnCode,strErrorDescription))
+        {
+          StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+          return (intReturnCode);
+        }
+
+        if(!CheckIntegerRange(i_arrSpeed[intLoopCounterSteps], "i_arrSpeed",1,32767,intReturnCode,strErrorDescription))
+        {
+          StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+          return (intReturnCode);
+        }
+
+        if(!CheckIntegerRange(i_arrRamp[intLoopCounterSteps], "i_arrRamp",1,32767,intReturnCode,strErrorDescription))
+        {
+          StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+          return (intReturnCode);
+        }
+      }
+
+
+      StatusTrace(CMD_START, TRACE_LEVEL_DEBUG, "", strFunctionName);
+      intReturnCode = HSLSiasCentrifuge::Enums::ErrorCode::None;
+
+      if(HSLSiasCentrifuge_LibrarySimulationMode)
+      {
+        StatusTrace(CMD_COMPLET, TRACE_LEVEL_RELEASE, "running in simulation mode", strFunctionName);
+        HSLSiasCentrifuge_LibraryInitialized = ASWGLOBAL::BOOL::TRUE;
+        return(intReturnCode);
+      }
+
+
+      // Activate error handler
+      onerror goto UNEXPECTED;
+    
+      intReturnCode = HSLSiasCentrifuge_ComInterface.TimeMoveExtended(i_intModuleID,i_arrTime,i_arrSpeed,i_arrRamp);
+
+      if(intReturnCode != HSLSiasCentrifuge::Enums::ErrorCode::None)
+      {
+        strErrorDescription = HSLSiasCentrifuge_ComInterface.GetErrorText(intReturnCode);
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return(intReturnCode);
+      }
+
+      StatusTrace(CMD_COMPLET, TRACE_LEVEL_DEBUG, "", strFunctionName);
+
+      return (intReturnCode);
+
+      UNEXPECTED:
+      {
+        intReturnCode = -1000;
+        strErrorDescription = "Unexpected error occurred";
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+      }
+      return(intReturnCode);
+    } // TimeMoveExtended
+
+    
+
+
+   //----------------------------------------------------------------------------------------------
+   //function SetSimulationMode
+   //----------------------------------------------------------------------------------------------
+    function SetSimulationMode(variable i_blnSimulate) variable
+    {
+      variable strFunctionName(GetFunctionName());
+      variable strErrorDescription("");
+      variable intReturnCode(HSLSiasCentrifuge::Enums::ErrorCode::None);
+
+      if(!CheckBool(i_blnSimulate, "i_blnSimulation",intReturnCode,strErrorDescription))
+      {
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+        return (intReturnCode);
+      }
+
+
+      StatusTrace(CMD_START, TRACE_LEVEL_DEBUG, "", strFunctionName);
+
+      HSLSiasCentrifuge_LibrarySimulationMode = i_blnSimulate;
+      
+      StatusTrace(CMD_COMPLET, TRACE_LEVEL_DEBUG, "", strFunctionName);
+
+      return(intReturnCode);
+
+    } // SetSimulationMode
+
+
+
+   //----------------------------------------------------------------------------------------------
+   //function SetTraceLevel
+   //----------------------------------------------------------------------------------------------
+    function SetTraceLevel(variable i_intTraceLevel) variable
+    {
+      variable strFunctionName(GetFunctionName());
+      variable strErrorDescription("");
+      variable intReturnCode(HSLSiasCentrifuge::Enums::ErrorCode::None);
+
+
+      if(!CheckIntegerRange(i_intTraceLevel, "i_intTraceLevel", TRACE_LEVEL_NONE, TRACE_LEVEL_DEBUG,intReturnCode,strErrorDescription)) return(intReturnCode);
+
+      StatusTrace(CMD_START, TRACE_LEVEL_DEBUG, "", strFunctionName);
+
+      HSLSiasCentrifuge_LibraryTraceLevel = i_intTraceLevel;
+
+       // Activate error handler
+      onerror goto UNEXPECTED;
+    
+      HSLSiasCentrifuge_ComInterface.SetTraceLevel(HSLSiasCentrifuge_LibraryTraceLevel);
+      
+      StatusTrace(CMD_COMPLET, TRACE_LEVEL_DEBUG, "", strFunctionName);
+
+      return (intReturnCode);
+
+      UNEXPECTED:
+      {
+        intReturnCode = -1000;
+        strErrorDescription = "Unexpected error occurred";
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_RELEASE, strErrorDescription, strFunctionName);
+      }
+      return(intReturnCode);
+
+
+    } // SetTraceLevel
+
+
+  
+    //********************************************************************************
+    //* helper functions(private)
+    //********************************************************************************
+    //----------------------------------------------------------------------------------------------
+    // private function StatusTrace
+    //----------------------------------------------------------------------------------------------
+    private function StatusTrace(variable iState,  variable iTraceLevel, variable iTraceString, variable iFunctionName) void
+    {
+      if(iTraceLevel <= HSLSiasCentrifuge_LibraryTraceLevel)
+      {
+        iFunctionName = StrMid(iFunctionName, StrReverseFind(iFunctionName, ":") + 1, StrGetLength(iFunctionName));
+        FormatTrace("LIBRARY: " + HSLSiasCentrifuge_LibraryModuleName, iFunctionName, iState, " ", iTraceString);
+      }
+    } // StatusTrace
+
+    //----------------------------------------------------------------------------------------------
+    //private function CheckBool
+    //----------------------------------------------------------------------------------------------
+    private function CheckBool(variable iVariable, variable iTraceEntry,variable& o_intErrorCode,variable& o_strErrorDescription) variable
+    {
+      variable strFunctionName(GetFunctionName());
+      o_intErrorCode = 0;
+      o_strErrorDescription = "";
+
+      if(GetType(iVariable) == "i")
+        if(iVariable == ASWGLOBAL::BOOL::TRUE || iVariable == ASWGLOBAL::BOOL::FALSE)
+          return(ASWGLOBAL::BOOL::TRUE);
+      o_strErrorDescription = "Input parameter " + iTraceEntry + " is not of type bool";
+      o_intErrorCode = -1204;
+      StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_NONE, o_strErrorDescription, strFunctionName);
+      return(ASWGLOBAL::BOOL::FALSE);
+    } // CheckBool
+
+    //----------------------------------------------------------------------------------------------
+    //private function CheckInteger
+    //----------------------------------------------------------------------------------------------
+    private function CheckInteger(variable iVariable, variable iTraceEntry,variable& o_intErrorCode,variable& o_strErrorDescription) variable
+    {
+      variable strFunctionName(GetFunctionName());
+      o_intErrorCode = 0;
+      o_strErrorDescription = "";
+
+      if(GetType(iVariable) == "i")
+        return(ASWGLOBAL::BOOL::TRUE);
+      o_strErrorDescription = "Input parameter " + iTraceEntry + " is not of type integer";
+      o_intErrorCode = -1204;
+      StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_NONE, o_strErrorDescription, strFunctionName);
+      return(ASWGLOBAL::BOOL::FALSE);
+    } // CheckInteger
+
+    //----------------------------------------------------------------------------------------------
+    //private function CheckIntegerRange
+    //----------------------------------------------------------------------------------------------
+    private function CheckIntegerRange(variable iVariable, variable iTraceEntry, variable iMin, variable iMax,variable& o_intErrorCode,variable& o_strErrorDescription) variable
+    {
+      variable strFunctionName(GetFunctionName());
+      o_intErrorCode = 0;
+      o_strErrorDescription = "";
+
+      if(GetType(iVariable) == "i")
+        if(iVariable >= iMin && iVariable <= iMax)
+          return(ASWGLOBAL::BOOL::TRUE);
+        else
+          o_strErrorDescription = "Parameter " + iTraceEntry + " is out of range("+ IStr(iMin) + ".." + IStr(iMax) + "!";
+      else
+        o_strErrorDescription = "Input parameter " + iTraceEntry + " is not of type integer";
+      o_intErrorCode = -1204;
+      StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_NONE, o_strErrorDescription, strFunctionName);
+      return(ASWGLOBAL::BOOL::FALSE);
+    } // CheckIntegerRange
+
+    //----------------------------------------------------------------------------------------------
+    //private function CheckFloat
+    //----------------------------------------------------------------------------------------------
+    private function CheckFloat(variable iVariable, variable iTraceEntry,variable& o_intErrorCode,variable& o_strErrorDescription) variable
+    {
+      variable strFunctionName(GetFunctionName());
+      o_intErrorCode = 0;
+      o_strErrorDescription = "";
+
+      if(GetType(iVariable) == "f")
+        return(ASWGLOBAL::BOOL::TRUE);
+      o_strErrorDescription = "Input parameter " + iTraceEntry + " is not of type float";
+      o_intErrorCode = -1204;
+      StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_NONE, o_strErrorDescription, strFunctionName);
+      return(ASWGLOBAL::BOOL::FALSE);
+    } // CheckFloat
+
+    //----------------------------------------------------------------------------------------------
+    //private function CheckFloatRange
+    //----------------------------------------------------------------------------------------------
+    private function CheckFloatRange(variable iVariable, variable iTraceEntry, variable iMin, variable iMax,variable& o_intErrorCode,variable& o_strErrorDescription) variable
+    {
+      variable strFunctionName(GetFunctionName());
+      o_intErrorCode = 0;
+      o_strErrorDescription = "";
+
+      if(GetType(iVariable) == "f")
+        if(iVariable >= iMin && iVariable <= iMax)
+          return(ASWGLOBAL::BOOL::TRUE);
+        else
+          o_strErrorDescription = "Parameter " + iTraceEntry + " is out of range("+ IStr(iMin) + ".." + IStr(iMax) + "!";
+      else
+        o_strErrorDescription = "Input parameter " + iTraceEntry + " is not of type float";
+      o_intErrorCode = -1204;
+      StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_NONE, o_strErrorDescription, strFunctionName);
+      return(ASWGLOBAL::BOOL::FALSE);
+    } // CheckFloatRange
+
+    //----------------------------------------------------------------------------------------------
+    //private function CheckString
+    //----------------------------------------------------------------------------------------------
+    private function CheckString(variable iVariable, variable iTraceEntry,variable& o_intErrorCode,variable& o_strErrorDescription) variable
+    {
+      variable strFunctionName(GetFunctionName());
+      o_intErrorCode = 0;
+      o_strErrorDescription = "";
+
+      if(GetType(iVariable) == "s")
+        return(ASWGLOBAL::BOOL::TRUE);
+
+      o_intErrorCode = -1204;
+      o_strErrorDescription = "Parameter " + iTraceEntry + " is not of type string!";
+      StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_NONE, o_strErrorDescription, strFunctionName);
+      return(ASWGLOBAL::BOOL::FALSE);
+    } // CheckString
+
+    //----------------------------------------------------------------------------------------------
+    //private function CheckInit
+    //----------------------------------------------------------------------------------------------
+    private function CheckInit(variable iInitFunctionName,variable& o_intErrorCode,variable& o_strErrorDescription) variable
+    {
+      variable strFunctionName(GetFunctionName());
+      o_intErrorCode = 0;
+      o_strErrorDescription = "";
+
+      if(!HSLSiasCentrifuge_LibraryInitialized)
+      {
+        o_intErrorCode = -1203;
+        StatusTrace(CMD_ERRCOMPL, TRACE_LEVEL_NONE, "library not initialized. Use " + iInitFunctionName + " function first!", strFunctionName);
+        o_strErrorDescription = "Library not initialized";
+      }
+      return(HSLSiasCentrifuge_LibraryInitialized);
+    } // CheckInit
+
+  }
+#endif
+// $$author=dwittmer$$valid=0$$time=2011-06-30 15:08$$checksum=fce81b7b$$length=085$$

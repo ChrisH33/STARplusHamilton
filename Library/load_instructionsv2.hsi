@@ -1,0 +1,428 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "HSLDeckVisualize.hsl"
+#include "HSLTipCountingLib.hsl"
+#include "HSLSeqLib.hsl"
+#include "HSLStrLib.hsl"
+#include "PasswordBox.hs_"
+#include "ASWStandardDialogs\\ASWStandardDialogs.hsl"
+#include "HSLTrcLib.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+#include "HSLPTLLib.hsl"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace LOAD_INSTRUCTIONSV2 {
+// }} ""
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function load_instructions( device & instrument, sequence & load_sequence, variable load_message ) void ;
+function load_instructions_one_seq_pos( device & instrument, sequence load_sequence, variable sequence_index, variable load_message ) void ;
+function load_instructions_return_double_checked_plate_name_using_password_box( device & instrument, sequence & load_sequence, variable load_message, variable & plate_name ) void ;
+function load_instructions_return_double_checked_tube_name_array_using_password_box( device & instrument, sequence & load_sequence, variable load_message, variable & tube_name_array[] ) void ;
+function load_instructions_tips( device & ML_STAR, sequence & seq_tips, variable tip_size, variable tips_needed, variable tip_counter, variable filter_flag ) void ;
+function load_instructions_tube_IDs_from_array( device & instrument, sequence & load_sequence, variable & tube_name_array[] ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+PASSWORDBOX::_InitLibrary();
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+PASSWORDBOX::_ExitLibrary();
+// }} ""
+}
+// {{{ 5 "load_instructions" "Begin"
+function load_instructions( device & instrument, sequence & load_sequence, variable load_message ) void {
+// }} ""
+// {{ 5 "load_instructions" "InitLocals"
+// }} ""
+// {{{ 1 1 0 "52561937_9454_41e4_b21c4d3a20d365df" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::Initialize();
+// }} ""
+// {{{ 2 1 0 "813bb599_2ff1_48d7_a97f0ede04f1bdfe" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DeckVisualize::UpdateUsedPositions(instrument, load_sequence, 6, Translate(""));
+// }} ""
+// {{{ 3 1 0 "9a3c6d06_5335_4b4a_a5fbdcdf212d840a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::MessageDialog(Translate("Load Instructions"), AswStandardDialogs::IconType::Information, AswStandardDialogs::ButtonType::Ok, 0, 0, 0, load_message);
+// }} ""
+// {{{ 4 1 0 "6efb1c77_4305_46a3_a19e3c4ee0453adf" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DeckVisualize::UpdateUsedPositions(instrument, load_sequence, 5, Translate(""));
+// }} ""
+// {{{ 5 1 0 "51ae028e_fd44_4d1e_81d877acdbef9f61" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::Terminate();
+// }} ""
+// {{{ 5 "load_instructions" "End"
+}
+// }} ""
+// {{{ 5 "load_instructions_return_double_checked_plate_name_using_password_box" "Begin"
+function load_instructions_return_double_checked_plate_name_using_password_box( device & instrument, sequence & load_sequence, variable load_message, variable & plate_name ) void {
+// }} ""
+private variable arrRes[];
+// {{ 5 "load_instructions_return_double_checked_plate_name_using_password_box" "InitLocals"
+plate_name = 0;
+// }} ""
+// {{{ 19 1 0 "c1e11acc_b7b9_4a2b_9ffa0291053ea4ad" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::Initialize();
+// }} ""
+// {{{ 20 1 0 "13582423_b306_4bd4_91f918b1eda00da9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DeckVisualize::UpdateUsedPositions(instrument, load_sequence, 6, Translate(""));
+// }} ""
+// {{ 21 1 0 "ab2e00b8_a192_42a4_a79ed145e63238a6" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrRes.SetSize(0);
+// }} ""
+// {{ 22 1 0 "42b58864_dc34_4a70_960f158c7cd4ae3e" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrRes.AddAsLast(Translate("Plate ID"));
+// }} ""
+// {{ 23 1 0 "9865a60e_c849_40d9_8aa6ade5e193db42" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrRes.AddAsLast(Translate("Confirm Plate ID"));
+// }} ""
+// {{{ 24 1 0 "39208a79_49a1_44db_8ebf81b040ee7bbd" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::DoubleInputDialogSetResources(arrRes);
+// }} ""
+// {{{ 25 1 0 "4e554ede_de06_4ea6_b89d4714e503cbc7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::DoubleInputDialog(Translate("Load Instructions"), AswStandardDialogs::ButtonType::Ok, 0, 0, load_message, Translate("The two entries do not match."), plate_name);
+// }} ""
+// {{{ 26 1 0 "6c97a8c5_2646_4451_8c1fc66d8d198455" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("User entry = "), plate_name);
+// }} ""
+// {{{ 27 1 0 "19279fe2_20cc_48ef_b6ba4970301bcb1a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DeckVisualize::UpdateUsedPositions(instrument, load_sequence, 5, Translate(""));
+// }} ""
+// {{{ 28 1 0 "6e6e7daf_fa22_4c18_b9f60848dd541a7d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::Terminate();
+// }} ""
+// {{{ 5 "load_instructions_return_double_checked_plate_name_using_password_box" "End"
+}
+// }} ""
+// {{{ 5 "load_instructions_tips" "Begin"
+function load_instructions_tips( device & ML_STAR, sequence & seq_tips, variable tip_size, variable tips_needed, variable tip_counter, variable filter_flag ) void {
+// }} ""
+private variable tips_available;
+private sequence seq_tips_complete;
+private variable seq_start;
+private variable filter_text;
+private dialog dialogHandle7436F1694EB649bcB4E4E02C01662319;
+private variable load_message;
+// {{ 5 "load_instructions_tips" "InitLocals"
+// }} ""
+// {{{ 56 1 0 "2c3ee84b_78ac_43fb_b0a260c85b70782e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::Initialize();
+// }} ""
+// {{ 57 1 0 "d68ad3a3_4b94_4c7a_a207e5e9fc37fefe" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (filter_flag == 1)
+{
+// }} ""
+// {{ 58 1 0 "7ff57583_3237_4274_8b56d3a208fea271" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+filter_text = Translate(" filter ");
+// }} ""
+// {{ 59 1 0 "d68ad3a3_4b94_4c7a_a207e5e9fc37fefe" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 60 1 0 "9da1b6e4_fe3a_45b0_bda44371ff810852" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+filter_text = Translate("");
+// }} ""
+// {{ 61 1 0 "d68ad3a3_4b94_4c7a_a207e5e9fc37fefe" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 62 1 0 "1b8f0a99_a674_4562_96bcf0a30db4a22a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqCopySequence(seq_tips_complete, seq_tips);
+// }} ""
+// {{{ 63 1 0 "2070407d_5c2b_44b5_9ff78bb06d7708d6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DeckVisualize::UpdateUsedPositions(ML_STAR, seq_tips_complete, 6, Translate(""));
+// }} ""
+// {{{ 64 1 0 "9d7ed0ee_e025_4ef8_a2cc5ea62a3ded8a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+load_message = StrConcat8(Translate("Please load at least "), tips_needed, Translate(" "), tip_size, Translate(" µl "), filter_text, Translate("tips at the flashing position and edit the tip counter."), Translate(""));
+// }} ""
+// {{{ 65 1 0 "6099d2cb_0e1a_4965_8a6ad46e9c74fd01" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::MessageDialog(Translate("Load Instructions"), AswStandardDialogs::IconType::Information, AswStandardDialogs::ButtonType::Ok, 0, 0, 0, load_message);
+// }} ""
+// {{{ 66 1 0 "aad134a3_683f_4392_91c360d8b5b41581" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TipCount::Edit2(seq_tips, tip_counter, ML_STAR, 86400);
+// }} ""
+// {{ 67 1 0 "9b5a9420_539b_4ea9_91bc017f0a2a99bb" "{B31F353D-5D80-11d4-A5EB-0050DA737D89}"
+seq_start = seq_tips.GetCount();
+// }} ""
+// {{ 68 1 0 "5dcecee0_271d_46da_a1d42441c77d996f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (seq_start == 0)
+{
+// }} ""
+// {{ 69 1 0 "ab15faf6_eaf3_4c52_8a9b1eec51d0f3a8" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+tips_available = 0;
+// }} ""
+// {{ 70 1 0 "5dcecee0_271d_46da_a1d42441c77d996f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 71 1 0 "aebcf039_2898_4514_bfd044c51541d1ab" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+tips_available = SeqGetTotal(seq_tips);
+// }} ""
+// {{ 72 1 0 "5dcecee0_271d_46da_a1d42441c77d996f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 73 1 0 "554fbd80_803c_491e_863070149abf9f1c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (tips_available < tips_needed)
+{
+// }} ""
+// {{ 74 1 0 "4da3c3ec_2136_4559_a0b35f6f721c2fee" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle7436F1694EB649bcB4E4E02C01662319.SetOutput(Translate("This is not enough tips - Please refill all the racks with new "), tip_size, Translate(" µl  "), filter_text, Translate("tips."));
+dialogHandle7436F1694EB649bcB4E4E02C01662319.ShowOutput(Translate("Load Instruction"), hslOKOnly | hslExclamation | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 75 1 0 "8cc4cde3_aa20_4979_a004bf10f7557259" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TipCount::Write2(seq_tips_complete, tip_counter, ML_STAR);
+// }} ""
+// {{{ 76 1 0 "ffbb92a1_ce99_463e_9b422ea1b65d09dd" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TipCount::Read2(seq_tips, tip_counter, ML_STAR);
+// }} ""
+// {{ 77 1 0 "554fbd80_803c_491e_863070149abf9f1c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 78 1 0 "eaa9949e_314c_4160_92ec519340d95e4c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DeckVisualize::UpdateUsedPositions(ML_STAR, seq_tips_complete, 5, Translate(""));
+// }} ""
+// {{{ 79 1 0 "158ba458_e584_4d71_aa2f8e304ae91693" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::Terminate();
+// }} ""
+// {{{ 5 "load_instructions_tips" "End"
+}
+// }} ""
+// {{{ 5 "load_instructions_return_double_checked_tube_name_array_using_password_box" "Begin"
+function load_instructions_return_double_checked_tube_name_array_using_password_box( device & instrument, sequence & load_sequence, variable load_message, variable & tube_name_array[] ) void {
+// }} ""
+private variable loopCounter4;
+private variable temp_seq_length;
+private sequence load_sequence_temp;
+private variable user_text;
+private variable arrRes[];
+private variable plate_name;
+// {{ 5 "load_instructions_return_double_checked_tube_name_array_using_password_box" "InitLocals"
+tube_name_array.SetSize( 0);
+// }} ""
+// {{{ 30 1 0 "9845a63c_9cd0_4a4b_967e02a3008bb73d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::Initialize();
+// }} ""
+// {{ 31 1 0 "1784fffa_fea1_44b0_ac4e1f2356c15e60" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 32 1 0 "9d067f9c_b165_45ff_a2a27f6169e38608" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqCopySequence(load_sequence_temp, load_sequence);
+// }} ""
+// {{{ 33 1 0 "111f701f_267f_4bdc_b09c6e4ff81e8d2b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+temp_seq_length = SeqGetTotal(load_sequence_temp);
+// }} ""
+// {{ 34 1 0 "a0b15d68_7f2e_49e5_beb056267b4148ca" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 35 1 0 "179a7cf5_bf12_4339_8d3caafbca2ca5aa" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+tube_name_array.SetSize(0);
+// }} ""
+// {{ 36 1 0 "5060fae3_2e57_4e8f_883e760586ee6801" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 37 1 0 "29f4dad4_02e6_469a_b3a7ab4df645ba84" "{B31F353C-5D80-11d4-A5EB-0050DA737D89}"
+load_sequence_temp.SetCount(1);
+// }} ""
+// {{ 38 1 0 "42883426_1b07_4906_8dfff42f12ebbe4b" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+load_sequence_temp.SetCurrentPosition(1);
+// }} ""
+// {{ 39 1 0 "fd47f6ac_19d4_41ef_8972ed77ae505bca" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter4 = 0; loopCounter4 < temp_seq_length;)
+{
+loopCounter4 = loopCounter4 + 1;
+// }} ""
+// {{{ 40 1 0 "f5da31b1_071e_4b49_a01401b0d65ce486" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DeckVisualize::UpdateUsedPositions(instrument, load_sequence_temp, 6, Translate(""));
+// }} ""
+// {{ 41 1 0 "6bab3d84_ff10_46ad_add08c913f358a21" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrRes.SetSize(0);
+// }} ""
+// {{ 42 1 0 "21d2d568_4cba_4c63_bbc16a66e5be2ea0" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrRes.AddAsLast(Translate("Tube ID"));
+// }} ""
+// {{ 43 1 0 "801bc4ea_4471_45af_b896c46bce2d5b93" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrRes.AddAsLast(Translate("Confirm Tube ID"));
+// }} ""
+// {{{ 44 1 0 "7ba7cdeb_d557_436b_b6631ec4ad65c8b1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::DoubleInputDialogSetResources(arrRes);
+// }} ""
+// {{{ 45 1 0 "170dfdd7_0cf8_4e61_8ea8c598f8ce5ce6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::DoubleInputDialog(Translate("Load Instructions"), AswStandardDialogs::ButtonType::Ok, 0, 0, load_message, Translate("The two entries do not match."), user_text);
+// }} ""
+// {{{ 46 1 0 "1cc33e16_931e_4290_96f9917158fe8cda" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("User entry = "), user_text);
+// }} ""
+// {{ 47 1 0 "14cf50be_fbac_4c50_aa3de4f0e758f1f2" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 48 1 0 "fc47d87e_a8d7_4c32_bf446f2e0319e73a" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+tube_name_array.AddAsLast(user_text);
+// }} ""
+// {{{ 49 1 0 "78f26be7_d6d6_44e1_8102aac0dc1c198c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DeckVisualize::UpdateUsedPositions(instrument, load_sequence_temp, 5, Translate(""));
+// }} ""
+// {{ 50 1 0 "c6c69ac6_4d9a_4f16_97b78476454265fc" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 51 1 0 "e7321c10_ddcb_4e57_87520b2895afdeb6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqRemoveAt(load_sequence_temp, 1);
+// }} ""
+// {{ 52 1 0 "fd47f6ac_19d4_41ef_8972ed77ae505bca" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 53 1 0 "ddadc678_f1db_458d_bfe31b9616fdc116" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqResetSequenceIndexes(load_sequence);
+// }} ""
+// {{{ 54 1 0 "681f284b_2ccb_466f_ae866c9286ab33bb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::Terminate();
+// }} ""
+// {{{ 5 "load_instructions_return_double_checked_tube_name_array_using_password_box" "End"
+}
+// }} ""
+// {{{ 5 "load_instructions_tube_IDs_from_array" "Begin"
+function load_instructions_tube_IDs_from_array( device & instrument, sequence & load_sequence, variable & tube_name_array[] ) void {
+// }} ""
+private variable loopCounter4;
+private variable temp_seq_length;
+private sequence load_sequence_temp;
+private variable array_size;
+private variable tube_name;
+private variable load_message;
+private variable pos;
+// {{ 5 "load_instructions_tube_IDs_from_array" "InitLocals"
+// }} ""
+// {{{ 81 1 0 "e76b7155_f822_46fc_8e84f29de0f96663" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::Initialize();
+// }} ""
+// {{ 82 1 0 "0ea08a83_b7b2_49b1_837455d036c6d40a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 83 1 0 "5cb9e518_216b_4e4a_8f5ee697bfebd8ad" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqCopySequence(load_sequence_temp, load_sequence);
+// }} ""
+// {{{ 84 1 0 "5b8bca6f_7234_4b13_8257d3ef827711b3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+temp_seq_length = SeqGetTotal(load_sequence_temp);
+// }} ""
+// {{ 85 1 0 "1e4cd742_9230_4bf6_aef3e36cbbc4c335" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 86 1 0 "c028b30a_4615_43ab_809022e041ee08b0" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+array_size=tube_name_array.GetSize();
+// }} ""
+// {{ 87 1 0 "2e60a1c4_ef4a_448c_b4a574b0f9fa6f8f" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 88 1 0 "524fb909_2841_457b_9689be4c3d59df85" "{B31F353C-5D80-11d4-A5EB-0050DA737D89}"
+load_sequence_temp.SetCount(1);
+// }} ""
+// {{ 89 1 0 "324cf0bd_301c_4c39_8c9974cc881af990" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+load_sequence_temp.SetCurrentPosition(1);
+// }} ""
+// {{ 90 1 0 "f4a8092b_cfad_45ff_aa1c62e5624d06b0" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter4 = 0; loopCounter4 < array_size;)
+{
+loopCounter4 = loopCounter4 + 1;
+// }} ""
+// {{ 91 1 0 "b94e35c8_db08_4174_a61c85179a596817" "{67A8F1C9-6546-41e9-AD2F-3C54F7818853}"
+tube_name=tube_name_array.GetAt(loopCounter4-1);
+// }} ""
+// {{{ 92 1 0 "ebf79d05_636f_4b2e_baa556db95d6d225" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+pos = SeqGetPositionId(load_sequence_temp);
+// }} ""
+// {{{ 93 1 0 "8e41f3ae_bc61_4235_966650be8e70c17b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+load_message = StrConcat4(Translate("Put tube\n\n"), tube_name, Translate("\n\nin the flashing position - position "), pos);
+// }} ""
+// {{{ 94 1 0 "15cafc90_3604_4da2_a74e573f7c440800" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DeckVisualize::UpdateUsedPositions(instrument, load_sequence_temp, 6, Translate(""));
+// }} ""
+// {{{ 95 1 0 "82ae5e68_e61b_49e3_a6651760a4660d56" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::MessageDialog(Translate("Load Instructions"), AswStandardDialogs::IconType::Information, AswStandardDialogs::ButtonType::Ok, 0, 0, 0, load_message);
+// }} ""
+// {{{ 96 1 0 "e2191747_fa2d_4a53_8e74e4cfbdcb78ca" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DeckVisualize::UpdateUsedPositions(instrument, load_sequence_temp, 5, Translate(""));
+// }} ""
+// {{ 97 1 0 "b77e913d_46b2_4b71_9004a3c7a2ab1556" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 98 1 0 "60cdb9ab_cafb_4d45_9005bf59f687ad8e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqRemoveAt(load_sequence_temp, 1);
+// }} ""
+// {{ 99 1 0 "f4a8092b_cfad_45ff_aa1c62e5624d06b0" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 100 1 0 "cb98fda9_601f_450d_8ca2e26d1ad23703" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::Terminate();
+// }} ""
+// {{{ 5 "load_instructions_tube_IDs_from_array" "End"
+}
+// }} ""
+// {{{ 5 "load_instructions_one_seq_pos" "Begin"
+function load_instructions_one_seq_pos( device & instrument, sequence load_sequence, variable sequence_index, variable load_message ) void {
+// }} ""
+private variable load_sequence_labware_ID;
+private sequence load_sequence_temp;
+// {{ 5 "load_instructions_one_seq_pos" "InitLocals"
+// }} ""
+// {{{ 7 1 0 "3a3777b5_2459_4196_9b148d5166370b67" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::Initialize();
+// }} ""
+// {{{ 8 1 0 "f1e073bc_b559_46bf_812d8ac93b3f11c3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+load_sequence_labware_ID = SeqGetLabwareId(load_sequence);
+// }} ""
+// {{{ 9 1 0 "d9a1f99c_2306_494b_880748217e6acbeb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqCopySequence(load_sequence_temp, load_sequence);
+// }} ""
+// {{{ 10 1 0 "bfaf0fdc_116c_458f_9e3b3b0fbda796ee" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqRemoveAll(load_sequence_temp);
+// }} ""
+// {{{ 11 1 0 "01dd7530_a6e1_4e42_81c40dc5df441568" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+sequence_index = StrIStr(sequence_index);
+// }} ""
+// {{{ 12 1 0 "97e6ff6c_28f0_4738_a52a92f2a738f38a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqAdd(load_sequence_temp, load_sequence_labware_ID, sequence_index);
+// }} ""
+// {{ 13 1 0 "10ba0e28_5ffd_416c_9edad494787dd01b" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+load_sequence_temp.SetCurrentPosition(1);
+// }} ""
+// {{{ 14 1 0 "45adb394_518e_49fd_aeda37d140a22960" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DeckVisualize::UpdateUsedPositions(instrument, load_sequence_temp, 6, Translate(""));
+// }} ""
+// {{{ 15 1 0 "99e6fdae_46f0_4801_b6565337d5255f97" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::MessageDialog(Translate("Load Instructions"), AswStandardDialogs::IconType::Information, AswStandardDialogs::ButtonType::Ok, 0, 0, 0, load_message);
+// }} ""
+// {{{ 16 1 0 "7c415591_2d54_480a_ad7b9e2fc1bcb72e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DeckVisualize::UpdateUsedPositions(instrument, load_sequence_temp, 5, Translate(""));
+// }} ""
+// {{{ 17 1 0 "64b24290_e104_4dd4_972282a9a210a283" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+AswStandardDialogs::Terminate();
+// }} ""
+// {{{ 5 "load_instructions_one_seq_pos" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=Administrator$$valid=0$$time=2012-09-27 09:17$$checksum=87aaae72$$length=092$$

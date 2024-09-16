@@ -1,0 +1,88 @@
+ namespace _Method { #include "HSLStrLib.hsl" } 
+ namespace _Method { #include "HSLTrcLib.hsl" } 
+ namespace _Method { #include "UvDecontaminationSub.hs_" } 
+ namespace _Method { #include "HSLFilLib.hsl" } 
+ namespace _Method { #include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl" } 
+ namespace _Method { #include "HSLTimLib.hsl" } 
+ namespace _Method { #include "HSLUtilLib.hsl" } 
+ namespace _Method { #include "HSLDevLib.hsl" } 
+ namespace _Method { #include "HSLMappingReport.hsl" } 
+ namespace _Method { #include "HSLReportLib.hsl" } 
+#include "UVDecontaminationStarPlus.res"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+global device ML_STAR ("UVDecontaminationStarPlus.lay", "ML_STAR", hslTrue);
+dialog dialogHandleC1587A3CBB5F4f27BE7667EDF1E9A81A;
+variable strErrorReason;
+variable blnReturnValue;
+variable arrTest[];
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+ namespace _Method { #include "HSLPTLLib.hsl" } 
+ namespace _Method { #include "HSLSTCCLib.hs_" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+UVDECONTAMINATIONSUB::_InitLibrary();
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{ 1 1 0 "1e58cd2a_1c8f_4ccc_ad1bdd73c8529c4d" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("//---------------------------------------------------------------------------------------------------------------------------------------\n//        Project                        : none\n//        Method                        : UVContamination.med\n//        Autor                        : Thomas Adank\n//        Version                        : 1.1.0\n//         Pescription                : UV contamination for a user defined period of time\n//        Revisions                        : --\n//        Software version                : Venus 4.2.1 6670 or higher\n//        HW-Configuration                : ML-STAR Plus\n//\n//             Requiered                               : Labwareposition with LabwareID \"RightMostDecontaminationPosition\" that defines the rightmost position to move the arm to\n// \n//        Created by HAMILTON Bonaduz AG, CH-7402 Bonaduz\n//             V1.2.0     04.11.2012   Lutz Geisen, Daniel Kaufmann\n//---------------------------------------------------------------------------------------------------------------------------------------"));
+// }} ""
+// {{{ 2 1 0 "d920440a_35ca_47b7_9adf6be09dd10b9f" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+blnReturnValue = UVDECONTAMINATIONSUB::DoTheDecontamination(ML_STAR);
+// }} ""
+// {{ 3 1 0 "04f5f2cf_3fc0_4610_82d69d69828b0b4e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnReturnValue == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 4 1 0 "6e0716d4_5ece_4196_a2ef1c7431e5b0d4" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+strErrorReason = UVDECONTAMINATIONSUB::GetError();
+// }} ""
+// {{{ 5 1 0 "8c82f53d_f57a_42ff_9c2702265d3e1f60" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+UVDECONTAMINATIONSUB::CleanupAndSwitchLightOff();
+// }} ""
+// {{ 6 1 0 "eb69dc30_71af_4dd4_80fea1ef874ac64d" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleC1587A3CBB5F4f27BE7667EDF1E9A81A.SetOutput(Translate("Decontamination failed"), Translate("Error reason = "), strErrorReason);
+dialogHandleC1587A3CBB5F4f27BE7667EDF1E9A81A.ShowOutput(Translate("Error"), hslOKOnly | hslError | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 7 1 0 "36727350_aef5_48b0_95857d3892095280" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 8 1 0 "04f5f2cf_3fc0_4610_82d69d69828b0b4e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 9 1 0 "7e6f9243_37d8_46ad_a7d09ce63baad64c" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrTest.SetSize(0);
+// }} ""
+// {{ 10 1 0 "6017dd07_f39a_4ca7_896f2d6ffe985fe1" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrTest.AddAsLast(15000);
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+UVDECONTAMINATIONSUB::_ExitLibrary();
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=ch33$$valid=0$$time=2023-10-09 18:03$$checksum=c2cd20d4$$length=083$$

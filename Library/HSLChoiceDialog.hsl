@@ -1,0 +1,262 @@
+//--------------------------------------------------------------------------------------------------
+// This is a part of the HSL Library.
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+//
+// This Library represents a GUI called "Choice Dialog"
+// The GUI contains a window with either radio buttons or checkboxes
+// to represent a custom choice selection. Methods to modify text, 
+// description, layout, size are also included.
+//
+// Modification History
+// 2008-09-02 mschloenvoigt : Initial file creation.
+// 2009-28-04 mschloenvoigt : Added new dialog result values, renamed method parameters.
+//--------------------------------------------------------------------------------------------------
+
+#ifndef __HSLChoiceDialog_hsl__
+#define __HSLChoiceDialog_hsl__ 1
+
+namespace HSLChoiceDialog
+{
+
+   const variable TRUE(hslTrue);
+   const variable FALSE(hslFalse);
+
+
+   namespace LAYOUT
+   {
+      const variable TOPDOWN(0);
+      const variable RIGHTTOLEFT(1);
+   }
+
+   namespace MODE
+   {
+      const variable ONECHOICE(0);
+      const variable MULTICHOICE(1);
+   }
+
+   namespace DIALOG_RESULT
+   {
+      const variable ERROR(0);
+      const variable ACCEPTED(1);
+      const variable CANCEL(2);
+   }
+
+
+   private object choiceForm;
+
+   //---------------------------------------------------------
+   // Analyzes the COM object. If necessary it creates a 
+   // reference to the COM object.
+   //---------------------------------------------------------
+	private function ComObjectIsValid() variable
+	{
+      if (choiceForm.IsNull())
+		{
+         if( choiceForm.CreateObject("Hamilton.ChoiceDialog") == 0 )//fails
+         {
+            Trace(GetFunctionName(), "Couldn't initialize COM object.");
+            return(hslFalse);
+         }
+		}
+      return(hslTrue);
+	}
+
+   //---------------------------------------------------------
+   // Initializes the choice dialog and sets default parameters.
+   //
+   // Parameters:
+   // i_strTextTitle (IN)     - The text associated with the dialog.
+   // i_strDescription (IN)   - A more detailed description text 
+   //                         located at the top of the dialog.
+   // i_iChoiceMode (IN)      - Determines the selection mode of the 
+   //                         choice items. Use MODE::MULTICHOICE 
+   //                         to allow multiple items to be selected 
+   //                         or MODE::ONECHOICE otherwise.
+   //---------------------------------------------------------
+	function Init(variable i_strTextTitle, variable i_strDescription, variable i_iChoiceMode) void
+	{
+		if( ComObjectIsValid() )
+		   choiceForm.InitializeDialog(i_strTextTitle, i_strDescription, i_iChoiceMode);
+	}
+
+   //---------------------------------------------------------
+   // Releases the reference to the used COM object.
+   //---------------------------------------------------------
+   function DeInit( ) void
+	{
+      if( !choiceForm.IsNull() )
+		   choiceForm.ReleaseObject();
+	}
+
+   //---------------------------------------------------------
+   // Sets the check state of a specific choice element.
+   //
+   // Parameters:
+   // i_iIndex (IN) - The index that indicates the choice element.
+   //---------------------------------------------------------
+   function SetChecked (variable i_iIndex) void
+	{	
+		if( ComObjectIsValid() )
+		   choiceForm.SetChecked(i_iIndex);
+	}
+
+   //---------------------------------------------------------
+   // Sets the item alignment in the dialog.
+   //
+   // Parameters:
+   // i_iIndex (IN) - The layout index that determines the alignment 
+   //                 of the choice elemnts. Default is LAYOUT::LEFTTORIGHT.
+   //                 (0 - TopDown, 1 - LeftToRight)
+   //---------------------------------------------------------
+   function SetLayout (variable i_iIndex) void
+	{	
+		if( ComObjectIsValid() )
+		   choiceForm.SetLayout(i_iIndex);
+	}
+
+   //---------------------------------------------------------
+   // Sets the height and width of the control.
+   //
+   // Parameters:
+   // i_iWidth (IN)  - The width of the dialog.
+   // i_iHeight (IN) - The height of the dialog.
+   //---------------------------------------------------------
+	function SetSize (variable i_iWidth, variable i_iHeight) void
+	{	
+		if( ComObjectIsValid() )
+		   choiceForm.SetSize(i_iWidth, i_iHeight);
+	}
+
+   //---------------------------------------------------------
+   // Sets the height of the label contains description text.
+   //
+   // Parameters:
+   // i_iHeight (IN) - The height of the dialog.
+   //---------------------------------------------------------
+	function SetDescriptionLabelHeight (variable i_iHeight) void
+	{	
+		if( ComObjectIsValid() )
+		   choiceForm.SetDescriptionLabelHeight(i_iHeight);
+	}
+
+   //---------------------------------------------------------
+   // Adds a new element to the choice dialog.
+   //
+   // Parameters:
+   // i_strName (IN)       - Name of the item that will be displayed.
+   // i_strImagePath (IN)  - A string that contains the name of 
+   //                      the file from which to create the 
+   //                      image displayed in the dialog. 
+   //                      Leave this parameter empty if you 
+   //                      won't use picture(s).
+   // i_bPreSelect (IN)    - Sets the check state of current item.
+   //
+   // Return:
+   // TRUE                 - The choice item could be added to the dialog component.
+   // FALSE                - An error occured while adding given item to the dialog component.
+   //                      It is not possible to add two items with same name.
+   //---------------------------------------------------------
+   function AddChoice(variable i_strName, variable i_strImagePath, variable i_bPreSelect) variable
+	{
+		if( ComObjectIsValid() )
+		   return (choiceForm.AddChoice(i_strName, i_strImagePath, i_bPreSelect));
+      return(FALSE);
+	}
+
+   //---------------------------------------------------------
+   // Adds a list of elements to the choice dialog.
+   //
+   // Parameters:
+   // i_strArrayNames (IN) - List contains item names that will be displayed.
+   // i_bPreSelect (IN)    - Sets the check state of the given items.
+   //
+   // Return:
+   // TRUE                 - The items could be added to the dialog component.
+   // FALSE                - An error occured while adding given items to the dialog component.
+   //                      It is not possible to add two items with same name.
+   //---------------------------------------------------------
+   function AddChoices(variable i_strArrayNames[], variable i_bPreSelect) variable
+	{
+      variable iLoopCounter;
+      variable bReturn(TRUE);
+      variable strChoiceCurrent("");
+     
+		if( ComObjectIsValid() )
+      {
+         for(iLoopCounter = 0; iLoopCounter < i_strArrayNames.GetSize(); )
+         {
+            strChoiceCurrent = i_strArrayNames.GetAt( iLoopCounter++ );
+   		   if( choiceForm.AddChoice(strChoiceCurrent, "", i_bPreSelect) == 0 )
+               bReturn = FALSE;
+         }
+         return(bReturn);
+      }
+      return(FALSE);
+	}
+
+   //---------------------------------------------------------
+   // Assign the given text to the dialog buttons.
+   //
+   // Parameters:
+   // i_strTextButtonAccept (IN) - Text associated to the accept button.
+   // i_strTextButtonCancel (IN) - Text associated to the cancel button.
+   //---------------------------------------------------------
+   function SetButtonText(variable i_strTextButtonAccept, variable i_strTextButtonCancel) void
+	{
+		if( ComObjectIsValid() )
+		   choiceForm.SetButtonText(i_strTextButtonAccept, i_strTextButtonCancel);
+	}
+
+   //---------------------------------------------------------
+   // Displays the choice dialog.
+   //
+   // o_iIndexChecked (OUT)   - (One-based) Index of checked item. The parameter is
+   //                         assigned with 0 by default.
+   // 
+   // Return:
+   // DIALOG_RESULT::ERROR    - an error occured.
+   // DIALOG_RESULT::ACCEPTED - ok/accept button clicked.
+   // DIALOG_RESULT::CANCEL   - cancel button pressed.
+   //---------------------------------------------------------
+	function ShowDialogSingleChoice(variable & o_iIndexChecked) variable
+	{
+		variable iSelectedButton(DIALOG_RESULT::ERROR);
+      o_iIndexChecked = 0;
+
+		if( ComObjectIsValid() )
+         iSelectedButton = choiceForm.ShowDialogSingleChoice(GetHWnd(), o_iIndexChecked);
+
+      //release object
+      DeInit();
+
+		return(iSelectedButton);
+	}
+
+   //---------------------------------------------------------
+   // Displays the choice dialog.
+   //
+   // o_iArrayItems (OUT)     - List contains all checked items.
+   // 
+   // Return:
+   // DIALOG_RESULT::ERROR    - an error occured.
+   // DIALOG_RESULT::ACCEPTED - ok/accept button clicked.
+   // DIALOG_RESULT::CANCEL   - cancel button pressed.
+   //---------------------------------------------------------
+	function ShowDialogMultiChoice(variable & o_iArrayItems[]) variable
+	{
+		variable iSelectedButton(DIALOG_RESULT::ERROR);
+      o_iArrayItems.SetSize(0);
+
+		if( ComObjectIsValid() )
+         iSelectedButton =  choiceForm.ShowDialogMultiChoice(GetHWnd(), o_iArrayItems);
+
+      //release object
+      DeInit();
+
+		return(iSelectedButton);
+	}
+}
+
+#endif //__HSLChoiceDialog_hsl__
+// $$author=marsll_hamilton$$valid=0$$time=2009-04-30 15:34$$checksum=c62f62f8$$length=092$$

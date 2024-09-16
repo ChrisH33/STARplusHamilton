@@ -1,0 +1,22 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 11/10/2023 09:23:01
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace CONFIGURATIONEDITOR {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function GetConfigurationArray( variable i_strKey, variable i_strType, variable & o_arrValues[], variable & o_intArraySize ) variable {  return (0); }
+function GetConfigurationValue( variable i_strKey, variable & o_varValue ) variable {  return (0); }
+function SetConfigurationArray( variable i_strKey, variable i_strType, variable & i_arrValues[] ) variable {  return (0); }
+function SetConfigurationArrayElement( variable i_strKey, variable i_strType, variable i_varValue, variable i_intArrayIndex ) variable {  return (0); }
+function SetConfigurationFile( variable i_strFileName ) void { }
+function SetConfigurationValue( variable i_strKey, variable i_varValue, variable i_blnIsBln ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2023-10-11 09:23$$checksum=1c311b2f$$length=081$$

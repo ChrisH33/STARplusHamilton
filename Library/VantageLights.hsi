@@ -1,0 +1,339 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "HSLStrLib.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+#include "HSLPTLLib.hsl"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace VANTAGELIGHTS {
+// }} ""
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function LightMode( device & ML_STAR, variable i_intLightState ) void ;
+function LightOnGreen( device & ML_STAR, variable i_int_Intensity ) void ;
+function LightsOff( device & ML_STAR ) void ;
+function LightsOn( device & ML_STAR, variable i_int_Intensity ) void ;
+function LightsOnBlue( device & ML_STAR, variable i_int_Intensity ) void ;
+function LightsOnCustom( device & ML_STAR, variable i_int_PercentWhite, variable i_int_PercentRed, variable i_int_PercentGreen, variable i_int_PercentBlue ) void ;
+function LightsOnRed( device & ML_STAR, variable i_int_Intensity ) void ;
+function LightsOnWhite( device & ML_STAR, variable i_int_Intensity ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "LightsOff" "Begin"
+function LightsOff( device & ML_STAR ) void {
+// }} ""
+private variable l_strFirmwareCommand;
+private variable i_int_Intensity;
+// {{ 5 "LightsOff" "InitLocals"
+// }} ""
+Trace("Lights off");
+// {{{ 17 1 0 "0c83cb7b_2cd7_4da5_9bf063e432136206" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strFirmwareCommand = StrConcat2(Translate("C0AMLIli0"), Translate(""));
+// }} ""
+// {{ 18 1 0 "7f448266_0284_45ee_a7a55900e11b1732" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("7f448266_0284_45ee_a7a55900e11b1732"); // FirmwareCommand
+}
+// }} ""
+// {{{ 5 "LightsOff" "End"
+}
+// }} ""
+// {{{ 5 "LightsOn" "Begin"
+function LightsOn( device & ML_STAR, variable i_int_Intensity ) void {
+// }} ""
+private variable l_strFirmwareCommand;
+private variable cmd;
+// {{ 5 "LightsOn" "InitLocals"
+// }} ""
+Trace("Lights on");
+// {{{ 21 1 0 "8ed1ff61_272a_486a_88625bc871b82a63" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strFirmwareCommand = StrConcat2(Translate("C0AMLIli1os"), i_int_Intensity);
+// }} ""
+// {{ 22 1 0 "573e13a5_92ab_4f0a_a06857802ea52a8c" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("573e13a5_92ab_4f0a_a06857802ea52a8c"); // FirmwareCommand
+}
+// }} ""
+// {{{ 5 "LightsOn" "End"
+}
+// }} ""
+// {{{ 5 "LightsOnBlue" "Begin"
+function LightsOnBlue( device & ML_STAR, variable i_int_Intensity ) void {
+// }} ""
+private variable uv;
+private variable white;
+private variable cmd;
+private variable blue;
+private variable red;
+private variable green;
+// {{ 5 "LightsOnBlue" "InitLocals"
+// }} ""
+// {{ 24 1 0 "c8df2440_062c_4c9d_8e191a67f4a39d10" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 25 1 0 "ce7f7b12_f25f_4d6f_82290178f5a1c3e4" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+cmd = Translate("C0AMLIli1ol");
+// }} ""
+// {{ 26 1 0 "c0959ea4_a4a1_4285_939ea2bb24fa8eb3" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+white = 0;
+// }} ""
+// {{ 27 1 0 "958ff3e4_781a_424a_9eea682549e95cbd" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+red = 0;
+// }} ""
+// {{ 28 1 0 "f2d271bb_7196_406a_8fe5c12fd2fe47ec" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+green = 0;
+// }} ""
+// {{ 29 1 0 "139fe66d_bf2e_4081_a8fb50466b74df27" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blue = i_int_Intensity;
+// }} ""
+// {{ 30 1 0 "0e0ca031_2d12_4554_980870ed6173ec6b" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+uv = 0;
+// }} ""
+// {{{ 31 1 0 "b6ce482f_e461_4b28_80ce57f19c542474" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+cmd = StrConcat12(cmd, Translate(" "), white, Translate(" "), red, Translate(" "), green, Translate(" "), blue, Translate(" "), uv, Translate(""));
+// }} ""
+// {{ 32 1 0 "09c30a2f_3018_4cdc_a00f13ed7f2e54e0" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("09c30a2f_3018_4cdc_a00f13ed7f2e54e0"); // FirmwareCommand
+}
+// }} ""
+// {{{ 5 "LightsOnBlue" "End"
+}
+// }} ""
+// {{{ 5 "LightOnGreen" "Begin"
+function LightOnGreen( device & ML_STAR, variable i_int_Intensity ) void {
+// }} ""
+private variable uv;
+private variable white;
+private variable cmd;
+private variable red;
+private variable blue;
+private variable green;
+// {{ 5 "LightOnGreen" "InitLocals"
+// }} ""
+// {{ 6 1 0 "09e7b406_5a72_4f28_8380999454fd7602" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 7 1 0 "9cfe531b_a452_4923_b3c41b415fec9aff" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+cmd = Translate("C0AMLIli1ol");
+// }} ""
+// {{ 8 1 0 "f481da8c_560b_41e1_aadb3ee17cfc6527" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+white = 0;
+// }} ""
+// {{ 9 1 0 "20cbb1a6_ab62_40da_8843eda576b51d39" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+red = 0;
+// }} ""
+// {{ 10 1 0 "35d412bb_c286_40de_af6386d751ac0297" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+green = i_int_Intensity;
+// }} ""
+// {{ 11 1 0 "6aa97a83_7eaf_4a69_a3699a784fad3c46" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blue = 0;
+// }} ""
+// {{ 12 1 0 "abf4a88a_ebe2_46c4_b506546839b74b7d" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+uv = 0;
+// }} ""
+// {{{ 13 1 0 "5c8ee257_4021_42a9_939673743d247aa1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+cmd = StrConcat12(cmd, Translate(" "), white, Translate(" "), red, Translate(" "), green, Translate(" "), blue, Translate(" "), uv, Translate(""));
+// }} ""
+// {{ 14 1 0 "f587db0f_14bb_4160_9e1fe51f311644d3" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("f587db0f_14bb_4160_9e1fe51f311644d3"); // FirmwareCommand
+}
+// }} ""
+// {{{ 5 "LightOnGreen" "End"
+}
+// }} ""
+// {{{ 5 "LightsOnWhite" "Begin"
+function LightsOnWhite( device & ML_STAR, variable i_int_Intensity ) void {
+// }} ""
+private variable uv;
+private variable white;
+private variable cmd;
+private variable red;
+private variable blue;
+private variable green;
+// {{ 5 "LightsOnWhite" "InitLocals"
+// }} ""
+// {{ 54 1 0 "c6847f2c_4843_45f5_8e2cf80ef76104d6" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 55 1 0 "b375504e_bfe2_4bfe_be4d8fd3366dd208" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+cmd = Translate("C0AMLIli1ol");
+// }} ""
+// {{ 56 1 0 "dbd784ab_d1f3_4680_b0ab453f821ae1cd" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+white = i_int_Intensity;
+// }} ""
+// {{ 57 1 0 "8d5dcb1e_b7db_4c77_88d7d2a510a79c99" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+red = 0;
+// }} ""
+// {{ 58 1 0 "1fe4a240_5405_4ed4_9a90810108955f3f" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+green = 0;
+// }} ""
+// {{ 59 1 0 "567b5f4a_c7e8_45d8_b3c2aa1b96c70da8" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blue = 0;
+// }} ""
+// {{ 60 1 0 "36d2fcff_6cc8_4070_8efc0aaa788b6f8a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+uv = 0;
+// }} ""
+// {{{ 61 1 0 "a6d61916_a2a9_46b8_9d09b02bfec5088a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+cmd = StrConcat12(cmd, Translate(" "), white, Translate(" "), red, Translate(" "), green, Translate(" "), blue, Translate(" "), uv, Translate(""));
+// }} ""
+// {{ 62 1 0 "287cb19f_878b_4d87_bdeb6bbe126d84f5" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("287cb19f_878b_4d87_bdeb6bbe126d84f5"); // FirmwareCommand
+}
+// }} ""
+// {{{ 5 "LightsOnWhite" "End"
+}
+// }} ""
+// {{{ 5 "LightsOnRed" "Begin"
+function LightsOnRed( device & ML_STAR, variable i_int_Intensity ) void {
+// }} ""
+private variable uv;
+private variable white;
+private variable cmd;
+private variable red;
+private variable blue;
+private variable green;
+// {{ 5 "LightsOnRed" "InitLocals"
+// }} ""
+// {{ 44 1 0 "441a70a9_e896_4aa8_a6f8c3f527cc89ac" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 45 1 0 "3491eaf7_8852_4723_88799e74dcb72ecb" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+cmd = Translate("C0AMLIli1ol");
+// }} ""
+// {{ 46 1 0 "05b751b8_156d_4a9c_acfd75632e9584d7" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+white = 0;
+// }} ""
+// {{ 47 1 0 "c1e6e957_2a71_4fbb_9f50133194719f28" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+red = i_int_Intensity;
+// }} ""
+// {{ 48 1 0 "d0d29d0a_18f1_405a_9756c451d3decc07" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+green = 0;
+// }} ""
+// {{ 49 1 0 "8e4a1e8a_58c3_4932_b2e28cc6f173eb77" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blue = 0;
+// }} ""
+// {{ 50 1 0 "18b7bb35_b06a_4960_a48f264ae69917dc" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+uv = 0;
+// }} ""
+// {{{ 51 1 0 "5a7548ec_4887_4ce2_9c1cbd934b7b07cb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+cmd = StrConcat12(cmd, Translate(" "), white, Translate(" "), red, Translate(" "), green, Translate(" "), blue, Translate(" "), uv, Translate(""));
+// }} ""
+// {{ 52 1 0 "cf3d2dc2_0376_4aed_9180ab189c14ea52" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("cf3d2dc2_0376_4aed_9180ab189c14ea52"); // FirmwareCommand
+}
+// }} ""
+// {{{ 5 "LightsOnRed" "End"
+}
+// }} ""
+// {{{ 5 "LightsOnCustom" "Begin"
+function LightsOnCustom( device & ML_STAR, variable i_int_PercentWhite, variable i_int_PercentRed, variable i_int_PercentGreen, variable i_int_PercentBlue ) void {
+// }} ""
+private variable uv;
+private variable white;
+private variable cmd;
+private variable red;
+private variable blue;
+private variable green;
+// {{ 5 "LightsOnCustom" "InitLocals"
+// }} ""
+// {{ 34 1 0 "c12b0769_f70c_46b7_a95b94db92cb2eb9" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 35 1 0 "002dee64_5a00_4854_8fcefa8d1cba483f" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+cmd = Translate("C0AMLIli1ol");
+// }} ""
+// {{ 36 1 0 "6d905de6_0c3c_44a3_834aca816d351ccd" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+white = i_int_PercentWhite;
+// }} ""
+// {{ 37 1 0 "9ba6ae91_cd69_418a_81208a0bf9539ce8" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+red = i_int_PercentRed;
+// }} ""
+// {{ 38 1 0 "ce8e0691_6f93_4bd8_9a86f02dae33b58f" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+green = i_int_PercentGreen;
+// }} ""
+// {{ 39 1 0 "0364e938_478a_4e5d_80c8c7f4c4ddf3a1" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blue = i_int_PercentBlue;
+// }} ""
+// {{ 40 1 0 "207038cd_b72f_47b5_8f10a33f465dbe38" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+uv = 0;
+// }} ""
+// {{{ 41 1 0 "c0d2684c_75e6_4d02_9f7ecd8416e80e4d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+cmd = StrConcat12(cmd, Translate(" "), white, Translate(" "), red, Translate(" "), green, Translate(" "), blue, Translate(" "), uv, Translate(""));
+// }} ""
+// {{ 42 1 0 "51bc7ff3_5c2c_416e_bb3d4b4b50779511" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("51bc7ff3_5c2c_416e_bb3d4b4b50779511"); // FirmwareCommand
+}
+// }} ""
+// {{{ 5 "LightsOnCustom" "End"
+}
+// }} ""
+// {{{ 5 "LightMode" "Begin"
+function LightMode( device & ML_STAR, variable i_intLightState ) void {
+// }} ""
+private variable uv;
+private variable white;
+private variable cmd;
+private variable blue;
+private variable red;
+private variable i_int_Intensity;
+private variable green;
+// {{ 5 "LightMode" "InitLocals"
+// }} ""
+// {{ 1 1 0 "c80405be_d5a1_4016_a4e6e1537ec0114d" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 2 1 0 "f0bc4e8e_f0b3_4b85_97807d196a931e3b" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+cmd = Translate("C0AMLIli");
+// }} ""
+// {{{ 3 1 0 "3de4c605_3a80_4462_a16e1122024b64c7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+cmd = StrConcat12(cmd, i_intLightState, Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""));
+// }} ""
+// {{ 4 1 0 "f1d55a1c_b083_4a9a_8b8e4e41ce4109f0" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("f1d55a1c_b083_4a9a_8b8e4e41ce4109f0"); // FirmwareCommand
+}
+// }} ""
+// {{{ 5 "LightMode" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=Bare_B$$valid=0$$time=2021-06-18 13:22$$checksum=b24ca6b1$$length=085$$

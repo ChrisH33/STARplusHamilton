@@ -1,0 +1,100 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "lookup.hs_"
+#include "HSLUtilLib2.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+#include "HSLPTLLib.hsl"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace UNIQUE_MEMBERS {
+// }} ""
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function Unique_members( variable & io_master_array[], variable & o_unique_members_array[], variable i_trace ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+LOOKUP::_InitLibrary();
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+LOOKUP::_ExitLibrary();
+// }} ""
+}
+// {{{ 5 "Unique_members" "Begin"
+function Unique_members( variable & io_master_array[], variable & o_unique_members_array[], variable i_trace ) void {
+// }} ""
+private variable io_master_array_size;
+private variable loopCounter1;
+private variable variable_to_be_checked;
+private variable lookup_return;
+// {{ 5 "Unique_members" "InitLocals"
+o_unique_members_array.SetSize( 0);
+// }} ""
+// {{ 1 1 0 "27727ed7_64db_42b3_b59836c8153f7964" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+io_master_array_size=io_master_array.GetSize();
+// }} ""
+// {{ 2 1 0 "70bc4edb_f8f1_4706_997c8251061c2b59" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+o_unique_members_array.SetSize(0);
+// }} ""
+// {{ 3 1 0 "5974a760_180d_4206_959d371ac1cd3ddb" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < io_master_array_size;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{ 4 1 0 "469a7533_a2e4_4b93_a4cd085bea542f59" "{67A8F1C9-6546-41e9-AD2F-3C54F7818853}"
+variable_to_be_checked=io_master_array.GetAt(loopCounter1-1);
+// }} ""
+// {{{ 5 1 0 "666e1916_a555_48de_a8fc85f12d8b5ad4" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+lookup_return = LOOKUP::Lookup(o_unique_members_array, variable_to_be_checked);
+// }} ""
+// {{ 6 1 0 "12d81dfb_1e00_49b0_9e6548037febbca1" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (lookup_return == 0)
+{
+// }} ""
+// {{ 7 1 0 "b1fd3316_b53e_4025_9e07c71c95aaa7bb" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_unique_members_array.AddAsLast(variable_to_be_checked);
+// }} ""
+// {{ 8 1 0 "12d81dfb_1e00_49b0_9e6548037febbca1" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 9 1 0 "5974a760_180d_4206_959d371ac1cd3ddb" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 10 1 0 "079810e1_978e_4e26_9e54585c1fb33e0a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_trace == 1)
+{
+// }} ""
+// {{{ 11 1 0 "2b1bab41_6b30_4530_b96f7296a9bab702" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+Util2::Debug::TraceArray(Translate("Array containing the unique members of the master array"), o_unique_members_array);
+// }} ""
+// {{ 12 1 0 "079810e1_978e_4e26_9e54585c1fb33e0a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "Unique_members" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=Administrator$$valid=0$$time=2011-04-07 10:51$$checksum=5c6d3192$$length=092$$

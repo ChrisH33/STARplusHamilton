@@ -1,0 +1,18 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 31/03/2011 17:38:05
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace LOAD_INSTRUCTIONS_TRACKING {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function track_plate_name( device & ML_STAR, sequence & plate_seq, variable plate_name, variable load_containers ) void { }
+function track_tube_names( device & ML_STAR, sequence & tube_seq, variable & array_tube_names[] ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Administrator$$valid=0$$time=2011-03-31 17:38$$checksum=477e3088$$length=090$$

@@ -1,0 +1,58 @@
+//---------------------------------------------------------------------------------------
+//Copyright (C) by Hamilton Bonduz AG, CH-7402 Bonaduz
+//All rights reserved.
+//Project                               [72-808] iPS Cell Culture Automation Platform
+//Description:                          Enums
+//Software Version:                     4.4
+//Revision History:
+//2015.11.24  Yvonne Dangendorf     Created lib
+//---------------------------------------------------------------------------------------
+
+#ifndef __ENUM_hsl__
+#define __ENUM_hsl__	1
+
+//================================== ENUMS ===============================
+namespace ENUMS
+{
+   //================================== LABWARE ==============================
+   namespace LABWARE
+   {
+      //================================== PLATE_TYPE ==============================
+      namespace PLATE_TYPE
+      {
+         const variable _1_WellPlate(1);
+         const variable _6_WellPlate(2);
+         const variable _24_WellPlate(3);
+         const variable _96_WellPlate(4);
+         const variable MediaTrough(5);
+      }//PLATE_TYPE
+   
+     
+   }//LABWARE
+
+   //================================== GRIP_MODE ==============================
+   namespace GRIP_MODE
+   {
+      const variable Small_Side(1);
+      const variable Large_Side(2);
+   }//GRIP_MODE
+
+
+   //================================== TIP_TYPE ==============================
+   namespace TIP_TYPE
+   {
+      const variable HighVolumeFilter(1);
+      const variable StandardVolume(1);
+   }//TIP_TYPE
+
+   namespace PIPETTING_ARM_POSITION
+   {
+      const variable Left(1);
+      const variable Center(2);
+      const variable Right(3);
+   }//SYSTEM
+
+}//ENUMS
+
+#endif
+// $$author=Hamilton Admin$$valid=0$$time=2016-01-28 16:47$$checksum=7cb33db3$$length=091$$

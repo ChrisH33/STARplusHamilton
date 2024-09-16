@@ -1,0 +1,559 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "HSLJson\\HSLJson.hsl"
+#include "Hamilton DriverTools\\Hamilton DriverTools.hsl"
+#include "ASWStandard\\TraceLevel\\TraceLevel.hsl"
+#include "HSLUtilLib2.hsl"
+#include "FindDBPath.hs_"
+#include "HSLExtensions\\File.hsl"
+#include "HSLFilLib.hsl"
+#include "HSLStrLib.hsl"
+#include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl"
+#include "HSLMthLib.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace JSONSEARCH {
+// }} ""
+variable _intJSON_Integer;
+variable _intJSON_String;
+variable _intJSON_Boolean;
+variable _intJSON_Object;
+variable _intJSON_Float;
+variable _intJSON_DateTime;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function GetEveryEntry( variable i_strJSONFilePath, variable _strSearch, variable & _arr[], variable _intTraceLevel ) void ;
+function GetSpecificStringEntry( variable i_strJSONFilePath, variable _strSearch, variable _intTraceLevel ) variable ;
+function _CreateArray( variable & _arr[], variable _str ) void ;
+private function _ErrorHandle( variable _rtn, variable _step ) void ;
+private function _Setup( variable & i_strJSONFilePath, variable _intTraceLevel ) variable ;
+private function __Abstract(  ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+FINDDBPATH::_InitLibrary();
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+FINDDBPATH::_ExitLibrary();
+// }} ""
+}
+// {{{ 5 "GetSpecificStringEntry" "Begin"
+function GetSpecificStringEntry( variable i_strJSONFilePath, variable _strSearch, variable _intTraceLevel ) variable {
+// }} ""
+private object _objJSON;
+private variable _rtnValue;
+private variable _varProperty;
+private object _objSubJSON;
+private variable _intType;
+private variable _loopCounter1;
+private variable _intArraySize;
+private variable _arr[];
+// {{ 5 "GetSpecificStringEntry" "InitLocals"
+// }} ""
+// {{ 23 1 0 "4faca14e_d72d_494f_b51f723e1e1cab83" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 24 1 0 "45c7f809_af8a_4ea4_9d3f45866e5023a4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_02(TRACE_LEVEL_DEBUG, Translate("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), Translate(""));
+// }} ""
+// {{ 25 1 0 "8539fe5d_f068_4534_83ac6379f50ccd48" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 26 1 0 "c9330a2e_e5d5_434e_86cbe8ffb330ffa7" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 27 1 0 "a697a4cd_3826_4d40_9e5847e88d50242a" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+_arr.SetSize(0);
+// }} ""
+// {{{ 28 1 0 "08b60093_2291_47e8_af1446ee78ca414c" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_CreateArray(_arr, _strSearch);
+// }} ""
+// {{ 29 1 0 "5f898c1b_a0a9_4930_887c89ee2619d3ae" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+_intArraySize=_arr.GetSize();
+// }} ""
+// {{ 30 1 0 "e4fa6738_10ee_42d6_b97159dfe91b0ba9" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 31 1 0 "866509c5_f1e2_4cb2_9d04c84e547b5215" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_rtnValue = _Setup(i_strJSONFilePath, _intTraceLevel);
+// }} ""
+// {{{ 32 1 0 "2c2ca02a_c252_44ae_8a20a0aa0f663fbb" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("_Setup of JSONSearch"));
+// }} ""
+// {{ 33 1 0 "0105221d_69f2_4042_904781268c104d1f" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 34 1 0 "5aea70f3_79ae_4cc1_9df02b5cdfe17465" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_rtnValue = HSLJsonLib::Create(_objJSON);
+// }} ""
+// {{{ 35 1 0 "db005aeb_7adc_410d_a5f8878da3078b5f" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("Create"));
+// }} ""
+// {{ 36 1 0 "61c9790a_9bd0_4756_b3f059f94be4d630" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 37 1 0 "68ad5f29_7f6f_4b1e_8bd220bac3dbd18b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_rtnValue = HSLJsonLib::Load(_objJSON, i_strJSONFilePath);
+// }} ""
+// {{{ 38 1 0 "5d1c15fa_e7fb_4e55_904c8c7286470661" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("Load"));
+// }} ""
+// {{ 39 1 0 "7b5dad02_021c_4df2_aabba0027a0e3c92" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 40 1 0 "ef92d322_885b_4ce2_baa8586da5f902c6" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(_loopCounter1 = 0; _loopCounter1 < _intArraySize;)
+{
+_loopCounter1 = _loopCounter1 + 1;
+// }} ""
+// {{{ 41 1 0 "9acdc13f_bc3b_4772_9a4ae5e19071bfc5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_08(TRACE_LEVEL_DEBUG, Translate("~~~ GetSpecificEntry: Loop "), _loopCounter1, Translate("/"), _intArraySize, Translate(" - "), _arr.ElementAt( _loopCounter1 -1), Translate(" <<"), Translate(""));
+// }} ""
+// {{ 42 1 0 "62508158_55a1_430c_a1726ccc574513cf" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 43 1 0 "a0e8b816_3284_44d9_b18fff0e8e30eb36" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_rtnValue = HSLJsonLib::GetPropertyType(_objJSON, _arr.ElementAt( _loopCounter1 -1), _intType);
+// }} ""
+// {{{ 44 1 0 "3b326d66_1631_4c5b_a083f7aa353bc093" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("GetPropertyType"));
+// }} ""
+// {{ 45 1 0 "402d10d6_da1f_40e7_9b760b7dd30b302b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 46 1 0 "04c6cc83_88f9_4d94_86380f61ef309013" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_intType == _intJSON_String)
+{
+// }} ""
+// {{ 47 1 0 "8eb210ef_e550_432e_ad78042d09230396" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 48 1 0 "3625677d_0646_418c_9d8baa9011deca8c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_rtnValue = HSLJsonLib::GetStringProperty(_objJSON, _arr.ElementAt( _loopCounter1 -1), _varProperty);
+// }} ""
+// {{{ 49 1 0 "0174285a_13c8_4c63_8c2f9864ee22132f" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("GetStringProperty"));
+// }} ""
+// {{{ 50 1 0 "65e2d965_b53b_46c2_ae07b13c62a38275" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_rtnValue = HSLJsonLib::Release(_objJSON);
+// }} ""
+// {{{ 51 1 0 "999c8082_6930_4a32_be350b169bff8bba" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("Release"));
+// }} ""
+// {{{ 52 1 0 "8f2dfc50_5d88_409d_8651f6c6b36187e6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_06(TRACE_LEVEL_DEBUG, Translate("~~ "), _arr.ElementAt( _loopCounter1 -1), Translate(":: '"), _varProperty, Translate("'"), Translate(""));
+// }} ""
+// {{ 53 1 0 "e59e142e_30b6_42de_a7385a0f2ccb1fd9" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 54 1 0 "04c6cc83_88f9_4d94_86380f61ef309013" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 55 1 0 "55726db3_3539_45fc_bc8bd807fe01c0dd" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_intType == _intJSON_Integer)
+{
+// }} ""
+// {{ 56 1 0 "de261de6_0979_40fd_a351542ba43c93e0" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 57 1 0 "8407b008_40de_40c7_bf784f3ea7d7d7dd" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLJsonLib::GetIntegerProperty(_objJSON, _arr.ElementAt( _loopCounter1 -1), _varProperty);
+// }} ""
+// {{{ 58 1 0 "aaf469d6_d959_43c6_ab75887654ebb460" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("GetIntegerProperty"));
+// }} ""
+// {{{ 59 1 0 "d0fc8633_85d0_458b_a935c747226c016c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_rtnValue = HSLJsonLib::Release(_objJSON);
+// }} ""
+// {{{ 60 1 0 "d0350157_1dc3_495c_bf6316518fd3431d" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("Release"));
+// }} ""
+// {{{ 61 1 0 "39cb4044_ea06_4a0f_94a69cc5561ed244" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_06(TRACE_LEVEL_DEBUG, Translate("~~ "), _arr.ElementAt( _loopCounter1 -1), Translate(":: "), _varProperty, Translate(""), Translate(""));
+// }} ""
+// {{ 62 1 0 "02b60944_fb07_4da8_b076bfaa8b504de0" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 63 1 0 "55726db3_3539_45fc_bc8bd807fe01c0dd" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 64 1 0 "d5f49ab1_79fd_4e7a_a22fc2accb4de114" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_intType == _intJSON_Float)
+{
+// }} ""
+// {{ 65 1 0 "6aa87e93_57b7_42bf_b2ee139d10bd3375" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 66 1 0 "64864c7f_0ad0_4113_907c5fb498494887" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLJsonLib::GetFloatProperty(_objJSON, _arr.ElementAt( _loopCounter1 -1), _varProperty);
+// }} ""
+// {{{ 67 1 0 "c1c78b31_db88_4832_b8e8eb6761a18867" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("GetFloatProperty"));
+// }} ""
+// {{{ 68 1 0 "a94e2662_4238_40f3_b2ca617751a16a2a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_rtnValue = HSLJsonLib::Release(_objJSON);
+// }} ""
+// {{{ 69 1 0 "e51cfa49_babb_4176_a58106d3d700a143" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("Release"));
+// }} ""
+// {{{ 70 1 0 "d50231cf_dd7b_42be_8c734b142ec15171" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_06(TRACE_LEVEL_DEBUG, Translate("~~ "), _arr.ElementAt( _loopCounter1 -1), Translate(":: '"), _varProperty, Translate("'"), Translate(""));
+// }} ""
+// {{ 71 1 0 "f68e2c4d_0a90_4c7c_8490f04914323b20" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 72 1 0 "d5f49ab1_79fd_4e7a_a22fc2accb4de114" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 73 1 0 "4887f3a4_256f_481f_a30152b9300a4d41" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_intType == _intJSON_Object)
+{
+// }} ""
+// {{ 74 1 0 "ad7539ac_b9a1_429c_9c21c3a87f1cffb3" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 75 1 0 "9c52dbfb_9fc0_46c0_9067b2e037ff3e85" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_rtnValue = HSLJsonLib::GetJsonArrayElement(_objJSON, _arr.ElementAt( _loopCounter1 -1), 1, _objSubJSON);
+// }} ""
+// {{{ 76 1 0 "8182bed4_aab0_45da_aa1025ded1fd49fd" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("GetJsonArrayElement"));
+// }} ""
+_objJSON = _objSubJSON;
+// {{ 78 1 0 "4887f3a4_256f_481f_a30152b9300a4d41" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 79 1 0 "120d789c_762c_4fd7_86139b6aaed78ad1" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("----- Element type is not recognised -----"));
+// }} ""
+// {{{ 80 1 0 "0eb29236_38d2_47e9_9ccb38623abeb12e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_06(TRACE_LEVEL_RELEASE, Translate("~~ _strSearch: "), _strSearch, Translate(", _intType: "), _intType, Translate(""), Translate(""));
+// }} ""
+// {{{ 81 1 0 "564543d1_496b_4cd1_971445db27bf4409" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLJsonLib::Release(_objJSON);
+// }} ""
+// {{{ 82 1 0 "a1ce7067_f9a1_4baa_bff20c84d74a38a0" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("Release"));
+// }} ""
+// {{{ 83 1 0 "718e229e_5667_485e_841b889356ee2578" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (Translate(""));
+// }} ""
+// {{ 84 1 0 "4887f3a4_256f_481f_a30152b9300a4d41" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 85 1 0 "d5f49ab1_79fd_4e7a_a22fc2accb4de114" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 86 1 0 "55726db3_3539_45fc_bc8bd807fe01c0dd" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 87 1 0 "04c6cc83_88f9_4d94_86380f61ef309013" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 88 1 0 "ef92d322_885b_4ce2_baa8586da5f902c6" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 89 1 0 "6d3f0d04_bef2_452b_92d61ae27b02e08e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_02(TRACE_LEVEL_DEBUG, Translate("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), Translate(""));
+// }} ""
+// {{{ 90 1 0 "f976ac1e_7412_48b3_9579f088ec1f240b" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (_varProperty);
+// }} ""
+// {{{ 5 "GetSpecificStringEntry" "End"
+}
+// }} ""
+// {{{ 5 "_Setup" "Begin"
+private function _Setup( variable & i_strJSONFilePath, variable _intTraceLevel ) variable {
+// }} ""
+private variable _rtnSuccess;
+private variable _arrConfigFiles[];
+// {{ 5 "_Setup" "InitLocals"
+// }} ""
+// {{ 117 1 0 "965ecf0c_73f3_4c4a_9d762211ae3dc0d3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_intTraceLevel == 2)
+{
+// }} ""
+// {{{ 118 1 0 "ad326a33_88d1_4734_97e8bb9d76cde487" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLJsonLib::SetTraceLevel(1);
+// }} ""
+// {{ 119 1 0 "965ecf0c_73f3_4c4a_9d762211ae3dc0d3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 120 1 0 "bbf65f28_b4be_4d15_bc20b60995aac833" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HSLJsonLib::SetTraceLevel(0);
+// }} ""
+// {{ 121 1 0 "965ecf0c_73f3_4c4a_9d762211ae3dc0d3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 122 1 0 "c1e4e658_b642_4aba_ae3dcacdafccf8a6" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_intJSON_Object = 2;
+// }} ""
+// {{ 123 1 0 "d0aa674a_2115_4d1e_9e34409509ea6cf2" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_intJSON_Integer = 6;
+// }} ""
+// {{ 124 1 0 "95cf8575_bb6e_4140_b6356238ca8ab0e6" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_intJSON_Float = 7;
+// }} ""
+// {{ 125 1 0 "aabef931_a2f0_4a67_abb0e0a84441a45a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_intJSON_String = 8;
+// }} ""
+// {{ 126 1 0 "3411eb62_063d_4dea_8d6655f802b23e72" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_intJSON_Boolean = 9;
+// }} ""
+// {{ 127 1 0 "fda564ff_fe42_4026_8d9faaf9df9b6d0a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+_intJSON_DateTime = 12;
+// }} ""
+// {{ 128 1 0 "e09a17a3_909e_44db_a98780fc71fb9dc6" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 129 1 0 "7c380e22_686f_4132_b57fce4b2dc368cb" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+_arrConfigFiles.SetSize(0);
+// }} ""
+// {{ 130 1 0 "0d6edc10_e2cd_4be7_803d387496d62645" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_strJSONFilePath == "")
+{
+// }} ""
+// {{{ 131 1 0 "a3b64f3a_5edb_47d5_a49f59ffcf65ba13" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_rtnSuccess = FINDDBPATH::GetFilePaths(_arrConfigFiles, 1);
+// }} ""
+// {{ 132 1 0 "20940f53_7a0d_46e7_bcc57c0e09bf6c4e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_rtnSuccess == 0)
+{
+// }} ""
+// {{ 133 1 0 "24fd1a49_affc_44d7_8f8ca763f4b2ae14" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("----- Could not identify DB file -----"));
+// }} ""
+// {{{ 134 1 0 "94030bb7_cd0f_4c18_9e2bd7b3b8382878" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 135 1 0 "20940f53_7a0d_46e7_bcc57c0e09bf6c4e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 136 1 0 "074bc08f_122c_40a3_a7d940c7fc2c2b5e" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+i_strJSONFilePath = _arrConfigFiles.ElementAt( 2 -1);
+// }} ""
+// {{ 137 1 0 "0d6edc10_e2cd_4be7_803d387496d62645" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 138 1 0 "dec6e239_811c_40c6_8e91656f0c01b5e6" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{{ 5 "_Setup" "End"
+}
+// }} ""
+// {{{ 5 "GetEveryEntry" "Begin"
+function GetEveryEntry( variable i_strJSONFilePath, variable _strSearch, variable & _arr[], variable _intTraceLevel ) void {
+// }} ""
+private object _objJSON;
+private variable _rtnValue;
+private variable _intArrayLength;
+private variable _lpCounter1;
+private variable _strValue;
+// {{ 5 "GetEveryEntry" "InitLocals"
+_arr.SetSize( 0);
+// }} ""
+// {{ 1 1 0 "b5844a04_9a93_41b4_84d90e890711c1e7" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 2 1 0 "c309b6d2_e5da_4ed9_818591decfefcd49" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 3 1 0 "f4431a82_cac8_4c26_9a1111803c517ed0" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 4 1 0 "c321ef12_085d_44d2_a5f1a45057e7df8e" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_rtnValue = _Setup(i_strJSONFilePath, _intTraceLevel);
+// }} ""
+// {{{ 5 1 0 "982ef3ca_c8a4_4947_8b420b78b213690f" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("_Setup of JSONSearch"));
+// }} ""
+// {{ 6 1 0 "57b51033_d786_4958_99ceff7d11b2110d" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 7 1 0 "28887f23_271b_4eb0_8fc19656d28023ed" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_rtnValue = HSLJsonLib::Create(_objJSON);
+// }} ""
+// {{{ 8 1 0 "93dd1de6_4cde_4067_98b3af80d36c1957" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("Create"));
+// }} ""
+// {{ 9 1 0 "05f98679_8a96_439f_9ada66a5d65018d2" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 10 1 0 "6b129447_643e_43fc_b5d6100effb50c7e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_rtnValue = HSLJsonLib::Load(_objJSON, i_strJSONFilePath);
+// }} ""
+// {{{ 11 1 0 "70a384fe_5449_4a97_902e9d7555bded74" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("Load"));
+// }} ""
+// {{ 12 1 0 "cd3f4ae4_b67f_47d9_92db39a3656bb494" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 13 1 0 "ee7c3f8f_54f4_4651_92d2171a2764ae48" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 14 1 0 "86927139_4158_40e0_a593607eac2d2faa" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_intArrayLength = HSLJsonLib::GetArrayLength(_objJSON, _strSearch);
+// }} ""
+// {{ 15 1 0 "38ec6c5c_2776_4c71_8668ef57452fea36" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(_lpCounter1 = 0; _lpCounter1 < _intArrayLength;)
+{
+_lpCounter1 = _lpCounter1 + 1;
+// }} ""
+// {{{ 16 1 0 "53b7fad7_fbfa_4673_8c3ae34f6f2eca82" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_rtnValue = HSLJsonLib::GetStringArrayElement(_objJSON, _strSearch, _lpCounter1, _strValue);
+// }} ""
+// {{{ 17 1 0 "18fd5345_bde4_4e7c_a31f602ae58e056f" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_ErrorHandle(_rtnValue, Translate("GetStringArrayElement"));
+// }} ""
+// {{ 18 1 0 "ec581c60_20b5_4b15_91f86fb19fc6f479" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+_arr.AddAsLast(_strValue);
+// }} ""
+// {{ 19 1 0 "38ec6c5c_2776_4c71_8668ef57452fea36" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 20 1 0 "67fbde2b_5ee9_4b26_a58ac44ec2abded1" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 21 1 0 "05656bd6_8840_4594_8c08a1992afa2b9b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArray(TRACE_LEVEL_DEBUG, Translate("----- Json Array -----"), _arr);
+// }} ""
+// {{{ 5 "GetEveryEntry" "End"
+}
+// }} ""
+// {{{ 5 "_CreateArray" "Begin"
+function _CreateArray( variable & _arr[], variable _str ) void {
+// }} ""
+private variable _return;
+private variable _strNew;
+private variable loopCounter1;
+private variable _intCut;
+private variable _intStrLength;
+// {{ 5 "_CreateArray" "InitLocals"
+// }} ""
+// {{ 92 1 0 "f1151597_adc0_4756_a5ba29cd108eb23f" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 93 1 0 "11c8055a_0156_469d_904bd85eccc623fb" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+loopCounter1 = 0;
+while (1 == 1)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{{ 94 1 0 "143dbe87_ccf8_40fe_a4029ebc956f5912" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_return = StrFind(_str, Translate(","));
+// }} ""
+// {{ 95 1 0 "7dab7654_92a9_4a47_b61d0d0f28e227d8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_return == -1)
+{
+// }} ""
+// {{ 96 1 0 "118f466e_9f6d_4311_a8fac7dc4c244160" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+_arr.AddAsLast(_str);
+// }} ""
+// {{ 97 1 0 "e56ab7a3_006d_456b_bdc7cc40c49d21cb" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 98 1 0 "7dab7654_92a9_4a47_b61d0d0f28e227d8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 99 1 0 "3d1c6aba_28b7_4768_ac7a173b4afa7c75" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strNew = StrLeft(_str, _return);
+// }} ""
+// {{ 100 1 0 "bc085c8d_db34_4c1a_be48ea3870167d43" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+_arr.AddAsLast(_strNew);
+// }} ""
+// {{{ 101 1 0 "9c7d2d39_1a72_4d00_9446a48aadf573af" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_intStrLength = StrGetLength(_str);
+// }} ""
+// {{ 102 1 0 "83d32f03_5b14_42f9_b8657947a0ba78a0" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+_intCut = _intStrLength - _return;
+// }} ""
+// {{ 103 1 0 "f6ca1bc2_78d2_4707_8067555217f5fac6" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+_intCut = _intCut - 1;
+// }} ""
+// {{{ 104 1 0 "f33a922c_0083_42f9_a99b6cfc0a17bf74" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_str = StrRight(_str, _intCut);
+// }} ""
+// {{ 105 1 0 "7dab7654_92a9_4a47_b61d0d0f28e227d8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 106 1 0 "11c8055a_0156_469d_904bd85eccc623fb" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 107 1 0 "fea3b23f_a509_4517_914f8b68d70b29c8" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return;
+// }} ""
+// {{{ 5 "_CreateArray" "End"
+}
+// }} ""
+// {{{ 5 "__Abstract" "Begin"
+private function __Abstract(  ) void {
+// }} ""
+// {{ 5 "__Abstract" "InitLocals"
+// }} ""
+// {{ 140 1 0 "7b9e0061_9cc2_4e78_8611d9cbe6d8ebf1" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 5 "__Abstract" "End"
+}
+// }} ""
+// {{{ 5 "_ErrorHandle" "Begin"
+private function _ErrorHandle( variable _rtn, variable _step ) void {
+// }} ""
+// {{ 5 "_ErrorHandle" "InitLocals"
+// }} ""
+// {{ 109 1 0 "788b32ea_1e1f_483d_9f0f7dd398b9abd6" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_rtn == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{ 110 1 0 "309cf7b5_01a5_40bb_b33ab4ffb69ed8c7" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 111 1 0 "48e1bb3d_c9fb_4adc_ac5aa99648741104" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_02(TRACE_LEVEL_RELEASE, Translate(">> Error with step: "), Translate(""));
+// }} ""
+// {{ 112 1 0 "0d2d62e4_2366_410f_af88fabec80848ea" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 113 1 0 "788b32ea_1e1f_483d_9f0f7dd398b9abd6" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 114 1 0 "6f9f9e06_f88d_4375_846730499160573a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 115 1 0 "788b32ea_1e1f_483d_9f0f7dd398b9abd6" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "_ErrorHandle" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=ch33$$valid=0$$time=2024-09-11 08:54$$checksum=4a7f0846$$length=083$$

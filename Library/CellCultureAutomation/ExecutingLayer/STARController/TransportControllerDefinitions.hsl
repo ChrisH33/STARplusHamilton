@@ -1,0 +1,180 @@
+//----------------------------------------------------------------------------------------
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+//
+// Project              : [72-808] iPS Cell Culture Automation Platform
+// Description          : Transport definitions
+//
+// Software Version     : 4.4
+//
+// Revision history:
+// - 2015.11.24  Yvonne Dangendorf library created
+//----------------------------------------------------------------------------------------
+
+
+#ifndef __TRANSPORTDEFINES__
+#define __TRANSPORTDEFINES__ 1
+
+//================================== TRANSPORT_CONTROLLER_DEFINITIONS ==================================
+
+namespace TRANSPORT_CONTROLLER_DEFINITIONS
+{
+      //================================== _1_WELL_PLATE ==================================
+      namespace _1_WELL_PLATE
+      {
+         namespace PLATE
+         {
+            namespace GRIP_MODE_SMALL_SIDE
+            {
+               const variable fltGripHeight(8.0);
+               const variable fltGripWidth(81.0);
+               const variable fltOpeningWidth(93.0);
+            }//GRIP_MODE_SMALL_SIDE
+
+            namespace GRIP_MODE_LARGE_SIDE
+            {
+               const variable fltGripHeight(8.0);
+               const variable fltGripWidth(124.0);
+               const variable fltOpeningWidth(133.0);
+            }//GRIP_MODE_LARGE_SIDE
+         }//PLATE
+
+         namespace LID
+         {
+            namespace GRIP_MODE_SMALL_SIDE
+            {
+               const variable fltGripHeight(0.2);
+               const variable fltGripWidth(85.3);
+               const variable fltOpeningWidth(93.0);
+            }//GRIP_MODE_SMALL_SIDE
+         }//LID
+
+
+      }//_1_WELL_PLATE
+
+      //================================== _6_WELL_PLATE ==================================
+      namespace _6_WELL_PLATE
+      {
+         namespace PLATE
+         {
+            namespace GRIP_MODE_SMALL_SIDE
+            {
+               const variable fltGripHeight(12.0);
+               const variable fltGripWidth(85.0);
+               const variable fltOpeningWidth(90.0); 
+            }//GRIP_MODE_SMALL_SIDE
+
+
+            namespace GRIP_MODE_LARGE_SIDE
+            {
+               const variable fltGripHeight(12.0);
+               const variable fltGripWidth(127.4);
+               const variable fltOpeningWidth(133.0); 
+            }//GRIP_MODE_LARGE_SIDE
+         }//PLATE
+
+         namespace LID
+         {
+            namespace GRIP_MODE_SMALL_SIDE
+            {
+               const variable fltGripHeight(3.0);
+               const variable fltGripWidth(86.0);
+               const variable fltOpeningWidth(90.0); 
+            }//GRIP_MODE_SMALL_SIDE
+         }//LID
+      }//_6_WELL_PLATE
+
+
+      //================================== _24_WELL_PLATE ==================================
+      namespace _24_WELL_PLATE
+      {
+         namespace PLATE
+         {
+            namespace GRIP_MODE_SMALL_SIDE
+            {
+               const variable fltGripHeight(12.0);
+               const variable fltGripWidth(85.0);
+               const variable fltOpeningWidth(90.0); 
+            }//GRIP_MODE_SMALL_SIDE
+
+
+            namespace GRIP_MODE_LARGE_SIDE
+            {
+               const variable fltGripHeight(12.0);
+               const variable fltGripWidth(127.4);
+               const variable fltOpeningWidth(133.0); 
+            }//GRIP_MODE_LARGE_SIDE
+         }//PLATE
+
+
+         namespace LID
+         {
+            namespace GRIP_MODE_SMALL_SIDE
+            {
+               const variable fltGripHeight(3.0);
+               const variable fltGripWidth(85.1);
+               const variable fltOpeningWidth(90.0); 
+            }//GRIP_MODE_SMALL_SIDE
+
+         }//LID
+
+      }//_24_WELL_PLATE
+
+
+      //================================== _96_WELL_PLATE ==================================
+      namespace _96_WELL_PLATE
+      {
+         namespace PLATE
+         {
+            namespace GRIP_MODE_SMALL_SIDE
+            {
+               const variable fltGripHeight(9.0);
+               const variable fltGripWidth(81.0);
+               const variable fltOpeningWidth(91.0); 
+            }//GRIP_MODE_SMALL_SIDE
+
+
+            namespace GRIP_MODE_LARGE_SIDE
+            {
+               const variable fltGripHeight(9.0);
+               const variable fltGripWidth(123.5);
+               const variable fltOpeningWidth(133.0); 
+            }//GRIP_MODE_LARGE_SIDE
+         }//PLATE
+
+
+         namespace LID
+         {
+            namespace GRIP_MODE_SMALL_SIDE
+            {
+               const variable fltGripHeight(3.0);
+               const variable fltGripWidth(86.0);
+               const variable fltOpeningWidth(91.0); 
+            }//GRIP_MODE_SMALL_SIDE
+
+         }//LID
+      }//_96_WELL_PLATE
+
+      //================================== REAGENT_TROUGH ==================================
+      namespace REAGENT_TROUGH
+      {
+         namespace TROUGH
+         {
+            const variable fltGripHeight(12.0);
+            const variable fltGripWidth(79.0);
+            const variable fltOpeningWidth(86.0); 
+         }//TROUGH
+
+         namespace LID
+         {
+            const variable fltGripHeight(4.0);
+            const variable fltGripWidth(84.0);
+            const variable fltOpeningWidth(88.0); 
+         }//LID
+      }//REAGENT_TROUGH
+
+}//namespace TRANSPORT_CONTROLLER_DEFINITIONS
+
+
+#endif
+// $$author=Hamilton Admin$$valid=0$$time=2016-10-19 13:28$$checksum=b2d40f18$$length=091$$

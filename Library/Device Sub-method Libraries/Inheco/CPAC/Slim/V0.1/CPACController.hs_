@@ -1,0 +1,21 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 11/7/2022 10:42:20 AM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace CPACCONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function CPAC_CheckTemperature( variable i_intCPACTemp, variable i_intCPACdevice ) void { }
+function CPAC_Init( variable i_blnSimulation ) void { }
+function CPAC_SetTemperature( variable i_intCPACTemp, variable i_intCPACdevice ) void { }
+function CPAC_StopTemp( variable i_intCPACdevice ) void { }
+function CPAC_Terminate(  ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=PacificBio$$valid=0$$time=2022-11-07 10:42$$checksum=71453a97$$length=087$$

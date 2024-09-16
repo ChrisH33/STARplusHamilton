@@ -1,0 +1,175 @@
+ namespace _Method { #include "ASWStandard\\TraceLevel\\TraceLevel.hsl" } 
+ namespace _Method { #include "VectorCustomDialogs\\VectorCustomDialogs.hsl" } 
+ namespace _Method { #include "HSLStrLib.hsl" } 
+ namespace _Method { #include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl" } 
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable intFillArrayLoopCounter;
+variable strEmptyTooltip;
+variable arrIsSelected[];
+variable arrLabels[];
+variable arrTooltips[];
+variable arrIsEditable[];
+variable intReagentNotSelected;
+variable intReagentEditable;
+variable intReagentSelected;
+variable strReagentLabel;
+variable intReagentNotEditable;
+variable strReagentTooltip;
+variable strReagentResult;
+variable blnSuccessfulExecuted;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{{ 1 1 0 "cfc9b9eb_4cd3_4dbf_b3dece761e862523" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::SetTraceLevel(TRACE_LEVEL_DEBUG);
+// }} ""
+// {{{ 2 1 0 "c52bce4b_d8bf_45ba_82298f02bf7adce0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::Initialize();
+// }} ""
+// {{ 3 1 0 "ff857b49_2c03_455b_b1ef77198d078945" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 4 1 0 "cb73c452_d54b_4784_ba6516298f2db77f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'Initialize' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 5 1 0 "b1e1bdc4_2138_4c2d_9a1cc4b56d106ea1" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 6 1 0 "ff857b49_2c03_455b_b1ef77198d078945" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 7 1 0 "465b52d2_8daf_4e8d_bbf547e8e03f9110" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 8 1 0 "b76514a8_0c8c_4aa6_baf16921ea8e0f9c" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrLabels.SetSize(0);
+// }} ""
+// {{ 9 1 0 "5d7efe5b_b46c_4bd5_9d952f766ff7dfde" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrTooltips.SetSize(0);
+// }} ""
+// {{ 10 1 0 "24fa8b51_9c01_4fcc_a61446036c846dae" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrIsEditable.SetSize(0);
+// }} ""
+// {{ 11 1 0 "57477d0d_9079_49ea_bf46a7b322b12350" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrIsSelected.SetSize(0);
+// }} ""
+// {{ 12 1 0 "00d07a6e_dbf1_4055_b8ff001a8f1afd5e" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strReagentLabel = Translate("Reagent");
+// }} ""
+// {{ 13 1 0 "52ff7f36_46cb_486d_bb1cbddc623ae32f" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strReagentTooltip = Translate("Can not be selected");
+// }} ""
+// {{ 14 1 0 "31e02b0f_7abb_4fb3_8954c6852531f806" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strEmptyTooltip = Translate("");
+// }} ""
+// {{ 15 1 0 "04e428ce_b661_448a_b39edcaf0eb6740e" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intReagentEditable = 1;
+// }} ""
+// {{ 16 1 0 "2b1c990b_99f4_4a05_a6fa57a818f80bac" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intReagentSelected = 1;
+// }} ""
+// {{ 17 1 0 "eaa666f5_557c_4e65_88abf4eb731d6c58" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intReagentNotEditable = 0;
+// }} ""
+// {{ 18 1 0 "87ad4553_ba83_46fd_a034711a3d1c9b6b" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intReagentNotSelected = 0;
+// }} ""
+// {{ 19 1 0 "465b52d2_8daf_4e8d_bbf547e8e03f9110" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 20 1 0 "d9604118_6832_40c5_a8b861c5bf983da9" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(intFillArrayLoopCounter = 0; intFillArrayLoopCounter < 12;)
+{
+intFillArrayLoopCounter = intFillArrayLoopCounter + 1;
+// }} ""
+// {{{ 21 1 0 "aa5450ff_8702_4f7a_819707d5312ce079" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strReagentResult = StrConcat2(strReagentLabel, intFillArrayLoopCounter);
+// }} ""
+// {{ 22 1 0 "f256002e_de49_436f_a7019f87ad5bc8be" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrLabels.AddAsLast(strReagentResult);
+// }} ""
+// {{ 23 1 0 "e8137306_690c_44c9_a54a59072a44546c" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrTooltips.AddAsLast(strEmptyTooltip);
+// }} ""
+// {{ 24 1 0 "6096206c_36e8_46c3_95dd03ea3fb16755" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrIsEditable.AddAsLast(intReagentEditable);
+// }} ""
+// {{ 25 1 0 "1a5dbec9_fb2a_4163_9c0f4a533e67510b" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrIsSelected.AddAsLast(intReagentSelected);
+// }} ""
+// {{ 26 1 0 "d9604118_6832_40c5_a8b861c5bf983da9" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 27 1 0 "c928ea29_bdbc_4bc4_b066a2752491097e" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrTooltips.SetAt(3-1, strReagentTooltip);
+// }} ""
+// {{ 28 1 0 "a4d81200_87ad_4e10_a578a2d2fa8fda51" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrIsEditable.SetAt(3-1, intReagentNotEditable);
+// }} ""
+// {{ 29 1 0 "fca30aab_1344_4b21_a74652b8e0a180e6" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrIsSelected.SetAt(3-1, intReagentNotSelected);
+// }} ""
+// {{ 30 1 0 "61a8ada8_da02_41d9_b2881cd22cf2ecc4" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrTooltips.SetAt(4-1, strReagentTooltip);
+// }} ""
+// {{ 31 1 0 "9d32e18c_c6c0_4d49_9b2aaa78d460bea7" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrIsEditable.SetAt(4-1, intReagentNotEditable);
+// }} ""
+// {{ 32 1 0 "ea91dbb9_bf38_4466_81c97f0060989a3f" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrIsSelected.SetAt(4-1, intReagentSelected);
+// }} ""
+// {{{ 33 1 0 "0416eb0b_a6fd_4103_b031a4582ca683c8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::CheckBoxDialog(Translate("Reagent selection"), VectorCustomDialogs::ButtonType::OkCancel, 0, 0, Translate("Please select the vials for the further process"), Translate("Continue with 'ok' button"), arrLabels, arrTooltips, arrIsEditable, arrIsSelected);
+// }} ""
+// {{ 34 1 0 "4a918d27_86cf_48c3_833934d58eadcfae" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 35 1 0 "90003f1e_00e6_4e22_8829a042910c8d35" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'CheckBoxDialog' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 36 1 0 "e350c46b_3f97_429c_878826b33c7bf525" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 37 1 0 "4a918d27_86cf_48c3_833934d58eadcfae" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 38 1 0 "b58f52f0_8080_4444_98a23e1313ffe2f2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::Terminate();
+// }} ""
+// {{ 39 1 0 "40d1df71_e970_4709_985c9eceb528afb3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 40 1 0 "dc2a347c_a57b_483b_b317d75cab5559c7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'Terminate' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 41 1 0 "cf31c228_0cf8_4698_909fbbc35139c637" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 42 1 0 "40d1df71_e970_4709_985c9eceb528afb3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=MKnopp$$valid=0$$time=2019-08-06 10:31$$checksum=b059a6f1$$length=085$$

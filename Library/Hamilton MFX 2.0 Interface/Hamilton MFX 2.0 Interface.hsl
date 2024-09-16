@@ -1,0 +1,738 @@
+//*********************************************************************************************************************************************************************************
+//*    _    _                 _ _ _                _____       _           _   _                                                                                                   
+//*   | |  | |               (_) | |              |  __ \     | |         | | (_)                                                                                                  
+//*   | |__| | __ _ _ __ ___  _| | |_ ___  _ __   | |__) |___ | |__   ___ | |_ _  ___ ___                                                                                          
+//*   |  __  |/ _` | '_ ` _ \| | | __/ _ \| '_ \  |  _  // _ \| '_ \ / _ \| __| |/ __/ __|                                                                                         
+//*   | |  | | (_| | | | | | | | | || (_) | | | | | | \ \ (_) | |_) | (_) | |_| | (__\__ \                                                                                         
+//*   |_|  |_|\__,_|_| |_| |_|_|_|\__\___/|_| |_| |_|  \_\___/|_.__/ \___/ \__|_|\___|___/                                                                                         
+//*                                                                                                                                                                                
+//*                                                                                                                                                                                
+//*   Library for Hamilton MFX 2.0 boards                                                                                                                                          
+//*                                                                                                                                                                                
+//*   Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz                                                                                                                        
+//*   All rights reserved                                                                                                                                                          
+//*                                                                                                                                                                                
+//*********************************************************************************************************************************************************************************
+//*
+//*   Revision History:
+//*
+//*   2019-12-09    v1.0    BHuf            - created
+//*   2019-12-09    v1.1    BHuf            - installation of serial driver for Win 7
+//*   2020-10-08    v1.2    BHuf            - added support for VoV firmware commands
+//*   2020-10-29    v1.3    BHuf            - set TraceLevel for serial communication to TRACE_LEVEL_RELEASE when i_blnCommunicationTrace is set to ASWGLOBAL::BOOL::TRUE
+//*   2021-01-28    v1.4    BHuf            - updated naming of array to comply AAW 650410 v3.0
+//*                                         - added parameter 'io_arrStrErrorCodes' to function 'InitializeModule'
+//*                                         - added parameter 'io_arrStrErrorCodes' to function 'TerminateModule'
+//*                                         - added parameter 'io_arrStrErrorCodes' to function 'SendCommands'
+//*                                         - added function 'ExtractErrorCode'
+//*                                         - added error code enumerator
+//*   2021-06-23    v1.5    BHuf            - added function 'SendCommandsSilent'
+//*                                         - added check for Tracelevel to function 'InitializeModule' for showing usage
+//*                                         - added check for Tracelevel to function 'TerminateModule' for showing usage
+//*   2021-07-01    v1.6    BHuf            - bugfix in handling of CAN modules (fixed array size)
+//*                                         - added private function '_GetFreeSlot'
+//*                                         - adapted responses from CAN modules to serial responses (remove command from response)
+//*   2021-08-04    v1.7    BHuf            - bugfix in function '_SendFirmwareCommand'
+//*                                         - added function 'GetLastError'
+//*   2022-01-26    v1.8    BHuf            - bugfix in function '_CommandSequence'
+//*   2022-02-23    v1.9    BHuf / JMagnin  - bugfix in function '_SendFirmwareCommand'
+//*********************************************************************************************************************************************************************************
+
+#ifndef __Hamilton_MFX_2_0_Interface_hsl__
+  #define __Hamilton_MFX_2_0_Interface_hsl__  42
+
+  #ifndef __TraceLevel_hsl__
+    #include "ASWStandard\\TraceLevel\\TraceLevel.hsl"
+  #endif
+
+  #ifndef __ASWGLOBAL_hsl__
+    #include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl"
+  #endif
+
+  #ifndef __Hamilton_SerialInterface_hsl__
+    #include "Hamilton SerialInterface\\Hamilton SerialInterface.hsl"
+  #endif
+
+  #ifndef __Hamilton_DriverTools_hsl__
+    #include "Hamilton DriverTools\\Hamilton DriverTools.hsl"
+  #endif
+
+  namespace Hamilton_MFX_2_0_Interface
+  {
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  public declarations
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    const variable PORT_MIN                                                             (-1); //Port -1 for CAN on VoV, Port 0 for CAN on STAR
+    const variable PORT_MAX                                                             (256);
+    const variable MAXIMUM_NUMBER_OF_CAN_MODULES                                        (32);
+
+    const variable MODULE_ID_MIN                                                        (0);
+    const variable MODULE_ID_MAX                                                        (Hamilton_SerialInterface::MAXIMUM_MODULEID + MAXIMUM_NUMBER_OF_CAN_MODULES);
+
+    namespace Error
+    {
+      namespace Common
+      {
+        const variable Invalid                                                          (-1);
+        const variable None                                                             (00);
+      }
+      namespace CommandDecoding
+      {
+        const variable UnknownCommand                                                   (30);
+        const variable UnknownParameter                                                 (31);
+        const variable ParameterOutOfRange                                              (32);
+        const variable ParameterNotValid                                                (33);
+      }
+      namespace StepDrive
+      {
+        const variable BoardNotConnected                                                (40);
+        const variable StepLoss                                                         (41);
+        const variable NotInitialized                                                   (42);
+        const variable InitPositionNotFound                                             (43);
+      }
+      namespace Heater
+      {
+        const variable BoardNotConnected                                                (50);
+        const variable CalibrationFailed                                                (51);
+        const variable SensorBroken                                                     (52);
+      }
+      namespace DC_Drive_1
+      {
+        const variable BoardNotConnected                                                (60);
+        const variable PositionError                                                    (61);
+        const variable NotInitialized                                                   (62);
+        const variable InitPositionNotFound                                             (63);
+        const variable NoEncoderDefined                                                 (64);
+        const variable OverCurrentProtection                                            (65);
+        const variable LinearMotion                                                     (66);
+        const variable PositionTimeout                                                  (67);
+      }
+      namespace DC_Drive_2
+      {
+        const variable BoardNotConnected                                                (70);
+        const variable PositionError                                                    (71);
+        const variable NotInitialized                                                   (72);
+        const variable InitPositionNotFound                                             (73);
+        const variable NoEncoderDefined                                                 (74);
+        const variable OverCurrentProtection                                            (75);
+        const variable LinearMotion                                                     (76);
+        const variable PositionTimeout                                                  (77);
+      }
+      namespace Recorder
+      {
+        const variable MaximalLengthExceeded                                            (81);
+      }
+    }
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  private declarations
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    const static variable PORT_SETTINGS                                                 ("115200,N,8,1,N,CR/LF");
+
+    const static variable SERIAL_MODULE_ID_MAX                                          (Hamilton_SerialInterface::MAXIMUM_MODULEID);
+    const static variable CAN_MODULE_ID_MIN                                             (Hamilton_SerialInterface::MAXIMUM_MODULEID + 1);
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  global declarations
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    static global variable gHamilton_MFX_2_0_Interface_blnInitialized                   (hslFalse);
+    static global variable gHamilton_MFX_2_0_Interface_arrBlnCommunicationTrace[]       (MODULE_ID_MAX + 1);
+    static global variable gHamilton_MFX_2_0_Interface_arrIntLastErrorCode[]            (MODULE_ID_MAX + 1);
+    static global variable gHamilton_MFX_2_0_Interface_arrStrLastErrorDescription[]     (MODULE_ID_MAX + 1);
+    static global variable gHamilton_MFX_2_0_Interface_arrStrCANModuleNames[]           (MAXIMUM_NUMBER_OF_CAN_MODULES);
+    static global variable gHamilton_MFX_2_0_Interface_arrBlnCANModuleSimulated[]       (MAXIMUM_NUMBER_OF_CAN_MODULES);
+    static global variable gHamilton_MFX_2_0_Interface_arrIntCANModuleTraceLevel[]      (MAXIMUM_NUMBER_OF_CAN_MODULES);
+    static global variable gHamilton_MFX_2_0_Interface_arrBlnCANModuleVoVMode[]         (MAXIMUM_NUMBER_OF_CAN_MODULES);
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  function declarations
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    function InitializeModule(variable i_intPort,
+                              variable i_strModuleName,
+                              variable i_blnSimulationMode,
+                              variable i_blnCommunicationTrace,
+                              variable i_arrStrCommands[],
+                              variable i_arrfltTimeouts[],
+                              variable& io_arrStrResponses[],
+                              variable& io_arrStrErrorCodes[],
+                              variable& o_intModuleID,
+                              variable i_strCallingFunctionName,
+                              variable i_strReferenceLibraryName) variable;
+
+    function TerminateModule(variable i_intModuleID,
+                             variable i_arrStrCommands[],
+                             variable i_arrfltTimeouts[],
+                             variable& io_arrStrResponses[],
+                             variable& io_arrStrErrorCodes[],
+                             variable i_strCallingFunctionName,
+                             variable i_strReferenceLibraryName) variable;
+
+    function SetTraceLevel(variable i_intModuleID,
+                           variable i_intTraceLevel,
+                           variable i_strCallingFunctionName,
+                           variable i_strReferenceLibraryName) void;
+
+    function SendCommands(variable i_intModuleID,
+                          variable i_arrStrCommands[],
+                          variable i_arrfltTimeouts[],
+                          variable& io_arrStrResponses[],
+                          variable& io_arrStrErrorCodes[],
+                          variable i_strCallingFunctionName,
+                          variable i_strReferenceLibraryName) variable;
+
+    function SendCommandsSilent(variable i_intModuleID,
+                                variable i_arrStrCommands[],
+                                variable i_arrfltTimeouts[],
+                                variable& io_arrStrResponses[],
+                                variable& io_arrStrErrorCodes[],
+                                variable i_strCallingFunctionName,
+                                variable i_strReferenceLibraryName) variable;
+
+    function ExtractErrorCode(string i_strResponse) variable;
+
+    function GetLastError(variable i_intModuleID,
+                          variable& o_intErrorNumber,
+                          variable& o_strErrorDescription) void;
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  private function declarations
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    private function _InitializeLibrary() void;
+
+    private function _ErrorMessage(variable i_strErrorCode) variable;
+
+    private function _AdjustSerialResponses(variable& io_arrStrResponses[]) void;
+
+    private function _CommandSequence(device ML_STAR,
+                                      variable i_intModuleID,
+                                      variable i_arrStrCommands[],
+                                      variable& io_arrStrResponses[],
+                                      variable& o_arrStrErrorCodes[],
+                                      variable i_strCallingFunctionName,
+                                      variable i_strReferenceLibraryName) variable;
+
+    private function _SendFirmwareCommand(device ML_STAR,
+                                          variable i_strCommand,
+                                          variable i_strParameter,
+                                          variable i_blnSimulationMode,
+                                          variable& o_strResponse,
+                                          variable& o_strErrorCode,
+                                          variable i_strCallingFunctionName,
+                                          variable i_strReferenceLibraryName) variable;
+
+    private function _TraceCommunication(variable i_intModuleID,
+                                         variable i_blnFunctionSuccess,
+                                         variable i_arrStrCommands[],
+                                         variable i_arrStrResponses[],
+                                         variable i_arrStrErrorCodes[],
+                                         variable i_strCallingFunctionName,
+                                         variable i_strReferenceLibraryName) void;
+
+    private function _GetFreeSlot(variable i_strModuleName,
+                                  variable i_strCallingFunctionName,
+                                  variable i_strReferenceLibraryName,
+                                  variable& o_intModuleID) variable;
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  function InitializeModule
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    function InitializeModule(variable i_intPort,
+                              variable i_strModuleName,
+                              variable i_blnSimulationMode,
+                              variable i_blnCommunicationTrace,
+                              variable i_arrStrCommands[],
+                              variable i_arrfltTimeouts[],
+                              variable& io_arrStrResponses[],
+                              variable& io_arrStrErrorCodes[],
+                              variable& o_intModuleID,
+                              variable i_strCallingFunctionName,
+                              variable i_strReferenceLibraryName) variable
+    {
+      variable intArrayPosition(0);
+      variable blnSuccess(ASWGLOBAL::BOOL::FALSE);
+
+      _InitializeLibrary();
+
+      if(i_intPort < 1)
+      {
+        // check, if module has been used before
+        intArrayPosition = Hamilton_DriverTools::FindInArray(gHamilton_MFX_2_0_Interface_arrStrCANModuleNames,
+                                                             i_strModuleName,
+                                                             i_strCallingFunctionName,
+                                                             i_strReferenceLibraryName);
+        if (intArrayPosition == -1)
+        {
+          if(!_GetFreeSlot(i_strModuleName,
+                           i_strCallingFunctionName,
+                           i_strReferenceLibraryName,
+                           intArrayPosition)) return(ASWGLOBAL::BOOL::FALSE);
+
+          gHamilton_MFX_2_0_Interface_arrStrCANModuleNames.SetAt(intArrayPosition, i_strModuleName);
+          gHamilton_MFX_2_0_Interface_arrBlnCANModuleSimulated.SetAt(intArrayPosition, i_blnSimulationMode);
+          gHamilton_MFX_2_0_Interface_arrIntCANModuleTraceLevel.SetAt(intArrayPosition, TRACE_LEVEL_DEBUG);
+          if(i_intPort == 0)
+            gHamilton_MFX_2_0_Interface_arrBlnCANModuleVoVMode.SetAt(intArrayPosition, hslFalse);
+          else
+            gHamilton_MFX_2_0_Interface_arrBlnCANModuleVoVMode.SetAt(intArrayPosition, hslTrue);
+        }
+        else
+        {
+          gHamilton_MFX_2_0_Interface_arrBlnCANModuleSimulated.SetAt(intArrayPosition, i_blnSimulationMode);
+        }
+
+        o_intModuleID = CAN_MODULE_ID_MIN + intArrayPosition;
+
+        blnSuccess = _CommandSequence(GetDeviceRef("ML_STAR"),
+                                      o_intModuleID,
+                                      i_arrStrCommands,
+                                      io_arrStrResponses,
+                                      io_arrStrErrorCodes,
+                                      i_strCallingFunctionName,
+                                      i_strReferenceLibraryName);
+      }
+      else
+      {
+        blnSuccess = Hamilton_SerialInterface::InitializeModule(i_intPort,
+                                                                PORT_SETTINGS,
+                                                                "99",
+                                                                i_blnSimulationMode,
+                                                                ASWGLOBAL::BOOL::TRUE,
+                                                                i_arrStrCommands,
+                                                                i_arrfltTimeouts,
+                                                                o_intModuleID,
+                                                                io_arrStrResponses,
+                                                                io_arrStrErrorCodes);
+
+        _AdjustSerialResponses(io_arrStrResponses);
+
+        if(TRACELEVEL::GetTraceLevel() == TRACE_LEVEL_DEBUG) Hamilton_SerialInterface::ShowUsage();
+
+        if(i_blnCommunicationTrace == ASWGLOBAL::BOOL::TRUE) Hamilton_SerialInterface::SetTraceLevel(o_intModuleID, TRACE_LEVEL_RELEASE);
+      }
+
+      if(i_blnCommunicationTrace == ASWGLOBAL::BOOL::TRUE) gHamilton_MFX_2_0_Interface_arrBlnCommunicationTrace.SetAt(o_intModuleID, hslTrue);
+
+      _TraceCommunication(o_intModuleID, blnSuccess, i_arrStrCommands, io_arrStrResponses, io_arrStrErrorCodes, i_strCallingFunctionName, i_strReferenceLibraryName);
+
+      return(blnSuccess);
+    } // InitializeModule
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  function TerminateModule
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    function TerminateModule(variable i_intModuleID,
+                             variable i_arrStrCommands[],
+                             variable i_arrfltTimeouts[],
+                             variable& io_arrStrResponses[],
+                             variable& io_arrStrErrorCodes[],
+                             variable i_strCallingFunctionName,
+                             variable i_strReferenceLibraryName) variable
+    {
+      variable blnSuccess(ASWGLOBAL::BOOL::FALSE);
+
+      if(i_intModuleID >= CAN_MODULE_ID_MIN)
+      {
+        blnSuccess = _CommandSequence(GetDeviceRef("ML_STAR"),
+                                      i_intModuleID,
+                                      i_arrStrCommands,
+                                      io_arrStrResponses,
+                                      io_arrStrErrorCodes,
+                                      i_strCallingFunctionName,
+                                      i_strReferenceLibraryName);
+
+        if(blnSuccess == ASWGLOBAL::BOOL::TRUE)
+        {
+          gHamilton_MFX_2_0_Interface_arrStrCANModuleNames.SetAt(i_intModuleID - CAN_MODULE_ID_MIN, "");
+        }
+      }
+      else
+      {
+        blnSuccess = Hamilton_SerialInterface::TerminateModule(i_intModuleID,
+                                                               ASWGLOBAL::BOOL::TRUE,
+                                                               ASWGLOBAL::BOOL::TRUE,
+                                                               i_arrStrCommands,
+                                                               i_arrfltTimeouts,
+                                                               io_arrStrResponses,
+                                                               io_arrStrErrorCodes);
+
+        _AdjustSerialResponses(io_arrStrResponses);
+
+        if(TRACELEVEL::GetTraceLevel() == TRACE_LEVEL_DEBUG) Hamilton_SerialInterface::ShowUsage();
+      }
+
+      _TraceCommunication(i_intModuleID, blnSuccess, i_arrStrCommands, io_arrStrResponses, io_arrStrErrorCodes, i_strCallingFunctionName, i_strReferenceLibraryName);
+
+      return(blnSuccess);
+    } // TerminateModule
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  function SendCommands
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    function SendCommands(variable i_intModuleID,
+                          variable i_arrStrCommands[],
+                          variable i_arrfltTimeouts[],
+                          variable& io_arrStrResponses[],
+                          variable& io_arrStrErrorCodes[],
+                          variable i_strCallingFunctionName,
+                          variable i_strReferenceLibraryName) variable
+    {
+      variable blnSuccess(ASWGLOBAL::BOOL::FALSE);
+
+      if(i_intModuleID >= CAN_MODULE_ID_MIN)
+      {
+        blnSuccess = _CommandSequence(GetDeviceRef("ML_STAR"),
+                                      i_intModuleID,
+                                      i_arrStrCommands,
+                                      io_arrStrResponses,
+                                      io_arrStrErrorCodes,
+                                      i_strCallingFunctionName,
+                                      i_strReferenceLibraryName);
+      }
+      else
+      {
+        blnSuccess = Hamilton_SerialInterface::TransmitCommandList(i_intModuleID,
+                                                                   i_arrStrCommands,
+                                                                   i_arrfltTimeouts,
+                                                                   io_arrStrResponses,
+                                                                   io_arrStrErrorCodes);
+
+        _AdjustSerialResponses(io_arrStrResponses);
+      }
+
+      gHamilton_MFX_2_0_Interface_arrIntLastErrorCode.SetAt(i_intModuleID, IVal(io_arrStrErrorCodes.GetAt(io_arrStrErrorCodes.GetSize() -1)));
+      gHamilton_MFX_2_0_Interface_arrStrLastErrorDescription.SetAt(i_intModuleID, _ErrorMessage(io_arrStrErrorCodes.GetAt(io_arrStrErrorCodes.GetSize() -1)));
+
+      _TraceCommunication(i_intModuleID, blnSuccess, i_arrStrCommands, io_arrStrResponses, io_arrStrErrorCodes, i_strCallingFunctionName, i_strReferenceLibraryName);
+
+      return(blnSuccess);
+    } // SendCommands
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  function SendCommandsSilent
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    function SendCommandsSilent(variable i_intModuleID,
+                                variable i_arrStrCommands[],
+                                variable i_arrfltTimeouts[],
+                                variable& io_arrStrResponses[],
+                                variable& io_arrStrErrorCodes[],
+                                variable i_strCallingFunctionName,
+                                variable i_strReferenceLibraryName) variable
+    {
+      variable blnSuccess(ASWGLOBAL::BOOL::FALSE);
+
+      if(i_intModuleID >= CAN_MODULE_ID_MIN)
+      {
+        blnSuccess = _CommandSequence(GetDeviceRef("ML_STAR"),
+                                      i_intModuleID,
+                                      i_arrStrCommands,
+                                      io_arrStrResponses,
+                                      io_arrStrErrorCodes,
+                                      i_strCallingFunctionName,
+                                      i_strReferenceLibraryName);
+      }
+      else
+      {
+        // blnSuccess = Hamilton_SerialInterface::TransmitModuleCommandListSilent(i_intModuleID,
+        //                                                                       i_arrStrCommands,
+        //                                                                       i_arrfltTimeouts,
+        //                                                                       io_arrStrResponses,
+        //                                                                       io_arrStrErrorCodes);
+
+        //_AdjustSerialResponses(io_arrStrResponses);
+      }
+
+      gHamilton_MFX_2_0_Interface_arrIntLastErrorCode.SetAt(i_intModuleID, io_arrStrErrorCodes.GetAt(io_arrStrErrorCodes.GetSize() -1));
+      gHamilton_MFX_2_0_Interface_arrStrLastErrorDescription.SetAt(i_intModuleID, _ErrorMessage(io_arrStrErrorCodes.GetAt(io_arrStrErrorCodes.GetSize() -1)));
+
+      _TraceCommunication(i_intModuleID, blnSuccess, i_arrStrCommands, io_arrStrResponses, io_arrStrErrorCodes, i_strCallingFunctionName, i_strReferenceLibraryName);
+
+      return(blnSuccess);
+    } // SendCommandsSilent
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  function ExtractErrorCode
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    function ExtractErrorCode(string i_strResponse) variable
+    {
+      variable intPosition(0), intErrorNumber(0);
+
+      intPosition = i_strResponse.Find("er");
+
+      if(intPosition == -1) return(Error::Common::Invalid);
+
+      onerror goto EXCEPTION;
+      intErrorNumber = IVal(i_strResponse.Mid(intPosition + 2, 2));
+      onerror goto 0;
+
+      return(intErrorNumber);
+
+      EXCEPTION:
+      {
+        return(Error::Common::Invalid);
+      }
+    } // ExtractErrorCode
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  function GetLastError
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    function GetLastError(variable i_intModuleID,
+                          variable& o_intErrorNumber,
+                          variable& o_strErrorDescription) void
+    {
+      o_intErrorNumber = gHamilton_MFX_2_0_Interface_arrIntLastErrorCode.GetAt(i_intModuleID);
+      o_strErrorDescription = gHamilton_MFX_2_0_Interface_arrStrLastErrorDescription.GetAt(i_intModuleID);
+    } // GetLastError
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  function SetTraceLevel
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    function SetTraceLevel(variable i_intModuleID,
+                           variable i_intTraceLevel,
+                           variable i_strCallingFunctionName,
+                           variable i_strReferenceLibraryName) void
+    {
+      if(i_intModuleID >= CAN_MODULE_ID_MIN)
+        gHamilton_MFX_2_0_Interface_arrIntCANModuleTraceLevel.SetAt(i_intModuleID - CAN_MODULE_ID_MIN, i_intTraceLevel);
+      else
+        Hamilton_SerialInterface::SetTraceLevel(i_intModuleID, i_intTraceLevel);
+    } // SetTraceLevel
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  private function _InitializeLibrary
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    private function _InitializeLibrary() void
+    {
+      if(!gHamilton_MFX_2_0_Interface_blnInitialized)
+      {
+        variable intActualPos(0);
+
+        for(intActualPos = 0; intActualPos < MODULE_ID_MAX + 1; intActualPos++)
+        {
+          gHamilton_MFX_2_0_Interface_arrBlnCommunicationTrace.SetAt(intActualPos, hslFalse);
+          gHamilton_MFX_2_0_Interface_arrIntLastErrorCode.SetAt(intActualPos, -1);
+          gHamilton_MFX_2_0_Interface_arrStrLastErrorDescription.SetAt(intActualPos, "not initialized");
+
+        }
+
+        for(intActualPos = 0; intActualPos < MAXIMUM_NUMBER_OF_CAN_MODULES; intActualPos++)
+        {
+          gHamilton_MFX_2_0_Interface_arrStrCANModuleNames.SetAt(intActualPos, "");
+          gHamilton_MFX_2_0_Interface_arrBlnCANModuleSimulated.SetAt(intActualPos, hslFalse);
+          gHamilton_MFX_2_0_Interface_arrIntCANModuleTraceLevel.SetAt(intActualPos, TRACE_LEVEL_DEBUG);
+          gHamilton_MFX_2_0_Interface_arrBlnCANModuleVoVMode.SetAt(intActualPos, hslFalse);
+        }
+
+        gHamilton_MFX_2_0_Interface_blnInitialized = hslTrue;
+      }
+    } // _InitializeLibrary
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  private function _ErrorMessage
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    private function _ErrorMessage(variable i_strErrorCode) variable
+    {
+      if(i_strErrorCode == "00") return("No error");
+      if(i_strErrorCode == "30") return("Unknown command !");
+      if(i_strErrorCode == "31") return("Unknown parameter !");
+      if(i_strErrorCode == "32") return("Parameter is outside of permitted range !");
+      if(i_strErrorCode == "33") return("Parameter is not valid for this command !");
+      if(i_strErrorCode == "40") return("Step Drive: Board not connected !");
+      if(i_strErrorCode == "41") return("Step Drive: Step loss !");
+      if(i_strErrorCode == "42") return("Step Drive: Not initialized !");
+      if(i_strErrorCode == "43") return("Step Drive: Init position not found !");
+      if(i_strErrorCode == "50") return("Heater: Board not connected !");
+      if(i_strErrorCode == "51") return("Heater: Calibration failed !");
+      if(i_strErrorCode == "52") return("Heater: Sensor broken !");
+      if(i_strErrorCode == "60") return("DC Drive 1: Board not connected !");
+      if(i_strErrorCode == "61") return("DC Drive 1: Position error !");
+      if(i_strErrorCode == "62") return("DC Drive 1: Not initialized !");
+      if(i_strErrorCode == "63") return("DC Drive 1: Init position not found !");
+      if(i_strErrorCode == "64") return("DC Drive 1: No encoder defined !");
+      if(i_strErrorCode == "65") return("DC Drive 1: Overcurrent protection !");
+      if(i_strErrorCode == "66") return("DC Drive 1: Linear motion error !");
+      if(i_strErrorCode == "67") return("DC Drive 1: Position timeout !");
+      if(i_strErrorCode == "70") return("DC Drive 2: Board not connected !");
+      if(i_strErrorCode == "71") return("DC Drive 2: Position error !");
+      if(i_strErrorCode == "72") return("DC Drive 2: Not initialized !");
+      if(i_strErrorCode == "73") return("DC Drive 2: Init position not found !");
+      if(i_strErrorCode == "74") return("DC Drive 2: No encoder defined !");
+      if(i_strErrorCode == "75") return("DC Drive 2: Overcurrent protection !");
+      if(i_strErrorCode == "76") return("DC Drive 2: Linear motion error !");
+      if(i_strErrorCode == "77") return("DC Drive 2: Position timeout !");
+      if(i_strErrorCode == "81") return("Recorder !");
+      return("Unknown error number !");
+    } // _ErrorMessage
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  private function _AdjustSerialResponses
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    private function _AdjustSerialResponses(variable& io_arrStrResponses[]) void
+    {
+      string strTemp("");
+      variable intActualResponse(0), intCutPos(0);
+
+      for(intActualResponse = 0; intActualResponse < io_arrStrResponses.GetSize(); intActualResponse++)
+      {
+        strTemp = io_arrStrResponses.GetAt(intActualResponse);
+        intCutPos = strTemp.Find("er");
+        if(intCutPos != -1) io_arrStrResponses.SetAt(intActualResponse, strTemp.Mid(intCutPos, strTemp.GetLength()));
+      }
+    } // _AdjustSerialResponses
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  private function _CommandSequence
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    private function _CommandSequence(device ML_STAR,
+                                      variable i_intModuleID,
+                                      variable i_arrStrCommands[],
+                                      variable& io_arrStrResponses[],
+                                      variable& o_arrStrErrorCodes[],
+                                      variable i_strCallingFunctionName,
+                                      variable i_strReferenceLibraryName) variable
+    {
+      variable intActualCommand(0);
+      variable strResponse(""), strErrorCode("");
+      string strCommand(""), strParameter(""), strTemp(""), strModuleName("");
+      variable blnSuccess(hslTrue);
+
+      strModuleName = gHamilton_MFX_2_0_Interface_arrStrCANModuleNames.GetAt(i_intModuleID - CAN_MODULE_ID_MIN);
+
+      o_arrStrErrorCodes.SetSize(0);
+
+      for(intActualCommand = 0; intActualCommand < i_arrStrCommands.GetSize(); intActualCommand++)
+      {
+        strResponse = io_arrStrResponses.GetAt(intActualCommand);
+        // distinguish between VoV and STAR firmware commands
+        if(gHamilton_MFX_2_0_Interface_arrBlnCANModuleVoVMode.GetAt(i_intModuleID - CAN_MODULE_ID_MIN))
+        {
+          strCommand = "####";                                      // command identifier for VoV
+          strParameter = strModuleName + i_arrStrCommands.GetAt(intActualCommand);  // set command as parameter
+        }
+        else
+        {
+          strTemp = i_arrStrCommands.GetAt(intActualCommand);       // get command
+          strCommand = strModuleName + strTemp.Mid(0, 2);           // extract command
+          strParameter = strTemp.Mid(2, strTemp.GetLength());       // extract parameter
+        }
+
+        blnSuccess = _SendFirmwareCommand(ML_STAR,
+                                         strCommand,
+                                         strParameter,
+                                         gHamilton_MFX_2_0_Interface_arrBlnCANModuleSimulated.GetAt(i_intModuleID - CAN_MODULE_ID_MIN),
+                                         strResponse,
+                                         strErrorCode,
+                                         i_strCallingFunctionName,
+                                         i_strReferenceLibraryName);
+
+        io_arrStrResponses.SetAt(intActualCommand, strResponse);
+        o_arrStrErrorCodes.AddAsLast(strErrorCode);
+
+        if(!blnSuccess) return(hslFalse);
+      }
+      return (hslTrue);
+    } // _CommandSequence
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  private function _SendFirmwareCommand
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    private function _SendFirmwareCommand(device ML_STAR,
+                                          variable i_strCommand,
+                                          variable i_strParameter,
+                                          variable i_blnSimulationMode,
+                                          variable& o_strResponse,
+                                          variable& o_strErrorCode,
+                                          variable i_strCallingFunctionName,
+                                          variable i_strReferenceLibraryName) variable
+    {
+      variable intIndex;
+      variable arrStrFirmwareReturnValues[];
+      string strReturnValue;
+
+      i_strCallingFunctionName = i_strCallingFunctionName + " -> SendFirmwareCommand";
+
+      if(!i_blnSimulationMode)
+      {
+        arrStrFirmwareReturnValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "95a980c9_6302_4eb0_9e4bc94fcc717802" ); // FirmwareCommand
+
+        if(arrStrFirmwareReturnValues.GetSize() < 4)
+        {
+          Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::ERROR,
+                                            TRACE_LEVEL_RELEASE,
+                                            "Firmware command returned unsuccessful !",
+                                            i_strCallingFunctionName,
+                                            TRACE_LEVEL_RELEASE,
+                                            i_strReferenceLibraryName);
+          return(hslFalse);
+        }
+
+        o_strResponse = arrStrFirmwareReturnValues.GetAt(3);
+      }
+
+      strReturnValue = o_strResponse;
+
+      intIndex = strReturnValue.Find("er");
+      o_strErrorCode = strReturnValue.Mid(intIndex + 2, 2);
+
+      strReturnValue = strReturnValue.Mid(intIndex + 4, strReturnValue.GetLength());
+      o_strResponse = strReturnValue;
+
+      if(o_strErrorCode != "00") return(hslFalse);
+
+      return (hslTrue);
+    } // _SendFirmwareCommand
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  private function _TraceCommunication
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    private function _TraceCommunication(variable i_intModuleID,
+                                         variable i_blnFunctionSuccess,
+                                         variable i_arrStrCommands[],
+                                         variable i_arrStrResponses[],
+                                         variable i_arrStrErrorCodes[],
+                                         variable i_strCallingFunctionName,
+                                         variable i_strReferenceLibraryName) void
+    {
+      variable intActualItem(0);
+      variable strTrace("");
+
+      // check, if trace flag is set or function was not successful
+      if(!gHamilton_MFX_2_0_Interface_arrBlnCommunicationTrace.GetAt(i_intModuleID) && i_blnFunctionSuccess) return;
+
+      for(intActualItem = 0; intActualItem < i_arrStrCommands.GetSize(); intActualItem++)
+      {
+        strTrace = "Command '" + i_arrStrCommands.GetAt(intActualItem) + "' responded '" + i_arrStrResponses.GetAt(intActualItem) + "'";
+        if(i_arrStrErrorCodes.GetSize() <= intActualItem) break;
+        if(i_arrStrErrorCodes.GetAt(intActualItem) !=  "00") strTrace = strTrace + " -> " + _ErrorMessage(i_arrStrErrorCodes.GetAt(intActualItem));
+        Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS,
+                                          TRACE_LEVEL_RELEASE,
+                                          strTrace,
+                                          i_strCallingFunctionName,
+                                          TRACE_LEVEL_DEBUG,
+                                          i_strReferenceLibraryName);
+      }
+    } // _TraceCommunication
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //  private function _GetFreeSlot
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    private function _GetFreeSlot(variable i_strModuleName,
+                                  variable i_strCallingFunctionName,
+                                  variable i_strReferenceLibraryName,
+                                  variable& o_intModuleID) variable
+    {
+      for(o_intModuleID = 0; o_intModuleID < MAXIMUM_NUMBER_OF_CAN_MODULES; o_intModuleID++)
+        if(gHamilton_MFX_2_0_Interface_arrStrCANModuleNames.GetAt(o_intModuleID) == "") return(hslTrue);
+
+      o_intModuleID = -1;
+
+      Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE_WITH_ERROR,
+                                        TRACE_LEVEL_RELEASE,
+                                        "All " + IStr(MAXIMUM_NUMBER_OF_CAN_MODULES) + " CAN-Modules used ¨!",
+                                        i_strCallingFunctionName,
+                                        TRACE_LEVEL_RELEASE,
+                                        i_strReferenceLibraryName);
+      return(hslFalse);
+    } // _GetFreeSlot
+  }
+#endif
+// $$author=Hamilton$$valid=0$$time=2024-01-26 10:41$$checksum=2a4d7bfa$$length=085$$

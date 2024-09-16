@@ -1,0 +1,34 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 11/7/2018 3:01:29 PM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace NGSSTAR384PROCESSES {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function DATA_CheckPlatesInStacks( device & ML_STAR, sequence & seq_Stack1, sequence & seq_Stack2, variable var_Stack1Expected, variable var_Stack2Expected, variable & var_Result, variable & msg_Result ) void { }
+function DATA_HandoverSequencesAndDataToSMT( sequence & i_seqTip50Filter, sequence & i_seqTip300Filter, sequence & i_seqTip1000Filter, sequence & i_seqTip5mlFilter, sequence & i_seqCOREGripper, variable i_blnSimulationON, variable i_strKitName ) void { }
+function DATA_IncubationTimer( timer & i_strIncubationTimerName, variable i_intTime ) void { }
+function DATA_OverdryingProtection( timer & i_strOverdryingTimerName, variable i_intIncubationTimeForTheFollowingStep, variable i_blnStartNewTimer, variable & o_intIncubationTimeForTheFollowingStepModified ) void { }
+function DATA_TipCounterRead( device & ML_STAR, variable var_Tip50_required, variable var_Tip300_required, variable var_Tip1000_required, variable var_Tip5ml_required, variable var_TipTypeToBeProcessed, variable bln_AlwaysEditTipcounter, variable bln_ShowGUITipAndTimeCalculation ) void { }
+function DATA_TipCounterWrite( device & ML_STAR ) void { }
+function PIP_BeadsFromTubesOrTroughToPlate( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_fltVolBeads, variable i_strLiquidClassNameTransfer, variable i_blnTipExchangeDuringTransfer, sequence seq_Mixing, variable i_blnMixWithSVFT ) void { }
+function PIP_Eluate_SingleDispenseFromPlateToPlate( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_fltVolume, variable i_strLiquidClassNameTransfer ) void { }
+function PIP_EtOH_HVFTMultidispenseFromTroughToPlate( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_strLiquidClassNameTransfer, variable & var_TrackingEthanolVolume ) void { }
+function PIP_Liquid_SingleDispenseFromPlateToPlate( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_fltVolume, variable i_strLiquidClassNameTransfer, variable i_intMixCycles, variable i_fltVolumeMix ) void { }
+function PIP_Normalize_LVFTForSampleTransferSVFTForBufferTransfer( device & ML_STAR, variable i_strNormalizationFile, sequence & io_seqBuffer, sequence & io_seqSourcePlate, sequence & io_seqDestinationPlate, variable i_strLiquidClassNameTransferBUFFER, variable i_strLiquidClassNameTransferSAMPLE, sequence & io_seqPlateSeqForJustBuffer, sequence & io_seqPoolingPlate ) void { }
+function PIP_OIL_LVFTSingleDispenseFromTroughToPlate( device & ML_STAR, sequence & seq_HSP, sequence & seq_Oil ) void { }
+function PIP_Pool_LVFT_SingleDispenseFromPlateToPlate( device & ML_STAR, sequence & i_seq_NormPlate, sequence & i_seq_PoolingPlate, variable i_strLiquidClassNameTransfer, variable & i_str_NormalizationFile ) void { }
+function PIP_ReagentsFromTubeOrTroughToPlate( device & ML_STAR, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable i_fltVolume, variable i_strLiquidClassNameTransfer, variable i_blnTipExchangeDuringTransfer, variable i_intMixCycles, variable i_fltVolumeMix, variable i_fltDispenseHeightFromBottom, variable i_blnUseUpToFourVials ) void { }
+function Trp_ComfortLidwithCOREGripper( device & ML_STAR, sequence & seq_HSP_StartingPosition, sequence & seq_HSP_Destination, variable var_ParkAfterMove ) void { }
+function Trp_HSPGreinerwithCOREGripper( device & ML_STAR, sequence & seq_HSP_StartingPosition, sequence & seq_HSP_Destination, variable var_ParkAfterMove ) void { }
+function Trp_HSPPCRwithCOREGripper( device & ML_STAR, sequence & seq_HSP_StartingPosition, sequence & seq_HSP_Destination, variable var_ParkAfterMove ) void { }
+function Trp_HSPtoODTCwithCOREGripper( device & ML_STAR, sequence & seq_HSP_StartingPosition, sequence & seq_HSP_Destination, variable var_ParkAfterMove ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Hamilton$$valid=0$$time=2018-11-07 15:01$$checksum=d941257f$$length=085$$

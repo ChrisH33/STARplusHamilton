@@ -1,0 +1,21 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 22/05/2020 16:16:11
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace SYNENTEC_CELLAVISTA_NYONE_V1 {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Cellavista_FACS_Image_Transfer( variable worklistFile, variable computerchoice, variable folderchoice ) void { }
+function Cellavista_Suspension_Heatmap( variable varDisplayType, variable varChoiceSetup, variable experimentID, variable cellavistaExperiment, variable DWPsThisTime, variable date, variable time, variable targetCellDensity, variable targetCellDensityTerm, variable mediaType, variable mediaLot, variable mediaType2, variable mediaLot2, variable targetVolume, variable barcodeReadPlate, variable & arrBaracodesSetUpPlates[], variable & arrBaracodesPassagePlates[], variable & arrBaracodesTerminalPlates[] ) void { }
+function Get_Cellavista_Results_Confluence( variable csvFileName, variable plateType, variable & arr_WellID[], variable & arr_ConfVal[], variable & arrColumn[], variable & arrRowAlpha[] ) void { }
+function Get_Cellavista_Results_FL_LiveDead( variable csvFileName, variable plateType, variable & arr_WellID[], variable & arr_TCD[], variable & arr_VCD[], variable & arr_Via[], variable DilutionFactor, variable CellavistaVolume ) void { }
+function Get_Cellavista_Results_Trypan( variable csvFileName, variable plateType, variable & arr_WellID[], variable & arr_TCD[], variable & arr_VCD[], variable & arr_Via[], variable DilutionFactor, variable CellavistaVolume ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=KJGX688$$valid=0$$time=2020-05-22 16:16$$checksum=ebe896a1$$length=084$$

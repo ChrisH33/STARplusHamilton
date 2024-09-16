@@ -1,0 +1,20 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 2/16/2011 4:24:25 PM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace HSL_SEQDAILYTOOLS {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function CopyPlatePattern96ToTipRack( sequence plateSource, sequence & tipRack ) void { }
+function CopyPlatePatternToPlate( sequence plateSource, sequence & plateTarget ) void { }
+function GetNumberOfPositionsLeft( sequence seq, variable & numberOfPositionsLeft ) void { }
+function SeqEasyEdit( sequence & seq, variable timeout, variable dialog_title, variable dialog_msg, device & ML_STAR ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=first user$$valid=0$$time=2011-02-16 16:24$$checksum=292cdfb2$$length=087$$

@@ -1,0 +1,51 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 16/06/2023 21:55:36
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace DATAMANAGERINTERFACE {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function AddColumn( variable i_strTableName, variable i_strColumnName, variable i_iColumnType, variable i_bAllowDBNull, variable i_oValue ) variable {  return (0); }
+function AddTable( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrColumnTypes[], variable & i_arrAllowDBNull[] ) variable {  return (0); }
+function DeleteRows( variable i_strTableName, variable i_strFilterExpression, variable & o_iRowsAffected ) variable {  return (0); }
+function ExecuteAggregateFunction( variable i_strTableName, variable i_iAggregateType, variable i_iSelectionMode, variable i_strColumnName, variable i_strFilterExpression, variable & o_oResult ) variable {  return (0); }
+function ExecuteSelectAllLineByLineCommand( variable i_strTableName, variable & o_iRowsAffected ) variable {  return (0); }
+function ExecuteSelectCommand( variable i_strTableName, variable i_iSelectionMode, variable i_strColumnNames, variable i_strFilterExpression, variable i_strSortExpression, variable & o_iRowsAffected ) variable {  return (0); }
+function ExportColumnsToCSVFile( variable i_strTableName, variable i_strFullFileName, variable i_strColumnNames, variable i_bOverwriteExistingFile, variable i_strSeparator, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable {  return (0); }
+function ExportColumnsToExcelBinaryFile( variable i_strTableName, variable i_strFullFileName, variable i_strColumnNames, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat ) variable {  return (0); }
+function ExportColumnsToExcelXMLFile( variable i_strTableName, variable i_strFullFileName, variable i_strColumnNames, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable {  return (0); }
+function ExportColumnsToXMLFile( variable i_strTableName, variable i_strFullFileName, variable i_strColumnNames, variable i_bOverwriteExistingFile ) variable {  return (0); }
+function ExportSelectedToCSVFile( variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSeparator, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable {  return (0); }
+function ExportSelectedToExcelBinaryFile( variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat ) variable {  return (0); }
+function ExportSelectedToExcelXMLFile( variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable {  return (0); }
+function ExportSelectedToXMLFile( variable i_strFullFileName, variable i_bOverwriteExistingFile ) variable {  return (0); }
+function ExportToCSVFile( variable i_strTableName, variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSeparator, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable {  return (0); }
+function ExportToExcelBinaryFile( variable i_strTableName, variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat ) variable {  return (0); }
+function ExportToExcelXMLFile( variable i_strTableName, variable i_strFullFileName, variable i_bOverwriteExistingFile, variable i_strSheetName, variable i_iBooleanExportFormat, variable i_bWriteHeader ) variable {  return (0); }
+function ExportToXMLFile( variable i_strTableName, variable i_strFullFileName, variable i_bOverwriteExistingFile ) variable {  return (0); }
+function GetRowCount( variable i_strTableName, variable & o_iNumberOfRows ) variable {  return (0); }
+function GetSelectCommandRow( variable i_iRowNumber, variable & o_arrValues[] ) variable {  return (0); }
+function ImportFromCSVFile( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrColumnTypes[], variable & i_arrAllowDBNull[], variable i_strFullFileName, variable i_strSeparator, variable i_bFileContainsHeader ) variable {  return (0); }
+function ImportFromExcelBinaryFile( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrColumnTypes[], variable & i_arrAllowDBNull[], variable i_strFullFileName, variable i_strSheetName, variable i_bFileContainsHeader ) variable {  return (0); }
+function ImportFromExcelXMLFile( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrColumnTypes[], variable & i_arrAllowDBNull[], variable i_strFullFileName, variable i_bFileContainsHeader ) variable {  return (0); }
+function ImportFromXMLFile( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrColumnTypes[], variable & i_arrAllowDBNull[], variable i_strFullFileName ) variable {  return (0); }
+function Init(  ) variable {  return (0); }
+function InsertRow( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrValues[] ) variable {  return (0); }
+function InsertSortedRow( variable i_strTableName, variable & i_arrValues[] ) variable {  return (0); }
+function LoadDataManagerContent( variable i_strFullFileName ) variable {  return (0); }
+function RemoveColumn( variable i_strTableName, variable i_strColumnName ) variable {  return (0); }
+function RemoveTable( variable i_strTableName ) variable {  return (0); }
+function RenameColumn( variable i_strTableName, variable i_strActualColumnName, variable i_strNewColumnName ) variable {  return (0); }
+function ResetManager(  ) variable {  return (0); }
+function SaveDataManagerContent( variable i_strFullFileName, variable i_bOverwriteExistingFile ) variable {  return (0); }
+function Terminate(  ) variable {  return (0); }
+function UpdateRows( variable i_strTableName, variable & i_arrColumnNames[], variable & i_arrValues[], variable i_strFilterExpression, variable & o_iRowsAffected ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2023-06-16 21:55$$checksum=2697565b$$length=081$$

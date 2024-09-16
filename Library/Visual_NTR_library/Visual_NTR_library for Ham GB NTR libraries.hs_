@@ -1,0 +1,25 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 29/06/2023 15:52:56
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace VISUAL_NTR_LIBRARY_FOR_HAM_GB_NTR_LIBRARIES {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Channels_TipCounter_Edit( device & ML_STAR, sequence & ioNTRTipSequence, variable iNTRTipCounterName, variable iEditBoxTitleString, variable iSortByTier ) void { }
+function Channels_TipCounter_Write( device & ML_STAR, sequence & iNTRTipSequence, variable iNTRTipCounterName, sequence iNTRFrameWasteSequence, sequence & ioCOREGrippersSequence, variable iNTRRackDisposalChoice, variable iFinalRackInTier_TipDisposal, sequence & ioSeq_FinalTipInTierDestination, variable iTransportChoice, variable iChannelsForTransport, variable iSWAPGripDirection, variable iEditBoxTitleString ) void { }
+function MPH_TipCounter_Edit( device & ML_STAR, sequence & ioNTRTipSequence, variable iNTRTipCounterName, variable iEditBoxTitleString, variable iSingleColumnPickup ) void { }
+function MPH_TipCounter_Write( device & ML_STAR, sequence & iNTRTipSequence, variable iNTRTipCounterName, sequence iNTRFrameWasteSequence, sequence & ioCOREGrippersSequence, variable iTransportChoice, variable iChannelsForTransport, variable iSWAPGripDirection, variable iEditBoxTitleString, variable iNTRRackDisposalChoice ) void { }
+function NTR_Seq_Edit( device & ML_STAR, sequence & ioNTRTipSequence, variable sortByTier, variable iSingleColumnPickup, variable pipetting_tool, variable iNTRTipCounterName, variable iEditBoxTitleString ) void { }
+function NTR_Tip_Counter_Read( sequence & ioNTRTipSequence, variable iNTRTipCounterName ) variable {  return (0); }
+function Reset_TipCounter( variable iTipCounterName ) void { }
+function Show_NTR_Editor( sequence & seq, variable iNTRTipCounter, variable iMessage ) variable {  return (0); }
+function Tip_Counter_Write_Internal( sequence & ioTipSequence, variable iTipCounterName ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2023-06-29 15:52$$checksum=ad338bb4$$length=081$$

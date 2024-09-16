@@ -1,0 +1,19 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 11/09/2024 08:54:58
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace JSONSEARCH {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function GetEveryEntry( variable i_strJSONFilePath, variable _strSearch, variable & _arr[], variable _intTraceLevel ) void { }
+function GetSpecificStringEntry( variable i_strJSONFilePath, variable _strSearch, variable _intTraceLevel ) variable {  return (0); }
+function _CreateArray( variable & _arr[], variable _str ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2024-09-11 08:54$$checksum=90255774$$length=081$$

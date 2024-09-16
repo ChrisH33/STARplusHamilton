@@ -1,0 +1,26 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 09/01/2019 10:35:54
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace THERMOPLATEHOTELCONTROLLERMEDIMMUNE {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function ClearCytomatDatabase( variable & o_strReturnMessage ) variable {  return (0); }
+function CreatePartialInventory( variable i_blnSimulationMode, variable i_intFirstPosition, variable i_intLastPosition, variable & o_arrStrBarcodes[], variable & o_arrIntErroneousPositions[], variable & o_arrStrReasonOfErroneousPositions[], variable & o_strReturnMessage ) variable {  return (0); }
+function GetNumberOfEmptyPositions( variable & o_intNumberOfEmptyPositions, variable & o_strReturnMessage ) variable {  return (0); }
+function GetPlateByBarcode( variable i_blnSimulationMode, variable i_strBarcode, variable & o_strReturnMessage ) variable {  return (0); }
+function Initialize( variable i_blnSimulationMode, variable & o_strReturnMessage ) variable {  return (0); }
+function RotateCarousel( variable & o_strReturnMessage ) variable {  return (0); }
+function StorePlateByPosition( variable i_intPosition, variable & o_strReturnMessage ) variable {  return (0); }
+function StorePlate_NextEmptyPosition( variable i_strBarcode, variable & o_strReturnMessage, variable & o_intPosition ) variable {  return (0); }
+function Terminate( variable & o_strReturnMessage ) variable {  return (0); }
+function _ConvertPosition( variable i_intPosition ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=KJGX688$$valid=0$$time=2019-01-09 10:35$$checksum=092b5d3c$$length=084$$

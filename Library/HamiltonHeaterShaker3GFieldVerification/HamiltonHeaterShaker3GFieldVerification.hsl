@@ -1,0 +1,885 @@
+
+
+#ifndef __HamiltonHeaterShaker3GFieldVerification_hsl__
+#define __HamiltonHeaterShaker3GFieldVerification_hsl__   1
+
+#ifndef __ASW_HHS3GFIELDVERIFICATIONHELPER_hsl__
+   #include "Helper.hsl"
+#endif
+
+#ifndef __ASW_HHS3GFIELDVERIFICATIONENUMS_hsl__
+   #include "Enumeration.hsl"
+#endif
+
+//global device ML_STAR; 
+
+namespace HamiltonHeaterShaker3G
+{
+
+   namespace FieldVerification
+   {
+
+
+      static variable _strModuleName("HamiltonHeaterShaker3G::FieldVerification");
+      static global object gHamiltonHeaterShaker3GFieldVerification_objComObject;
+      static global object gHamiltonHeaterShaker3GFieldVerification_objCommunicationByEvents;
+      static global variable gHamiltonHeaterShaker3GFieldVerification_blnLibraryInitialized(hslFalse);
+      static device ML_STAR_Ref("", "", hslTrue);
+
+// private functions
+
+
+      // --------------------------------------------------------------------------------------
+      // _LibraryIsInitialized
+      // ------------------------------------------------------------------,-------------------
+      static function _LibraryIsInitialized(variable i_strFunctionName
+                             ) variable;
+
+
+
+      //---------------------------------------------
+      // <summary>
+      // Terminate the library
+      //</summary>
+      //
+      //<Sdd></Sdd>
+      //---------------------------------------------
+      function Terminate() void
+      {
+         device devNull("", "", hslTrue);
+         
+         Helper::Trace(TraceLevel::Release, TraceStatus::Start, GetFunctionName(),GetFileName(), "");
+         if (!gHamiltonHeaterShaker3GFieldVerification_objComObject.IsNull())
+         {
+            gHamiltonHeaterShaker3GFieldVerification_objComObject.Dispose();
+            gHamiltonHeaterShaker3GFieldVerification_objComObject.ReleaseObject();
+         }
+         if (!gHamiltonHeaterShaker3GFieldVerification_objCommunicationByEvents.IsNull())
+         {
+            gHamiltonHeaterShaker3GFieldVerification_objCommunicationByEvents.ReleaseObject();
+         }
+
+         ML_STAR_Ref = devNull; // make sure that device will be released
+
+         Helper::Trace(TraceLevel::Release, TraceStatus::Complete, GetFunctionName(),GetFileName(), "");
+      }
+
+      //---------------------------------------------
+      // <summary>
+      // Initialize the library. 
+      //</summary>
+      ///
+      // Parameters:
+      //
+      // <Input>
+      // ML_STAR : instrument reference
+      // i_strInstrumentName : the name of the instrument which is used for the field verification
+      // i_strUserSoftwareVersion : the version of the FVKII
+      // i_strLocation: the location where the field verification is performed; this will be written to the report file
+      // i_strOperatorName: the name of the operator who performs the field verification
+      // i_strReasonOfVerfication: the reason of the field verification
+      // i_fltAmbientTemperature: the ambient temperature
+      //</Input>
+      //
+      // <Returns>
+      // - hslTrue : executed successfully
+      // - hslFalse : an error occured
+      //</Returns>
+      //
+      //<Sdd></Sdd>
+      //---------------------------------------------
+      function Initialize(device& ML_STAR, 
+                           variable i_strInstrumentName,
+                           variable i_strInstrumentSerialNumber,
+                           variable i_strUserSoftwareVersion,
+                           variable i_strLocation,
+                           variable i_strOperatorName,
+                           variable i_strReasonOfVerfication,
+                           variable i_fltAmbientTemperature,
+                           variable i_blnSimulate) variable
+      {
+         variable strFunctionName(GetFunctionName());
+         variable intSimulate(0);
+
+         if (!Helper::CheckString(i_strInstrumentSerialNumber, "i_strInstrumentSerialNumber", strFunctionName, GetFileName())) return (hslFalse);
+         if (!Helper::CheckFloat(i_fltAmbientTemperature, "i_fltAmbientTemperature", strFunctionName, GetFileName())) return (hslFalse);
+         if (!Helper::CheckString(i_strInstrumentName, "i_strInstrumentName", strFunctionName, GetFileName())) return (hslFalse);
+         if (!Helper::CheckString(i_strUserSoftwareVersion, "i_strUserSoftwareVersion", strFunctionName, GetFileName())) return (hslFalse);
+         if (!Helper::CheckString(i_strLocation, "i_strLocation", strFunctionName, GetFileName())) return (hslFalse);
+         if (!Helper::CheckString(i_strOperatorName, "i_strOperatorName", strFunctionName, GetFileName())) return (hslFalse);
+         if (!Helper::CheckString(i_strReasonOfVerfication, "i_strReasonOfVerfication", strFunctionName, GetFileName())) return (hslFalse);
+         Helper::Trace(TraceLevel::Release, TraceStatus::Start, strFunctionName, GetFileName(), "i_strInstrumentName=" + i_strInstrumentName + 
+                                                                          "; i_strUserSoftwareVersion=" + i_strUserSoftwareVersion + 
+                                                                          "; i_strLocation=" + i_strLocation + 
+                                                                          "; i_strOperatorName=" + i_strOperatorName + 
+                                                                          "; i_strReasonOfVerfication=" + i_strReasonOfVerfication + 
+                                                                          "; i_fltAmbientTemperature=" + FStr(i_fltAmbientTemperature));
+
+         onerror goto UnexpectedError;
+         
+         if (gHamiltonHeaterShaker3GFieldVerification_objComObject.IsNull())
+         {            
+            gHamiltonHeaterShaker3GFieldVerification_objComObject.CreateObject("Hamilton.HamiltonHeaterShaker3G.FieldVerification",hslTrue);
+         }
+
+         if (gHamiltonHeaterShaker3GFieldVerification_objCommunicationByEvents.IsNull())
+         {            
+            gHamiltonHeaterShaker3GFieldVerification_objCommunicationByEvents.CreateObject("Hamilton.HamiltonHeaterShaker3G.VenusCommunication.StarCommunicationByEvent",hslTrue);
+         }
+
+         if (i_blnSimulate)
+         {
+            intSimulate = 1;
+         }
+         
+         ML_STAR_Ref = ML_STAR;
+
+         gHamiltonHeaterShaker3GFieldVerification_objComObject.Initialize(i_strInstrumentName, i_strInstrumentSerialNumber, i_strUserSoftwareVersion, i_strLocation, i_strOperatorName, i_strReasonOfVerfication, i_fltAmbientTemperature, intSimulate);
+
+         onerror goto 0;
+          
+         gHamiltonHeaterShaker3GFieldVerification_blnLibraryInitialized = hslTrue;
+
+         Helper::Trace(TraceLevel::Release, TraceStatus::Complete, strFunctionName, GetFileName(), "");
+
+         return (hslTrue);
+
+         // on error
+         UnexpectedError:
+         {
+            Helper::Trace(TraceLevel::Release, TraceStatus::CompleteWithError, strFunctionName, GetFileName(), "COM object error occured.");
+            return (hslFalse);
+         }
+      }
+
+     
+      //---------------------------------------------
+      // <summary>
+      // Get information if smart adapter is installed on HHS
+      //</summary>
+      ///
+      // Parameters:
+      //
+      // <Input>
+      // i_intDeviceNumber : the device number of the HHS obtained from AddHhsDevice
+      //</Input>
+      //
+      // <Output>
+      // o_blnSmartAdapterIsPresent: if the smart adapter is present on the device.
+      // </Output>
+      //
+      // <Returns>
+      // - hslTrue : executed successfully
+      // - hslFalse : an error occured
+      //</Returns>
+      //
+      //<Sdd></Sdd>
+      //---------------------------------------------
+      function GetHhsSmartAdapterPresence(variable i_intDeviceNumber, 
+                           variable& o_blnSmartAdapterIsPresent) variable
+      {
+         variable strFunctionName(GetFunctionName());
+         variable strLibraryName(GetFileName());
+         variable intSmartAdapterIsPresent(0);
+
+         o_blnSmartAdapterIsPresent = hslFalse;
+
+         if (!Helper::CheckInteger(i_intDeviceNumber, "i_intDeviceNumber", strFunctionName, GetFileName())) return (hslFalse);
+         Helper::Trace(TraceLevel::Release, TraceStatus::Start, strFunctionName, GetFileName(), "i_intDeviceNumber=" + IStr(i_intDeviceNumber));
+
+         _LibraryIsInitialized(strFunctionName);
+
+         onerror goto UnexpectedError;
+
+         gHamiltonHeaterShaker3GFieldVerification_objComObject.GetHhsSmartAdapterPresence(i_intDeviceNumber, intSmartAdapterIsPresent);
+
+         onerror goto 0;
+
+         if (intSmartAdapterIsPresent == 1)
+         {
+            o_blnSmartAdapterIsPresent = hslTrue;
+         }
+
+         Helper::Trace(TraceLevel::Release, TraceStatus::Complete, strFunctionName, GetFileName(), "o_blnSmartAdapterIsPresent=" + IStr(o_blnSmartAdapterIsPresent));
+
+         return (hslTrue);
+
+         // on error
+         UnexpectedError:
+         {
+            Helper::Trace(TraceLevel::Release, TraceStatus::CompleteWithError, strFunctionName, GetFileName(), "COM object error occured.");
+            return (hslFalse);
+         }
+      }
+
+
+      //---------------------------------------------
+      // <summary>
+      // Read the verification status which is stored on the device
+      //</summary>
+      ///
+      // Parameters:
+      //
+      // <Input>
+      // i_intDeviceNumber : the device number of the HHS obtained from AddHhsDevice
+      //</Input>
+      //
+      // <Output>
+      // o_strLastVerificationDate: the last verification result date 
+      // o_intVerificationResult:   the result of that verification; VerificationResult:Failed/Passed
+      // </Output>
+      //
+      // <Returns>
+      // - hslTrue : executed successfully
+      // - hslFalse : an error occured
+      //</Returns>
+      //
+      //<Sdd></Sdd>
+      //---------------------------------------------
+      function GetHhsVerificationStatus(variable i_intDeviceNumber, 
+                           variable& o_strLastVerificationDate,
+                           variable& o_intVerificationResult) variable
+      {
+         variable strFunctionName(GetFunctionName());
+         variable strLibraryName(GetFileName());
+
+         o_strLastVerificationDate = "";
+         o_intVerificationResult = VerificationResult::Failed;
+
+         if (!Helper::CheckInteger(i_intDeviceNumber, "i_intDeviceNumber", strFunctionName, GetFileName())) return (hslFalse);
+         Helper::Trace(TraceLevel::Release, TraceStatus::Start, strFunctionName, GetFileName(), "i_intDeviceNumber=" + IStr(i_intDeviceNumber));
+
+         _LibraryIsInitialized(strFunctionName);
+
+         onerror goto UnexpectedError;
+
+         gHamiltonHeaterShaker3GFieldVerification_objComObject.GetHhsVerificationResultFromDevice(i_intDeviceNumber, o_strLastVerificationDate, o_intVerificationResult);
+
+         onerror goto 0;
+
+         Helper::Trace(TraceLevel::Release, TraceStatus::Complete, strFunctionName, GetFileName(),  "; o_strLastVerificationDate=" + o_strLastVerificationDate + "; o_intVerificationResult=" + IStr(o_intVerificationResult));
+
+         return (hslTrue);
+
+         // on error
+         UnexpectedError:
+         {
+            Helper::Trace(TraceLevel::Release, TraceStatus::CompleteWithError, strFunctionName, GetFileName(), "COM object error occured.");
+            return (hslFalse);
+         }
+      }
+
+
+      //---------------------------------------------
+      // <summary>
+      // Read the verification status which is stored on the device
+      //</summary>
+      ///
+      // Parameters:
+      //
+      // <Input>
+      // i_intDeviceNumber : the device number of the HHS obtained from AddHhsDevice
+      //</Input>
+      //
+      // <Output>
+      // o_arrStrVerificationStepNames:      array of verification step names; see namespace VerificationStep
+      // o_arrIntVerificationStepResults:   array of verification step results for each step; VerificationResult:Failed/Passed
+      // </Output>
+      //
+      // <Returns>
+      // - hslTrue : executed successfully
+      // - hslFalse : an error occured
+      //</Returns>
+      //
+      //<Sdd></Sdd>
+      //---------------------------------------------
+      function GetHhsVerificationResult(variable i_intDeviceNumber, 
+                           variable& o_arrStrVerificationStepNames [],
+                           variable& o_arrIntVerificationStepResults []) variable
+      {
+         variable strFunctionName(GetFunctionName());
+         variable strLibraryName(GetFileName());
+
+         o_arrStrVerificationStepNames.SetSize(0);
+         o_arrIntVerificationStepResults.SetSize(0);
+
+         if (!Helper::CheckInteger(i_intDeviceNumber, "i_intDeviceNumber", strFunctionName, GetFileName())) return (hslFalse);
+         Helper::Trace(TraceLevel::Release, TraceStatus::Start, strFunctionName, GetFileName(), "i_intDeviceNumber=" + IStr(i_intDeviceNumber));
+
+         _LibraryIsInitialized(strFunctionName);
+
+         onerror goto UnexpectedError;
+
+         gHamiltonHeaterShaker3GFieldVerification_objComObject.GetHhsVerificationResult(i_intDeviceNumber, o_arrStrVerificationStepNames, o_arrIntVerificationStepResults);
+
+         onerror goto 0;
+
+         Helper::TraceArray(TraceLevel::Release, "o_arrStrVerificationStepNames", o_arrStrVerificationStepNames);
+         Helper::TraceArray(TraceLevel::Release, "o_arrIntVerificationStepResults", o_arrIntVerificationStepResults);
+         Helper::Trace(TraceLevel::Release, TraceStatus::Complete, strFunctionName, GetFileName(),"");
+
+         return (hslTrue);
+
+         // on error
+         UnexpectedError:
+         {
+            Helper::Trace(TraceLevel::Release, TraceStatus::CompleteWithError, strFunctionName, GetFileName(), "COM object error occured.");
+            return (hslFalse);
+         }
+      }
+
+
+      //---------------------------------------------
+      // <summary>
+      // Abort the running verification
+      //</summary>
+      ///
+      // Parameters:
+      //
+      // no parameters
+      //
+      // <Returns>
+      // - hslTrue : executed successfully
+      // - hslFalse : an error occured
+      //</Returns>
+      //
+      //<Sdd></Sdd>
+      //---------------------------------------------
+      function AbortVerification() variable
+      {
+         variable strFunctionName(GetFunctionName());
+         variable strLibraryName(GetFileName());
+
+         Helper::Trace(TraceLevel::Release, TraceStatus::Start, strFunctionName, GetFileName(), "");
+
+         onerror goto UnexpectedError;
+
+         if (!gHamiltonHeaterShaker3GFieldVerification_objComObject.IsNull())
+         {
+            gHamiltonHeaterShaker3GFieldVerification_objComObject.AbortVerification();
+         }
+         else
+         {
+            Helper::Trace(TraceLevel::Release, TraceStatus::Progress, strFunctionName, GetFileName(), "Library is not initialized. There is nothing to abort.");
+         }
+
+         onerror goto 0;
+
+         Helper::Trace(TraceLevel::Release, TraceStatus::Complete, strFunctionName, GetFileName(), "");
+
+         return (hslTrue);
+
+         // on error
+         UnexpectedError:
+         {
+            Helper::Trace(TraceLevel::Release, TraceStatus::CompleteWithError, strFunctionName, GetFileName(), "COM object error occured.");
+            return (hslFalse);
+         }
+      }
+
+
+      //---------------------------------------------
+      // <summary>
+      // Start the field verification
+      //</summary>
+      ///
+      // Parameters:
+      //
+      // <input>
+      // i_arrIntDeviceNumbers:        device numbers of HHS which were selected for field verification
+      // </input>
+      //
+      // <Returns>
+      // - hslTrue : executed successfully
+      // - hslFalse : an error occured
+      //</Returns>
+      //
+      //<Sdd></Sdd>
+      //---------------------------------------------
+      function StartVerification(variable i_arrIntDeviceNumbers []) variable
+      {
+         variable strFunctionName(GetFunctionName());
+         variable strLibraryName(GetFileName());
+
+         Helper::Trace(TraceLevel::Release, TraceStatus::Start, strFunctionName, GetFileName(), "");
+
+         _LibraryIsInitialized(strFunctionName);
+
+         Helper::TraceArray(TraceLevel::Release,"i_arrIntDeviceNumbers", i_arrIntDeviceNumbers);
+
+         onerror goto UnexpectedError;
+
+         gHamiltonHeaterShaker3GFieldVerification_objComObject.StartVerification(i_arrIntDeviceNumbers);
+
+         onerror goto 0;
+
+         Helper::Trace(TraceLevel::Release, TraceStatus::Complete, strFunctionName, GetFileName(), "");
+
+         return (hslTrue);
+
+         // on error
+         UnexpectedError:
+         {
+            Helper::Trace(TraceLevel::Release, TraceStatus::CompleteWithError, strFunctionName, GetFileName(), "COM object error occured.");
+            return (hslFalse);
+         }
+      }
+
+
+
+      //---------------------------------------------
+      // <summary>
+      // Add a HHS device to the field verification
+      //</summary>
+      ///
+      // Parameters:
+      //
+      // <Input>
+      // i_strNodeName : the node name of the HHS e.g. T1
+      // i_strCommunicationAddress: the communication address of this HHS´, empty string for TCC port communication, USB serial number e.g. 00 for USB communication
+      //</Input>
+      //
+      // <Output>
+      // o_intDeviceNumber: the number assigned to the device. use this number to communicate with this device
+      // </Output>
+      //
+      // <Returns>
+      // - hslTrue : executed successfully
+      // - hslFalse : an error occured
+      //</Returns>
+      //
+      //<Sdd></Sdd>
+      //---------------------------------------------
+      function AddHhsDevice(variable i_strNodeName, variable i_strCommunicationAddress, variable & o_intDeviceNumber) variable
+      {
+         variable strFunctionName(GetFunctionName());
+         variable strLibraryName(GetFileName());
+
+         o_intDeviceNumber = -1;
+         
+         if (!Helper::CheckString(i_strNodeName, "i_strNodeName", strFunctionName, strLibraryName)) return (hslFalse);
+         if (!Helper::CheckString(i_strCommunicationAddress, "i_strCommunicationAddress", strFunctionName, strLibraryName)) return (hslFalse);
+         Helper::Trace(TraceLevel::Release, TraceStatus::Start, strFunctionName, strLibraryName, "i_strNodeName=" + i_strNodeName + "; i_strCommunicationAddress=" + i_strCommunicationAddress);
+
+         _LibraryIsInitialized(strFunctionName);
+
+         onerror goto UnexpectedError;
+         
+         gHamiltonHeaterShaker3GFieldVerification_objComObject.AddHhsDevice(i_strNodeName, i_strCommunicationAddress, gHamiltonHeaterShaker3GFieldVerification_objCommunicationByEvents, o_intDeviceNumber);
+
+         onerror goto 0;
+
+         Helper::Trace(TraceLevel::Release, TraceStatus::Complete, strFunctionName, strLibraryName, "o_intDeviceNumber=" + IStr(o_intDeviceNumber));
+
+         return (hslTrue);
+
+         // on error
+         UnexpectedError:
+         {
+            Helper::Trace(TraceLevel::Release, TraceStatus::CompleteWithError, strFunctionName, strLibraryName, "COM object error occured.");
+            return (hslFalse);
+         }
+      }
+
+      //---------------------------------------------
+      // <summary>
+      // Set the verification temperature for the given device
+      //</summary>
+      ///
+      // Parameters:
+      //
+      // <Input>
+      // i_intDeviceNumber : the device number obtained from AddHhsDevice
+      // i_fltVerificationTemperature: the verification temperature which should be set for the device
+      //</Input>
+      //
+      // <Returns>
+      // - hslTrue : executed successfully
+      // - hslFalse : an error occured
+      //</Returns>
+      //
+      //<Sdd></Sdd>
+      //---------------------------------------------
+      function SetHhsVerificationTemperature(variable i_intDeviceNumber, variable i_fltVerificationTemperature) variable
+      {
+         variable strFunctionName(GetFunctionName());
+         variable strLibraryName(GetFileName());
+         
+         if (!Helper::CheckInteger(i_intDeviceNumber, "i_intDeviceNumber", strFunctionName, strLibraryName)) return (hslFalse);
+         if (!Helper::CheckFloat(i_fltVerificationTemperature, "i_fltVerificationTemperature", strFunctionName, strLibraryName)) return (hslFalse);
+         Helper::Trace(TraceLevel::Release, TraceStatus::Start, strFunctionName, strLibraryName, "");
+
+         _LibraryIsInitialized(strFunctionName);
+
+         onerror goto UnexpectedError;
+
+         gHamiltonHeaterShaker3GFieldVerification_objComObject.SetHhsVerificationTemperature(i_intDeviceNumber, i_fltVerificationTemperature);
+
+         onerror goto 0;
+
+         Helper::Trace(TraceLevel::Release, TraceStatus::Complete, strFunctionName, strLibraryName, "");
+
+         return (hslTrue);
+
+         // on error
+         UnexpectedError:
+         {
+            Helper::Trace(TraceLevel::Release, TraceStatus::CompleteWithError, strFunctionName, strLibraryName, "COM object error occured.");
+            return (hslFalse);
+         }
+      }
+
+
+      //---------------------------------------------
+      // <summary>
+      // Get the verification Result, Call this when GetVerificationStatus returned that verification was aborted or finshed
+      //</summary>
+      ///
+      // Parameters:
+      //
+      // <Output>
+      // o_intVerificationResult       the enum value of the overall verification result (0: failed, 1: passed)
+      // o_intVerificationReturnCode : the verification return code; see namespace VerificationReturnCode
+      // o_strDescription:             a description for the return code/error
+      //</Output>
+      //
+      // <Returns>
+      // - hslTrue : executed successfully
+      // - hslFalse : an error occured
+      //</Returns>
+      //
+      //<Sdd></Sdd>
+      //---------------------------------------------
+      function GetVerificationResult(variable & o_intVerificationResult,
+                                       variable & o_intVerificationReturnCode,
+                                       variable & o_strDescription) variable
+      {
+         variable strFunctionName(GetFunctionName());
+         variable strLibraryName(GetFileName());
+
+         o_intVerificationReturnCode = VerificationReturnCode::Success;
+         o_strDescription = "";
+         o_intVerificationResult = VerificationResult::Failed;
+
+         
+         Helper::Trace(TraceLevel::Release, TraceStatus::Start, strFunctionName, strLibraryName, "");
+
+         _LibraryIsInitialized(strFunctionName);
+
+         onerror goto UnexpectedError;
+
+         gHamiltonHeaterShaker3GFieldVerification_objComObject.GetVerificationResult(o_intVerificationResult, o_intVerificationReturnCode, o_strDescription);
+
+         onerror goto 0;
+
+         Helper::Trace(TraceLevel::Release, TraceStatus::Complete, strFunctionName, strLibraryName, "o_intVerificationResult=" + IStr(o_intVerificationResult) + "; o_intVerificationReturnCode=" + IStr(o_intVerificationReturnCode) + "; o_strDescription=" + o_strDescription);
+
+         return (hslTrue);
+
+         // on error
+         UnexpectedError:
+         {
+            Helper::Trace(TraceLevel::Release, TraceStatus::CompleteWithError, strFunctionName, strLibraryName, "COM object error occured.");
+            return (hslFalse);
+         }
+      }
+
+
+      //---------------------------------------------
+      // <summary>
+      // Get the last verification temperature
+      //</summary>
+      ///
+      // Parameters:
+      //
+      // <Input>
+      // i_intDeviceNumber : the device number obtained from AddHhsDevice
+      //</Input>
+      //
+      // <Output>
+      // o_fltLastVerificationTemperature:      the last used verification temperature of the HHS
+      // </Output>
+      //
+      // <Returns>
+      // - hslTrue : executed successfully
+      // - hslFalse : an error occured
+      //</Returns>
+      //
+      //<Sdd></Sdd>
+      //---------------------------------------------
+      function GetLastVerificationTemperature(variable i_intDeviceNumber, variable & o_fltLastVerificationTemperature) variable
+      {
+         variable strFunctionName(GetFunctionName());
+         variable strLibraryName(GetFileName());
+
+         o_fltLastVerificationTemperature = 0.0;
+         
+         if (!Helper::CheckInteger(i_intDeviceNumber, "i_intDeviceNumber", strFunctionName, strLibraryName)) return (hslFalse);
+         Helper::Trace(TraceLevel::Release, TraceStatus::Start, strFunctionName, strLibraryName, "i_intDeviceNumber=" + IStr(i_intDeviceNumber));
+
+         _LibraryIsInitialized(strFunctionName);
+
+         onerror goto UnexpectedError;
+
+         gHamiltonHeaterShaker3GFieldVerification_objComObject.GetLastVerificationTemperature(i_intDeviceNumber, o_fltLastVerificationTemperature);
+
+         onerror goto 0;
+
+         Helper::Trace(TraceLevel::Release, TraceStatus::Complete, strFunctionName, strLibraryName, "o_fltLastVerificationTemperature=" + FStr(o_fltLastVerificationTemperature));
+
+         return (hslTrue);
+
+         // on error
+         UnexpectedError:
+         {
+            Helper::Trace(TraceLevel::Release, TraceStatus::CompleteWithError, strFunctionName, strLibraryName, "COM object error occured.");
+            return (hslFalse);
+         }
+      }
+
+      //---------------------------------------------
+      // <summary>
+      // Get the serial number of the HHS
+      //</summary>
+      ///
+      // Parameters:
+      //
+      // <Input>
+      // i_intDeviceNumber : the device number obtained from AddHhsDevice
+      //</Input>
+      //
+      // <Output>
+      // o_strSerialNumber:   the serial number of the HHS
+      // </Output>
+      //
+      // <Returns>
+      // - hslTrue : executed successfully
+      // - hslFalse : an error occured
+      //</Returns>
+      //
+      //<Sdd></Sdd>
+      //---------------------------------------------
+      function GetHhsSerialNumber(variable i_intDeviceNumber, variable & o_strSerialNumber) variable
+      {
+         variable strFunctionName(GetFunctionName());
+         variable strLibraryName(GetFileName());
+
+         o_strSerialNumber = "";
+         
+         if (!Helper::CheckInteger(i_intDeviceNumber, "i_intDeviceNumber", strFunctionName, strLibraryName)) return (hslFalse);
+         Helper::Trace(TraceLevel::Release, TraceStatus::Start, strFunctionName, strLibraryName, "i_intDeviceNumber=" + IStr(i_intDeviceNumber));
+
+         _LibraryIsInitialized(strFunctionName);
+
+         onerror goto UnexpectedError;
+
+         gHamiltonHeaterShaker3GFieldVerification_objComObject.GetHhsSerialNumber(i_intDeviceNumber, o_strSerialNumber);
+
+         onerror goto 0;
+
+         Helper::Trace(TraceLevel::Release, TraceStatus::Complete, strFunctionName, strLibraryName, "o_strSerialNumber=" + o_strSerialNumber);
+
+         return (hslTrue);
+
+         // on error
+         UnexpectedError:
+         {
+            Helper::Trace(TraceLevel::Release, TraceStatus::CompleteWithError, strFunctionName, strLibraryName, "COM object error occured.");
+            return (hslFalse);
+         }
+      }
+
+
+
+
+      //---------------------------------------------
+      // <summary>
+      // Get the last verification temperature
+      //</summary>
+      ///
+      // Parameters:
+      //
+      // <Output>
+      // o_arrStrHhsSerialNumbers:       array of HHS serial numbers
+      // o_arrStrHhsCurrentSteps:        array of current HHS field verification steps; format <stepname> (<currentstepnumber>/<total number of steps of this device>)
+      // o_arrStrHhsCurrentStepsStatus:  array of current Status of the active field verification step
+      // o_blnIsAborted:        hslTrue if verification was aborted,
+      // o_blnFinished:         hslTrue if all verification stages are Done
+      // </Output>
+      //
+      // <Returns>
+      // - hslTrue : executed successfully
+      // - hslFalse : an error occured
+      //</Returns>
+      //
+      //<Sdd></Sdd>
+      //---------------------------------------------
+      function GetFieldVerificationStatus(variable & o_arrStrHhsSerialNumbers [], variable & o_arrStrHhsCurrentSteps[], variable & o_arrStrHhsCurrentStepsStatus[], variable & o_blnIsAborted, variable & o_blnFinished) variable
+      {
+         variable strFunctionName(GetFunctionName());
+         variable strLibraryName(GetFileName());
+         variable intIsAborted(0);
+         variable intFinished(0);
+
+         o_arrStrHhsSerialNumbers.SetSize(0);
+         o_arrStrHhsCurrentSteps.SetSize(0);
+         o_arrStrHhsCurrentStepsStatus.SetSize(0);
+
+         o_blnIsAborted = hslFalse;
+         o_blnFinished = hslFalse;
+
+         Helper::Trace(TraceLevel::Release, TraceStatus::Start, strFunctionName, strLibraryName, "");
+
+         _LibraryIsInitialized(strFunctionName);
+
+         onerror goto UnexpectedError;
+
+         gHamiltonHeaterShaker3GFieldVerification_objComObject.GetVerificationStatus(o_arrStrHhsSerialNumbers, o_arrStrHhsCurrentSteps, o_arrStrHhsCurrentStepsStatus, intIsAborted, intFinished);
+
+         onerror goto 0;
+
+         if (intIsAborted == 1) o_blnIsAborted = hslTrue;
+         if (intFinished == 1) o_blnFinished = hslTrue;
+
+         Helper::TraceArray(TraceLevel::Release,"o_arrStrHhsSerialNumbers", o_arrStrHhsSerialNumbers);
+         Helper::TraceArray(TraceLevel::Release,"o_arrStrHhsCurrentSteps", o_arrStrHhsCurrentSteps);
+         Helper::TraceArray(TraceLevel::Release,"o_arrStrHhsCurrentStepsStatus", o_arrStrHhsCurrentStepsStatus);
+         Helper::Trace(TraceLevel::Release, TraceStatus::Complete, strFunctionName, strLibraryName, "o_blnIsAborted=" + IStr(o_blnIsAborted) + "; o_blnFinished=" + IStr(o_blnFinished));
+
+         return (hslTrue);
+
+         // on error
+         UnexpectedError:
+         {
+            Helper::Trace(TraceLevel::Release, TraceStatus::CompleteWithError, strFunctionName, strLibraryName, "COM object error occured.");
+            return (hslFalse);
+         }
+      }
+
+
+      //---------------------------------------------
+      // <summary>
+      // Generate a PDF report file
+      //</summary>
+      ///
+      // Parameters:
+      //
+      // <Input>
+      // i_strReportDirectory :  the target directory
+      // i_strFileNameFormat :   the format of the report file name, format Report_HHS3G_Ver_{}_#yyyyMMddHHmm# where {} will be replaced with the serial number of the instrument and the string within ## is used to format the C# DateTime instance; if empty then default "Report_HHS3G_Ver_{}_#yyyyMMddhhmm#" is used 
+      // i_blnIsIvdReport :      if report must have IVD format
+      //</Input>
+      //
+      // <Output>
+      // o_strReportFilePath:    the absolute path to the generated report path
+      // </Output>
+      //
+      // <Returns>
+      // - hslTrue : executed successfully
+      // - hslFalse : an error occured
+      //</Returns>
+      //
+      //<Sdd></Sdd>
+      //---------------------------------------------
+      function GenerateReportFile(variable i_strReportDirectory, variable i_strFileNameFormat, variable i_blnIsIvdReport, variable & o_strReportFilePath) variable
+      {
+         variable strFunctionName(GetFunctionName());
+         variable strLibraryName(GetFileName());
+         variable intIsAborted(0);
+         variable intFinished(0);
+         variable strDefaultReportFormat("Report_HHS3G_Ver_{}_#yyyyMMddHHmm#");
+         variable strReportFormat("");
+         variable intIsIvdReport(0); // == false
+
+
+         o_strReportFilePath = "";
+
+
+         if (!Helper::CheckString(i_strReportDirectory, "i_strReportDirectory", strFunctionName, GetFileName())) return (hslFalse);
+         if (!Helper::CheckString(i_strFileNameFormat, "i_strFileNameFormat", strFunctionName, GetFileName())) return (hslFalse);
+         if (!Helper::CheckBool(i_blnIsIvdReport, "i_blnIsIvdReport", strFunctionName, GetFileName())) return (hslFalse);
+         Helper::Trace(TraceLevel::Release, TraceStatus::Start, strFunctionName, strLibraryName, "i_strReportDirectory=" + i_strReportDirectory + "; i_strFileNameFormat=" + i_strFileNameFormat + "; i_blnIsIvdReport=" + IStr(i_blnIsIvdReport));
+
+         _LibraryIsInitialized(strFunctionName);
+
+         if (i_blnIsIvdReport)
+         {
+            intIsIvdReport = 1; // == true
+         }
+
+         if (i_strFileNameFormat == "")
+         {
+            strReportFormat = strDefaultReportFormat;
+         }
+         else
+         {
+            strReportFormat = i_strFileNameFormat;
+         }
+
+         onerror goto UnexpectedError;
+
+         gHamiltonHeaterShaker3GFieldVerification_objComObject.GenerateReportFile(i_strReportDirectory, strReportFormat,intIsIvdReport ,o_strReportFilePath);
+
+         onerror goto 0;
+
+         Helper::Trace(TraceLevel::Release, TraceStatus::Complete, strFunctionName, strLibraryName, "o_strReportFilePath=" + o_strReportFilePath);
+
+         return (hslTrue);
+
+         // on error
+         UnexpectedError:
+         {
+            Helper::Trace(TraceLevel::Release, TraceStatus::CompleteWithError, strFunctionName, strLibraryName, "COM object error occured.");
+            return (hslFalse);
+         }
+      }
+
+
+
+      // --------------------------------------------------------------------------------------
+      // _LibraryIsInitialized
+      // ------------------------------------------------------------------,-------------------
+      static function _LibraryIsInitialized(variable i_strFunctionName
+                             ) variable
+      {
+         if (!gHamiltonHeaterShaker3GFieldVerification_blnLibraryInitialized)
+         {
+            Helper::Trace(TraceLevel::Release, TraceStatus::CompleteWithError, i_strFunctionName, GetFileName(), "Library is not initialized. Call Initialize() first.");
+            return (hslFalse);
+         }
+
+         return (hslTrue);
+
+      }
+
+
+      // --------------------------------------------------------------------------------------
+      // global function will be triggered by the C# component
+      // ------------------------------,-----------------------------------,-------------------
+      static global function gHamiltonHeaterShaker3GFieldVerification_objComObject_OnTraceMessage(variable i_strMessage)
+      {
+          Helper::Trace(TraceLevel::Debug, TraceStatus::Progress, "HamiltonHeaterShaker3G.FieldVerification Trace",GetFileName(), i_strMessage);
+      }
+
+            // --------------------------------------------------------------------------------------
+      // global function will be triggered by the C# component
+      // ------------------------------,-----------------------------------,-------------------
+      static global function gHamiltonHeaterShaker3GFieldVerification_objCommunicationByEvents_OnFirmwareCommandSend(variable i_strCommand, variable i_strParameterString)
+      {
+         variable strResponse("");
+         variable arrVarReturnValues [];
+
+         arrVarReturnValues = ML_STAR_Ref._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "9b909703_4c1f_41c9_92e9ec322b3964be" ); // FirmwareCommand
+         strResponse = arrVarReturnValues.GetAt(3);
+
+         if (!gHamiltonHeaterShaker3GFieldVerification_objCommunicationByEvents.IsNull())
+         {            
+            gHamiltonHeaterShaker3GFieldVerification_objCommunicationByEvents.SetResponse(strResponse);
+         }
+      }
+
+   } // end namespace FieldVerification
+} // end namespace HamiltonHeaterShaker3G
+
+#endif /* end of #ifndef __HamiltonHeaterShaker3GFieldVerification_hsl__ */
+// $$author=gsaJira$$valid=1$$time=2023-08-08 16:57$$checksum=63ad2227$$length=086$$

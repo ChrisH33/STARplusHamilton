@@ -1,0 +1,17 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 16/04/2015 11:21:53
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace NTR384_TO_WASTE_VENUS_GB4 {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function NTR384_to_waste_core_VENUS( device & ML_STAR, sequence & RackSequenceToThrowInWaste, sequence & RackPositionOnWasteBlock, variable Eject_CORE_Tool_After_Step, variable ParkISwapOnRight ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Hamilton Admin$$valid=0$$time=2015-04-16 11:21$$checksum=a144d250$$length=091$$

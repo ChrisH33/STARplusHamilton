@@ -1,0 +1,24 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 01.02.2011 08:30:53
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace SEQUENCETOOLS_V3 {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function GetTipTypeFromSequence( sequence & iTipSequence, variable & oTipType ) void { }
+function MergeUpTo4Sequences( device & ML_STAR, sequence & InputSequence1, sequence & InputSequence2, sequence & InputSequence3, sequence & InputSequence4, sequence & OutputSequence, variable NumberOfSequencesToMerge, variable SortOutputSequence ) void { }
+function ShortenSequenceLinewiseOn96Plate( sequence & iSeqToShortenLinewise, variable iNumOfSamples, variable & oChannelPattern, device & ML_STAR ) void { }
+function SortOneSequenceAndOneVolumeForChannels( sequence & sequence_for_sorting, variable & array_volume[], device & ML_STAR ) void { }
+function SortSequenceForChannels( sequence & sequence_for_sorting, device & ML_STAR ) void { }
+function SortSequencePlatewise( device & ML_STAR, sequence & sequence_for_sorting ) void { }
+function SortTwoSequencesAndOneVolumeForChannels( sequence & sequence_for_sorting, sequence & secondary_seq, variable & array_volume[], device & ML_STAR ) void { }
+function SortTwoSequencesAndTwoVolumesForChannels( sequence & sequence_for_sorting, sequence & secondary_seq, variable & array_volume[], variable & array_volume2[], device & ML_STAR ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=chdanuser$$valid=0$$time=2011-02-01 08:30$$checksum=20a25710$$length=086$$

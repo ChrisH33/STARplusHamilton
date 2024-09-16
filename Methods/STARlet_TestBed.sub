@@ -1,0 +1,144 @@
+// {{{ 2 "SubmethodForwardDeclaration" ""
+private function A_UserInput(  ) void ;
+private function B_LoadInstructions(  ) void ;
+private function _LabwareTransport(  ) void ;
+function OnAbort(  ) void ;
+// }} ""
+// {{{ 5 "OnAbort" "Begin"
+function OnAbort(  ) void {
+// }} ""
+private variable strAbort;
+// {{ 5 "OnAbort" "InitLocals"
+// }} ""
+// {{ 34 1 0 "bbc2547a_7843_4256_92a11f7e749a73f6" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strAbort = Translate("Aborted!!!!!");
+// }} ""
+// {{ 35 1 0 "55158519_b0d9_4fc1_b122dbc7b42cab17" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+hndSlack.AddField("Instrument", hndSlack_Instrument, hslString, 255);
+hndSlack.AddField("State", strAbort, hslString, 255);
+hndSlack.SetDelimiter(hslCSVDelimited);
+if( 0 == hndSlack.Open(strFilePath, hslWrite) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, strFilePath, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 36 1 0 "fe0e3bc7_1a2c_4f95_ad6b9dfc6d53a393" "{B31F3537-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == hndSlack.WriteRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1473380096, MECC::IDS::stepNameFileWrite, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 37 1 0 "e5a64656_969a_4301_a27b2ead7178c775" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != hndSlack.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+hndSlack.RemoveFields();
+// }} ""
+// {{ 38 1 0 "6ff68d13_df26_42b4_819b34f10d8daea7" "{B31F3545-5D80-11d4-A5EB-0050DA737D89}"
+{
+if( 0 == Shell(strBat, hslShow, hslSynchronous) )
+{
+    MECC::RaiseRuntimeErrorEx(-1238499072, MECC::IDS::stepNameShell, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+}
+// }} ""
+// {{{ 5 "OnAbort" "End"
+}
+// }} ""
+// {{{ 5 "A_UserInput" "Begin"
+private function A_UserInput(  ) void {
+// }} ""
+private variable intNumberOfColums;
+private dialog customDialogB137E4DFBDA84718BF7E9CB0F11D9C35;
+private variable rtnValue;
+// {{ 5 "A_UserInput" "InitLocals"
+// }} ""
+// {{ 11 1 0 "49d3fcb1_2676_4ce1_971bf472c04b53cd" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("##############################################\n                       USER INPUT: START\n##############################################"));
+// }} ""
+// {{ 12 1 0 "554cc21e_e332_4925_96a59ccf86863172" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 13 1 0 "88f472ef_0529_45b4_8a0c7dedea99d20f" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intNumberOfColums = 12;
+// }} ""
+// {{{ 14 1 0 "2df9d615_53ff_44ca_99f2eaffbf23e082" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("intNumberOfColums = "), intNumberOfColums);
+// }} ""
+// {{ 15 1 0 "11f58a38_6209_4934_b0a84a67eeed915e" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("##############################################\n                         USER INPUT: END\n##############################################"));
+// }} ""
+// {{ 16 1 0 "a4aac611_66ad_4e82_a29824ae06defb7e" "{998A7CCC-4374-484D-A6ED-E8A4F0EB71BA}"
+customDialogB137E4DFBDA84718BF7E9CB0F11D9C35.InitCustomDialog( "a4aac611_66ad_4e82_a29824ae06defb7e" );
+customDialogB137E4DFBDA84718BF7E9CB0F11D9C35.ShowCustomDialog();
+rtnValue = customDialogB137E4DFBDA84718BF7E9CB0F11D9C35.GetCustomDialogProperty( "ReturnValue" );
+// }} ""
+// {{ 17 1 0 "4e0bf24c_dde8_4602_8e0a53e08fdff23e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (2 == 1)
+{
+// }} ""
+// {{ 18 1 0 "9b59669d_f136_44bb_aec53b8ad19ee4b1" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("The user ended the method"));
+// }} ""
+// {{ 19 1 0 "f3cfffd8_6489_43ed_9a22fbd39c59ab29" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 20 1 0 "4e0bf24c_dde8_4602_8e0a53e08fdff23e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "A_UserInput" "End"
+}
+// }} ""
+// {{{ 5 "B_LoadInstructions" "Begin"
+private function B_LoadInstructions(  ) void {
+// }} ""
+private variable intLoadSourceSeqCap;
+private variable strMessage;
+private variable fltNumberOfSourcePlates;
+private variable intNumberOfColumns;
+// {{ 5 "B_LoadInstructions" "InitLocals"
+// }} ""
+// {{ 22 1 0 "f835817c_cdc9_439f_b76974d970db496f" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("##############################################\n                      LOAD INSTRUCTIONS: START\n##############################################"));
+// }} ""
+// {{ 23 1 0 "29d457f7_178c_4925_b151cb0565644e32" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intNumberOfColumns = 11;
+// }} ""
+// {{ 24 1 0 "8879cb41_5caf_48ab_b88b730da1bc7686" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intNumberOfColumns = 11;
+// }} ""
+// {{ 25 1 0 "543c6236_5d5e_4afa_92d80da24df747a4" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 26 1 0 "507637e5_f82b_4b49_9fbba56506bff986" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+fltNumberOfSourcePlates = intNumberOfColumns / (12 * 1.0);
+// }} ""
+// {{{ 27 1 0 "2a046a8c_7e16_485e_b90d9beaa9734be8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+intLoadSourceSeqCap = MthCeiling(fltNumberOfSourcePlates);
+// }} ""
+// {{ 28 1 0 "f2162a38_7012_4c45_937b266bc74c4a10" "{B31F353C-5D80-11d4-A5EB-0050DA737D89}"
+ML_STAR.Load_SourcePlates.SetCount(intLoadSourceSeqCap);
+// }} ""
+// {{{ 29 1 0 "783d3c3a_573c_44ec_9943faa38d7828a8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strMessage = StrConcat4(Translate("Please load the "), intLoadSourceSeqCap, Translate(" source plate here"), Translate(""));
+// }} ""
+// {{{ 30 1 0 "20f33b1a_4f42_425f_9cccde5ff864e8b0" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LOAD_INSTRUCTIONS::load_instructions(ML_STAR, ML_STAR.Load_SourcePlates, strMessage);
+// }} ""
+// {{ 31 1 0 "bc55760e_3325_4a23_89f0c1c292107ecd" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("##############################################\n                        LOAD INSTRUCTIONS: END\n##############################################"));
+// }} ""
+// {{{ 5 "B_LoadInstructions" "End"
+}
+// }} ""
+// {{{ 5 "_LabwareTransport" "Begin"
+private function _LabwareTransport(  ) void {
+// }} ""
+// {{ 5 "_LabwareTransport" "InitLocals"
+// }} ""
+// {{{ 5 "_LabwareTransport" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// $$author=ch33$$valid=0$$time=2024-08-29 17:21$$checksum=aac8b082$$length=083$$

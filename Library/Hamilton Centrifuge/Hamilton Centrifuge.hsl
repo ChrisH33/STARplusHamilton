@@ -1,0 +1,1518 @@
+//***********************************************************************************************************************
+//*    _    _                 _ _ _                _____       _           _   _                                         
+//*   | |  | |               (_) | |              |  __ \     | |         | | (_)                                        
+//*   | |__| | __ _ _ __ ___  _| | |_ ___  _ __   | |__) |___ | |__   ___ | |_ _  ___ ___                                
+//*   |  __  |/ _` | '_ ` _ \| | | __/ _ \| '_ \  |  _  // _ \| '_ \ / _ \| __| |/ __/ __|                               
+//*   | |  | | (_| | | | | | | | | || (_) | | | | | | \ \ (_) | |_) | (_) | |_| | (__\__ \                               
+//*   |_|  |_|\__,_|_| |_| |_|_|_|\__\___/|_| |_| |_|  \_\___/|_.__/ \___/ \__|_|\___|___/                               
+//*                                                                                                                      
+//*
+//*   Projekt: Hamilton Centrifuge
+//*
+//*   Copyright (C)2014 by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+//*
+//***********************************************************************************************************************
+//*
+//*   Revision History:
+//*
+//*   2014-09-01        v0.1        DKa         Library created
+//*   2014-10-29        v1.0        DKa         Release
+//*   2015-02-06        v1.1        DKa         FW-Upgrade, SecurityTrigger (g, v, T)
+//*   2015-03-03        v1.2        DKa         Scheduler comaptibility
+//*   2015-03-10        v1.3        DKa         FW Update (g sensor, acc speed range)
+//*   2015-03-16        v1.4        DKa         create funcktions (_CloseDoor, _PresentPosition)
+//*   2015-04-24        v1.4.3      DKa         TypeRange Check for different FugeTypes
+//*                                             New FugeType for simulation
+//*                                             OnSimulation no delay in Centrifuge();
+//*   2015-04-27        v1.4.4      DKa         Added function ResetErrorStatus(), GetRotationDriveStatus()
+//*   2015-05-01        v1.5.0      DKa         enhenced semaphores
+//*                                 DKa         Status polling during Centrifuge() delay
+//*                                             min acc/dec from 500 to 1000
+//*   2015-05-28        v1.6        DKa         Compatibility for 4.3 + 4.4 --> Bug of 4.3. Device ca only be difined once. 
+//*                                             added GetDeviceRef to all commands directly
+//*                                             return on er10 at init (device offline)
+//*   2015-06-09        v1.7        DKa         added function ReleaseRotationDrive()
+//*   2015-07-27        v1.7.3      DKa         present pos - added check type range (SIAS und HAM have different SBS positions 1 || max pos possible)
+//*   2016-02-23        v1.7.4      DKa         Trace Version,   
+//*
+//***********************************************************************************************************************
+
+//***********************************************************************************************************************
+//*
+//*   DEPENDANCIES
+//*
+//***********************************************************************************************************************
+//device ML_STAR;
+
+#ifndef __HamiltonCentrifuge_hsl__
+  #define __HamiltonCentrifuge_hsl__ 1
+
+  #ifndef __Hamilton_DriverTools_hsl__
+    #include "Hamilton DriverTools\\Hamilton DriverTools.hsl"
+  #endif
+
+  #ifndef __TraceLevel_hsl__
+    #include "ASWStandard\\TraceLevel\\TraceLevel.hsl"
+  #endif
+
+  #ifndef __ASWGLOBAL_hsl__
+    #include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl"
+  #endif
+
+  namespace HamiltonCentrifuge
+  {
+    //*******************************************************************************************************************
+    //*
+    //* VARIABLE DECLARATIONS
+    //*
+    //*******************************************************************************************************************
+    const static variable _strLibraryVersion                            ("v1.7.4");
+    const static variable _strLibraryName                               ("Hamilton Centrifuge");
+
+          static variable _intTraceLevel                                (TRACE_LEVEL_RELEASE);
+          static variable _blnTraceLevelSet                             (ASWGLOBAL::BOOL::FALSE);
+          static variable _blnSimulationMode                            (ASWGLOBAL::BOOL::FALSE);
+
+    global static variable gArrStrLabel[];
+    global static variable gArrStsNodeNames[];
+    global static variable gArrBlnSimulationModes[];
+    global static variable gArrIntCentrifugeTypes[];
+    global static variable gArrHdlObserves[];
+    global static event gHamiltonCentrifugeSemaphore[];
+    //*******************************************************************************************************************
+    //*
+    //* ENUM
+    //*
+    //*******************************************************************************************************************
+    const static variable SPEEDLIMIT_MIN                                (201);
+    const static variable SPEEDLIMIT_SBS_MAX                            (4200);
+    const static variable SPEEDLIMIT_GELCARD_MAX                        (1500);
+
+    const static variable MIN_ACCELERATION                              (1000);
+    const static variable MAX_ACCELERATION_SBS                          (6500);
+    const static variable MAX_ACCELERATION_GELCARD                      (20000);
+
+    const static variable MAXPOSITION_SBS                               (2);
+    const static variable MAXPOSITION_GELCARD                           (24);
+
+    //Centrifuge Type
+    const static variable CF_GELCARD                                    (0);
+    const static variable CF_SBS                                        (1);
+    const static variable CF_OPEN                                       (2);
+
+    //*******************************************************************************************************************
+    //*
+    //* PUBLIC ENUM & VARIABLES
+    //*
+    //*******************************************************************************************************************
+
+    //Use this variable to set the direction in the CentrifugationSteps - Clockwise rotation of the centrifuge
+    const variable CLOCKWISE                                            (1);
+    //Use this variable to set the direction in the CentrifugationSteps - Counter-Clockwise rotation of the centrifuge
+    const variable COUNTERCLOCKWISE                                     (0);
+
+    //*******************************************************************************************************************
+    //*
+    //* FUNCTION PROTOTYPES
+    //*
+    //*******************************************************************************************************************
+    function SetTraceLevel(variable i_intTraceLevel)variable;
+
+    function Initialize(variable i_strLabel,
+                        variable i_strNodeName,
+                        variable i_blnSimulationMode,
+                        variable i_blnAlwaysInitialize)variable;
+    
+    function Terminate(variable i_strLabel)variable;
+
+    function GetLastError(variable i_strLabel,
+                          variable& o_intErrorNumber,
+                          variable& o_strErrorDescription)variable;
+
+    function CoverClose(variable i_strLabel)variable;
+
+    function CoverOpen(variable i_strLabel)variable;
+
+    function ReleaseRotationDrive(variable i_strLabel)variable;
+
+    function PresentPosition(variable i_strLabel,
+                             variable i_intPosition)variable;
+
+    function StartCentrifuge(variable i_strLabel,
+                             variable i_intDirection,
+                             variable i_intSpeed,
+                             variable i_intAccelleration,
+                             variable i_intMaxRunTime)variable;
+
+    function StopCentrifuge(variable i_strLabel,
+                            variable i_Decelleration) variable;
+
+    function Centrifuge(variable i_strLabel,
+                        variable i_blnCloseCoverAtEnd,
+                        variable i_intPresentPosition,
+                        variable i_intDirection,
+                        variable i_intArrSpeed[],
+                        variable i_intArrAccelleration[],
+                        variable i_intArrDuration[],
+                        variable i_intDecelleration)variable;
+
+    function ResetErrorStatus(variable i_strLabel) variable;
+
+    function GetRotationDriveStatus(variable i_strLabel,
+                                    variable& o_blnRotorDriveRunning,
+                                    variable& o_int_ProfileStatus,
+                                    variable& o_intTimeLeft,
+                                    variable& o_intCurrentSpeed,
+                                    variable& o_blnSpeedSensorTrip,
+                                    variable& o_blnGravitySensorTrip,
+                                    variable& o_blnTemperatureSensorTrip) variable;
+
+    //*******************************************************************************************************************
+    //*
+    //* PRIVATE FUNCTION PROTOTYPES
+    //*
+    //*******************************************************************************************************************
+    static function SetDeckLayout(variable i_strDeckLayout,
+                                  variable i_strLabel) variable;
+
+    //*******************************************************************************************************************
+    //*
+    //* PRIVATE FUNCTION PROTOTYPES
+    //*
+    //*******************************************************************************************************************
+    private function _StopCentrifuge(variable i_strLabel,
+                                     variable i_intDecelleration,
+                                     variable i_strCallingFunctionName) variable;
+
+    private function _PresentPosition(variable i_strLabel,
+                                      variable i_intPosition,
+                                      variable i_strCallingFunctionName)variable;
+
+    private function _CoverClose(variable i_strLabel, 
+                                 variable i_strCallingFunctionName)variable;
+
+    private synchronized function _SetDevice(variable i_strLabel,
+                                             variable i_strNodeName,
+                                             variable i_blnSimulationMode,
+                                             variable i_intFugeType,
+                                             event i_hdlSemaphore) variable;
+
+    private synchronized function _GetDevice(variable i_strLabel,
+                                             variable& o_strNodeName) variable;
+
+    private synchronized function _RemoveDevice(variable i_strLabel) variable;
+
+    private synchronized function _SemaphoreWaitEvent(variable i_strLabel) void;
+
+    private synchronized function _SemaphoreSetEvent(variable i_strLabel) void;
+
+    private function _GetLabelIndex(variable i_strLabel) variable;
+
+    private function _GetSpeedLimit(variable i_strLabel) variable;
+
+    private function _GetMaxPosition(variable i_strLabel) variable;
+
+    private function _GetMaxAcceleration(variable i_strLabel) variable;
+
+    private function _GetLabelExist(variable i_strLabel,
+                                    variable i_strFunctionName) variable;
+
+    private function _EvaluateErrorMessage(variable i_strErrorCode) variable;
+
+    private synchronized function _SendFirmwareCommand(variable i_strFunctionName,
+                                                       variable i_strCommand,
+                                                       variable i_strParameter,
+                                                       variable& o_strResponse,
+                                                       device ML_STAR) variable;
+
+    private function _Start(variable i_strFunctionName,
+                            variable i_strTraceText,
+                            variable i_strLabel) void;
+
+    private function _Progress(variable i_strFunctionName,
+                               variable i_strTraceText) void;
+
+    private function _False(variable i_strFunctionName,
+                            variable i_strTraceText,
+                            variable i_strLabel) variable;
+
+    private function _True(variable i_strFunctionName,
+                           variable i_strTraceText,
+                           variable i_strLabel) variable;
+
+    private function _RequestZDriveState(variable i_strCallingFunctionName, 
+                                         variable i_strLabel,
+                                         variable& o_blnZRunning,
+                                         variable& o_intTimeLeft,
+                                         variable& o_intActualSpeed,
+                                         variable& o_arrBlnSensorTrips[])variable;
+
+    //===================================================================================================================
+    // 
+    //  FUNCTION SetTraceLevel
+    // 
+    //===================================================================================================================
+    function SetTraceLevel(variable i_intTraceLevel)variable
+    {
+      variable strFunctionName("");
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+
+      if(Hamilton_DriverTools::CheckIntegerRange(i_intTraceLevel, "i_intTraceLevel", TRACE_LEVEL_NONE, TRACE_LEVEL_DEBUG, strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::START, TRACE_LEVEL_DEBUG,
+                                        "",
+                                        strFunctionName, _intTraceLevel, _strLibraryName);
+
+      _intTraceLevel = i_intTraceLevel;
+      _blnTraceLevelSet = ASWGLOBAL::BOOL::TRUE;
+
+      Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE, TRACE_LEVEL_DEBUG,
+                                       "i_intTraceLevel = " + IStr(i_intTraceLevel), 
+                                       strFunctionName, _intTraceLevel, _strLibraryName);
+      return(ASWGLOBAL::BOOL::TRUE);
+    }
+
+    //=================================================================================================================
+    // 
+    //  FUNCTION Initialize
+    // 
+    //=================================================================================================================
+    function Initialize(variable i_strLabel,
+                        variable i_strNodeName,
+                        variable i_blnSimulationMode,
+                        variable i_blnAlwaysInitialize)variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse("");
+      variable intFugeType;
+      string strTmpResponse("qw0"), tmp("");
+      event hdlHamiltonCentrifugeSemaphore;
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+
+      //Check input value
+      if(Hamilton_DriverTools::CheckString(i_strLabel, "i_strLabel", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(Hamilton_DriverTools::CheckString(i_strNodeName, "i_strNodeName", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(Hamilton_DriverTools::CheckBool(i_blnSimulationMode, "i_blnSimulationMode", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(Hamilton_DriverTools::CheckBool(i_blnAlwaysInitialize, "i_blnAlwaysInitialize", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      if(!_blnTraceLevelSet)
+        _intTraceLevel = TRACELEVEL::GetTraceLevel();
+
+      Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::START, TRACE_LEVEL_RELEASE,
+                                       "SW Version = " + _strLibraryVersion, 
+                                       strFunctionName, _intTraceLevel, _strLibraryName);
+
+      Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,
+                                       "i_strLabel = " +i_strLabel +
+                                       "i_strNodeName = " + i_strNodeName +
+                                       "i_blnSimulationMode = " + IStr(i_blnSimulationMode) + 
+                                       "i_blnAlwaysInitialize = " + IStr(i_blnAlwaysInitialize), 
+                                       strFunctionName, _intTraceLevel, _strLibraryName);
+
+
+      // GetFirmware Version and Set DeviceType (SPS or GelCard)
+      strCommand = i_strNodeName + "RF";
+      strParameter = "";
+
+      //In simulation mode the Fuge cannot be checked - nor FW response.
+      //for this case max parameter ramnge is allowed.
+      intFugeType = CF_OPEN;
+      if(!_blnSimulationMode)
+      {
+        if(!GetSimulationMode())
+        {
+          if(!_SendFirmwareCommand(strFunctionName,  strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+          {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE_WITH_ERROR, TRACE_LEVEL_RELEASE,
+                                              "Initialize failed: Could not request FW Version", 
+                                              strFunctionName, _intTraceLevel, _strLibraryName);
+            return(ASWGLOBAL::BOOL::FALSE);
+          }
+          tmp = strResponse;
+          tmp = tmp.MakeLower();
+          if(tmp.Find("sbs") >= 0)
+            intFugeType = CF_SBS;
+          if(tmp.Find("gelcard") >= 0)
+            intFugeType = CF_GELCARD;
+        }
+      }
+      //Set label for further use
+      if(!_SetDevice(i_strLabel, i_strNodeName, i_blnSimulationMode, intFugeType, hdlHamiltonCentrifugeSemaphore)) 
+        return(_False(strFunctionName, "Initialize failed: Library error (SetDevice())", i_strLabel));
+
+      // Trace function start & Lock Semaphore
+      _Start(strFunctionName, "i_strLabel = " + i_strLabel +
+                              ", i_strNodeName = " + i_strNodeName +
+                              ", i_blnSimulationMode = " + IStr(i_blnSimulationMode) +
+                              ", i_blnAlwaysInitialize = " + IStr(i_blnAlwaysInitialize), i_strLabel);
+
+      //Reset Buffer / Error
+      strCommand = i_strNodeName + "OT"; // clear error
+      strParameter = "";
+      if(!_SendFirmwareCommand(strFunctionName,  strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+          return(_False(strFunctionName, "Initialize failed: could not clear error", i_strLabel));
+
+      strCommand = i_strNodeName + "OP"; //clear g-Sensor buffer
+      strParameter = "";
+      if(!_SendFirmwareCommand(strFunctionName,  strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+        return(_False(strFunctionName, "Initialize failed: Could not reset g-buffer", i_strLabel));
+
+      // INIT
+      if(!i_blnAlwaysInitialize)
+      {
+        strCommand = i_strNodeName + "QW"; //IsInitialized?
+        strParameter = "";
+        if(!_SendFirmwareCommand(strFunctionName,  strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+          return(_False(strFunctionName, "Initialize failed: Could not request init status", i_strLabel));
+        
+        strTmpResponse = strResponse;
+      }
+
+      if(strTmpResponse.Find("qw1") < 0)
+      {
+        strCommand = i_strNodeName + "MI";
+        strParameter = "";
+
+        if(!_SendFirmwareCommand(strFunctionName,  strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+          return(_False(strFunctionName, "Initialize failed: Could not initialize", i_strLabel));
+      }
+      else
+      {
+        _Progress(strFunctionName, "Module already Initialized!");
+      }
+      return(_True(strFunctionName, "Detected Cntrifuge Type = " + IStr(intFugeType), i_strLabel));
+    }//Initialize
+
+    //=================================================================================================================
+    // 
+    //  FUNCTION Terminate
+    // 
+    //=================================================================================================================
+    function Terminate(variable i_strLabel)variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse(""), strNodeName("");
+      variable intIndex(0), blnTempReturn(ASWGLOBAL::BOOL::FALSE);
+      variable strarrCommands[];
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+
+      //Check input value
+      if(Hamilton_DriverTools::CheckString(i_strLabel, "i_strLabel", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      if(_GetLabelExist(i_strLabel, strFunctionName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      // Trace function start & Lock Semaphore
+      _Start(strFunctionName, "i_strLabel = " + i_strLabel, i_strLabel);
+
+      //Get NodeName according to Label
+      if(!_GetDevice(i_strLabel, strNodeName))
+        return(_False(strFunctionName, "", i_strLabel));
+
+      strarrCommands.SetSize(0);
+      strarrCommands.AddAsLast(strNodeName + "LO");
+      strarrCommands.AddAsLast(strNodeName + "PO");
+      strarrCommands.AddAsLast(strNodeName + "HO");
+      strarrCommands.AddAsLast(strNodeName + "ZO");
+
+      for(intIndex = 0; intIndex < strarrCommands.GetSize(); intIndex++)
+      {
+        if(!_SendFirmwareCommand(strFunctionName, strarrCommands.ElementAt(intIndex), strParameter, strResponse, GetDeviceRef("ML_STAR")))
+          return(_False(strFunctionName, "", i_strLabel));
+      }
+      //ReturnValue must be bound in temp var. device has to be removed after return command.(array ref!)
+      blnTempReturn = _True(strFunctionName, "", i_strLabel);
+      _RemoveDevice(i_strLabel);
+      return(blnTempReturn);
+    }//Terminate
+
+    //=================================================================================================================
+    // 
+    //  FUNCTION GetLastError
+    // 
+    //=================================================================================================================
+    function GetLastError(variable i_strLabel,
+                          variable& o_intErrorNumber,
+                          variable& o_strErrorDescription)variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse(""), strNodeName("");
+      variable intIndex(0);
+      string tmpError;
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+
+      //Check input value
+      if(Hamilton_DriverTools::CheckString(i_strLabel, "i_strLabel", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      if(_GetLabelExist(i_strLabel, strFunctionName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      // Trace function start & Lock Semaphore
+      _Start(strFunctionName, "i_strLabel = " + i_strLabel, i_strLabel);
+
+      //Get NodeName according to Label
+      if(!_GetDevice(i_strLabel, strNodeName))
+        return(_False(strFunctionName, "", i_strLabel));
+
+      strCommand = strNodeName + "RE";
+      strParameter = "";
+
+      if(!_SendFirmwareCommand(strFunctionName,  strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+        if(strResponse == "")
+          return(_False(strFunctionName, "", i_strLabel));
+
+      tmpError = strResponse;
+      o_intErrorNumber = IVal(tmpError.Mid(tmpError.Find("er") + 2, 2));
+      o_strErrorDescription = _EvaluateErrorMessage(tmpError.Mid(tmpError.Find("er") + 2, 2));
+
+      return(_True(strFunctionName, "o_intErrorNumber = " + IStr(o_intErrorNumber) + 
+                                    ", o_strErrorDescription = " + o_strErrorDescription, i_strLabel));
+    }//GetLastError
+
+    //=================================================================================================================
+    // 
+    //  FUNCTION CoverOpen
+    // 
+    //=================================================================================================================
+    function CoverOpen(variable i_strLabel)variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse(""), strNodeName("");
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+
+      //Check input value
+      if(Hamilton_DriverTools::CheckString(i_strLabel, "i_strLabel", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(_GetLabelExist(i_strLabel, strFunctionName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      // Trace function start & Lock Semaphore
+      _Start(strFunctionName, "i_strLabel = " + i_strLabel, i_strLabel);
+
+      //Get NodeName according to Label
+      if(!_GetDevice(i_strLabel, strNodeName))
+        return(_False(strFunctionName, "", i_strLabel));
+
+      strCommand = strNodeName + "MO";
+      strParameter = "";
+
+      if(!_SendFirmwareCommand(strFunctionName,  strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+        return(_False(strFunctionName, "", i_strLabel));
+      return(_True(strFunctionName, "", i_strLabel));
+    }//CoverOpen
+
+    //=================================================================================================================
+    // 
+    //  FUNCTION CoverClose
+    // 
+    //=================================================================================================================
+    function CoverClose(variable i_strLabel)variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse(""), strNodeName("");
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+
+      //Check input value
+      if(Hamilton_DriverTools::CheckString(i_strLabel, "i_strLabel", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(_GetLabelExist(i_strLabel, strFunctionName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      // Trace function start & Lock Semaphore
+      _Start(strFunctionName, "i_strLabel = " + i_strLabel, i_strLabel);
+
+      //Get NodeName according to Label
+      if(!_GetDevice(i_strLabel, strNodeName))
+        return(_False(strFunctionName, "", i_strLabel));
+
+      strCommand = strNodeName + "MC";
+      strParameter = "";
+
+      if(!_SendFirmwareCommand(strFunctionName,  strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+        return(_False(strFunctionName, "", i_strLabel));
+      return(_True(strFunctionName, "", i_strLabel));
+    }//CoverClose
+
+    //=================================================================================================================
+    // 
+    //  FUNCTION ReleaseRotationDrive
+    // 
+    //=================================================================================================================
+    function ReleaseRotationDrive(variable i_strLabel)variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse(""), strNodeName("");
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+
+      //Check input value
+      if(Hamilton_DriverTools::CheckString(i_strLabel, "i_strLabel", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(_GetLabelExist(i_strLabel, strFunctionName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      // Trace function start & Lock Semaphore
+      _Start(strFunctionName, "i_strLabel = " + i_strLabel, i_strLabel);
+
+      //Get NodeName according to Label
+      if(!_GetDevice(i_strLabel, strNodeName))
+        return(_False(strFunctionName, "", i_strLabel));
+
+      strCommand = strNodeName + "PP";
+      strParameter = "pp0";
+
+      if(!_SendFirmwareCommand(strFunctionName,  strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+        return(_False(strFunctionName, "", i_strLabel));
+      return(_True(strFunctionName, "", i_strLabel));
+    }//CoverClose
+    //=================================================================================================================
+    // 
+    //  FUNCTION PresentPosition
+    // 
+    //=================================================================================================================
+    function PresentPosition(variable i_strLabel,
+                             variable i_intPosition)variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse(""), strNodeName("");
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+
+      //Check input value
+      if(Hamilton_DriverTools::CheckString(i_strLabel, "i_strLabel", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(_GetLabelExist(i_strLabel, strFunctionName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(Hamilton_DriverTools::CheckTypeRange(Hamilton_DriverTools::DATA_TYPE::INTEGER, "i_intPosition", i_intPosition, 1, _GetMaxPosition(i_strLabel), _GetMaxPosition(i_strLabel), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      // Trace function start & Lock Semaphore
+      _Start(strFunctionName, "i_strLabel = " + i_strLabel +
+                              ", Position = " + IStr(i_intPosition), i_strLabel);
+
+      if(!_PresentPosition(i_strLabel, i_intPosition, strFunctionName))
+        return(_False(strFunctionName, "", i_strLabel));
+      return(_True(strFunctionName, "", i_strLabel));
+    }//PresentPosition
+
+    //=================================================================================================================
+    // 
+    //  FUNCTION StartCentrifuge
+    // 
+    //=================================================================================================================
+    function StartCentrifuge(variable i_strLabel,
+                             variable i_intDirection,
+                             variable i_intSpeed,
+                             variable i_intAccelleration,
+                             variable i_intMaxRunTime)variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse(""), strNodeName("");
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+
+      //Check input value
+      if(Hamilton_DriverTools::CheckString(i_strLabel, "i_strLabel", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(_GetLabelExist(i_strLabel, strFunctionName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(Hamilton_DriverTools::CheckIntegerRange(i_intDirection, "i_intDirection", 0, 1, strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(Hamilton_DriverTools::CheckTypeRange(Hamilton_DriverTools::DATA_TYPE::INTEGER, "i_intSpeed", i_intSpeed, SPEEDLIMIT_MIN, _GetSpeedLimit(i_strLabel), _GetSpeedLimit(i_strLabel), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(Hamilton_DriverTools::CheckTypeRange(Hamilton_DriverTools::DATA_TYPE::INTEGER, "i_intAccelleration", i_intAccelleration, MIN_ACCELERATION, _GetMaxAcceleration(i_strLabel), _GetMaxAcceleration(i_strLabel), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(Hamilton_DriverTools::CheckIntegerRange(i_intMaxRunTime, "i_intMaxRunTime", 1, 99990, strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      // Trace function start & Lock Semaphore
+      _Start(strFunctionName, "i_strLabel = " + i_strLabel +
+                              ", i_intDirection = " + IStr(i_intDirection) +
+                              ", i_intSpeed = " + IStr(i_intSpeed)+
+                              ", i_intAccelleration = " + IStr(i_intAccelleration )+
+                              ", i_intMaxRunTime = " + IStr(i_intMaxRunTime), i_strLabel);
+
+      //Get NodeName according to Label
+      if(!_GetDevice(i_strLabel, strNodeName))
+        return(_False(strFunctionName, "", i_strLabel));
+
+      strCommand = strNodeName + "MZ";
+      strParameter = "zb" + Hamilton_DriverTools::FillLeft(IStr(i_intMaxRunTime * 10), "0", 6, strFunctionName, _strLibraryName) + //Timeout
+                     "zt" + IStr(i_intDirection) + //direction (0 = CW / 1 = CCW)
+                     "zv" + Hamilton_DriverTools::FillLeft(IStr(i_intSpeed), "0", 4, strFunctionName, _strLibraryName) + //speed
+                     "zu" + Hamilton_DriverTools::FillLeft(IStr(i_intAccelleration), "0", 5, strFunctionName, _strLibraryName); //acceleration
+
+      if(!_SendFirmwareCommand(strFunctionName,  strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+        return(_False(strFunctionName, "", i_strLabel));
+      return(_True(strFunctionName, "", i_strLabel));
+    }//StartCentrifuge
+
+    //=================================================================================================================
+    // 
+    //  FUNCTION StopCentrifuge
+    // 
+    //=================================================================================================================
+    function StopCentrifuge(variable i_strLabel,
+                            variable i_intDecelleration) variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse(""), strNodeName("");
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+
+      //Check input value
+      if(Hamilton_DriverTools::CheckString(i_strLabel, "i_strLabel", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(_GetLabelExist(i_strLabel, strFunctionName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(Hamilton_DriverTools::CheckTypeRange(Hamilton_DriverTools::DATA_TYPE::INTEGER, "i_intDecelleration", i_intDecelleration, MIN_ACCELERATION, _GetMaxAcceleration(i_strLabel), _GetMaxAcceleration(i_strLabel), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      // Trace function start & Lock Semaphore
+      _Start(strFunctionName,  "i_strLabel = " + i_strLabel +
+                               ", i_intDecelleration = " + IStr(i_intDecelleration), i_strLabel);
+
+      if(!_StopCentrifuge(i_strLabel, i_intDecelleration, strFunctionName))
+        return(_False(strFunctionName, "", i_strLabel));
+      return(_True(strFunctionName, "", i_strLabel));
+    }//StopCentrifuge
+
+    //=================================================================================================================
+    //
+    //  FUNCTION Centrifuge
+    //
+    //=================================================================================================================
+    function Centrifuge(variable i_strLabel,
+                        variable i_blnCloseCoverAtEnd,
+                        variable i_intPresentPosition,
+                        variable i_intDirection,
+                        variable i_intArrSpeed[],
+                        variable i_intArrAccelleration[],
+                        variable i_intArrDuration[],
+                        variable i_intDecelleration)variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse(""), strNodeName("");
+      variable intIndex(0);
+      variable  o_blnZRunning, o_intTimeLeft, o_intActualSpeed, o_arrBlnSensorTrips[];
+      variable blnStopTimer(ASWGLOBAL::BOOL::FALSE);
+      timer hdlTimer;
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+
+      //Check input value
+      if(Hamilton_DriverTools::CheckString(i_strLabel, "i_strLabel", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(_GetLabelExist(i_strLabel, strFunctionName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(Hamilton_DriverTools::CheckBool(i_blnCloseCoverAtEnd, "i_blnCloseCoverAtEnd", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(Hamilton_DriverTools::CheckIntegerRange(i_intPresentPosition, "i_intPresentPosition", 1, _GetMaxPosition(i_strLabel), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+      if(Hamilton_DriverTools::CheckIntegerRange(i_intDirection, "i_intDirection", 0, 1, strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      if(i_intArrSpeed.GetSize() == i_intArrAccelleration.GetSize() && i_intArrAccelleration.GetSize() == i_intArrDuration.GetSize())
+      {
+        for(intIndex = 0; intIndex < i_intArrSpeed.GetSize(); intIndex++)
+        {
+          if(Hamilton_DriverTools::CheckTypeRange(Hamilton_DriverTools::DATA_TYPE::INTEGER, "i_intArrSpeed", i_intArrSpeed.ElementAt(intIndex), SPEEDLIMIT_MIN, _GetSpeedLimit(i_strLabel), _GetSpeedLimit(i_strLabel), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+            return(ASWGLOBAL::BOOL::FALSE);
+          if(Hamilton_DriverTools::CheckTypeRange(Hamilton_DriverTools::DATA_TYPE::INTEGER, "i_intArrAccelleration", i_intArrAccelleration.ElementAt(intIndex), MIN_ACCELERATION, _GetMaxAcceleration(i_strLabel), _GetMaxAcceleration(i_strLabel), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+            return(ASWGLOBAL::BOOL::FALSE);
+          if(Hamilton_DriverTools::CheckIntegerRange(i_intArrDuration[intIndex], "i_intDuration", 1, 99990, strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+            return(ASWGLOBAL::BOOL::FALSE);
+        }
+      }
+      else
+      {
+        return(_False(strFunctionName, "Input Arrays are not equaly sized!", i_strLabel));
+      }
+
+      if(Hamilton_DriverTools::CheckTypeRange(Hamilton_DriverTools::DATA_TYPE::INTEGER, "i_intDecelleration", i_intDecelleration, MIN_ACCELERATION, _GetMaxAcceleration(i_strLabel), _GetMaxAcceleration(i_strLabel), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      // Trace function start & Lock Semaphore
+      _Start(strFunctionName,  "i_strLabel = " + i_strLabel +
+                               ", i_blnCloseCoverAtEnd = " + IStr(i_blnCloseCoverAtEnd) +
+                               ", i_intPresentPosition = " + IStr(i_intPresentPosition) +
+                               ", i_intDirection = " + IStr(i_intDirection) +
+                               ", i_intDecelleration = " + IStr(i_intDecelleration), i_strLabel);
+
+      //Get NodeName according to Label
+      if(!_GetDevice(i_strLabel, strNodeName))
+        return(_False(strFunctionName, "", i_strLabel));
+
+      //StartFuge
+      for(intIndex = 0; intIndex < i_intArrSpeed.GetSize(); intIndex++)
+      {
+        if(intIndex == 0) {strCommand = strNodeName + "MZ";}
+        if(intIndex > 0) {strCommand = strNodeName + "ZR";}
+
+        strParameter = "zb" + Hamilton_DriverTools::FillLeft(IStr(i_intArrDuration.ElementAt(intIndex) * 11), "0", 6, strFunctionName, _strLibraryName) +
+                       "zt" + IStr(i_intDirection) + 
+                       "zv" + Hamilton_DriverTools::FillLeft(IStr(i_intArrSpeed.ElementAt(intIndex)), "0", 4, strFunctionName, _strLibraryName) +
+                       "zu" + Hamilton_DriverTools::FillLeft(IStr(i_intArrAccelleration.ElementAt(intIndex)), "0", 5, strFunctionName, _strLibraryName);
+
+        if(!_SendFirmwareCommand(strFunctionName, strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+          return(_False(strFunctionName, "", i_strLabel));
+
+        // Check for 0 Duration a Ininate and return
+        if(i_intArrDuration.ElementAt(intIndex) != 0)
+        {
+          if(_blnSimulationMode == ASWGLOBAL::BOOL::FALSE && GetSimulationMode() == ASWGLOBAL::BOOL::FALSE)
+          {
+            hdlTimer.SetTimer(i_intArrDuration.ElementAt(intIndex)); 
+            while(!blnStopTimer)
+            {
+              if(hdlTimer.GetElapsedTime() >= i_intArrDuration.ElementAt(intIndex))
+                break;
+              
+              Hamilton_DriverTools::Delay(3.0, strFunctionName,_strLibraryName);
+              o_arrBlnSensorTrips.SetSize(0);
+
+              if(!_RequestZDriveState(strFunctionName, i_strLabel, o_blnZRunning, o_intTimeLeft, o_intActualSpeed, o_arrBlnSensorTrips))
+                return(_False(strFunctionName, "", i_strLabel));
+              
+              // Send Stop Command after error to retrieve error code.
+              if(o_arrBlnSensorTrips.ElementAt(0) == ASWGLOBAL::BOOL::TRUE || o_arrBlnSensorTrips.ElementAt(1) == ASWGLOBAL::BOOL::TRUE || o_arrBlnSensorTrips.ElementAt(2) == ASWGLOBAL::BOOL::TRUE)
+              {
+                if(!_StopCentrifuge(i_strLabel, i_intDecelleration, strFunctionName))
+                  return(_False(strFunctionName, "", i_strLabel));
+              }
+            }
+          }
+          else
+          {
+            _Progress(strFunctionName, "TimerSimulated -> " + IStr(i_intArrDuration.ElementAt(intIndex)) + " seconds.");
+          }
+        }
+      }
+      if(!_StopCentrifuge(i_strLabel, i_intDecelleration, strFunctionName))
+        return(_False(strFunctionName, "", i_strLabel));
+
+      if(_PresentPosition(i_strLabel, i_intPresentPosition, strFunctionName) == ASWGLOBAL::BOOL::FALSE)
+        return(_False(strFunctionName, "", i_strLabel));
+
+      if(i_blnCloseCoverAtEnd)
+      {
+        if(_CoverClose(i_strLabel, strFunctionName) == ASWGLOBAL::BOOL::FALSE)
+          return(_False(strFunctionName, "", i_strLabel));
+      }
+      return(_True(strFunctionName, "", i_strLabel));
+    }//Centrifuge
+
+    //=================================================================================================================
+    // 
+    //  FUNCTION ResetErrorStatus
+    // 
+    //=================================================================================================================
+    function ResetErrorStatus(variable i_strLabel) variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse(""), strNodeName("");
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+
+      //Check input value
+      if(Hamilton_DriverTools::CheckString(i_strLabel, "i_strLabel", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      // Trace function start & Lock Semaphore
+      _Start(strFunctionName,  "i_strLabel = " + i_strLabel, i_strLabel);
+
+      //Get NodeName according to Label
+      if(!_GetDevice(i_strLabel, strNodeName))
+        return(_False(strFunctionName, "", i_strLabel));
+
+      //Reset Buffer / Error
+      strCommand = strNodeName + "OT"; // clear error
+      strParameter = "";
+      if(!_SendFirmwareCommand(strFunctionName,  strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+          return(_False(strFunctionName, "", i_strLabel));
+
+      strCommand = strNodeName + "OP"; //clear g-Sensor buffer
+      strParameter = "";
+      if(!_SendFirmwareCommand(strFunctionName,  strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+        return(_False(strFunctionName, "", i_strLabel));
+
+      return(_True(strFunctionName, "", i_strLabel));
+    }//ResetErrorStatus
+
+    //=================================================================================================================
+    // 
+    //  FUNCTION GetRotationDriveStatus
+    // 
+    //=================================================================================================================
+    function GetRotationDriveStatus(variable i_strLabel,
+                                    variable& o_blnRotorDriveRunning,
+                                    variable& o_int_ProfileStatus,
+                                    variable& o_intTimeLeft,
+                                    variable& o_intCurrentSpeed,
+                                    variable& o_blnSpeedSensorTrip,
+                                    variable& o_blnGravitySensorTrip,
+                                    variable& o_blnTemperatureSensorTrip) variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse(""), strNodeName("");
+      string tmp;
+      variable intIndex(0);
+
+      //ResetVariables
+      o_blnRotorDriveRunning = ASWGLOBAL::BOOL::TRUE;
+      o_int_ProfileStatus = -1;
+      o_intTimeLeft = -1;
+      o_intCurrentSpeed = -1;
+      o_blnSpeedSensorTrip = ASWGLOBAL::BOOL::TRUE;
+      o_blnGravitySensorTrip = ASWGLOBAL::BOOL::TRUE;
+      o_blnTemperatureSensorTrip = ASWGLOBAL::BOOL::TRUE;
+      
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+
+      //Check input value
+      if(Hamilton_DriverTools::CheckString(i_strLabel, "i_strLabel", strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE)
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      // Trace function start
+      _Start(strFunctionName,  "i_strLabel = " + i_strLabel, i_strLabel);
+
+      //Get NodeName according to Label
+      if(!_GetDevice(i_strLabel, strNodeName))
+        return(_False(strFunctionName, "", i_strLabel));
+
+      //Get Error Status
+      strCommand = strNodeName + "QS";
+      strParameter = "";
+
+      if(!_SendFirmwareCommand(strFunctionName, strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+        return(_False(strFunctionName, "", i_strLabel));
+
+      if(_blnSimulationMode || GetSimulationMode())
+      {
+        strResponse = "QSer00qs0 0 000000 0000 0 0 0";
+      }             
+      tmp = strResponse;
+      tmp = tmp.Mid(tmp.Find("qs") + 2, 21);
+
+      if(tmp.GetLength() != 21)
+        return(_False(strFunctionName, "Response cannot be analysed", i_strLabel));
+
+      o_blnRotorDriveRunning = IVal(tmp.Mid(0,1));
+      o_int_ProfileStatus = IVal(tmp.Mid(2,1));
+      o_intTimeLeft = IVal(tmp.Mid(4,6)) / 10; // return seconds instead of 1/10s
+      o_intCurrentSpeed = IVal(tmp.Mid(11,4));
+      o_blnSpeedSensorTrip = IVal(tmp.Mid(16,1));
+      o_blnGravitySensorTrip = IVal(tmp.Mid(18,1));
+      o_blnTemperatureSensorTrip = IVal(tmp.Mid(20,1));
+
+      return(_True(strFunctionName, "o_blnRotorDriveRunning = " + IStr(o_blnRotorDriveRunning) +
+                                    ", o_int_ProfileStatus = " + IStr(o_int_ProfileStatus) + 
+                                    ", o_intTimeLeft = " + IStr(o_intTimeLeft) + " seconds" +
+                                    ", o_intCurrentSpeed = " + IStr(o_intCurrentSpeed) +
+                                    ", o_blnSpeedSensorTrip = " + IStr(o_blnSpeedSensorTrip) +
+                                    ", o_blnGravitySensorTrip = " + IStr(o_blnGravitySensorTrip) +
+                                    ", o_blnTemperatureSensorTrip = " + IStr(o_blnTemperatureSensorTrip), i_strLabel));
+    }//GetRotationDriveStatus
+
+    //*******************************************************************************************************************
+    //*
+    //* STATIC FUNCTION IMPLEMENTATION
+    //*
+    //*******************************************************************************************************************
+    //*******************************************************************************************************************
+    //*
+    //* PRIVATE FUNCTION IMPLEMENTATION
+    //*
+    //*******************************************************************************************************************
+
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _SemaphoreWaitEvent
+    //=
+    //===================================================================================================================
+    private synchronized function _SemaphoreWaitEvent(variable i_strLabel) void
+    {
+      gHamiltonCentrifugeSemaphore[_GetLabelIndex(i_strLabel)].WaitEvent(hslInfinite);
+    }
+
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _SemaphoreSetEvent
+    //=
+    //===================================================================================================================
+    private synchronized function _SemaphoreSetEvent(variable i_strLabel) void
+    {
+      gHamiltonCentrifugeSemaphore[_GetLabelIndex(i_strLabel)].SetEvent();
+    }
+
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _SetDevice
+    //=
+    //===================================================================================================================
+    private synchronized function _SetDevice(variable i_strLabel,
+                                             variable i_strNodeName,
+                                             variable i_blnSimulationMode,
+                                             variable i_intFugeType,
+                                             event i_hdlSemaphore) variable 
+    {
+      variable intIndex(0);
+      variable strFunctionName("");
+      event hdlSemaphore;
+      //Extract functionName
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      hdlSemaphore = i_hdlSemaphore;
+      hdlSemaphore.SetEvent();
+
+      //Check if label unique
+      for(intIndex = 0; intIndex < gArrStrLabel.GetSize(); intIndex++)
+      {
+        //Check if Label is used already
+        if(gArrStrLabel.ElementAt(intIndex) == i_strLabel)
+        {
+          // If label is in use check if it has the same nodename
+          if(gArrStsNodeNames.ElementAt(intIndex) == i_strNodeName)
+          {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE_WITH_ERROR, TRACE_LEVEL_RELEASE,
+                                             "The Label: " + i_strLabel + "is already set for the identical NodeName", 
+                                             strFunctionName, _intTraceLevel, _strLibraryName);
+            return(ASWGLOBAL::BOOL::TRUE);
+          }
+          else
+          {
+            Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE_WITH_ERROR, TRACE_LEVEL_RELEASE,
+                                             "The Label: " + i_strLabel + "is already in use! This must be a unique ID!", 
+                                             strFunctionName, _intTraceLevel, _strLibraryName);
+            return(ASWGLOBAL::BOOL::FALSE);
+          }
+        }
+      }
+      gArrStrLabel.AddAsLast(i_strLabel);
+      gArrStsNodeNames.AddAsLast(i_strNodeName);
+      gArrBlnSimulationModes.AddAsLast(i_blnSimulationMode);
+      gArrIntCentrifugeTypes.AddAsLast(i_intFugeType);
+      gHamiltonCentrifugeSemaphore.AddAsLast(hdlSemaphore);
+
+      return(ASWGLOBAL::BOOL::TRUE);
+    }
+
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _GetDevice
+    //=
+    //===================================================================================================================
+    private synchronized function _GetDevice(variable i_strLabel,
+                                             variable& o_strNodeName) variable 
+    {
+      variable intIndex(0);
+      variable strFunctionName("");
+
+      //Extract functionName
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      //Check if label unique
+      for(intIndex = 0; intIndex < gArrStrLabel.GetSize(); intIndex++)
+      {
+        //Check if Label is used already
+        if(gArrStrLabel.ElementAt(intIndex) == i_strLabel)
+        {
+          o_strNodeName = gArrStsNodeNames.ElementAt(intIndex);
+          _blnSimulationMode = gArrBlnSimulationModes.ElementAt(intIndex);
+          return(ASWGLOBAL::BOOL::TRUE);
+        }
+        else
+        {
+          Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE_WITH_ERROR, TRACE_LEVEL_RELEASE,
+                                            "Could not evaluate Label: '" + i_strLabel + "'. Make sure the device is Initialized!", 
+                                            strFunctionName, _intTraceLevel, _strLibraryName);
+          return(ASWGLOBAL::BOOL::FALSE);
+        }
+      }
+    }//_GetDevice
+
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _RemoveDevice
+    //=
+    //===================================================================================================================
+    private synchronized function _RemoveDevice(variable i_strLabel) variable 
+    {
+      variable intIndex(0);
+      variable strFunctionName("");
+
+      //Extract functionName
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      //Check if label unique
+      for(intIndex = 0; intIndex < gArrStrLabel.GetSize(); intIndex++)
+      {
+        //Check if Label is used already
+        if(gArrStrLabel.ElementAt(intIndex) == i_strLabel)
+        {
+          gArrStrLabel.RemoveElementAt(intIndex);
+          gArrStsNodeNames.RemoveElementAt(intIndex);
+          gArrBlnSimulationModes.RemoveElementAt(intIndex);
+          return(ASWGLOBAL::BOOL::TRUE);
+        }
+        else
+        {
+          Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE_WITH_ERROR, TRACE_LEVEL_RELEASE,
+                                            "Could not evaluate Label: '" + i_strLabel + "'. Make sure the device is Initialized!", 
+                                            strFunctionName, _intTraceLevel, _strLibraryName);
+          return(ASWGLOBAL::BOOL::FALSE);
+        }
+      }
+    }//_GetDevice
+
+    //=================================================================================================================
+    // 
+    //  FUNCTION _StopCentrifuge
+    // 
+    //=================================================================================================================
+    private function _StopCentrifuge(variable i_strLabel,
+                                     variable i_intDecelleration,
+                                     variable i_strCallingFunctionName) variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse(""), strNodeName("");
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+      
+      strFunctionName = i_strCallingFunctionName + " ==> " + strFunctionName;
+
+      //Get NodeName according to Label
+      if(!_GetDevice(i_strLabel, strNodeName))
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      strCommand = strNodeName + "MS"; //supposed to stop fuge and go to position 1 and lift elevator
+      strParameter = "zo084000" + // 4200 rpm with decel 1/s^2 (50ms / incr.)
+                     "zu" + Hamilton_DriverTools::FillLeft(IStr(i_intDecelleration), "0", 5, strFunctionName, _strLibraryName);
+
+      if(!_SendFirmwareCommand(strFunctionName,  strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+         return(ASWGLOBAL::BOOL::FALSE);
+      return(ASWGLOBAL::BOOL::TRUE);
+    }//StopCentrifuge
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _PresentPosition
+    //=
+    //===================================================================================================================
+    function _PresentPosition(variable i_strLabel,
+                              variable i_intPosition,
+                              variable i_strCallingFunctionName)variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse(""), strNodeName("");
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+      
+      strFunctionName = i_strCallingFunctionName + " ==> " + strFunctionName;
+
+      //Get NodeName according to Label
+      if(!_GetDevice(i_strLabel, strNodeName))
+      { 
+        return(ASWGLOBAL::BOOL::FALSE);
+      }
+      strCommand = strNodeName + "MP";
+      strParameter = "zp" + Hamilton_DriverTools::FillLeft(IStr(i_intPosition - 1), "0", 2, strFunctionName, _strLibraryName);
+
+      if(!_SendFirmwareCommand(strFunctionName, strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+         return(ASWGLOBAL::BOOL::FALSE);
+      return(ASWGLOBAL::BOOL::TRUE);
+    }//PresentPosition
+
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _CoverClose
+    //=
+    //===================================================================================================================
+    function _CoverClose(variable i_strLabel, 
+                         variable i_strCallingFunctionName)variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse(""), strNodeName("");
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+       return(ASWGLOBAL::BOOL::FALSE);
+
+      strFunctionName = i_strCallingFunctionName + " ==> " + strFunctionName;
+
+      //Get NodeName according to Label
+      if(!_GetDevice(i_strLabel, strNodeName))
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      strCommand = strNodeName + "MC";
+      strParameter = "";
+
+      if(!_SendFirmwareCommand(strFunctionName,  strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+         return(ASWGLOBAL::BOOL::FALSE);
+      return(ASWGLOBAL::BOOL::TRUE);
+    }//_CoverClose
+
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _GetLabelIndex
+    //=
+    //===================================================================================================================
+    private function _GetLabelIndex(variable i_strLabel) variable
+    {
+      variable intIndex(0);
+      for(intIndex = 0; intIndex < gArrStrLabel.GetSize(); intIndex++)
+      {
+        if(gArrStrLabel.ElementAt(intIndex) == i_strLabel)
+        {
+            return(intIndex);
+        }
+      }
+      return(-1);
+    }
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _GetSpeedLimit
+    //=
+    //===================================================================================================================
+    private function _GetSpeedLimit(variable i_strLabel) variable
+    {
+      variable intIndex(0);
+      for(intIndex = 0; intIndex < gArrStrLabel.GetSize(); intIndex++)
+      {
+        if(gArrStrLabel.ElementAt(intIndex) == i_strLabel)
+        {
+          if(gArrIntCentrifugeTypes.ElementAt(intIndex) == CF_SBS)
+          {
+            return(SPEEDLIMIT_SBS_MAX);
+          }
+        }
+      }
+      return(SPEEDLIMIT_GELCARD_MAX);
+    }
+
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _GetMaxPosition
+    //=
+    //===================================================================================================================
+    private function _GetMaxPosition(variable i_strLabel) variable
+    {
+      variable intIndex(0);
+      for(intIndex = 0; intIndex < gArrStrLabel.GetSize(); intIndex++)
+      {
+        if(gArrStrLabel.ElementAt(intIndex) == i_strLabel)
+        {
+          if(gArrIntCentrifugeTypes.ElementAt(intIndex) == CF_SBS)
+            return(MAXPOSITION_SBS);
+        }
+      }
+      return(MAXPOSITION_GELCARD);
+    }
+
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _GetMaxAcceleration
+    //=
+    //===================================================================================================================
+    private function _GetMaxAcceleration(variable i_strLabel) variable
+    {
+      variable intIndex(0);
+      for(intIndex = 0; intIndex < gArrStrLabel.GetSize(); intIndex++)
+      {
+        if(gArrStrLabel.ElementAt(intIndex) == i_strLabel)
+        {
+          if(gArrIntCentrifugeTypes.ElementAt(intIndex) == CF_SBS)
+            return(MAX_ACCELERATION_SBS);
+        }
+      }
+      return(MAX_ACCELERATION_GELCARD);
+    }
+
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _GetLabelExist
+    //=
+    //===================================================================================================================
+    private function _GetLabelExist(variable i_strLabel,
+                                    variable i_strFunctionName) variable
+    {
+      variable intIndex(0);
+      for(intIndex = 0; intIndex < gArrStrLabel.GetSize(); intIndex++)
+      {
+        if(gArrStrLabel.ElementAt(intIndex) == i_strLabel)
+        {
+          return(ASWGLOBAL::BOOL::TRUE);
+        }
+      }
+      Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE_WITH_ERROR, TRACE_LEVEL_RELEASE,
+                                        "Could not evaluate Label: '" + i_strLabel + "'. Make sure the device is Initialized!", 
+                                        i_strFunctionName, _intTraceLevel, _strLibraryName);
+      return(ASWGLOBAL::BOOL::FALSE);
+    }
+
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _SendFirmwareCommand
+    //=
+    //===================================================================================================================
+    private synchronized function _SendFirmwareCommand(variable i_strFunctionName,
+                                                       variable i_strCommand,
+                                                       variable i_strParameter,
+                                                       variable& o_strResponse,
+                                                       device ML_STAR) variable
+    {
+      variable strarrReturnValues[];
+      variable strFunctionName("");
+      string strReturnValue(""), strTmp("");
+      variable strErrorNumber;
+
+      //Extract functionName
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      strFunctionName = i_strFunctionName + " ==> " + strFunctionName;
+    
+      _Progress(strFunctionName, "i_strCommand [" + i_strCommand +"]"+ ", i_strParameter [" + i_strParameter + "]");
+      
+      if(!_blnSimulationMode)
+      {
+        if(!GetSimulationMode())
+        {
+          strarrReturnValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2( "ac73fc28_2d74_4303_bcd5bd3984457b53" ); // FirmwareCommand
+        }
+        else
+        {
+          strarrReturnValues.SetSize(4);
+          strarrReturnValues.SetAt(3, "SIMULATION - er00");
+        }
+      }
+      else
+      {
+        strarrReturnValues.SetSize(4);
+        strarrReturnValues.SetAt(3, "SIMULATION - er00");
+      }
+
+      strReturnValue = strarrReturnValues.GetAt(3);
+      o_strResponse = strReturnValue;
+
+      //Extract errorcode
+      strTmp = strReturnValue.Mid(strReturnValue.Find("er"), 4);
+      strErrorNumber = strTmp;
+
+      if(strTmp.Compare("er00") == 0)
+      {
+        _Progress(strFunctionName, "Command successful: " + strErrorNumber + " / " + _EvaluateErrorMessage(strTmp.Mid(2,2)));
+        return(ASWGLOBAL::BOOL::TRUE);
+      }
+      else
+      {
+        //Init and FW-Version Request has no er00 response
+        if(strReturnValue.Find("qw1") >=0 || strReturnValue.Find("qw0") >= 0 || strReturnValue.Find("rf") >=0 || strReturnValue.Find("qs") >=0)
+        {
+          _Progress(strFunctionName, "Command successful");
+          return(ASWGLOBAL::BOOL::TRUE);
+        }
+
+        _Progress(strFunctionName, "The Following Error occured: " + strErrorNumber + " / " + _EvaluateErrorMessage(strTmp.Mid(2,2)));
+        return(ASWGLOBAL::BOOL::FALSE);
+      }
+    }
+
+    //=================================================================================================================
+    //
+    //  PRIVATE FUNCTION _RequestZDriveState
+    //
+    //=================================================================================================================
+    private function _RequestZDriveState(variable i_strCallingFunctionName, 
+                                         variable i_strLabel,
+                                         variable& o_blnZRunning,
+                                         variable& o_intTimeLeft,
+                                         variable& o_intActualSpeed,
+                                         variable& o_arrBlnSensorTrips[])variable
+    {
+      variable strFunctionName(""), strCommand(""), strParameter(""), strResponse(""), strNodeName("");
+      string tmpError;
+
+      if(Hamilton_DriverTools::ExtractFunctionName(GetFunctionName(), strFunctionName, _strLibraryName) == ASWGLOBAL::BOOL::FALSE) 
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      strFunctionName = i_strCallingFunctionName + " ==> " + strFunctionName;
+
+      //Get NodeName according to Label
+      if(!_GetDevice(i_strLabel, strNodeName))
+      { 
+        return(ASWGLOBAL::BOOL::FALSE);
+      }
+
+      strCommand = strNodeName + "QS";
+      strParameter = "";
+
+      if(!_SendFirmwareCommand(strFunctionName, strCommand, strParameter, strResponse, GetDeviceRef("ML_STAR")))
+        return(ASWGLOBAL::BOOL::FALSE);
+
+      tmpError = strResponse;
+      tmpError = tmpError.Mid(tmpError.Find("qs") + 2, 21);
+
+
+      if(_blnSimulationMode || GetSimulationMode())
+      {
+        strResponse = "QSer00qs0 0 000000 0000 0 0 0";
+      }             
+
+      tmpError = strResponse;
+      tmpError = tmpError.Mid(tmpError.Find("qs") + 2, 21);
+
+      if(tmpError.GetLength() != 21)
+        return(_False(strFunctionName, "Response cannot be analysed", i_strLabel));
+
+      if(tmpError.Mid(0,1) == "1") o_blnZRunning = ASWGLOBAL::BOOL::TRUE;
+        else o_blnZRunning = ASWGLOBAL::BOOL::FALSE;
+      o_intTimeLeft = IVal(tmpError.Mid(4,6));
+      o_intActualSpeed = IVal(tmpError.Mid(11,4));
+      if(tmpError.Mid(16,1) == "1") o_arrBlnSensorTrips.AddAsLast(ASWGLOBAL::BOOL::TRUE);
+        else o_arrBlnSensorTrips.AddAsLast(ASWGLOBAL::BOOL::FALSE);
+      if(tmpError.Mid(18,1) == "1") o_arrBlnSensorTrips.AddAsLast(ASWGLOBAL::BOOL::TRUE);
+        else o_arrBlnSensorTrips.AddAsLast(ASWGLOBAL::BOOL::FALSE);
+      if(tmpError.Mid(20,1) == "1") o_arrBlnSensorTrips.AddAsLast(ASWGLOBAL::BOOL::TRUE);
+        else o_arrBlnSensorTrips.AddAsLast(ASWGLOBAL::BOOL::FALSE);
+
+      _Progress(strFunctionName, "Rotor State: RotorRunning = " +  IStr(o_blnZRunning) +
+                                 ", TimeLeft = " + IStr(o_intTimeLeft) + 
+                                 ", ActualSpeed = " +  IStr(o_intActualSpeed) + 
+                                 ", Speed Sensor Trip = " + IStr(o_arrBlnSensorTrips[0]) +
+                                 ", Gravity Sensor Trip = " + IStr(o_arrBlnSensorTrips[1]) +
+                                 ", Temperature Sensor Trip = " + IStr(o_arrBlnSensorTrips[2]));
+      return(ASWGLOBAL::BOOL::TRUE);
+    }//_RequestZDriveState
+
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _Start
+    //=
+    //===================================================================================================================
+    private function _Start(variable i_strFunctionName,
+                            variable i_strTraceText,
+                            variable i_strLabel) void
+    {
+      Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::START, TRACE_LEVEL_DEBUG,
+                                       i_strTraceText, 
+                                       i_strFunctionName, _intTraceLevel, _strLibraryName);
+      _SemaphoreWaitEvent(i_strLabel);
+    }
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _Progress
+    //=
+    //===================================================================================================================
+    private function _Progress(variable i_strFunctionName,
+                               variable i_strTraceText) void
+    {
+      Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::PROGRESS, TRACE_LEVEL_DEBUG,
+                                       i_strTraceText, 
+                                       i_strFunctionName, _intTraceLevel, _strLibraryName);
+    }
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _False
+    //=
+    //===================================================================================================================
+    private function _False(variable i_strFunctionName,
+                            variable i_strTraceText,
+                            variable i_strLabel) variable
+    {
+      Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE_WITH_ERROR, TRACE_LEVEL_RELEASE,
+                                       i_strTraceText, 
+                                       i_strFunctionName, _intTraceLevel, _strLibraryName);
+      _SemaphoreSetEvent(i_strLabel);
+      return(ASWGLOBAL::BOOL::FALSE);
+    }
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _True
+    //=
+    //===================================================================================================================
+    private function _True(variable i_strFunctionName,
+                           variable i_strTraceText,
+                           variable i_strLabel) variable
+    {
+      Hamilton_DriverTools::StatusTrace(Hamilton_DriverTools::ACTION::COMPLETE, TRACE_LEVEL_DEBUG,
+                                       i_strTraceText, 
+                                       i_strFunctionName, _intTraceLevel, _strLibraryName);
+
+      _SemaphoreSetEvent(i_strLabel);
+      return(ASWGLOBAL::BOOL::TRUE);
+    }
+    //===================================================================================================================
+    //=
+    //= PRIVATE FUNCTION _EvaluateErrorMessage
+    //=
+    //===================================================================================================================
+    private function _EvaluateErrorMessage(variable i_strErrorCode) variable
+    {
+      variable strErrorDescription("");
+      if(i_strErrorCode == "00") return("No Error");
+
+      if(i_strErrorCode == "10") return("Could not find device (CAN Error) - make sure the device is connected and powered on.");
+
+      if(i_strErrorCode == "21") return("Error during setup pro-cedure - Check HW connection or wait 5 seconds after AI Command or power up.");
+      if(i_strErrorCode == "22") return("Communication error to drive controller");
+      if(i_strErrorCode == "25") return("Flash EPROM data are wrong");
+      if(i_strErrorCode == "26") return("Flash EPROM cannot be pro-grammed");
+      if(i_strErrorCode == "27") return("Flash EPROM cannot be erased");
+      if(i_strErrorCode == "28") return("Flash EPROM check sum error");
+
+      if(i_strErrorCode == "30") return("Undefined command");
+      if(i_strErrorCode == "31") return("Undefined parameter");
+      if(i_strErrorCode == "32") return("Parameter out of range");
+      if(i_strErrorCode == "35") return("Voltage monitoring - Power supply hardware not working properly");
+      if(i_strErrorCode == "36") return("Stop during execution of a command - eg. weight imbalanced");
+      
+      if(i_strErrorCode == "40") return("No parallel processes in control process 0 permitted - Two or more commands sent to the same control process in level 0, request or special command");
+
+      if(i_strErrorCode == "50") return("Initialization failed");
+      if(i_strErrorCode == "51") return("Drive not initialized - Command sent before drive initialized");
+      if(i_strErrorCode == "52") return("Movement error");
+      if(i_strErrorCode == "53") return("Position out of permitted area - Check the Status Flag to get specific Status information");
+      if(i_strErrorCode == "54") return("Drive not ready - Stop rotation movement and try again");
+      if(i_strErrorCode == "55") return("Drive is in rotation, can not open Cover");
+      if(i_strErrorCode == "56") return("Speed not allowed, The rotation speed \"zv\" is within the cutoff speed area");
+
+      if(i_strErrorCode == "60") return("Initialization failed");
+      if(i_strErrorCode == "61") return("Drive not initialized");
+      if(i_strErrorCode == "62") return("Movement error");
+      if(i_strErrorCode == "63") return("Position out of permitted area");
+      if(i_strErrorCode == "65") return("Initialization failed");
+      if(i_strErrorCode == "66") return("Drive not initialized");
+      if(i_strErrorCode == "67") return("Movement monitoring");
+      if(i_strErrorCode == "68") return("Position monitoring ");
+
+      if(i_strErrorCode == "70") return("Init. sensor");
+      if(i_strErrorCode == "71") return("Status function");
+      if(i_strErrorCode == "72") return("Movement monitoring");
+      if(i_strErrorCode == "73") return("Position monitoring ");
+      if(i_strErrorCode == "74") return("No or wrong rotor mounted ");
+
+      if(i_strErrorCode == "80") return("Hardware failure - Internal sensor hardware not working");
+      if(i_strErrorCode == "81") return("Hardware failure - External sensor hardware not working");
+      if(i_strErrorCode == "90") return("Cover not in closed position - The Cover is not closed. A centrifugation is not possible.");
+      if(i_strErrorCode == "91") return("Lock not in locked position - Lock Drive is not in locked position. A centrifugation is not possible.");
+
+      return("Unknown error number");
+    } // _EvaluateErrorMessage
+  }
+#endif
+// $$author=dkaufmann$$valid=1$$time=2016-02-23 12:21$$checksum=0f84cab3$$length=088$$

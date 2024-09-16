@@ -1,0 +1,3070 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Hamilton.Asw.VectorCustomDialogs</name>
+    </assembly>
+    <members>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Application.ImageManager.#ctor">
+            <summary>
+            constructor
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Application.ImageManager.Instance">
+            <summary>
+            get the instance of the data domain
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Application.ImageManager.CalculateKey(Hamilton.Asw.VectorCustomDialogs.Helper.ImageHelper.ImagesHelper.IconResolution,Hamilton.Asw.VectorCustomDialogs.Helper.ImageHelper.ImagesHelper.IconType)">
+            <summary>
+            calculate the key according to the enumerators
+            </summary>
+            <param name="iconResolution"></param>
+            <param name="iconType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Application.ImageManager.GetStandardIconx(System.String,Hamilton.Asw.VectorCustomDialogs.Helper.ImageHelper.ImagesHelper.IconResolution,Hamilton.Asw.VectorCustomDialogs.Helper.ImageHelper.ImagesHelper.IconType)">
+            <summary>
+            Load a hamilton standard icon
+            
+            Exceptions
+              NotSupportedException
+              FileNotFoundException
+              DirectoryNotFoundException
+              
+            </summary>
+            <param name="iconDirectory"></param>
+            <param name="iconResolution"></param>
+            <param name="iconType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Application.ImageManager.TryGetStandardIcon(System.String,Hamilton.Asw.VectorCustomDialogs.Helper.ImageHelper.ImagesHelper.IconResolution,Hamilton.Asw.VectorCustomDialogs.Helper.ImageHelper.ImagesHelper.IconType,System.String@)">
+            <summary>
+            Trys to load a hamilton standard icon
+            </summary>
+            <param name="iconDirectory"></param>
+            <param name="iconResolution"></param>
+            <param name="iconType"></param>
+            <param name="errorMessage"></param>
+            <returns></returns>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Application.ImageManager._instance">
+            <summary>
+            instance
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Application.IOManager.ApplicationDirectory">
+            <summary>
+            get the directory of the application
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Application.IOManager.ApplicationIconDirectory">
+            <summary>
+            get the directory of the application icons
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IAbortRetryIgnore.AbortCommand">
+            <summary>
+            The Command used by the Common Dialogs Abort Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IAbortRetryIgnore.RetryCommand">
+            <summary>
+            The Command used by the Common Dialogs Retry Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IAbortRetryIgnore.IgnoreCommand">
+            <summary>
+            The Command used by the Common Dialogs Cancel Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IOk.OkCommand">
+            <summary>
+            The Command used by the Common Dialogs Ok Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IOkCancel.OkCommand">
+            <summary>
+            The Command used by the Common Dialogs Ok Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IOkCancel.CancelCommand">
+            <summary>
+            The Command used by the Common Dialogs Cancel Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IYesNo.YesCommand">
+            <summary>
+            The Command used by the Common Dialogs Yes Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IYesNo.NoCommand">
+            <summary>
+            The Command used by the Common Dialogs No Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IYesNoCancel.YesCommand">
+            <summary>
+            The Command used by the Common Dialogs Accept Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IYesNoCancel.NoCommand">
+            <summary>
+            The Command used by the Common Dialogs Cancel Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IYesNoCancel.CancelCommand">
+            <summary>
+            The Command used by the Common Dialogs Cancel Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IRetryCancel.RetryCommand">
+            <summary>
+            The Command used by the Common Dialogs Retry Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IRetryCancel.CancelCommand">
+            <summary>
+            The Command used by the Common Dialogs Cancel Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IAbortRetryCancel.AbortCommand">
+            <summary>
+            The Command used by the Common Dialogs Abort Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IAbortRetryCancel.RetryCommand">
+            <summary>
+            The Command used by the Common Dialogs Retry Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IAbortRetryCancel.CancelCommand">
+            <summary>
+            The Command used by the Common Dialogs Cancel Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IAcceptCancel.AcceptCommand">
+            <summary>
+            The Command used by the Common Dialogs Accept Button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.ButtonContracts.IAcceptCancel.CancelCommand">
+            <summary>
+            The Command used by the Common Dialogs Cancel Button
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.ButtonViews.AcceptCancel">
+            <summary>
+            Interaktionslogik für AcceptCancel.xaml
+            </summary>
+            <summary>
+            AcceptCancel
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.ButtonViews.AcceptCancel.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.ButtonViews.AbortRetryCancel">
+            <summary>
+            Interaktionslogik für AbortRetryCancel.xaml
+            </summary>
+            <summary>
+            AbortRetryCancel
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.ButtonViews.AbortRetryCancel.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.ButtonViews.AbortRetryIgnore">
+            <summary>
+            Interaktionslogik für AbortRetryIgnore.xaml
+            </summary>
+            <summary>
+            AbortRetryIgnore
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.ButtonViews.AbortRetryIgnore.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.ButtonViews.RetryCancel">
+            <summary>
+            Interaktionslogik für RetryCancel.xaml
+            </summary>
+            <summary>
+            RetryCancel
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.ButtonViews.RetryCancel.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.ButtonViews.YesNo">
+            <summary>
+            Interaktionslogik für YesNo.xaml
+            </summary>
+            <summary>
+            YesNo
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.ButtonViews.YesNo.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.ButtonViews.Ok">
+            <summary>
+            Interaktionslogik für Ok.xaml
+            </summary>
+            <summary>
+            Ok
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.ButtonViews.Ok.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.ButtonViews.YesNoCancel">
+            <summary>
+            Interaktionslogik für AcceptCancel.xaml
+            </summary>
+            <summary>
+            YesNoCancel
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.ButtonViews.YesNoCancel.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.ButtonViews.OkCancel">
+            <summary>
+            Interaktionslogik für AcceptCancel.xaml
+            </summary>
+            <summary>
+            OkCancel
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.ButtonViews.OkCancel.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.ButtonControl.ButtonFactory.DialogButtons">
+            <summary>
+            Provides button combinations
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.ButtonControl.ButtonFactory.ButtonReturnValue">
+            <summary>
+            enum for button return values
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.ButtonControl.ButtonFactory.GetDialogButtons(Hamilton.Asw.VectorCustomDialogs.ButtonControl.ButtonFactory.DialogButtons,System.String[],Hamilton.Asw.VectorCustomDialogs.Helper.Enum.Enums.DialogLanguage)">
+            <summary>
+            Creates object for different dialog types
+            </summary>
+            <param name="buttons">button type enum (DialogButtons)</param>
+            <param name="l10N">localization with ordered string array</param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.ButtonControl.ButtonFactory.GetDefaultButtonCaption(Hamilton.Asw.VectorCustomDialogs.ButtonControl.ButtonFactory.DialogButtons,Hamilton.Asw.VectorCustomDialogs.Helper.Enum.Enums.DialogLanguage)">
+            <summary>
+            Gets default button captions for different dialog types
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.ButtonControl.ButtonFactory.CheckLocalizationCardinalityWithButtonType(Hamilton.Asw.VectorCustomDialogs.ButtonControl.ButtonFactory.DialogButtons,System.String[],Hamilton.Asw.VectorCustomDialogs.Helper.Enum.Enums.DialogLanguage)">
+            <summary>
+            Creates class for different dialog types
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.ButtonControl.ButtonFactory.IsPositiveButtonState(Hamilton.Asw.VectorCustomDialogs.ButtonControl.ButtonFactory.ButtonReturnValue)">
+            <summary>
+            Checks button value against posititives (one wins)
+            </summary>
+            <param name="buttonReturnValue"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Constants.ModuleConstants">
+            <summary>
+            Constant parameters of the module
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Converter.ActualWidthToRequiredWidth.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <summary>
+            Konvertiert einen Wert. 
+            </summary>
+            <returns>
+            Ein konvertierter Wert.Wenn die Methode null zurückgibt, wird der gültige NULL-Wert verwendet.
+            </returns>
+            <param name="value">Der von der Bindungsquelle erzeugte Wert.</param><param name="targetType">Der Typ der Bindungsziel-Eigenschaft.</param><param name="parameter">Der zu verwendende Konverterparameter.</param><param name="culture">Die im Konverter zu verwendende Kultur.</param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Converter.ActualWidthToRequiredWidth.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <summary>
+            Konvertiert einen Wert. 
+            </summary>
+            <returns>
+            Ein konvertierter Wert.Wenn die Methode null zurückgibt, wird der gültige NULL-Wert verwendet.
+            </returns>
+            <param name="value">Der Wert, der vom Bindungsziel erzeugt wird.</param><param name="targetType">Der Typ, in den konvertiert werden soll.</param><param name="parameter">Der zu verwendende Konverterparameter.</param><param name="culture">Die im Konverter zu verwendende Kultur.</param>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.CustomTheming.CustomThemeHelper">
+            <summary>
+            Helper for custom themes
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CustomTheming.CustomThemeHelper.GetCustomTheme(System.String)">
+            <summary>
+            Get the custom theme by full file path.
+            If null the default path will be used.
+            </summary>
+            <param name="customThemeFullFileName">The custom theme full file path</param>
+            <returns>A valid custom theme</returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CustomTheming.CustomThemeHelper.SetCustomTheme(Hamilton.Asw.VectorCustomDialogs.CustomTheming.CustomTheme,System.Windows.Application)">
+            <summary>
+            Sets the custom theme and all required default Hamilton themes in application resources
+            </summary>
+            <param name="customTheme">The custom theme</param>
+            <param name="application">The application</param>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.CustomTheming.CustomTheme">
+            <summary>
+            The custom theme container
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CustomTheming.CustomTheme.#ctor">
+            <summary>
+            Creates a new instance
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.CustomTheming.CustomTheme.Colors">
+            <summary>
+            Gets or sets the color entries
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.CustomTheming.CustomTheme.FontFamily">
+            <summary>
+            Gets or sets the font family entries
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.CustomTheming.CustomTheme.FontSize">
+            <summary>
+            Gets or stets the font size entries
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.CustomTheming.Entry">
+            <summary>
+            The custom theme entry
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CustomTheming.Entry.#ctor">
+            <summary>
+            Creates new instance
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CustomTheming.Entry.#ctor(System.String,System.String)">
+            <summary>
+            Creates new instance
+            </summary>
+            <param name="key">The key</param>
+            <param name="value">The value</param>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.CustomTheming.Entry.Key">
+            <summary>
+            Gets or sets the entry key
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.CustomTheming.Entry.Value">
+            <summary>
+            Gets or sets the entry value
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.CustomTheming.NamedResourceDictionary">
+            <summary>
+            ResourceDictionary with name as identifier
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.CustomTheming.NamedResourceDictionary.Name">
+            <summary>
+            Gets or sets the name
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.CommonDialogControl.RelayCommand">
+            <summary>
+            Default implementation of the Relay Command / Delegate Command.
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogControl.RelayCommand.#ctor">
+            <summary>
+            Private constructor.
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogControl.RelayCommand.#ctor(System.Action{System.Object},System.Predicate{System.Object},System.Boolean)">
+            <summary>
+            Initalizes a new instance of the RelayCommand class.
+            </summary>
+            <param name="canExecuteMethod">The method to use when the "CanExecute" method of the IReportingCommand interface is called.</param>
+            <param name="executeMethod">The method to use when the "Execute" method of the IReportingCommand interface is called.</param>
+            <param name="isEnabled">Whether or not the command is enabled by default.</param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogControl.RelayCommand.CanExecute(System.Object)">
+            <summary>
+            Executes the "CanExecute" method of the RelayCommand, if any,
+            and returns the result that determines whether or not this command can be executed.
+            </summary>
+            <param name="parameter">An optional parameter.</param>
+            <returns>A boolean value indicating whether or not this command can be executed.</returns>
+        </member>
+        <member name="E:Hamilton.Asw.VectorCustomDialogs.CommonDialogControl.RelayCommand.CanExecuteChanged">
+            <summary>
+            Occurs when the "CanExecute" value has changed.
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogControl.RelayCommand.OnCanExecuteChanged">
+            <summary>
+            Raises the CanExecuteChanged event.
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogControl.RelayCommand.Execute(System.Object)">
+            <summary>
+            Executes the "Execute" method of the RelayCommand, if any exists
+            </summary>
+            <param name="parameter">An optional parameter.</param>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.CommonDialogView.App">
+            <summary>
+            Interaction logic for App.xaml
+            </summary>
+            <summary>
+            App
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogView.App.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.CommonDialogView.CommonDialogWindow">
+            <summary>
+            The common dialog window frame used to host ContentViews
+            
+            Supports all 
+            </summary>
+            <summary>
+            CommonDialogWindow
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogView.CommonDialogWindow.#ctor">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogView.CommonDialogWindow.CreateDialog(Hamilton.Asw.VectorCustomDialogs.CommonDialogControl.CommonDialogParameters)">
+            <summary>
+            Factory help method for OpenDialog with a parameter class (CommonDialogParameters)
+            </summary>
+            <param name="cdp"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogView.CommonDialogWindow.OpenDialog(System.Windows.Controls.UserControl,System.Windows.Controls.UserControl,System.IntPtr,System.String,System.Boolean,System.Int32,System.Boolean,System.Int32,System.Int32,System.Int32,System.String)">
+            <summary>
+            Factory Method to Display a Dialog Window. Its content must be a usercontrol/view that has a
+            DataContext/ViewModel that implements the ICommonDialogViewModel Interface, defining
+            the AcceptCommand and the CancelCommand
+            </summary>
+            <param name="content">the view / usercontrol to host</param>
+            <param name="buttons">the required buttons</param>
+            <param name="owner">the parent window. might be null</param>
+            <param name="title">title of the dialog (display in header)</param>
+            <param name="fixedSize">not resizeable</param>
+            <param name="timeOut"></param>
+            <param name="showModal"></param>
+            <param name="width"></param>
+            <param name="height"></param>
+            <param name="windowType"></param>
+            <param name="pathToIconSet"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogView.CommonDialogWindow.CloseDialog(System.Object,System.EventArgs)">
+            <summary>
+            Called on button command
+            </summary>
+            <param name="o"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogView.CommonDialogWindow.HeaderGridMouseLeftButtonDown(System.Object,System.Windows.Input.MouseButtonEventArgs)">
+            <summary>
+            DragMove with headerGrid
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogView.CommonDialogWindow.SetContent(System.Windows.Controls.UserControl)">
+            <summary>
+            Sets the datacontext of CommonDialogWindow, adds defined children (specified usercontrol / dialog)
+            </summary>
+            <param name="userControl"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogView.CommonDialogWindow.WriteFile(System.String,System.String)">
+            <summary>
+            For testing purpose only, writes the logfile with inner exception
+            </summary>
+            <param name="sFilename"></param>
+            <param name="sLines"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogView.CommonDialogWindow.Finalize">
+            <summary>
+            Destructor 
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogView.CommonDialogWindow.Dispose">
+            <summary>
+            Member of IDisposable
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.CommonDialogView.CommonDialogWindow.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.DialogStatusView.Controller.AswStatusDialogViewController._aswstatusdialogViewThread">
+            <summary>
+            thread
+            </summary>  
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogStatusView.Controller.AswStatusDialogViewController.AppendText(System.String)">
+            <summary>
+            Appends a text
+            </summary>
+            <param name="strTextToAppend"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogStatusView.Controller.AswStatusDialogViewController.ClearStatusDialogWindow">
+            <summary>
+            Clears the status dialog window
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogStatusView.Controller.AswStatusDialogViewController.CloseAswStatusDialog">
+            <summary>
+            Closes the dialog
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogStatusView.Controller.AswStatusDialogViewController.InitializeAswStatusDialog(System.String,System.IntPtr,System.String)">
+            <summary>
+            Initializes the status dialog
+            </summary>
+            <param name="strTitleDialogText"></param>
+            <param name="owner"></param>
+            <param name="pathToIconSet"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogStatusView.Controller.AswStatusDialogViewController.SetDialogTitleIntoStatusDialogWindow(System.String)">
+            <summary>
+            Sets the dialog title
+            </summary>
+            <param name="strDialogTitle">The dialog title</param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogStatusView.Controller.AswStatusDialogViewController.SetTextIntoStatusDialogWindow(System.String)">
+            <summary>
+            Resets all texts and sets an new one
+            </summary>
+            <param name="strStatusDialogText"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogStatusView.View.AswStatusDialogView">
+            <summary>
+            Interaction logic for AswStatusDialogView.xaml
+            </summary>
+            <summary>
+            AswStatusDialogView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogStatusView.View.AswStatusDialogView.#ctor(System.String,System.String)">
+            <summary>
+            Creates a new instance
+            </summary>
+            <param name="dialogTitle">The title of the dialog</param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogStatusView.View.AswStatusDialogView.AppendTextIntoStatusDialogWindow(System.String)">
+            <summary>
+            Appends text to the existing status dialog text.
+            </summary>
+            <param name="strTextToAppend">Text that should be append.</param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogStatusView.View.AswStatusDialogView.ClearStatusDialogWindow">
+            <summary>
+            Clears the list box.
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogStatusView.View.AswStatusDialogView.SetDialogTitle(System.String)">
+            <summary>
+            Sets the dialog title
+            </summary>
+            <param name="strDialogTitle">The dialog title</param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogStatusView.View.AswStatusDialogView.SetTextIntoStatusDialogWindow(System.String)">
+            <summary>
+            Resets the list box and sets the input text into the status dialog text.
+            </summary>
+            <param name="strStatusDialogText">Text associated with the control.</param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogStatusView.View.AswStatusDialogView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.ErrorDialogView">
+            <summary>
+            Code behind for ErrorDialogView
+            </summary>
+            <summary>
+            ErrorDialogView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.ErrorDialogView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.ImageRadioButtonDialogView">
+            <summary>
+            Interaktionslogik für RadioButtonDialogView.xaml
+            </summary>
+            <summary>
+            ImageRadioButtonDialogView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.ImageRadioButtonDialogView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.FileBrowserDialogView">
+            <summary>
+            Code behind for FileBrowserDialog
+            </summary>
+            <summary>
+            FileBrowserDialogView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.FileBrowserDialogView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.DirectoryBrowserDialogView">
+            <summary>
+            Code behind for DirectoryBrowserDialogView
+            </summary>
+            <summary>
+            DirectoryBrowserDialogView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.DirectoryBrowserDialogView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.DoubleInputDialogView">
+            <summary>
+            Code behind for DoubleInputDialog
+            </summary>
+            <summary>
+            DoubleInputDialogView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.DoubleInputDialogView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.CheckBoxDialogView">
+            <summary>
+            Interaktionslogik für CheckBoxDialogView.xaml
+            </summary>
+            <summary>
+            CheckBoxDialogView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.CheckBoxDialogView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.FolderBrowserDialogView">
+            <summary>
+            Code behind for FileBrowserDialog
+            </summary>
+            <summary>
+            FolderBrowserDialogView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.FolderBrowserDialogView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.ListSelectDialogView">
+            <summary>
+            Code behind for ListSelectDialogView
+            </summary>
+            <summary>
+            ListSelectDialogView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.ListSelectDialogView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.LoginDialogView">
+            <summary>
+            Code behind for LoginDialogView
+            </summary>
+            <summary>
+            LoginDialogView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.LoginDialogView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.RadioButtonDialogView">
+            <summary>
+            Interaktionslogik für RadioButtonDialogView.xaml
+            </summary>
+            <summary>
+            RadioButtonDialogView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.RadioButtonDialogView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.LoadingDialog">
+            <summary>
+            Code behind for LoadingDialog
+            </summary>
+            <summary>
+            LoadingDialog
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.LoadingDialog.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.InputDialogView">
+            <summary>
+            Interaktionslogik für InputDialog.xaml
+            </summary>
+            <summary>
+            InputDialogView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.InputDialogView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.ListDialogView">
+            <summary>
+            Code behind for ListDialogView
+            </summary>
+            <summary>
+            ListDialogView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.ListDialogView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.LoadingWithListDialogView">
+            <summary>
+            Code behind for LoadingWithListDialog
+            </summary>
+            <summary>
+            LoadingWithListDialogView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.LoadingWithListDialogView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.MessageDialogWithImageView">
+            <summary>
+            Code behind for MessageDialogWithImageView
+            </summary>
+            <summary>
+            MessageDialogWithImageView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.MessageDialogWithImageView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogViews.MessageDialogView">
+            <summary>
+            Code behind for MessageDialog
+            </summary>
+            <summary>
+            MessageDialogView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogViews.MessageDialogView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistManager.InitializeColumns(System.Collections.Generic.List{System.String})">
+            <summary>
+            initializes the columns
+            
+            Exceptions
+            - ViewControllerException
+            - WorklistTableException
+            
+            </summary>
+            <param name="columnNames"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistManager.SetStatusColumnName(System.String)">
+            <summary>
+            set column status name
+            
+            Exceptions
+            - ViewControllerException        
+            
+            </summary>
+            <param name="statusName"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistManager.SetSelectedColumnName(System.String)">
+            <summary>
+            set the selected name
+            
+            Exceptions
+            - ViewControllerException        
+            
+            </summary>
+            <param name="selectedName"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistManager.SetTextField(System.String)">
+            <summary>
+            set the textfield
+            
+            Exceptions
+            - ViewControllerException        
+            
+            </summary>
+            <param name="textField"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistManager.AddRow(Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.DataDomain.WorklistRow)">
+            <summary>
+            initializes the rows
+            
+            Exceptions
+            - ViewControllerException
+            - WorklistTableException
+            
+            </summary>
+            <param name="rows"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistManager.GetRow(System.Int32)">
+            <summary>
+            get row
+            - return 'null' if no row with this id exist
+            
+            </summary>
+            <param name="rowID"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistManager.CloneAllRows">
+            <summary>
+            get all rows, a clone of the worklist rows will be created
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistManager.GetColumnName(System.Int32)">
+            <summary>
+            get the column name
+            </summary>
+            <param name="columnNumber"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistManager.GetStatusName">
+            <summary>
+            get status name 
+            - return status name
+            
+            </summary>        
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistManager.GetSelectedName">
+            <summary>
+            get selected name
+            - return selected name
+            
+            </summary>        
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistManager.GetTextField">
+            <summary>
+            get text field
+            - return text field
+            
+            </summary>        
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistManager.GetRows(Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.DataDomain.ProcessingMode)">
+            <summary>
+            get the rows with the given processing mode
+            </summary>
+            <param name="processingMode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistManager.UpdateProcessingMode(System.Int32,Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.DataDomain.ProcessingMode)">
+            <summary>
+            update the processing mode of the row
+            </summary>
+            <param name="rowID"></param>
+            <param name="processingMode"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistViewController.SetDialogResources(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            set dialog ressources
+            </summary>
+            <param name="dialogTitle"></param>
+            <param name="tooltipSaveAndCloseButton"></param>
+            <param name="tooltipResetButton"></param>
+            <param name="saveAndCloseCaption"></param>
+            <param name="resetCaption"></param>
+            <param name="selectedRowsDisplayName"></param>
+            <param name="selectedAllRowsDisplayName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistViewController.InitializeColumns(System.String[])">
+            <summary>
+            init columns
+            </summary>
+            <param name="columnNames"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistViewController.SetStatusColumnName(System.String)">
+            <summary>
+            set column status name
+            </summary>        
+            <param name="columnStatusName"></param>        
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistViewController.SetSelectedColumnName(System.String)">
+            <summary>
+            init selected name
+            </summary>        
+            <param name="columnSelectedName"></param>        
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistViewController.SetTextField(System.String)">
+            <summary>
+            set text field
+            </summary>
+            <param name="textField"></param>        
+            <returns></returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistViewController.GetRows(System.Int32[]@,System.Int32[]@,System.Int32[]@)" -->
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistViewController.AddRow(System.Int32,System.Int32,System.Boolean,System.Int32,System.String[])">
+            <summary>
+            add a row
+            </summary>
+            <param name="id"></param>
+            <param name="status"></param>
+            <param name="isEditable"></param>
+            <param name="isSelected"></param>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistViewController.GetErrorMessage(System.String)">
+            <summary>
+            Get the error message by the exception id
+            </summary>
+            <param name="exceptionID"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistViewController.SetEditMode(System.Int32)">
+            <summary>
+            set the edit mode of the view
+            </summary>
+            <param name="editMode"></param>
+            <returns></returns>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistViewController._worklistViewThread">
+            <summary>
+            thread
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistViewController._worklistManager">
+            <summary>
+            content
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Exceptions.ExceptionManager.ConvertToErrorID(System.String,System.Int32@,System.Int32@)">
+            <summary>
+            converts the exception id to main and sub error ids
+            
+            Exceptions:
+            - ViewControllerException
+            
+            </summary>
+            <param name="exceptionID"></param>
+            <param name="mainErrorID"></param>
+            <param name="subErrorID"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Exceptions.ExceptionManager.GetStandardErrorMessage(System.Int32,System.Int32)">
+            <summary>
+            get the standard error message according to the error ids
+            - if the error ids are not defined the standard message 'Undefined error.' will be returned 
+            
+            </summary>
+            <param name="mainErrorID"></param>
+            <param name="subErrorID"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Exceptions.ViewControllerException.CreateStandardErrorMessage(System.Int32)">
+            <summary>
+            create a standard error message according to subErrorID
+            </summary>
+            <param name="subErrorID"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Exceptions.ViewControllerExceptionBase.MainErrorID">
+            <summary>
+            ID of the main error
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Exceptions.ViewControllerExceptionBase.SubErrorID">
+            <summary>
+            ID of the sub error
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Exceptions.ViewControllerExceptionBase.ExceptionID">
+            <summary>
+            ID of the exception
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Exceptions.WorklistTableException.CreateStandardErrorMessage(System.Int32)">
+            <summary>
+            create a standard error message according to subErrorID
+            </summary>
+            <param name="subErrorID"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistItemViewModel.#ctor(Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel,Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.DataDomain.ViewConfiguration,System.Boolean,System.Int32,Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.DataDomain.RowStatus,System.Boolean,Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.DataDomain.ProcessingMode,System.Collections.Generic.List{System.String})">
+            <summary>
+            constructor
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistItemViewModel.RowStatusImageSource">
+            <summary>
+            image source
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistItemViewModel.ProcessingModeImageSource">
+            <summary>
+            image source
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistItemViewModel.IDRow">
+            <summary>
+            id row
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistItemViewModel.IsEditable">
+            <summary>
+            is row editable
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistItemViewModel.IsProcessingModeProcess">
+            <summary>
+            get or set the processing mode
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistItemViewModel.IsProcessingModeExclude">
+            <summary>
+            get or set the processing mode
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistItemViewModel.IsProcessingModeRemove">
+            <summary>
+            get or set the processing mode
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistItemViewModel.SampleProcessingMode">
+            <summary>
+            get or set the processing mode
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistItemViewModel.SetSelectedColumnVisibility">
+            <summary>
+            SetSelectedColumnVisibility
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistItemViewModel.IsExcludeModeEnabled">
+            <summary>
+            get whether the exclude mode is enabled
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistItemViewModel.IsRemoveModeEnabled">
+            <summary>
+            get whether the remove mode is enabled
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistItemViewModel.SampleModeProcessProcessDisplayName">
+            <summary>
+            processing mode text
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistItemViewModel.SampleModeExcludeDisplayName">
+            <summary>
+            processing mode text
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistItemViewModel.SampleModeRemoveDisplayName">
+            <summary>
+            processing mode text
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.#ctor(System.Windows.Window,System.String,Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.DataDomain.ViewConfiguration,Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.Controller.WorklistManager,System.String)">
+            <summary>
+            constructor
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.View">
+            <summary>
+            get the view of this view model
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ViewMaxHeight">
+            <summary>
+            height of window
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ViewMaxWidth">
+            <summary>
+            width of window
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ViewMinHeight">
+            <summary>
+            height of window
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ViewMinWidth">
+            <summary>
+            width of window
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ViewHeight">
+            <summary>
+            height of window
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ViewWidth">
+            <summary>
+            width of window
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.SetSizeToContent">
+            <summary>
+            state of window
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ViewState">
+            <summary>
+            state of window
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.WindowIconImageSource">
+            <summary>
+            image source
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.RowStatusOKImageSource">
+            <summary>
+            image source
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.RowStatusWarningImageSource">
+            <summary>
+            image source
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.RowStatusErrorImageSource">
+            <summary>
+            image source
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ProcessingModeProcessImageSource">
+            <summary>
+            image source
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ProcessingModeExcludeImageSource">
+            <summary>
+            image source
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ProcessingModeRemoveImageSource">
+            <summary>
+            image source
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.SaveAndCloseCaption">
+            <summary>
+            tooltip reset button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ResetCaption">
+            <summary>
+            tooltip reset button
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.WorklistViewSelectedRowsDisplayName">
+            <summary>
+            WorklistViewSelectedRowsDisplayName
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.WorklistViewSetAllToProcessDisplayName">
+            <summary>
+            NormalisationViewSelectedAllRowsDisplayName
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.WorklistViewSetAllToExcludeDisplayName">
+            <summary>
+            NormalisationViewSelectedAllRowsDisplayName
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.WorklistViewSetAllToRemoveDisplayName">
+            <summary>
+            NormalisationViewSelectedAllRowsDisplayName
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.TextField">
+            <summary>
+            text field
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.TextFieldVisibility">
+            <summary>
+            get whether the text fild is visible or not
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.LegendVisibility">
+            <summary>
+            get whether the legend is visible or not
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.LegendRowStatusVisibility">
+            <summary>
+            get the visibility of the led status elements for the legend
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.LegendProcessingModeProcessVisibility">
+            <summary>
+            get the visibility of the processing mode elements for the legend
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.LegendProcessingModeExcludeVisibility">
+            <summary>
+            get the visibility of the processing mode elements for the legend
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.LegendProcessingModeRemoveVisibility">
+            <summary>
+            get the visibility of the processing mode elements for the legend
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.SelectedRowsNumber">
+            <summary>
+            get or set the selected rows number 
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.IsExcludeModeEnabled">
+            <summary>
+            get whether the exclude mode is enabled
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.IsRemoveModeEnabled">
+            <summary>
+            get whether the remove mode is enabled
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.WorklistItemViewModels">
+            <summary>
+            get or set file informations
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.SetStatusColumnVisibility">
+            <summary>
+            SetStatusColumnVisibility
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.SetSelectedColumnVisibility">
+            <summary>
+            SetSelectedColumnVisibility
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.CreateCommands">
+            <summary>
+            create all commands
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ResetDialogCommand">
+            <summary>
+            get the command reset
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.CanExecuteResetDialogCommand">
+            <summary>
+            get whether the command can be executed
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ProcessingModeChanged(System.Int32,Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.DataDomain.ProcessingMode)">
+            <summary>
+            set the processing mode
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ExecuteResetDialogCommand">
+            <summary>
+            execute command
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.SaveAndCloseDialogCommand">
+            <summary>
+            get the save and close command
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.CanExecuteSaveAndCloseDialogCommand">
+            <summary>
+            get whether the save and close command can be executed
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ExecuteSaveAndCloseDialogCommand">
+            <summary>
+            execute command
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ColumnHeaderClickedCommand">
+            <summary>
+            get the command
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.CanExecuteColumnHeaderClickedCommand">
+            <summary>
+            get whether the command can be executed
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ExecuteColumnHeaderClickedCommand(System.Object)">
+            <summary>
+            execute command
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.SetAllToProcessCommand">
+            <summary>
+            get the command reset
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.CanExecuteSetAllToProcessCommand">
+            <summary>
+            get whether the command can be executed
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ExecuteSetAllToProcessCommand">
+            <summary>
+            execute command
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.SetAllToExcludeCommand">
+            <summary>
+            get the command reset
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.CanExecuteSetAllToExcludeCommand">
+            <summary>
+            get whether the command can be executed
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ExecuteSetAllToExcludeCommand">
+            <summary>
+            execute command
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.SetAllToRemoveCommand">
+            <summary>
+            get the command reset
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.CanExecuteSetAllToRemoveCommand">
+            <summary>
+            get whether the command can be executed
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.ExecuteSetAllToRemoveCommand">
+            <summary>
+            execute command
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.CreateWorklistItemViewModels(Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.SortParameter)">
+            <summary>
+            creates the list with all worklist items
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.StoreProcessingMode(System.Int32,Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.DataDomain.ProcessingMode)">
+            <summary>
+            store the processing mode in the internal data object
+            </summary>
+            <param name="rowID"></param>
+            <param name="isChoosen"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.OnExitApplication">
+            <summary>
+            Clean up functions on application exit
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel._viewModelName">
+            <summary>
+            parent
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel._windowSettings">
+            <summary>
+            settings
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel._viewConfiguration">
+            <summary>
+            content
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel._resetDialogCommand">
+            <summary>
+            commands
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel._selectedRowsNumber">
+            <summary>
+            properties
+            </summary>        
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.ViewModel.WorklistViewModel.SortParameter">
+            <summary>
+            sort parameter
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.View.WorklistView">
+            <summary>
+            Interaction logic for WorklistView.xaml
+            </summary>
+            <summary>
+            WorklistView
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.DialogWorklistView.View.WorklistView.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Extension.ListViewColumns">
+            <summary>
+            ListViewColumnStretch
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Extension.ListViewColumns.StretchProperty">
+            <summary>
+            IsStretched Dependancy property which can be attached to gridview columns.
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Extension.ListViewColumns.GetStretch(System.Windows.DependencyObject)">
+            <summary>
+            Gets the stretch.
+            </summary>
+            <param name="obj">The obj.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Extension.ListViewColumns.SetStretch(System.Windows.DependencyObject,System.Boolean)">
+            <summary>
+            Sets the stretch.
+            </summary>
+            <param name="obj">The obj.</param>
+            <param name="value">if set to <c>true</c> [value].</param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Extension.ListViewColumns.OnCoerceStretch(System.Windows.DependencyObject,System.Object)">
+            <summary>
+            Called when [coerce stretch].
+            </summary>
+            <remarks>If this callback seems unfamilar then please read
+            the great blog post by Paul jackson found here. 
+            http://compilewith.net/2007/08/wpf-dependency-properties.html</remarks>
+            <param name="source">The source.</param>
+            <param name="value">The value.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Extension.ListViewColumns.lv_SizeChanged(System.Object,System.Windows.SizeChangedEventArgs)">
+            <summary>
+            Handles the SizeChanged event of the lv control.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.SizeChangedEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Extension.ListViewColumns.lv_Loaded(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the Loaded event of the lv control.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Extension.ListViewColumns.SetColumnWidths(System.Windows.Controls.ListView)">
+            <summary>
+            Sets the column widths.
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.Initialize(System.Int32,System.Int32)">
+            <summary>
+            Initializes the com visible with the window handle of the parent process
+            </summary>
+            <param name="windowOwner"></param>
+            <param name="_numberOfParallelDialogs"></param>
+            <returns>on error int below zero</returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.InitializeWithIconSetDirectory(System.Int32,System.Int32,System.String)">
+            <summary>
+            Initialization of COM - Class
+            - set "aswIconSetFolder" to null to use the standard folder of the asw gui driver method
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.InitializeWithCustomTheme(System.Int32,System.Int32,System.String)">
+            <summary>
+            Initialization of COM - Class
+            - set "customThemeFullFileName" to null to use the standard custom theme in the application folder
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.InitializeWithIconSetDirectoryAndCustomTheme(System.Int32,System.Int32,System.String,System.String)">
+            <summary>
+            Initialization of COM - Class
+            - set "aswIconSetFolder" to null to use the standard folder of the asw gui driver method
+            - set "customThemeFullFileName" to null to use the standard custom theme in the application folder
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.UpdateCustomThemeFromDefaultLocation">
+            <summary>
+            Updates the custom theme with the default custom theme
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.UpdateCustomTheme(System.String)">
+            <summary>
+            Updates the custom theme
+            </summary>
+            <param name="customThemeFullFileName">Custom theme full file name.</param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.InputDialog(System.String,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.String,System.String,System.String[],System.String[],System.String[],System.Int32[],System.String[],System.String[],System.Object[]@,System.Int32)">
+            <summary>
+            Initialize Input Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_strTextTop"></param>
+            <param name="i_strTextBottom"></param>
+            <param name="inputListLabels"></param>
+            <param name="inputListValues"></param>
+            <param name="inputListUnits"></param>
+            <param name="dataTypes"></param>
+            <param name="ranges"></param>
+            <param name="customToolTip"></param>
+            <param name="result"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.DoubleInputDialog(System.String,System.Int32,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.String,System.String@,System.Int32)">
+            <summary>
+            Initialize DoubleInput Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intIconType"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_intTimeOut"></param>
+            <param name="i_strMessage"></param>
+            <param name="i_strErrorMessage"></param>
+            <param name="o_strBlindEntry"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.LoginDialog(System.String,System.Int32,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Int32,System.String@,System.String@,System.Byte[]@,System.Int32)">
+            <summary>
+            Initialize Login Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intIconType"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_intTimeOut"></param>
+            <param name="i_strMessage"></param>
+            <param name="o_strUserName"></param>
+            <param name="o_strHexUserPassword"></param>
+            <param name="o_arrUserPasswordBytes"></param>
+            <param name="i_intEncription"></param>        
+            <param name="i_intEncoding"></param>        
+            <param name="i_strEncodingName"></param>        
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.CheckBoxDialog(System.String,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.String,System.String,System.String[],System.String[],System.Int32[],System.Int32[]@,System.Int32)">
+            <summary>
+            Initialize CheckBox Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_strTextTop"></param>
+            <param name="i_strTextBottom"></param>
+            <param name="i_arrLabels"></param>
+            <param name="i_arrTooltips"></param>
+            <param name="i_arrIsEditable"></param>
+            <param name="io_arrIsSelected"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.RadioButtonDialog(System.String,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.String,System.String,System.String[],System.String[],System.Int32[],System.Int32[]@,System.String[],System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Initialize RadioButton Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_strTextTop"></param>
+            <param name="i_strTextBottom"></param>
+            <param name="i_arrLabels"></param>
+            <param name="i_arrTooltips"></param>
+            <param name="i_arrIsEditable"></param>
+            <param name="io_arrIsSelected"></param>
+            <param name="i_arrGroupName"></param>
+            <param name="i_intWrapOrientation"></param>
+            <param name="i_intSortDirection"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.ImageRadioButtonDialog(System.String,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.String,System.String,System.String[],System.String[],System.Int32[],System.String[],System.Int32[],System.Int32[],System.Int32[]@,System.String[],System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Initialize ImageRadioButton Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_strTextTop"></param>
+            <param name="i_strTextBottom"></param>
+            <param name="i_arrLabels"></param>
+            <param name="i_arrTooltips"></param>
+            <param name="i_arrIsEditable"></param>
+            <param name="i_arrImageSource"></param>
+            <param name="i_arrImageHeight"></param>
+            <param name="i_arrImageWidth"></param>
+            <param name="io_arrIsSelected"></param>
+            <param name="i_arrGroupName"></param>
+            <param name="i_intWrapOrientation"></param>
+            <param name="i_intSortDirection"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.ListDialog(System.String,System.Int32,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.String,System.String[],System.Int32,System.Int32,System.String@,System.Int32)">
+            <summary>
+            Initialize List Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intIconType"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_intTimeOut"></param>
+            <param name="i_strTopText"></param>
+            <param name="i_strBottomText"></param>
+            <param name="i_arrListValues"></param>
+            <param name="i_intMandatorySelection"></param>
+            <param name="i_intListType"></param>
+            <param name="o_strSelection"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.ListSelectDialog(System.String,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.String,System.String[],System.Int32,System.Int32,System.String@,System.Int32)">
+            <summary>
+            Initialize List Select Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_intTimeOut"></param>
+            <param name="i_strTopText"></param>
+            <param name="i_strBottomText"></param>
+            <param name="i_arrListValues"></param>
+            <param name="i_intMandatorySelection"></param>
+            <param name="i_intListType"></param>
+            <param name="o_strSelection"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.DirectoryBrowserDialog(System.String,System.Int32,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String@,System.Int32)">
+            <summary>
+            Initialize DirectoryBrowser Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intIconType"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_strMessage"></param>
+            <param name="i_strDesktopButtonCaption"></param>
+            <param name="i_strProgramFilesButtonCaption"></param>
+            <param name="i_strMyDocumentsButtonCaption"></param>
+            <param name="i_strMyPicturesButtonCaption"></param>
+            <param name="i_strHamiltonDirButtonCaption"></param>
+            <param name="i_strInitialDirectory"></param>
+            <param name="o_strSelectedDirectory"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.FileBrowserDialog(System.String,System.Int32,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.String,System.Int32,System.String,System.String@,System.Int32)">
+            <summary>
+            Initialize FileBrowserDialog Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intIconType"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_strMessage"></param>
+            <param name="i_intFileDialogType"></param>
+            <param name="i_strFileFilter"></param>
+            <param name="i_intFilterIndex"></param>
+            <param name="i_strInitialFile"></param>
+            <param name="o_strSelectedFile"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.FolderBrowserDialog(System.String,System.Int32,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.String,System.String,System.String@,System.Int32)">
+            <summary>
+            Initialize FolderBrowser Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intIconType"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_strMessage"></param>
+            <param name="i_strInitialDirectory"></param>
+            <param name="o_strSelectedFolder"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.WorklistDialogSetResources(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Sets the dialog resources like title, tooltips, button captions and so on
+            </summary>
+            <param name="dialogTitle"></param>
+            <param name="toolTipSaveButton"></param>
+            <param name="toolTipResetButton"></param>
+            <param name="saveAndCloseCaption"></param>
+            <param name="resetCaption"></param>
+            <param name="captionSelectedRows"></param>
+            <param name="captionSelectAllRows"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.WorklistDialogGetErrorMessage(System.String)">
+            <summary>
+            Gets the error message with the exceptionID
+            </summary>
+            <param name="exceptionID"></param>
+            <returns>error message (string)</returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.WorklistDialogInitializeColumns(System.String[])">
+            <summary>
+            Adds rows to list of WorklistDialog
+            </summary>
+            <param name="columnNames"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.WorklistDialogAddRow(System.Int32,System.Int32,System.Boolean,System.Int32,System.String[])">
+            <summary>
+            Adds rows to list of WorklistDialog
+            </summary>
+            <param name="id"></param>
+            <param name="status"></param>
+            <param name="isEditable"></param>
+            <param name="isSelected"></param>
+            <param name="rowDataSet"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.WorklistDialogSetTextField(System.String)">
+            <summary>
+            Set the textfield at the bottom of the WorklistDialog
+            </summary>
+            <param name="textField"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.WorklistDialogSetStatusColumn(System.Boolean,System.String)">
+            <summary>
+            Sets visibility of the status column and the caption of column header
+            </summary>
+            <param name="isVisibility"></param>
+            <param name="columnStatusName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.WorklistDialogSetSelectedColumn(System.Boolean,System.String)">
+            <summary>
+            Sets visibility of the select column and the caption of column header
+            </summary>
+            <param name="isVisibility"></param>
+            <param name="columnSelectedName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.WorklistDialogSetLegendVisibility(System.Boolean)">
+            <summary>
+            sets the visibility of the legend
+            </summary>
+            <param name="isVisible"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.WorklistDialogSetEditMode(System.Int32)">
+            <summary>
+            set the edit mode of the worklist view
+            </summary>
+            <param name="editMode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.WorklistDialogShow(System.Int32,System.Int32,System.Int32[]@,System.Int32[]@,System.Int32[]@)">
+            <summary>
+            Show the initialized worklist dialog
+            </summary>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="selectedRows"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.InitializeAswStatusDialog(System.String)">
+            <summary>
+            Initializes the status dialog
+            </summary>
+            <param name="i_strTitleDialogText">The title text</param>
+            <returns>Return code</returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.AppendTextToStatusDialog(System.String)">
+            <summary>
+            Appends text
+            </summary>
+            <param name="strTextToAppend">The text</param>
+            <returns>Return code</returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.SetTextIntoStatusDialogWindow(System.String)">
+            <summary>
+            Resets all texts and adds a new one
+            </summary>
+            <param name="i_strStatusDialogText">The text</param>
+            <returns>Return code</returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.SetDialogTitleIntoStatusDialogWindow(System.String)">
+            <summary>
+            Sets the dialog title to the status dialog window
+            </summary>
+            <param name="i_strDialogTitle">The dialog title</param>
+            <returns>Return code</returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.ClearStatusDialogWindow">
+            <summary>
+            Clears the status dialog window
+            </summary>
+            <returns>Return code</returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.IComInterface.CloseAswStatusDialog">
+            <summary>
+            Closes the status window
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs">
+            <summary>
+            Provides the custom Hamilton dialogs for Vector
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.Initialize(System.Int32,System.Int32)">
+            <summary>
+            Initialization of COM - Class
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.InitializeWithIconSetDirectory(System.Int32,System.Int32,System.String)">
+            <summary>
+            Initialization of COM - Class
+            - set "aswIconSetFolder" to null to use the standard folder of the asw gui driver method
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.InitializeWithCustomTheme(System.Int32,System.Int32,System.String)">
+            <summary>
+            Initialization of COM - Class
+            - set "aswIconSetFolder" to null to use the standard folder of the asw gui driver method
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.InitializeWithIconSetDirectoryAndCustomTheme(System.Int32,System.Int32,System.String,System.String)">
+            <summary>
+            Initialization of COM - Class
+            - set "aswIconSetFolder" to null to use the standard folder of the asw gui driver method
+            - set "applicationContext" to null to use the standard application context
+            - set "customThemeFullFileName" to null to use the standard custom theme in the application folder
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.InitializeInternal(System.Int32,System.Int32,System.String,System.String,System.Windows.Application)">
+            <summary>
+            Initialization of COM - Class
+            - set "aswIconSetFolder" to null to use the standard folder of the asw gui driver method
+            - set "applicationContext" to null to use the standard application context
+            - set "customThemeFullFileName" to null to use the standard custom theme in the application folder
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.InitializeInternal(System.Int32,System.Int32,System.String,Hamilton.Asw.VectorCustomDialogs.CustomTheming.CustomTheme,System.Windows.Application)">
+            <summary>
+            Initialization of COM - Class
+            - set "aswIconSetFolder" to null to use the standard folder of the asw gui driver method
+            - set "applicationContext" to null to use the standard application context
+            - set "customTheme" to null to use the standard custom theme in the application folder
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.UpdateCustomThemeFromDefaultLocation">
+            <summary>
+            Updates the custom theme
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.UpdateCustomTheme(System.String)">
+            <summary>
+            Updates the custom theme with the default custom theme
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.UpdateParentWindowHandle(System.Int32)">
+            <summary>
+            Updates the parent window handle
+            </summary>
+            <param name="windowOwner">The window owner</param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.ErrorDialog(System.String,System.Int32,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.String,System.Int32)">
+            <summary>
+            Initialize Error Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intIconType"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_intTimeOut"></param>
+            <param name="i_strMainMessage"></param>
+            <param name="i_strSupplementMessage"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.MessageDialog(System.String,System.Int32,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32)">
+            <summary>
+            Initialize Message Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intIconType"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_intTimeOut"></param>
+            <param name="i_strMessage"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.MessageDialogWithImage(System.String,System.Int32,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Initialize Message Dialog with image
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intIconType"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_intTimeOut"></param>
+            <param name="i_strLoadingText"></param>
+            <param name="i_strImage"></param>
+            <param name="i_intMaxImageWidth"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.DoubleInputDialog(System.String,System.Int32,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.String,System.String@,System.Int32)">
+            <summary>
+            Initialize DoubleInput Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intIconType"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_intTimeOut"></param>
+            <param name="i_strMessage"></param>
+            <param name="i_strErrorMessage"></param>
+            <param name="o_strBlindEntry"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.LoginDialog(System.String,System.Int32,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.Int32,System.Int32,System.String@,System.String@,System.Byte[]@,System.Int32)">
+            <summary>
+            Initialize Login Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intIconType"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_intTimeOut"></param>
+            <param name="i_strMessage"></param>
+            <param name="o_strUserName"></param>
+            <param name="o_strHexUserPassword"></param>
+            <param name="o_arrUserPasswordBytes"></param>
+            <param name="i_intEncription"></param>        
+            <param name="i_intEncoding"></param>        
+            <param name="i_intEncodingCodepage"></param>        
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.ListDialog(System.String,System.Int32,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.String,System.String[],System.Int32,System.Int32,System.String@,System.Int32)">
+            <summary>
+            Initialize List Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intIconType"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_intTimeOut"></param>
+            <param name="i_strTopText"></param>
+            <param name="i_strBottomText"></param>
+            <param name="i_arrListValues"></param>
+            <param name="i_intMandatorySelection"></param>
+            <param name="i_intListType"></param>
+            <param name="o_strSelection"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.ListSelectDialog(System.String,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.String,System.String[],System.Int32,System.Int32,System.String@,System.Int32)">
+            <summary>
+            Initialize List Select Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_intTimeOut"></param>
+            <param name="i_strTopText"></param>
+            <param name="i_strBottomText"></param>
+            <param name="i_arrListValues"></param>
+            <param name="i_intMandatorySelection"></param>
+            <param name="i_intListType"></param>
+            <param name="o_strSelection"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.LoadingDialog(System.String,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.String,System.String,System.String,System.Int32,System.String[],System.String[],System.String[],System.Int32)">
+            <summary>
+            Initialize Loading Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_intTimeOut"></param>
+            <param name="i_strTopText"></param>
+            <param name="i_strBottomText"></param>
+            <param name="i_strTopLeftImage"></param>
+            <param name="i_strBottomLeftImage"></param>
+            <param name="i_intMaxImageWidth"></param>
+            <param name="i_inputListLabels"></param>
+            <param name="i_inputListLiquids"></param>
+            <param name="i_inputListUnits"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.CheckBoxDialog(System.String,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.String,System.String,System.String[],System.String[],System.Int32[],System.Int32[]@,System.Int32)">
+            <summary>
+            Initialize CheckBox Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_strTextTop"></param>
+            <param name="i_strTextBottom"></param>
+            <param name="i_arrLabels"></param>
+            <param name="i_arrTooltips"></param>
+            <param name="i_arrIsEditable"></param>
+            <param name="io_arrIsSelected"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.RadioButtonDialog(System.String,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.String,System.String,System.String[],System.String[],System.Int32[],System.Int32[]@,System.String[],System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Initialize RadioButton Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_strTextTop"></param>
+            <param name="i_strTextBottom"></param>
+            <param name="i_arrLabels"></param>
+            <param name="i_arrTooltips"></param>
+            <param name="i_arrIsEditable"></param>
+            <param name="io_arrIsSelected"></param>
+            <param name="i_arrGroupName"></param>
+            <param name="i_intWrapOrientation"></param>
+            <param name="i_intSortDirection"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.ImageRadioButtonDialog(System.String,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.String,System.String,System.String[],System.String[],System.Int32[],System.String[],System.Int32[],System.Int32[],System.Int32[]@,System.String[],System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Initialize RadioButton Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_strTextTop"></param>
+            <param name="i_strTextBottom"></param>
+            <param name="i_arrLabels"></param>
+            <param name="i_arrTooltips"></param>
+            <param name="i_arrIsEditable"></param>
+            <param name="i_arrImageSource"></param>
+            <param name="i_arrImageHeight"></param>
+            <param name="i_arrImageWidth"></param>
+            <param name="io_arrIsSelected"></param>
+            <param name="i_arrGroupName"></param>
+            <param name="i_intWrapOrientation"></param>
+            <param name="i_intSortDirection"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.InputDialog(System.String,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.String,System.String,System.String[],System.String[],System.String[],System.Int32[],System.String[],System.String[],System.Object[]@,System.Int32)">
+            <summary>
+            Initialize Input Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_strTextTop"></param>
+            <param name="i_strTextBottom"></param>
+            <param name="inputListLabels"></param>
+            <param name="inputListValues"></param>
+            <param name="inputListUnits"></param>
+            <param name="dataTypes"></param>
+            <param name="ranges"></param>
+            <param name="customToolTip"></param>
+            <param name="result"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.FileBrowserDialog(System.String,System.Int32,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.String,System.Int32,System.String,System.Int32,System.String,System.String@,System.Int32)">
+            <summary>
+            Initialize FileBrowserDialog Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intIconType"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_strMessage"></param>
+            <param name="i_intFileDialogType"></param>
+            <param name="i_strFileFilter"></param>
+            <param name="i_intFilterIndex"></param>
+            <param name="i_strInitialFile"></param>
+            <param name="o_strSelectedFile"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.FolderBrowserDialog(System.String,System.Int32,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.String,System.String,System.String@,System.Int32)">
+            <summary>
+            Initialize FolderBrowser Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intIconType"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_strMessage"></param>
+            <param name="i_strInitialDirectory"></param>
+            <param name="o_strSelectedFolder"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.DirectoryBrowserDialog(System.String,System.Int32,System.Int32,System.String[],System.Int32,System.Int32,System.Int32,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String@,System.Int32)">
+            <summary>
+            Initialize DirectoryBrowser Dialog
+            </summary>
+            <param name="i_strDialogTitle"></param>
+            <param name="i_intIconType"></param>
+            <param name="i_intButtonType"></param>
+            <param name="i_arrButtonCaptions"></param>
+            <param name="i_intDialogHeight"></param>
+            <param name="i_intDialogWidth"></param>
+            <param name="i_intFixedSize"></param>
+            <param name="i_strMessage"></param>
+            <param name="i_strDesktopButtonCaption"></param>
+            <param name="i_strProgramFilesButtonCaption"></param>
+            <param name="i_strMyDocumentsButtonCaption"></param>
+            <param name="i_strMyPicturesButtonCaption"></param>
+            <param name="i_strHamiltonDirButtonCaption"></param>
+            <param name="i_strInitialDirectory"></param>
+            <param name="o_strSelectedDirectory"></param>
+            <param name="i_intWindowType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.WorklistDialogSetResources(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Initialize WorklistDialogSetResources
+            </summary>
+            <param name="dialogTitle"></param>
+            <param name="toolTipSaveButton"></param>
+            <param name="toolTipResetButton"></param>
+            <param name="saveAndCloseCaption"></param>
+            <param name="resetCaption"></param>
+            <param name="captionSelectedRows"></param>
+            <param name="captionSelectAllRows"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.WorklistDialogGetErrorMessage(System.String)">
+            <summary>
+            Gets the appropriate message with exceptionID
+            </summary>
+            <param name="exceptionID"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.WorklistDialogInitializeColumns(System.String[])">
+            <summary>
+            Initialize required columns of the worklist
+            </summary>
+            <param name="columnNames"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.WorklistDialogAddRow(System.Int32,System.Int32,System.Boolean,System.Int32,System.String[])">
+            <summary>
+            Add rows to WorkList Dialog
+            </summary>
+            <param name="id"></param>
+            <param name="status"></param>
+            <param name="isEditable"></param>
+            <param name="isSelected"></param>
+            <param name="rowDataSet"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.WorklistDialogSetTextField(System.String)">
+            <summary>
+            Set the optional textfield of the dialog in the bottom (have to called after setting resources)
+            </summary>
+            <param name="textField"></param>
+            <returns>ExceptionID</returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.WorklistDialogSetEditMode(System.Int32)">
+            <summary>
+            set the edit mode of the worklist view
+            </summary>
+            <param name="editMode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.WorklistDialogShow(System.Int32,System.Int32,System.Int32[]@,System.Int32[]@,System.Int32[]@)">
+            <summary>
+            Show initialized WorkList Dialog
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.InitializeAswStatusDialog(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.AppendTextToStatusDialog(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.SetTextIntoStatusDialogWindow(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.SetDialogTitleIntoStatusDialogWindow(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.CloseAswStatusDialog">
+            <inheritdoc />
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.GetThreadId(System.Collections.Generic.IList{System.Threading.Thread})">
+            <summary>
+            simulates threadpool
+            </summary>
+            <param name="_expectedEmptyThreads"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.HamiltonDialogs.GetArrayMember``1(System.Object,System.Int32,``0,System.Func{System.Object,``0})">
+            <summary>
+            Checks array member access, able to convert return value with convert function e.g. Convert.ToBoolean() (in usage without brackets).
+            The return value of converter function and the _defaultReturnValue have got to the same type
+            </summary>
+            <param name="_expectedArray"></param>
+            <param name="_expectedIndex"></param>
+            <param name="_defaultReturnValue"></param>
+            <param name="_converterFunction"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.DialogControl.DialogResult">
+            <summary>
+            result class for dialogClose method
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Helper.Serialization.Serializer">
+            <summary>
+            Serializer for xml data
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.Serialization.Serializer.Deserialize``1(System.String,System.String)">
+            <summary>
+            Deserializes xml data to a desired object
+            </summary>
+            <typeparam name="T">Type of the result object.</typeparam>
+            <param name="input">Xml data.</param>
+            <param name="schema">The schema.</param>
+            <returns>Instance of the serialized object. Returns null if failed.</returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.Serialization.Serializer.Serialize``1(``0,System.String)">
+            <summary>
+            Serializes an object to xml data
+            </summary>
+            <typeparam name="T">Type of the object.</typeparam>
+            <param name="objectToSerialize">The object to serialize.</param>
+            <param name="schema">The schema.</param>
+            <returns>Xml data as string.</returns>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Helper.Serialization.Utf8StringWriter">
+            <summary>
+            StringWriter for xml serialization.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.Serialization.Utf8StringWriter.Encoding">
+            <inheritdoc />
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Helper.ViewModels.CheckBoxListHelper.CheckBoxListObject">
+            <summary>
+            Object for ViewList type of CheckBoxDialog
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Helper.ViewModels.ListSelectHelper">
+            <summary>
+            Model of ListBox in ListSelectDialog
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Helper.ViewModels.RadioButtonListHelper.RadioButtonListObject">
+            <summary>
+            Object for ViewList type of CheckBoxDialog
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Helper.ViewModels.InputListHelper.InputListObject">
+            <summary>
+            Object for ViewList type of nInputDialog
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.ImageHelper.ImageSizeHelper.#ctor(System.Windows.Media.ImageSource,System.Int32,System.String)">
+            <summary>
+            Constructor which validates ImageSources
+            </summary>
+            <param name="imageSource"></param>
+            <param name="maxImageWidth"></param>
+            <param name="uri"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.ImageHelper.ImagesHelper.GetImageFromPath(System.String)">
+            <summary>
+            Load a hamilton loading picture
+            
+            </summary>
+            <param name="fullQualifiedPathToImage"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.ImageHelper.ImagesHelper.GetStandardIcon(System.String,Hamilton.Asw.VectorCustomDialogs.Helper.ImageHelper.ImagesHelper.IconResolution,Hamilton.Asw.VectorCustomDialogs.Helper.ImageHelper.ImagesHelper.IconType)">
+            <summary>
+            Load a hamilton standard icon
+            
+            Exceptions
+              NotSupportedException
+              FileNotFoundException
+              DirectoryNotFoundException
+            </summary>
+            <param name="iconDirectory"></param>
+            <param name="iconResolution"></param>
+            <param name="iconType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.ImageHelper.ImagesHelper.TryGetStandardIcon(System.String,Hamilton.Asw.VectorCustomDialogs.Helper.ImageHelper.ImagesHelper.IconResolution,Hamilton.Asw.VectorCustomDialogs.Helper.ImageHelper.ImagesHelper.IconType,System.String@)">
+            <summary>
+            Trys to load a hamilton standard icon
+            </summary>
+            <param name="iconDirectory"></param>
+            <param name="iconResolution"></param>
+            <param name="iconType"></param>
+            <param name="errorMessage"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.ImageHelper.ImagesHelper.GetImageSource(System.String)">
+            <summary>
+            Get the image source
+            
+            Exceptions
+              NotSupportedException
+              FileNotFoundException
+              DirectoryNotFoundException
+            </summary>
+            <param name="fullQualifiedFileName"></param>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Helper.ObjectHelper.ObjectCloner">
+            <summary>
+            container for object cloning features
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.ObjectHelper.ObjectCloner.GetClone(System.Object)">
+            <summary>
+            Clones a given object
+            </summary>
+            <param name="toClone">object to clone</param>
+            <returns>object (clone of cloneThis)</returns>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyOpenFileDialog.Dialog">
+            <summary>
+            Overridden from DependencyFileDialog. Provides access to an instance of the Microsoft.Win32.OpenFileDialog class.
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyOpenFileDialog.ExecuteFileOkCommand">
+            <summary>
+            Overridden from DependencyFileDialog. Provides support for the MultiSelect property. Smells fragile.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyOpenFileDialog.MultiSelect">
+            <summary>
+            Gets or sets an option indicating whether OpenFileDialog allows users to select multiple files.
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyOpenFileDialog.MultiSelectProperty">
+            <summary>
+            The Dependency Property for the MultiSelect property
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyOpenFileDialog.ReadOnlyChecked">
+            <summary>
+            Gets or sets a value indicating whether the read-only check box displayed by DependencyOpenFileDialog is selected. 
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyOpenFileDialog.ReadOnlyCheckedProperty">
+            <summary>
+            The Dependency Property for the ReadOnlyChecked property
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyOpenFileDialog.ShowReadOnly">
+            <summary>
+            Gets or sets a value indicating whether DependencyOpenFileDialog contains a read-only check box.
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyOpenFileDialog.ShowReadOnlyProperty">
+            <summary>
+            The Dependency Property for the ShowReadOnly property
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencySaveFileDialog.Dialog">
+            <summary>
+            Overridden from DependencyFileDialog. Provides access to an instance of the Microsoft.Win32.SaveFileDialog class.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencySaveFileDialog.CreatePrompt">
+            <summary>
+            Gets or sets a value indicating whether DependencySaveFileDialog prompts the user for permission 
+            to create a file if the user specifies a file that does not exist. 
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencySaveFileDialog.CreatePromptProperty">
+            <summary>
+            The Dependency Property for the CreatePrompt property
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencySaveFileDialog.OverwritePrompt">
+            <summary>
+            Gets or sets a value indicating whether SaveFileDialog displays a warning if the user specifies the name of a file that already exists. 
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencySaveFileDialog.OverwritePromptProperty">
+            <summary>
+            The Dependency Property for the OverwritePrompt property
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog">
+            <summary>
+            A wrapper around a <see cref="T:Microsoft.Win32.FileDialog"/> FileDialog class
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.Dialog">
+            <summary>
+            Overridden in derviced classes to provide access to the appropriate FileDialog subclass
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.#ctor">
+            <summary>
+            Constructor for the DependencyFileDialog. Hooks up the FileOk event to the <seealso cref="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.FileOkCommand"/> FileOkAction
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.Dialog_FileOk(System.Object,System.ComponentModel.CancelEventArgs)">
+            <summary>
+            Handle the FileDialog's "Save" or "Open" click event by firing the FileOkAction command
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.ExecuteFileOkCommand">
+            <summary>
+            Executes the FileOkCommand using the current FileName property. Marked as virtual so it can be overridden in
+            DependencyOpenFileDialog. Not happy with this situation.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.Filter">
+            <summary>
+            Gets or sets the filter string that determines what types of files are displayed from either 
+            the DependencyOpenFileDialog or DependencySaveFileDialog.
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.FilterProperty">
+            <summary>
+            The Dependency Property for the Filter property
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.FileName">
+            <summary>
+            Gets or sets a string containing the full path of the file selected in a file dialog.
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.FileNameProperty">
+            <summary>
+            The Dependency Property for the FileName property
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.Title">
+            <summary>
+            Gets or sets the text that appears in the title bar of a file dialog.
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.TitleProperty">
+            <summary>
+            The Dependency Property for the Title property
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.AddExtension">
+            <summary>
+            Gets or sets a value indicating whether a file dialog automatically adds an extension to a file name if the user omits an extension.
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.AddExtensionProperty">
+            <summary>
+            The Dependency Property for the AddExtension property
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.CheckFileExists">
+            <summary>
+            Gets or sets a value indicating whether a file dialog displays a warning if the user specifies a file name that does not exist.
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.CheckFileExistsProperty">
+            <summary>
+            The Dependency Property for the CheckFileExists property
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.CheckPathExists">
+            <summary>
+            Gets or sets a value that specifies whether warnings are displayed if the user types invalid paths and file names.
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.CheckPathExistsProperty">
+            <summary>
+            The Dependency Property for the CheckPathExists property
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.CustomPlaces">
+            <summary>
+            Gets or sets the list of custom places for file dialog boxes. 
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.CustomPlacesProperty">
+            <summary>
+            The Dependency Property for the CustomPlaces property
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.DefaultExt">
+            <summary>
+            Gets or sets a value that specifies the default extension string to use to filter the list of files that are displayed.
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.DefaultExtProperty">
+            <summary>
+            The Dependency Property for the DefaultExt property
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.DereferenceLinks">
+            <summary>
+            Gets or sets a value indicating whether a file dialog returns either the location of the file referenced by a shortcut 
+            or the location of the shortcut file (.lnk).
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.DereferenceLinksProperty">
+            <summary>
+            The Dependency Property for the DereferenceLinks property
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.FileNames">
+            <summary>
+            Gets an array that contains one file name for each selected file.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.FilterIndex">
+            <summary>
+            Gets or sets the index of the filter currently selected in a file dialog.
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.FilterIndexProperty">
+            <summary>
+            The Dependency Property for the FilterIndex property
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.InitialDirectory">
+            <summary>
+            Gets or sets the initial directory that is displayed by a file dialog.
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.InitialDirectoryProperty">
+            <summary>
+            The Dependency Property for the InitialDirectory property
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.SafeFileName">
+            <summary>
+            Gets a string that only contains the file name for the selected file.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.SafeFileNames">
+            <summary>
+            Gets an array that contains one safe file name for each selected file.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.ValidateNames">
+            <summary>
+            Gets or sets a value indicating whether the dialog accepts only valid Win32 file names.
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.ValidateNamesProperty">
+            <summary>
+            The Dependency Property for the ValidateNames property
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.DialogPropertyChangedCallback(System.Windows.DependencyObject,System.Windows.DependencyPropertyChangedEventArgs)">
+            <summary>
+            Uses reflection to set the property in the contained FileDialog
+            </summary>
+            <param name="obj">The FileDialog whose property has been changed</param>
+            <param name="args">Information about the property and values that has been changed.</param>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.FileOkCommand">
+            <summary>
+            This property should be bound to the Command in your ViewModel that is to be performed when the user clicks
+            on either "Open" or "Save"
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.FileOkCommandProperty">
+            <summary>
+            The Dependency Property for the FileOkCommand command
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.OpenFileDialog.DependencyFileDialog.ShowDialogCommand">
+            <summary>
+            When fired, this command causes the Dialog to be displayed
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Helper.UIHelper.GridViewColumnResize">
+            <summary>
+            Static class used to attach to wpf control
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Helper.UIHelper.GridViewColumnResize.GridViewColumnResizeBehavior">
+            <summary>
+            GridViewColumn class that gets attached to the GridViewColumn control
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Helper.UIHelper.GridViewColumnResize.ListViewResizeBehavior">
+            <summary>
+            ListViewResizeBehavior class that gets attached to the ListView control
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Helper.PasswordBoxHelper.PasswordBoxHelper">
+            <summary>
+            workaround for password box binding
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Helper.Threading.StaTaskScheduler">
+            <summary>Provides a scheduler that uses STA threads.</summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.Threading.StaTaskScheduler._tasks">
+            <summary>Stores the queued tasks to be executed by our pool of STA threads.</summary>
+        </member>
+        <member name="F:Hamilton.Asw.VectorCustomDialogs.Helper.Threading.StaTaskScheduler._threads">
+            <summary>The STA threads used by the scheduler.</summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.Threading.StaTaskScheduler.#ctor(System.Int32)">
+            <summary>Initializes a new instance of the StaTaskScheduler class with the specified concurrency level.</summary>
+            <param name="numberOfThreads">The number of threads that should be created and used by this scheduler.</param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.Threading.StaTaskScheduler.QueueTask(System.Threading.Tasks.Task)">
+            <summary>Queues a Task to be executed by this scheduler.</summary>
+            <param name="task">The task to be executed.</param>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.Threading.StaTaskScheduler.GetScheduledTasks">
+            <summary>Provides a list of the scheduled tasks for the debugger to consume.</summary>
+            <returns>An enumerable of all tasks currently scheduled.</returns>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.Threading.StaTaskScheduler.TryExecuteTaskInline(System.Threading.Tasks.Task,System.Boolean)">
+            <summary>Determines whether a Task may be inlined.</summary>
+            <param name="task">The task to be executed.</param>
+            <param name="taskWasPreviouslyQueued">Whether the task was previously queued.</param>
+            <returns>true if the task was successfully inlined; otherwise, false.</returns>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Helper.Threading.StaTaskScheduler.MaximumConcurrencyLevel">
+            <summary>Gets the maximum concurrency level supported by this scheduler.</summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Helper.Threading.StaTaskScheduler.Dispose">
+            <summary>
+            Cleans up the scheduler by indicating that no more tasks will be queued.
+            This method blocks until all threads successfully shutdown.
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.UserControls.TextBoxThatDoesntResizeWithText">
+            <summary>
+            Text box that doesn't resize with text
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.UserControls.TextBoxThatDoesntResizeWithText.MeasureOverride(System.Windows.Size)">
+            <inheritdoc />
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.UserControls.FolderItem">
+            <summary>
+            Interaktionslogik für FolderItem.xaml
+            </summary>
+            <summary>
+            FolderItem
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.UserControls.FolderItem.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Validation.ValidationHelper.DataTypes">
+            <summary>
+            Defined in HSL by default
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.VectorCustomDialogs.Validation.ValidationHelper.CheckRange(System.String,System.Int32,System.String)">
+            <summary>
+            Checks given range (single, range, multiple set)    
+            Separator for range is | for multiple sets #
+            </summary>
+            <param name="range"></param>
+            <param name="dataType"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.CommonDialogContracts.ICommonDialogViewModel.DialogClose">
+            <summary>
+            EventHandler to notify the CommonDialog Window that it can be closed
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.VectorCustomDialogs.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strButtonAbort">
+            <summary>
+              Looks up a localized string similar to Abort.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strButtonAccept">
+            <summary>
+              Looks up a localized string similar to Accept.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strButtonCancel">
+            <summary>
+              Looks up a localized string similar to Cancel.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strButtonIgnore">
+            <summary>
+              Looks up a localized string similar to Ignore.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strButtonNo">
+            <summary>
+              Looks up a localized string similar to No.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strButtonOk">
+            <summary>
+              Looks up a localized string similar to Ok.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strButtonRetry">
+            <summary>
+              Looks up a localized string similar to Retry.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strButtonYes">
+            <summary>
+              Looks up a localized string similar to Yes.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strCheckboxDescription">
+            <summary>
+              Looks up a localized string similar to Description.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strCheckboxSelect">
+            <summary>
+              Looks up a localized string similar to Selection.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strDirectoryBrowserButton">
+            <summary>
+              Looks up a localized string similar to Browse.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strDirectoryBrowserSelectFolder">
+            <summary>
+              Looks up a localized string similar to Select directory....
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strDoubleInputValue1">
+            <summary>
+              Looks up a localized string similar to Value.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strDoubleInputValue2">
+            <summary>
+              Looks up a localized string similar to Value (same again).
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strFileBrowserButton">
+            <summary>
+              Looks up a localized string similar to Browse.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strFileBrowserSelectFile">
+            <summary>
+              Looks up a localized string similar to Select File....
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strInputDescription">
+            <summary>
+              Looks up a localized string similar to Description.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strInputType">
+            <summary>
+              Looks up a localized string similar to Type.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strInputValue">
+            <summary>
+              Looks up a localized string similar to Value.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strLoadingDescription">
+            <summary>
+              Looks up a localized string similar to Description.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strLoadingPosition">
+            <summary>
+              Looks up a localized string similar to Position.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strLoadingQuantity">
+            <summary>
+              Looks up a localized string similar to Quantity.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strLoginPassword">
+            <summary>
+              Looks up a localized string similar to Password.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strLoginUserName">
+            <summary>
+              Looks up a localized string similar to User name.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistConfirm">
+            <summary>
+              Looks up a localized string similar to Confirm.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistExclude">
+            <summary>
+              Looks up a localized string similar to Exclude.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistExcludeAll">
+            <summary>
+              Looks up a localized string similar to Exclude all.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistItemToProcess">
+            <summary>
+              Looks up a localized string similar to Items to process.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistModusExclude">
+            <summary>
+              Looks up a localized string similar to Modus: Exclude.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistModusProcess">
+            <summary>
+              Looks up a localized string similar to Modus: Process.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistModusRemove">
+            <summary>
+              Looks up a localized string similar to Modus: Remove.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistProcess">
+            <summary>
+              Looks up a localized string similar to Process.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistProcessAll">
+            <summary>
+              Looks up a localized string similar to Process all.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistRemove">
+            <summary>
+              Looks up a localized string similar to Remove.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistRemoveAll">
+            <summary>
+              Looks up a localized string similar to Remove all.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistReset">
+            <summary>
+              Looks up a localized string similar to Reset.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistStatusError">
+            <summary>
+              Looks up a localized string similar to Status: Error.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistStatusOk">
+            <summary>
+              Looks up a localized string similar to Status: Ok.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistStatusWarning">
+            <summary>
+              Looks up a localized string similar to Status: Warning.
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.VectorCustomDialogs.Properties.Resources.strWorklistTitle">
+            <summary>
+              Looks up a localized string similar to Worklist.
+            </summary>
+        </member>
+    </members>
+</doc>

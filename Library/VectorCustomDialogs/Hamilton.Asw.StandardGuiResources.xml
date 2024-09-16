@@ -1,0 +1,254 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Hamilton.Asw.StandardGuiResources</name>
+    </assembly>
+    <members>
+        <member name="T:Hamilton.Asw.StandardGuiResources.Base.NotifyPropertyChangedBase">
+            <summary>
+            Base implementation of the INotifyPropertyChanged interface
+            </summary>
+        </member>
+        <member name="E:Hamilton.Asw.StandardGuiResources.Base.NotifyPropertyChangedBase.PropertyChanged">
+            <inheritdoc />
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Base.NotifyPropertyChangedBase.Update(System.String)">
+            <summary>
+            Updates the property by name
+            </summary>
+            <param name="propertyName">The property name</param>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Base.NotifyPropertyChangedBase.UpdateAll">
+            <summary>
+            Updates all properties
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Base.MessageBoxBase.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Base.MessageBoxBase.WindowClosingForRemovingControlsEventHandler(System.Object,System.ComponentModel.CancelEventArgs)">
+            <inheritdoc />
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Base.MessageBoxBase.WindowLoadedForAddingControlsEventHandler(System.Object,System.Windows.RoutedEventArgs)">
+            <inheritdoc />
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Base.WindowBase.#ctor">
+            <summary>
+            default constructor
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.StandardGuiResources.Base.WindowBase.ButtonClose">
+            <summary>
+            Gets the button close control
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.StandardGuiResources.Base.WindowBase.ButtonMaxNormal">
+            <summary>
+            Gets the button maximize control
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.StandardGuiResources.Base.WindowBase.ButtonMinimize">
+            <summary>
+            Gets the button minimize control
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.StandardGuiResources.Base.WindowBase.HeaderGrid">
+            <summary>
+            Gets the header grid control
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.StandardGuiResources.Base.WindowBase.HeaderTitle">
+            <summary>
+            Gets the header title control
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Base.WindowBase.BtnCloseClick(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Close event handler
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Base.WindowBase.BtnMaxNormal(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Maximize event handler
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Base.WindowBase.BtnMinimize(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Minimize event handler
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Base.WindowBase.HeaderGridMouseLeftButtonDown(System.Object,System.Windows.Input.MouseButtonEventArgs)">
+            <summary>
+            Event handler for left mouse down
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Base.WindowBase.HeaderGridMouseLeftButtonUp(System.Object,System.Windows.Input.MouseButtonEventArgs)">
+            <summary>
+            Event handler for left mouse up
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Base.WindowBase.HeaderGridMouseLeftDoubleButtonDown(System.Object,System.Windows.Input.MouseButtonEventArgs)">
+            <summary>
+            Event handler for left mouse down
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Base.WindowBase.WindowClosingForRemovingControlsEventHandler(System.Object,System.ComponentModel.CancelEventArgs)">
+            <summary>
+            Will be called if the window will be closed.
+            NOTE: Method should be 'private protected' (C# 7.2), so ensure that this method will be used only once
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Base.WindowBase.WindowLoadedForAddingControlsEventHandler(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Will be called if the window has been loaded.
+            NOTE: Method should be 'private protected' (C# 7.2), so ensure that this method will be used only once
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.StandardGuiResources.Base.BaseViewModel">
+            <summary>
+            This is the basic view model, parent class of all view models
+            It implements the INotifyPropertyChanged Interface in order to realize the MVVM pattern
+            And it Provides the "Update" method which makes it comfortable to update the bindings for a view model property
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Base.BaseViewModel.RequeryCanExecute">
+            <summary>
+            Re-query can execute statements
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.StandardGuiResources.Commands.RelayCommand">
+            <summary>
+            The default implementation for an ICommand recommended by Microsoft/Josh Smith for the MVVM Pattern
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.StandardGuiResources.Commands.RelayCommand._canExecute">
+            <summary>
+            The can execute predicate method
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.StandardGuiResources.Commands.RelayCommand._execute">
+            <summary>
+            The execute action
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Commands.RelayCommand.#ctor(System.Action{System.Object})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Hamilton.Asw.StandardGuiResources.Commands.RelayCommand"/> class.
+            </summary>
+            <param name="execute">The execute.</param>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Commands.RelayCommand.#ctor(System.Action{System.Object},System.Predicate{System.Object})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Hamilton.Asw.StandardGuiResources.Commands.RelayCommand"/> class.
+            </summary>
+            <param name="execute">The execute.</param>
+            <param name="canExecute">The can execute.</param>
+        </member>
+        <member name="E:Hamilton.Asw.StandardGuiResources.Commands.RelayCommand.CanExecuteChanged">
+            <summary>
+            Occurs when changes occur that affect whether or not the command should execute.
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Commands.RelayCommand.CanExecute(System.Object)">
+            <summary>
+            Defines the method that determines whether the command can execute in its current state.
+            </summary>
+            <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
+            <returns>
+            true if this command can be executed; otherwise, false.
+            </returns>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Commands.RelayCommand.Execute(System.Object)">
+            <summary>
+            Defines the method to be called when the command is invoked.
+            </summary>
+            <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Controls.HamiltonDialogWindow.#ctor">
+            <summary>
+            Default consturctor
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Controls.HamiltonDialogWindow.#ctor(System.Boolean)">
+            <summary>
+            Creates an instance of the dialog window
+            </summary>
+            <param name="canMinimizeAndMaximize">Are the minimize and maximize buttons enabled/visible.</param>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Controls.HamiltonDialogWindow.WindowClosingForRemovingControlsEventHandler(System.Object,System.ComponentModel.CancelEventArgs)">
+            <inheritdoc />
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Controls.HamiltonDialogWindow.WindowLoadedForAddingControlsEventHandler(System.Object,System.Windows.RoutedEventArgs)">
+            <inheritdoc />
+        </member>
+        <member name="F:Hamilton.Asw.StandardGuiResources.Controls.HamiltonMainWindow._canMaximize">
+            <summary>
+            Gets or sets the can maximize
+            </summary>
+        </member>
+        <member name="F:Hamilton.Asw.StandardGuiResources.Controls.HamiltonMainWindow._canMinimize">
+            <summary>
+            Gets or sets the can minimize
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Controls.HamiltonMainWindow.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Controls.HamiltonMainWindow.#ctor(System.Boolean,System.Boolean)">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Controls.HamiltonMainWindow.WindowClosingForRemovingControlsEventHandler(System.Object,System.ComponentModel.CancelEventArgs)">
+            <inheritdoc />
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Controls.HamiltonMainWindow.WindowLoadedForAddingControlsEventHandler(System.Object,System.Windows.RoutedEventArgs)">
+            <inheritdoc />
+        </member>
+        <member name="T:Hamilton.Asw.StandardGuiResources.Controls.HamiltonMessageBox">
+            <summary>
+            Interaction logic for HamiltonMessageBox.xaml
+            </summary>
+            <summary>
+            HamiltonMessageBox
+            </summary>
+        </member>
+        <member name="P:Hamilton.Asw.StandardGuiResources.Controls.HamiltonMessageBox.MessageBoxResult">
+            <summary>
+            The message box result
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Controls.HamiltonMessageBox.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Hamilton.Asw.StandardGuiResources.Controls.IconButton">
+            <summary>
+            Interaction logic for IconButton.xaml
+            </summary>
+            <summary>
+            IconButton
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Controls.IconButton.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.MarkupExtensions.FontSizeExtension.ProvideValue(System.IServiceProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Hamilton.Asw.StandardGuiResources.Utils.Utilities.ToImageSource(System.Drawing.Icon)">
+            <summary>
+            Image to source extension.
+            </summary>
+            <param name="icon">The icon.</param>
+            <returns>The image source.</returns>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,21 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 05/06/2024 13:24:09
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace VARICOLUMN_96HEAD {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Load_GUI( variable _intColumnCount, variable _trace ) variable {  return (0); }
+function PipettingOffset(  ) void { }
+function Tip_Eject_Column( device & ML_STAR, variable _intEjectLocation ) void { }
+function Tip_PickUp_Column( device & ML_STAR, sequence & _seqTips, sequence & _seqTips_Stock ) void { }
+function _zFileAccess( variable _bln, variable & _int, variable _trace, variable _strFilePath, variable _StrTable ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=ch33$$valid=0$$time=2024-06-05 13:24$$checksum=9042353f$$length=081$$

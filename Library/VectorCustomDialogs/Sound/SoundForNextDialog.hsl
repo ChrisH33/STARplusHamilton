@@ -1,0 +1,78 @@
+ namespace _Method { #include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl" } 
+ namespace _Method { #include "VectorCustomDialogs\\VectorCustomDialogs.hsl" } 
+ namespace _Method { #include "ASWStandard\\TraceLevel\\TraceLevel.hsl" } 
+ namespace _Method { #include "HSLStrLib.hsl" } 
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable blnSuccessfulExecuted;
+dialog dialogHandle72646C71F54543a98300A3359EFC9F56;
+dialog dialogHandleCC08E1311B0B41729F8C807A10E39083;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+ namespace _Method { #include "HSLPTLLib.hsl" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{{ 1 1 0 "8c93267a_df19_4f77_a9895682cb64c473" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::SetTraceLevel(TRACE_LEVEL_DEBUG);
+// }} ""
+// {{{ 2 1 0 "664e1380_6d07_40eb_9a9001a2a120d9dc" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::Initialize();
+// }} ""
+// {{ 3 1 0 "ca2c44de_5d09_40d8_a749989b3fdf4418" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{ 4 1 0 "6f360ad9_b634_4528_b424bc48549e200d" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle72646C71F54543a98300A3359EFC9F56.SetOutput(Translate("init failed"), Translate("Return Value: "), blnSuccessfulExecuted);
+dialogHandle72646C71F54543a98300A3359EFC9F56.ShowOutput(Translate("error"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 5 1 0 "ca2c44de_5d09_40d8_a749989b3fdf4418" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 6 1 0 "a809b49c_a55c_4297_8c8ef6ef12a27e0a" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_SoundLoop();
+// }} ""
+// {{{ 7 1 0 "7230f425_a3af_424e_ae0ff783ae958a84" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::Terminate();
+// }} ""
+// {{ 8 1 0 "4579f578_4f7c_47e7_b22068456c5d2ea5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{ 9 1 0 "c3b0bf60_5e8f_4cd8_ae65080024236f6d" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleCC08E1311B0B41729F8C807A10E39083.SetOutput(Translate("terminate failed"));
+dialogHandleCC08E1311B0B41729F8C807A10E39083.ShowOutput(Translate("error"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 10 1 0 "4579f578_4f7c_47e7_b22068456c5d2ea5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=MKnopp$$valid=0$$time=2019-07-23 14:40$$checksum=498b5afd$$length=085$$

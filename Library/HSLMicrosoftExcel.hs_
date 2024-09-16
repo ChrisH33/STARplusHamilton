@@ -1,0 +1,296 @@
+// ======================================================================
+// Implementation file of the library to control Microsoft Excel
+//
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+// ======================================================================
+//
+// Modification History
+//		2004-11-15 Joachim Schmid, created
+//		2005-06-07 Joachim Schmid, SetCellValue and SafeFile
+// 
+// ======================================================================
+
+#ifndef __HSLMicrosoftExcel_hs___
+#define __HSLMicrosoftExcel_hs___	1
+
+#define _HSLMicrosoftExcel_Debug		1
+
+namespace MicrosoftExcel
+{
+
+	object HSLMicrosoftExcel_ComServer;
+
+	static variable RETVAL_ERROR(1);
+	static variable RETVAL_COMPLETE(0);
+
+	static string SOURCE("HSLMicrosoftExcel");
+
+
+	function GetCellValue(variable Col, variable Row, variable& CellValueOUT) variable;
+	function SetCellValue(variable Col, variable Row, variable CellValue) variable;
+	function GetSheetCount(variable& NumberOfSheetsOUT) variable;
+	function GetSheetName(variable& SheetNameOUT) variable;
+
+   function SelectSheet(variable SheetID) variable;
+
+	function OpenFile(variable FileName) variable;
+	function SafeFile() variable;
+
+	function Init() variable;
+	function End() variable;
+	
+	private function ErrorInMethod();
+
+
+	function Init() variable
+	{
+		variable  action;
+		
+		err.Clear();
+		onerror goto errorhandler;
+		action = GetFunctionName();
+
+		HSLMicrosoftExcel_ComServer.CreateObject("HSL.MSExcel", hslFalse);
+
+
+		if (HSLMicrosoftExcel_ComServer.IsNull()) {
+	     FormatTrace(SOURCE, action, 2, "Initialization Faild!");
+		  ErrorInMethod();
+		  return(RETVAL_ERROR);
+		}
+		else {
+  	     FormatTrace(SOURCE, action, 2, "Initialized");
+		  return(RETVAL_COMPLETE);
+      }
+		errorhandler:
+		{
+         ErrorInMethod();
+			return(RETVAL_ERROR);
+		}
+	}
+
+	function End() variable
+	{
+		variable action;
+
+		err.Clear();
+		onerror goto errorhandler;
+		action = GetFunctionName();
+
+		if (HSLMicrosoftExcel_ComServer.IsNull()) {
+	     FormatTrace(SOURCE, action, 4, "HSL.MSExcel not found!");
+		  ErrorInMethod();
+		  return(RETVAL_ERROR);
+		}
+		else {
+        HSLMicrosoftExcel_ComServer.ReleaseObject();
+		  FormatTrace(SOURCE, action, 2, "End");
+		  return(RETVAL_COMPLETE);
+		}
+		errorhandler:
+		{
+         ErrorInMethod();
+			return(RETVAL_ERROR);
+		}
+	}
+
+	function SafeFile() variable
+	{
+		variable action;
+
+		err.Clear();
+		onerror goto errorhandler;
+		action = GetFunctionName();
+
+		if (HSLMicrosoftExcel_ComServer.IsNull()) {
+	     FormatTrace(SOURCE, action, 4, "HSL.MSExcel not found!");
+		  ErrorInMethod();
+		  return(RETVAL_ERROR);
+		}
+		else {
+        HSLMicrosoftExcel_ComServer.Safe();
+		  FormatTrace(SOURCE, action, 2, "Safe");
+		  return(RETVAL_COMPLETE);
+		}
+		errorhandler:
+		{
+         ErrorInMethod();
+			return(RETVAL_ERROR);
+		}
+	}
+
+	function GetCellValue(variable Col, variable Row, variable& CellValueOUT) variable
+	{
+		variable action;
+		err.Clear();
+		onerror goto errorhandler;
+		
+		action = GetFunctionName();
+      
+		if (HSLMicrosoftExcel_ComServer.IsNull()) {
+	     FormatTrace(SOURCE, action, 4, "HSL.MSExcel not found!");
+		  ErrorInMethod();
+		  return(RETVAL_ERROR);
+		}
+		else {
+        CellValueOUT = HSLMicrosoftExcel_ComServer.GetCellValue(Col,Row);
+        FormatTrace(SOURCE, action, 2, "Answer is: ",CellValueOUT );
+	     return(RETVAL_COMPLETE);
+		}
+		errorhandler:
+		{
+         ErrorInMethod();
+			return(RETVAL_ERROR);
+		}
+	}
+
+	function SetCellValue(variable Col, variable Row, variable CellValue) variable
+	{
+		variable action,CellValueOUT;
+		err.Clear();
+		onerror goto errorhandler;
+		
+		action = GetFunctionName();
+      
+		if (HSLMicrosoftExcel_ComServer.IsNull()) {
+	     FormatTrace(SOURCE, action, 4, "HSL.MSExcel not found!");
+		  ErrorInMethod();
+		  return(RETVAL_ERROR);
+		}
+		else {
+        CellValueOUT = HSLMicrosoftExcel_ComServer.SetCellValue(Col,Row,CellValue);
+        FormatTrace(SOURCE, action, 2, "New value is: ",CellValueOUT );
+	     return(RETVAL_COMPLETE);
+		}
+		errorhandler:
+		{
+         ErrorInMethod();
+			return(RETVAL_ERROR);
+		}
+	}
+
+	function GetSheetCount(variable& NumberOfSheetsOUT) variable
+	{
+		variable action;
+		err.Clear();
+		onerror goto errorhandler;
+		
+		action = GetFunctionName();
+      
+		if (HSLMicrosoftExcel_ComServer.IsNull()) {
+	     FormatTrace(SOURCE, action, 4, "HSL.MSExcel not found!");
+		  ErrorInMethod();
+		  return(RETVAL_ERROR);
+		}
+		else {
+        NumberOfSheetsOUT = HSLMicrosoftExcel_ComServer.SheetCount();
+        FormatTrace(SOURCE, action, 2, "Answer is: ",NumberOfSheetsOUT );
+	     return(RETVAL_COMPLETE);
+		}
+		errorhandler:
+		{
+         ErrorInMethod();
+			return(RETVAL_ERROR);
+		}
+	}
+
+	function GetSheetName(variable& SheetNameOUT) variable
+	{
+		variable action;
+		err.Clear();
+		onerror goto errorhandler;
+		
+		action = GetFunctionName();
+      
+		if (HSLMicrosoftExcel_ComServer.IsNull()) {
+	     FormatTrace(SOURCE, action, 4, "HSL.MSExcel not found!");
+		  ErrorInMethod();
+		  return(RETVAL_ERROR);
+		}
+		else {
+        SheetNameOUT = HSLMicrosoftExcel_ComServer.GetSheetName();
+        FormatTrace(SOURCE, action, 2, "Answer is: ",SheetNameOUT );
+	     return(RETVAL_COMPLETE);
+		}
+		errorhandler:
+		{
+         ErrorInMethod();
+			return(RETVAL_ERROR);
+		}
+	}
+
+	function SelectSheet(variable SheetID) variable
+	{
+		variable action;		
+		err.Clear();
+		onerror goto errorhandler;
+		action = GetFunctionName();
+
+		if (HSLMicrosoftExcel_ComServer.IsNull()) {
+	     FormatTrace(SOURCE, action, 4, "HSL.MSExcel not found!");
+		  ErrorInMethod();
+		  return(RETVAL_ERROR);
+		}
+		else {
+  		  if (HSLMicrosoftExcel_ComServer.SelectSheet(SheetID)) {
+	        FormatTrace(SOURCE, action, 2, "Sheet opened sucessful" );
+			  return(RETVAL_COMPLETE);
+		   }
+			else {
+		    FormatTrace(SOURCE, action, 4, "Can not open Sheet!");
+			 ErrorInMethod();
+		    return(RETVAL_ERROR);
+		  }
+      }
+		errorhandler:
+		{
+         ErrorInMethod();
+			return(RETVAL_ERROR);
+		}
+	}
+
+	function OpenFile(variable FileName) variable
+	{
+		variable action, myFile;
+		err.Clear();
+		onerror goto errorhandler;
+		action = GetFunctionName();
+
+		myFile = FileName;
+		if (HSLMicrosoftExcel_ComServer.IsNull()) {
+	     FormatTrace(SOURCE, action, 4, "HSL.MSExcel not found!");
+		  ErrorInMethod();
+		  return(RETVAL_ERROR);
+		}
+		else {
+  		  if (HSLMicrosoftExcel_ComServer.OpenFile(myFile)) {
+          FormatTrace(SOURCE, action, 2, "File opened successful" );
+		    return(RETVAL_COMPLETE);
+        }
+		  else {
+		    FormatTrace(SOURCE, action, 4, "Can not open File!");
+			 ErrorInMethod();
+		    return(RETVAL_ERROR);
+		  }
+      }
+		errorhandler:
+		{
+         ErrorInMethod();
+			return(RETVAL_ERROR);
+		}
+	}
+
+
+	private function ErrorInMethod()
+	{
+		variable retVal;
+		
+		retVal = MessageBox( "Error detected. Do you want to abort the method?", "Excel Error", hslYesNo | hslQuestion, hslInfinite );
+		if (retVal == hslYes){abort;}
+		else {resume next;}
+	}
+}	// end namespace
+
+#endif
+// $$author=jschmid$$valid=0$$time=2006-12-19 08:01$$checksum=7cba885f$$length=084$$

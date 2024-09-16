@@ -1,0 +1,654 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "HSLSeqLib.hsl"
+#include "HSLDevLib.hsl"
+#include "HSLSeqLib.hsl"
+#include "HSLStrLib.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "Training\\HSLMECCLib.hs_"
+#include "HSLPTLLib.hsl"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace SEQUENCESORTERS {
+// }} ""
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function Sort_PairedSequences( device & ML_STAR, sequence & ioSequenceToSort, sequence & ioSeqPairedSequence ) void ;
+function Sort_PairedSequences_WithVolumeArray( device & ML_STAR, sequence & ioSequenceToSort, sequence & ioSeqPairedSequence, variable & ioArrayOfVolumes[] ) void ;
+function Sort_Sequence( device & ML_STAR, sequence & ioSequenceToSort ) void ;
+function Sort_Sequence_WithVolumeArray( device & ML_STAR, sequence & ioSequenceToSort, variable & ioArrayOfVolumes[] ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "Sort_Sequence" "Begin"
+function Sort_Sequence( device & ML_STAR, sequence & ioSequenceToSort ) void {
+// }} ""
+private variable total_positions;
+private variable sql_statement;
+private variable seq_sort_file;
+private file seq_sort;
+private variable fileWriteIndex;
+private variable sortSeq_angle;
+private variable sortSeq_pos_id;
+private variable sortSeq_x_coord;
+private variable sortSeq_z_coord;
+private variable sortSeq_y_coord;
+private variable fileReadIndex;
+private variable sortSeq_lab_id;
+private variable sheetName;
+// {{ 5 "Sort_Sequence" "InitLocals"
+// }} ""
+// {{ 65 1 0 "b3874755_9968_43e3_a784f5a11674ac20" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+seq_sort_file = "C:\\Program Files (x86)\\Hamilton\\System\\SequenceSortingFile.xls";
+// }} ""
+// {{ 66 1 0 "884d71af_450f_405c_b8e5ed690594274d" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+sheetName = Translate("SingleSequence");
+// }} ""
+// {{ 67 1 0 "fe67a342_1cf4_47bd_a798c23fac8438c9" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+seq_sort.AddField("sortSeq_lab_id", sortSeq_lab_id, hslString, 255);
+seq_sort.AddField("sortSeq_pos_id", sortSeq_pos_id, hslString, 255);
+seq_sort.AddField("sortSeq_x_coord", sortSeq_x_coord, hslFloat);
+seq_sort.AddField("sortSeq_y_coord", sortSeq_y_coord, hslFloat);
+seq_sort.AddField("sortSeq_z_coord", sortSeq_z_coord, hslFloat);
+seq_sort.AddField("sortSeq_angle", sortSeq_angle, hslFloat);
+if( 0 == seq_sort.Open(seq_sort_file + " " + sheetName, hslWrite) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, seq_sort_file, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 68 1 0 "a0352780_4a29_4219_be441401235f8e6d" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSequenceToSort.SetCurrentPosition(1);
+// }} ""
+// {{{ 69 1 0 "243f8480_3e06_403f_816e569c5777f309" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+total_positions = SeqGetTotal(ioSequenceToSort);
+// }} ""
+// {{ 70 1 0 "10dcbe7f_e4bd_43fe_892c37d387c0f814" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(fileWriteIndex = 0; fileWriteIndex < total_positions;)
+{
+fileWriteIndex = fileWriteIndex + 1;
+// }} ""
+// {{ 71 1 0 "496c4ed2_28a1_451f_b4d007652e23e7fb" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSequenceToSort.SetCurrentPosition(fileWriteIndex);
+// }} ""
+// {{{ 72 1 0 "4baeeca0_03f3_48e0_a1086d57cfdd2faf" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+sortSeq_lab_id = SeqGetLabwareId(ioSequenceToSort);
+// }} ""
+// {{{ 73 1 0 "5a86153d_a52e_4e82_8be61fed92942218" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+sortSeq_pos_id = SeqGetPositionId(ioSequenceToSort);
+// }} ""
+// {{{ 74 1 0 "75d86c48_1a0c_4e5d_8f1ff02d91e4cebc" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DevGetLabwarePositionEx(ML_STAR, sortSeq_lab_id, sortSeq_pos_id, sortSeq_x_coord, sortSeq_y_coord, sortSeq_z_coord, sortSeq_angle);
+// }} ""
+// {{ 75 1 0 "b4631b18_bad5_4dac_854c96e1cde09362" "{B31F3537-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == seq_sort.WriteRecord() )
+{
+    MECC::RaiseRuntimeError(-1473380096, MECC::IDS::stepNameFileWrite, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 76 1 0 "10dcbe7f_e4bd_43fe_892c37d387c0f814" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 77 1 0 "249c424b_6123_4e5e_9bf3d647a9ce14be" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != seq_sort.Close() )
+{
+    MECC::RaiseRuntimeError(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+seq_sort.RemoveFields();
+// }} ""
+// {{{ 78 1 0 "c9f16eff_079e_4e06_a72cef1dc332da57" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+sql_statement = StrConcat4(Translate("SELECT * FROM ["), sheetName, Translate("] ORDER BY [sortSeq_x_coord] ASC, [sortSeq_y_coord] DESC"), Translate(""));
+// }} ""
+// {{ 79 1 0 "4c492bef_1c1c_41ad_b04787d074dba7fe" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+seq_sort.AddField("sortSeq_lab_id", sortSeq_lab_id, hslString, 255);
+seq_sort.AddField("sortSeq_pos_id", sortSeq_pos_id, hslString, 255);
+seq_sort.AddField("sortSeq_x_coord", sortSeq_x_coord, hslFloat);
+seq_sort.AddField("sortSeq_y_coord", sortSeq_y_coord, hslFloat);
+seq_sort.AddField("sortSeq_z_coord", sortSeq_z_coord, hslFloat);
+seq_sort.AddField("sortSeq_angle", sortSeq_angle, hslFloat);
+if( 0 == seq_sort.Open(seq_sort_file + " " + sheetName, hslRead, sql_statement) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, seq_sort_file, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 80 1 0 "2ecabb3a_f9da_4569_815ef7c27284d800" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+// Aspirationssequenz nach sortiertem File erzeugen
+// }} ""
+// {{{ 81 1 0 "4062c736_f7dd_4099_874ae80cac88df38" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqRemoveAll(ioSequenceToSort);
+// }} ""
+// {{ 82 1 0 "02b1a94c_f446_4713_81cb75cdb16e2bea" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+fileReadIndex = 0;
+while (
+   (seq_sort.Eof() == 0)
+)
+{
+fileReadIndex = fileReadIndex + 1;
+// }} ""
+// {{ 83 1 0 "1ebaad5f_41d4_4f53_a446dd9b6aaf9b47" "{B31F3536-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == seq_sort.ReadRecord() )
+{
+    MECC::RaiseRuntimeError(-1490157312, MECC::IDS::stepNameFileRead, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 84 1 0 "2742cd73_9ba1_473e_937180d3c895337a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqAdd(ioSequenceToSort, sortSeq_lab_id, sortSeq_pos_id);
+// }} ""
+// {{ 85 1 0 "02b1a94c_f446_4713_81cb75cdb16e2bea" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 86 1 0 "de9a8fd0_3044_45c1_ba41edc83bcd10ee" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != seq_sort.Close() )
+{
+    MECC::RaiseRuntimeError(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+seq_sort.RemoveFields();
+// }} ""
+// {{ 87 1 0 "8e9bdc3f_947e_4ca4_8cf022025c06bb86" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSequenceToSort.SetCurrentPosition(1);
+// }} ""
+// {{{ 5 "Sort_Sequence" "End"
+}
+// }} ""
+// {{{ 5 "Sort_PairedSequences_WithVolumeArray" "Begin"
+function Sort_PairedSequences_WithVolumeArray( device & ML_STAR, sequence & ioSequenceToSort, sequence & ioSeqPairedSequence, variable & ioArrayOfVolumes[] ) void {
+// }} ""
+private variable fileWriteIndex;
+private variable total_positions;
+private variable sql_statement;
+private variable volume;
+private variable fileReadIndex;
+private variable seq_sort_file;
+private file seq_sort;
+private variable sortSeq_angle;
+private variable pairedSeq_pos_id;
+private variable sortSeq_pos_id;
+private variable sortSeq_x_coord;
+private variable sortSeq_z_coord;
+private variable sortSeq_y_coord;
+private variable pairedSeq_lab_id;
+private variable sortSeq_lab_id;
+private variable sheetName;
+// {{ 5 "Sort_PairedSequences_WithVolumeArray" "InitLocals"
+// }} ""
+// {{ 32 1 0 "b0c6eaea_0e9d_40c9_ba4f0a5a9a04f182" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+seq_sort_file = "C:\\Program Files (x86)\\Hamilton\\System\\SequenceSortingFile.xls";
+// }} ""
+// {{ 33 1 0 "de650918_4b35_486c_8c0b485c33e4541f" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+sheetName = Translate("PairedSequencesWithArray");
+// }} ""
+// {{ 34 1 0 "f6f72657_4831_43ad_8f916c8a44293890" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+seq_sort.AddField("sortSeq_lab_id", sortSeq_lab_id, hslString, 255);
+seq_sort.AddField("sortSeq_pos_id", sortSeq_pos_id, hslString, 255);
+seq_sort.AddField("sortSeq_x_coord", sortSeq_x_coord, hslFloat);
+seq_sort.AddField("sortSeq_y_coord", sortSeq_y_coord, hslFloat);
+seq_sort.AddField("sortSeq_z_coord", sortSeq_z_coord, hslFloat);
+seq_sort.AddField("sortSeq_angle", sortSeq_angle, hslFloat);
+seq_sort.AddField("pairedSeq_lab_id", pairedSeq_lab_id, hslString, 255);
+seq_sort.AddField("pairedSeq_pos_id", pairedSeq_pos_id, hslString, 255);
+seq_sort.AddField("volume", volume, hslFloat);
+if( 0 == seq_sort.Open(seq_sort_file + " " + sheetName, hslWrite) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, seq_sort_file, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 35 1 0 "4505c5f6_5e4d_4636_ae9c607707819cd8" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSequenceToSort.SetCurrentPosition(1);
+// }} ""
+// {{ 36 1 0 "ecedd0fc_4b06_449b_a04da1b5370127f0" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSeqPairedSequence.SetCurrentPosition(1);
+// }} ""
+// {{{ 37 1 0 "0553c508_cc78_4e23_b0c3c9c1e6967652" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+total_positions = SeqGetTotal(ioSequenceToSort);
+// }} ""
+// {{ 38 1 0 "25932b86_e023_4c82_9adb08f209cc176c" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(fileWriteIndex = 0; fileWriteIndex < total_positions;)
+{
+fileWriteIndex = fileWriteIndex + 1;
+// }} ""
+// {{ 39 1 0 "89514c25_5d5c_44c9_ba2b9f755864c540" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSequenceToSort.SetCurrentPosition(fileWriteIndex);
+// }} ""
+// {{ 40 1 0 "3da3d8db_c38f_4af0_869e9f234fb8a2c9" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSeqPairedSequence.SetCurrentPosition(fileWriteIndex);
+// }} ""
+// {{{ 41 1 0 "ba7b1bdd_0217_46e0_90a06a2587d518a9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+sortSeq_lab_id = SeqGetLabwareId(ioSequenceToSort);
+// }} ""
+// {{{ 42 1 0 "b081f213_c76b_4c1b_a10b8903bc3f8cb8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+sortSeq_pos_id = SeqGetPositionId(ioSequenceToSort);
+// }} ""
+// {{{ 43 1 0 "8c8734ba_0616_46ca_858d7da4afec94fe" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DevGetLabwarePositionEx(ML_STAR, sortSeq_lab_id, sortSeq_pos_id, sortSeq_x_coord, sortSeq_y_coord, sortSeq_z_coord, sortSeq_angle);
+// }} ""
+// {{{ 44 1 0 "673b6e09_a70e_4eff_80877aaa9c1e95c8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+pairedSeq_lab_id = SeqGetLabwareId(ioSeqPairedSequence);
+// }} ""
+// {{{ 45 1 0 "5093486f_9f9b_4f49_8cd1698360dd1f36" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+pairedSeq_pos_id = SeqGetPositionId(ioSeqPairedSequence);
+// }} ""
+// {{ 46 1 0 "b00bd33c_dbd5_4884_bf62d89d2aa0941b" "{67A8F1C9-6546-41e9-AD2F-3C54F7818853}"
+volume=ioArrayOfVolumes.GetAt(fileWriteIndex-1);
+// }} ""
+// {{ 47 1 0 "f051c89f_1ada_49f2_a48f6cb230e394d1" "{B31F3537-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == seq_sort.WriteRecord() )
+{
+    MECC::RaiseRuntimeError(-1473380096, MECC::IDS::stepNameFileWrite, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 48 1 0 "25932b86_e023_4c82_9adb08f209cc176c" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 49 1 0 "62b3f323_0880_401a_9dc583d10515f40b" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != seq_sort.Close() )
+{
+    MECC::RaiseRuntimeError(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+seq_sort.RemoveFields();
+// }} ""
+// {{{ 50 1 0 "ca4a3b81_ca81_4f37_ad7e19e8ceb990e0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+sql_statement = StrConcat4(Translate("SELECT * FROM ["), sheetName, Translate("] ORDER BY [sortSeq_x_coord] ASC, [sortSeq_y_coord] DESC"), Translate(""));
+// }} ""
+// {{ 51 1 0 "18129d3e_4ee0_444e_8769abb3e42604c6" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+seq_sort.AddField("sortSeq_lab_id", sortSeq_lab_id, hslString, 255);
+seq_sort.AddField("sortSeq_pos_id", sortSeq_pos_id, hslString, 255);
+seq_sort.AddField("sortSeq_x_coord", sortSeq_x_coord, hslFloat);
+seq_sort.AddField("sortSeq_y_coord", sortSeq_y_coord, hslFloat);
+seq_sort.AddField("sortSeq_z_coord", sortSeq_z_coord, hslFloat);
+seq_sort.AddField("sortSeq_angle", sortSeq_angle, hslFloat);
+seq_sort.AddField("pairedSeq_lab_id", pairedSeq_lab_id, hslString, 255);
+seq_sort.AddField("pairedSeq_pos_id", pairedSeq_pos_id, hslString, 255);
+seq_sort.AddField("volume", volume, hslFloat);
+if( 0 == seq_sort.Open(seq_sort_file + " " + sheetName, hslRead, sql_statement) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, seq_sort_file, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 52 1 0 "72cb14a9_1f04_43c3_82d2b09c423e3e8d" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+// Aspirationssequenz nach sortiertem File erzeugen
+// }} ""
+// {{{ 53 1 0 "83fc50fe_46d9_48e4_81d255c8b4ad6443" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqRemoveAll(ioSequenceToSort);
+// }} ""
+// {{{ 54 1 0 "2b889153_5b01_4e09_ab7c826d29623b2d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqRemoveAll(ioSeqPairedSequence);
+// }} ""
+// {{ 55 1 0 "e925cfb5_4980_4539_81b282c227942fad" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+fileReadIndex = 0;
+while (
+   (seq_sort.Eof() == 0)
+)
+{
+fileReadIndex = fileReadIndex + 1;
+// }} ""
+// {{ 56 1 0 "f08f9b79_621a_4376_81e472e0b67c0eca" "{B31F3536-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == seq_sort.ReadRecord() )
+{
+    MECC::RaiseRuntimeError(-1490157312, MECC::IDS::stepNameFileRead, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 57 1 0 "50c7e7a0_dd54_4746_ad82304d4b134aa4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqAdd(ioSequenceToSort, sortSeq_lab_id, sortSeq_pos_id);
+// }} ""
+// {{{ 58 1 0 "d0d65242_6a37_4b06_b3ee1aa1b91fa778" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqAdd(ioSeqPairedSequence, pairedSeq_lab_id, pairedSeq_pos_id);
+// }} ""
+// {{ 59 1 0 "67f7d448_e51c_40c9_b425595548897368" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+ioArrayOfVolumes.SetAt(fileReadIndex-1, volume);
+// }} ""
+// {{ 60 1 0 "e925cfb5_4980_4539_81b282c227942fad" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 61 1 0 "c827ae33_98a3_49ff_aedc54f3299e910f" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != seq_sort.Close() )
+{
+    MECC::RaiseRuntimeError(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+seq_sort.RemoveFields();
+// }} ""
+// {{ 62 1 0 "ae3a5071_f3f9_4d96_b8f00fd6f0d29f53" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSequenceToSort.SetCurrentPosition(1);
+// }} ""
+// {{ 63 1 0 "f1eae2c7_e6d0_4d75_ad28e32723506bc5" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSeqPairedSequence.SetCurrentPosition(1);
+// }} ""
+// {{{ 5 "Sort_PairedSequences_WithVolumeArray" "End"
+}
+// }} ""
+// {{{ 5 "Sort_Sequence_WithVolumeArray" "Begin"
+function Sort_Sequence_WithVolumeArray( device & ML_STAR, sequence & ioSequenceToSort, variable & ioArrayOfVolumes[] ) void {
+// }} ""
+private variable seq_sort_file;
+private variable fileWriteIndex;
+private variable sortSeq_angle;
+private variable total_positions;
+private variable sql_statement;
+private variable sortSeq_pos_id;
+private variable sortSeq_x_coord;
+private variable sortSeq_z_coord;
+private variable sortSeq_y_coord;
+private variable volume;
+private variable fileReadIndex;
+private variable sortSeq_lab_id;
+private file seq_sort;
+private variable sheetName;
+// {{ 5 "Sort_Sequence_WithVolumeArray" "InitLocals"
+// }} ""
+// {{ 89 1 0 "9e40e80e_86c8_427c_817e94e19d0591cb" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+seq_sort_file = "C:\\Program Files (x86)\\Hamilton\\System\\SequenceSortingFile.xls";
+// }} ""
+// {{ 90 1 0 "38b5a4f6_2fbd_4a70_a18f4f15d6b2d91a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+sheetName = Translate("SingleSequenceWithArray");
+// }} ""
+// {{ 91 1 0 "bde233f0_cfa6_44b0_aad61ea9b933643b" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+seq_sort.AddField("sortSeq_lab_id", sortSeq_lab_id, hslString, 255);
+seq_sort.AddField("sortSeq_pos_id", sortSeq_pos_id, hslString, 255);
+seq_sort.AddField("sortSeq_x_coord", sortSeq_x_coord, hslFloat);
+seq_sort.AddField("sortSeq_y_coord", sortSeq_y_coord, hslFloat);
+seq_sort.AddField("sortSeq_z_coord", sortSeq_z_coord, hslFloat);
+seq_sort.AddField("sortSeq_angle", sortSeq_angle, hslFloat);
+seq_sort.AddField("volume", volume, hslFloat);
+if( 0 == seq_sort.Open(seq_sort_file + " " + sheetName, hslWrite) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, seq_sort_file, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 92 1 0 "2e26b897_e4c0_41cc_b180f512d46563dc" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSequenceToSort.SetCurrentPosition(1);
+// }} ""
+// {{{ 93 1 0 "4f380421_fd2b_4c1e_b77a996f546a0acb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+total_positions = SeqGetTotal(ioSequenceToSort);
+// }} ""
+// {{ 94 1 0 "ad4e61af_5a7b_4431_b4f82b4364ccf503" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(fileWriteIndex = 0; fileWriteIndex < total_positions;)
+{
+fileWriteIndex = fileWriteIndex + 1;
+// }} ""
+// {{ 95 1 0 "35a2b49b_3213_47e6_8e8c881a1133a9f5" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSequenceToSort.SetCurrentPosition(fileWriteIndex);
+// }} ""
+// {{{ 96 1 0 "840ea148_5676_4d33_a90378f966db5609" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+sortSeq_lab_id = SeqGetLabwareId(ioSequenceToSort);
+// }} ""
+// {{{ 97 1 0 "cdaa383e_db9e_4175_b79eec6bbb3a6aca" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+sortSeq_pos_id = SeqGetPositionId(ioSequenceToSort);
+// }} ""
+// {{{ 98 1 0 "a448fc7c_eb77_4f31_bffeda025cb9a827" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DevGetLabwarePositionEx(ML_STAR, sortSeq_lab_id, sortSeq_pos_id, sortSeq_x_coord, sortSeq_y_coord, sortSeq_z_coord, sortSeq_angle);
+// }} ""
+// {{ 99 1 0 "c207093e_5f1c_42cb_b5c41d1a46e33a92" "{67A8F1C9-6546-41e9-AD2F-3C54F7818853}"
+volume=ioArrayOfVolumes.GetAt(fileWriteIndex-1);
+// }} ""
+// {{ 100 1 0 "2fd56922_224e_432d_950f7306d1ecd35a" "{B31F3537-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == seq_sort.WriteRecord() )
+{
+    MECC::RaiseRuntimeError(-1473380096, MECC::IDS::stepNameFileWrite, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 101 1 0 "ad4e61af_5a7b_4431_b4f82b4364ccf503" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 102 1 0 "05719c68_88ce_42df_92af5e3234bebe34" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != seq_sort.Close() )
+{
+    MECC::RaiseRuntimeError(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+seq_sort.RemoveFields();
+// }} ""
+// {{{ 103 1 0 "96aef27b_f689_4115_a115bf5513a69076" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+sql_statement = StrConcat4(Translate("SELECT * FROM ["), sheetName, Translate("] ORDER BY [sortSeq_x_coord] ASC, [sortSeq_y_coord] DESC"), Translate(""));
+// }} ""
+// {{ 104 1 0 "1ce529c3_9c69_404f_a79794d13530f15d" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+seq_sort.AddField("sortSeq_lab_id", sortSeq_lab_id, hslString, 255);
+seq_sort.AddField("sortSeq_pos_id", sortSeq_pos_id, hslString, 255);
+seq_sort.AddField("sortSeq_x_coord", sortSeq_x_coord, hslFloat);
+seq_sort.AddField("sortSeq_y_coord", sortSeq_y_coord, hslFloat);
+seq_sort.AddField("sortSeq_z_coord", sortSeq_z_coord, hslFloat);
+seq_sort.AddField("sortSeq_angle", sortSeq_angle, hslFloat);
+seq_sort.AddField("volume", volume, hslFloat);
+if( 0 == seq_sort.Open(seq_sort_file + " " + sheetName, hslRead, sql_statement) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, seq_sort_file, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 105 1 0 "2b2014e4_5914_4de8_84fa99ee493b5668" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+// Aspirationssequenz nach sortiertem File erzeugen
+// }} ""
+// {{{ 106 1 0 "e20218ee_6fe1_4368_be418ae58b5be862" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqRemoveAll(ioSequenceToSort);
+// }} ""
+// {{ 107 1 0 "ed63cacf_fbc7_4ee5_b4e3e6f60575f6cc" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+fileReadIndex = 0;
+while (
+   (seq_sort.Eof() == 0)
+)
+{
+fileReadIndex = fileReadIndex + 1;
+// }} ""
+// {{ 108 1 0 "8f618415_8d7c_4a71_b961f91344aee906" "{B31F3536-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == seq_sort.ReadRecord() )
+{
+    MECC::RaiseRuntimeError(-1490157312, MECC::IDS::stepNameFileRead, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 109 1 0 "b793904b_eaea_4b87_975ce1602b8535c2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqAdd(ioSequenceToSort, sortSeq_lab_id, sortSeq_pos_id);
+// }} ""
+// {{ 110 1 0 "952191de_c8ac_48fd_bc5ba2a6eda8cd4f" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+ioArrayOfVolumes.SetAt(fileReadIndex-1, volume);
+// }} ""
+// {{ 111 1 0 "ed63cacf_fbc7_4ee5_b4e3e6f60575f6cc" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 112 1 0 "260b6ab5_6104_4024_bf281945806d4eb2" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != seq_sort.Close() )
+{
+    MECC::RaiseRuntimeError(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+seq_sort.RemoveFields();
+// }} ""
+// {{ 113 1 0 "38486777_02b6_46c0_aabff85f305252ef" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSequenceToSort.SetCurrentPosition(1);
+// }} ""
+// {{{ 5 "Sort_Sequence_WithVolumeArray" "End"
+}
+// }} ""
+// {{{ 5 "Sort_PairedSequences" "Begin"
+function Sort_PairedSequences( device & ML_STAR, sequence & ioSequenceToSort, sequence & ioSeqPairedSequence ) void {
+// }} ""
+private variable fileWriteIndex;
+private variable total_positions;
+private variable sortSeq_angle;
+private variable sql_statement;
+private variable pairedSeq_pos_id;
+private variable sortSeq_pos_id;
+private variable sortSeq_x_coord;
+private variable volume;
+private variable sortSeq_z_coord;
+private variable sortSeq_y_coord;
+private variable pairedSeq_lab_id;
+private variable seq_sort_file;
+private variable fileReadIndex;
+private variable sortSeq_lab_id;
+private file seq_sort;
+private variable sheetName;
+// {{ 5 "Sort_PairedSequences" "InitLocals"
+// }} ""
+// {{ 1 1 0 "b8b0eff3_f1d8_4cea_8d1b98163e60ddf3" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+seq_sort_file = "C:\\Program Files (x86)\\Hamilton\\System\\SequenceSortingFile.xls";
+// }} ""
+// {{ 2 1 0 "b69c9d52_b4d0_46e5_9ae71b9f4355cb27" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+sheetName = Translate("PairedSequences");
+// }} ""
+// {{ 3 1 0 "53e82c08_2463_4ad5_b14a1a59ebd27655" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+seq_sort.AddField("sortSeq_lab_id", sortSeq_lab_id, hslString, 255);
+seq_sort.AddField("sortSeq_pos_id", sortSeq_pos_id, hslString, 255);
+seq_sort.AddField("sortSeq_x_coord", sortSeq_x_coord, hslFloat);
+seq_sort.AddField("sortSeq_y_coord", sortSeq_y_coord, hslFloat);
+seq_sort.AddField("sortSeq_z_coord", sortSeq_z_coord, hslFloat);
+seq_sort.AddField("sortSeq_angle", sortSeq_angle, hslFloat);
+seq_sort.AddField("pairedSeq_lab_id", pairedSeq_lab_id, hslString, 255);
+seq_sort.AddField("pairedSeq_pos_id", pairedSeq_pos_id, hslString, 255);
+if( 0 == seq_sort.Open(seq_sort_file + " " + sheetName, hslWrite) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, seq_sort_file, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 4 1 0 "f8a667a8_bb7c_4b53_9ea71dc5752d65e5" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSequenceToSort.SetCurrentPosition(1);
+// }} ""
+// {{ 5 1 0 "dae63808_4c77_40a7_83c42d7c511cb2c8" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSeqPairedSequence.SetCurrentPosition(1);
+// }} ""
+// {{{ 6 1 0 "5ef65a89_b385_4a70_a24771b6283fe422" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+total_positions = SeqGetTotal(ioSequenceToSort);
+// }} ""
+// {{ 7 1 0 "1dd8cc3d_1269_4739_913ef985016c06d5" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(fileWriteIndex = 0; fileWriteIndex < total_positions;)
+{
+fileWriteIndex = fileWriteIndex + 1;
+// }} ""
+// {{ 8 1 0 "9593b1f1_bb2b_4497_b6b60912c8c87f0a" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSequenceToSort.SetCurrentPosition(fileWriteIndex);
+// }} ""
+// {{ 9 1 0 "52096da0_6302_4267_a905c411ea1cda09" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSeqPairedSequence.SetCurrentPosition(fileWriteIndex);
+// }} ""
+// {{{ 10 1 0 "61046bab_7bd9_4ed8_ae907862921c6311" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+sortSeq_lab_id = SeqGetLabwareId(ioSequenceToSort);
+// }} ""
+// {{{ 11 1 0 "08f6f478_977e_4078_85853b55222886a9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+sortSeq_pos_id = SeqGetPositionId(ioSequenceToSort);
+// }} ""
+// {{{ 12 1 0 "fcb672ce_4e58_46d5_acaa245b63456fb0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+DevGetLabwarePositionEx(ML_STAR, sortSeq_lab_id, sortSeq_pos_id, sortSeq_x_coord, sortSeq_y_coord, sortSeq_z_coord, sortSeq_angle);
+// }} ""
+// {{{ 13 1 0 "a1213dc9_b2cf_43c7_a55545f8d8e00b7d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+pairedSeq_lab_id = SeqGetLabwareId(ioSeqPairedSequence);
+// }} ""
+// {{{ 14 1 0 "3c760d92_4bf6_48ed_979d9f80fe490ea6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+pairedSeq_pos_id = SeqGetPositionId(ioSeqPairedSequence);
+// }} ""
+// {{ 15 1 0 "3138ad20_2585_4d38_a93821c72cc0dbe7" "{B31F3537-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == seq_sort.WriteRecord() )
+{
+    MECC::RaiseRuntimeError(-1473380096, MECC::IDS::stepNameFileWrite, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 16 1 0 "1dd8cc3d_1269_4739_913ef985016c06d5" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 17 1 0 "822ac3c5_7c45_4a47_b23a4994f8156d1f" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != seq_sort.Close() )
+{
+    MECC::RaiseRuntimeError(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+seq_sort.RemoveFields();
+// }} ""
+// {{{ 18 1 0 "3cbe0291_d596_4072_9dd8ac8769202522" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+sql_statement = StrConcat4(Translate("SELECT * FROM ["), sheetName, Translate("] ORDER BY [sortSeq_x_coord] ASC, [sortSeq_y_coord] DESC"), Translate(""));
+// }} ""
+// {{ 19 1 0 "fbe40a46_9011_49a0_9406b9f43ab8d5d9" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+seq_sort.AddField("sortSeq_lab_id", sortSeq_lab_id, hslString, 255);
+seq_sort.AddField("sortSeq_pos_id", sortSeq_pos_id, hslString, 255);
+seq_sort.AddField("sortSeq_x_coord", sortSeq_x_coord, hslFloat);
+seq_sort.AddField("sortSeq_y_coord", sortSeq_y_coord, hslFloat);
+seq_sort.AddField("sortSeq_z_coord", sortSeq_z_coord, hslFloat);
+seq_sort.AddField("sortSeq_angle", sortSeq_angle, hslFloat);
+seq_sort.AddField("pairedSeq_lab_id", pairedSeq_lab_id, hslString, 255);
+seq_sort.AddField("pairedSeq_pos_id", pairedSeq_pos_id, hslString, 255);
+seq_sort.AddField("volume", volume, hslFloat);
+if( 0 == seq_sort.Open(seq_sort_file + " " + sheetName, hslRead, sql_statement) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, seq_sort_file, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 20 1 0 "bdb52db4_e87f_4c2e_b1266aa33a109d47" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+// Aspirationssequenz nach sortiertem File erzeugen
+// }} ""
+// {{{ 21 1 0 "e1bd0a34_bd62_4701_b345298daf299423" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqRemoveAll(ioSequenceToSort);
+// }} ""
+// {{{ 22 1 0 "027ef595_0081_48a5_8790f16d505f87b0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqRemoveAll(ioSeqPairedSequence);
+// }} ""
+// {{ 23 1 0 "fbc25814_fd6c_496c_b7924d6681306ca5" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+fileReadIndex = 0;
+while (
+   (seq_sort.Eof() == 0)
+)
+{
+fileReadIndex = fileReadIndex + 1;
+// }} ""
+// {{ 24 1 0 "442f6ad8_d345_4a3b_aa88c0090f3aede0" "{B31F3536-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == seq_sort.ReadRecord() )
+{
+    MECC::RaiseRuntimeError(-1490157312, MECC::IDS::stepNameFileRead, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 25 1 0 "64382519_6844_4c78_afd9decfadd2e975" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqAdd(ioSequenceToSort, sortSeq_lab_id, sortSeq_pos_id);
+// }} ""
+// {{{ 26 1 0 "c816a7c9_cba5_41c9_a8d2f27af54dba8f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqAdd(ioSeqPairedSequence, pairedSeq_lab_id, pairedSeq_pos_id);
+// }} ""
+// {{ 27 1 0 "fbc25814_fd6c_496c_b7924d6681306ca5" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 28 1 0 "0a3cee40_d13b_4bf8_93144a8f50025c7e" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != seq_sort.Close() )
+{
+    MECC::RaiseRuntimeError(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "HxMetEdCompCmd");
+}
+seq_sort.RemoveFields();
+// }} ""
+// {{ 29 1 0 "48da237e_7576_43c0_b980dc79f2250c2c" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSequenceToSort.SetCurrentPosition(1);
+// }} ""
+// {{ 30 1 0 "6dcb71c0_e732_47c5_89863867478176dd" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+ioSeqPairedSequence.SetCurrentPosition(1);
+// }} ""
+// {{{ 5 "Sort_PairedSequences" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=ch33$$valid=0$$time=2022-11-02 13:25$$checksum=60ef2f61$$length=083$$

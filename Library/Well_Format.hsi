@@ -1,0 +1,84 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "HSLStrLib.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace WELL_FORMAT {
+// }} ""
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function A01_to_A1( variable & io_well ) void ;
+function A1_to_A01( variable & io_well ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "A01_to_A1" "Begin"
+function A01_to_A1( variable & io_well ) void {
+// }} ""
+private variable numeric;
+private variable alpha;
+// {{ 5 "A01_to_A1" "InitLocals"
+// }} ""
+// {{{ 1 1 0 "796c5e0c_702d_4c23_9f5cd127804ca3b4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+alpha = StrLeft(io_well, 1);
+// }} ""
+// {{{ 2 1 0 "089ec992_9dd8_4796_93728d78d84d7d9f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+StrTrimLeft(io_well, alpha);
+// }} ""
+// {{{ 3 1 0 "d3915e4e_f132_40ef_9b8f1627731f6013" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+numeric = StrTrimLeft(io_well, Translate("0"));
+// }} ""
+// {{{ 4 1 0 "aeb8faef_b007_4bc6_80524b3b2cabfc10" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+io_well = StrConcat2(alpha, numeric);
+// }} ""
+// {{{ 5 "A01_to_A1" "End"
+}
+// }} ""
+// {{{ 5 "A1_to_A01" "Begin"
+function A1_to_A01( variable & io_well ) void {
+// }} ""
+private variable length;
+private variable alpha;
+// {{ 5 "A1_to_A01" "InitLocals"
+// }} ""
+// {{{ 6 1 0 "131d2687_1c0f_4c1e_9ccfc94f073b8aec" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+alpha = StrLeft(io_well, 1);
+// }} ""
+// {{{ 7 1 0 "e90c1bb2_28d1_4d3d_99d260e980c80a5e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+StrTrimLeft(io_well, alpha);
+// }} ""
+// {{{ 8 1 0 "45562894_2e24_42f8_beaaf36758ffa3a4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+length = StrGetLength(io_well);
+// }} ""
+// {{ 9 1 0 "0c0258a0_e1b7_45cd_b53a6490c8ddb197" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (length == 1)
+{
+// }} ""
+// {{{ 10 1 0 "1c1f8a13_e121_4566_a9cc69b2b2fdbeda" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+io_well = StrConcat2(Translate("0"), io_well);
+// }} ""
+// {{ 11 1 0 "0c0258a0_e1b7_45cd_b53a6490c8ddb197" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 12 1 0 "844f0b11_ba63_4e24_837d32df50888486" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+io_well = StrConcat2(alpha, io_well);
+// }} ""
+// {{{ 5 "A1_to_A01" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=Administrator$$valid=0$$time=2011-03-09 16:48$$checksum=6b635e04$$length=092$$

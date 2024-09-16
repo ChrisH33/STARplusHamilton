@@ -1,0 +1,319 @@
+ namespace _Method { #include "Hamilton DriverTools\\Hamilton DriverTools.hsl" } 
+#include "Hamilton Tilt Clamp Module Demo.res"
+ namespace _Method { #include "Hamilton Tilt Clamp Module\\Hamilton Tilt Clamp Module.hsl" } 
+ namespace _Method { #include "ASWStandard\\TraceLevel\\TraceLevel.hsl" } 
+ namespace _Method { #include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl" } 
+ namespace _Method { #include "HSLTrcLib.hsl" } 
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable _strMethodName;
+global device ML_STAR ("Hamilton Tilt Clamp Module Demo.lay", "ML_STAR", hslTrue);
+variable _arrIntDeviceIDs[];
+variable intAngle;
+variable intSpeed;
+dialog customDialogC87422E7DD624edf910DE29C19C07A94;
+dialog customDialogB50F0DA8F1D84613BF2052F459C67CC9;
+variable intCycles;
+variable intSwayAngle;
+variable intEndAngle;
+variable intStartAngle;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+private variable intDialogReturn;
+private variable blnSuccess;
+private variable intActualPort;
+private variable blnSimulationMode;
+private variable blnCommunicationTrace;
+private variable intSelectedIndex;
+private variable arrintPortNumbers[];
+private variable strModuleName;
+private variable intTraceLevel;
+private variable strButtonText;
+private dialog customDialog2BC29DADCE314c5893A8DD85FF014CAF;
+private dialog customDialog7BC2914571134f0bA316D34BED5A5E94;
+private variable blnOpenClamp;
+private variable blnGoOnEnabled;
+private variable intDeviceID;
+private variable blnCloseClamp;
+private variable strDialogTitle;
+private variable blnSway;
+private variable blnTilt;
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{ 1 1 0 "5bd56d57_94a8_4161_997dcf7823dda7ca" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+_strMethodName = GetMethodFileName();
+// {{{ 3 1 0 "77e8c4b2_52fc_45ef_903a41b561a0549c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccess = Hamilton_DriverTools::GetAvailablePortNumbers("Initialize variables", _strMethodName, arrintPortNumbers);
+// }} ""
+// {{ 4 1 0 "41ee1d26_1ff1_4a77_ad7c93d775749cf8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccess == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 5 1 0 "4c923c5a_790b_4804_838c99ac4cfac44f" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(intActualPort = 0; intActualPort < 256;)
+{
+intActualPort = intActualPort + 1;
+// }} ""
+// {{ 6 1 0 "4969e54b_07d3_47f1_ab6f52c137d81cac" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrintPortNumbers.AddAsLast(intActualPort);
+// }} ""
+// {{ 7 1 0 "4c923c5a_790b_4804_838c99ac4cfac44f" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 8 1 0 "41ee1d26_1ff1_4a77_ad7c93d775749cf8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+arrintPortNumbers.InsertElementAt(0, 0);
+arrintPortNumbers.InsertElementAt(0, -1);
+// {{ 10 1 0 "8f10ca5c_9aa1_4683_9837416ad27db25d" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strButtonText = "SELECT Ø";
+// }} ""
+// {{ 11 1 0 "bfdfddc6_6de6_409d_830c77b728a2178e" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intSpeed = 5;
+// }} ""
+// {{ 12 1 0 "71f3d1ca_b1c6_43db_8b3331e6b9ccd626" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intAngle = 5;
+// }} ""
+// {{ 13 1 0 "bbb05bee_fea6_4ea6_8d8f3633190beab6" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strDialogTitle = "Hamilton Clamp Tilt Module Demo";
+// }} ""
+// {{ 14 1 0 "5bd56d57_94a8_4161_997dcf7823dda7ca" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 15 1 0 "2179009f_8ab0_4427_8af508a912a8acdd" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 16 1 0 "c6481543_fc6f_4c91_a4ce25249b7b534e" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+while (ASWGLOBAL::BOOL::TRUE == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{ 17 1 0 "73953025_d315_45fc_a86676ba0a7d7eec" "{998A7CCC-4374-484D-A6ED-E8A4F0EB71BA}"
+customDialog7BC2914571134f0bA316D34BED5A5E94.InitCustomDialog( "73953025_d315_45fc_a86676ba0a7d7eec" );
+customDialog7BC2914571134f0bA316D34BED5A5E94.SetCustomDialogArrayProperty( "comboBox1.ItemsSource", arrintPortNumbers );
+customDialog7BC2914571134f0bA316D34BED5A5E94.SetCustomDialogProperty( "Title", strDialogTitle );
+customDialog7BC2914571134f0bA316D34BED5A5E94.SetCustomDialogProperty( "btnCustomDialogGoOn.IsEnabled", blnGoOnEnabled );
+customDialog7BC2914571134f0bA316D34BED5A5E94.ShowCustomDialog();
+intDialogReturn = customDialog7BC2914571134f0bA316D34BED5A5E94.GetCustomDialogProperty( "ReturnValue" );
+blnSimulationMode = customDialog7BC2914571134f0bA316D34BED5A5E94.GetCustomDialogProperty( "checkBox1.IsChecked" );
+strModuleName = customDialog7BC2914571134f0bA316D34BED5A5E94.GetCustomDialogProperty( "textBox2.Text" );
+intTraceLevel = customDialog7BC2914571134f0bA316D34BED5A5E94.GetCustomDialogProperty( "numeric1.Value" );
+intSelectedIndex = customDialog7BC2914571134f0bA316D34BED5A5E94.GetCustomDialogProperty( "comboBox1.SelectedIndex" );
+blnCommunicationTrace = customDialog7BC2914571134f0bA316D34BED5A5E94.GetCustomDialogProperty( "checkBox3.IsChecked" );
+// }} ""
+/* {{ 1 "" "0" */ if(0){  /* }} "" */
+// {{{ 18 1 0 "5636de1c_8e0b_46fc_9adece4fd149a5d6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("Port"), arrintPortNumbers.ElementAt( intSelectedIndex -1));
+// }} ""
+// {{{ 19 1 0 "43023cd8_cb07_47ce_9e721ecd04e88bca" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("strModuleName"), strModuleName);
+// }} ""
+/* {{ 1 "" "1" */ } /* }} "" */
+// {{{ 20 1 0 "eadefeec_e004_4700_95e6a578505b73dd" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_HandleDialogResult(intDialogReturn, "Initialize");
+// }} ""
+// {{ 21 1 0 "712b2c1e_086d_4f53_993ced5b2e2386d5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intDialogReturn == ASWGLOBAL::DIALOG::IGNORE)
+{
+// }} ""
+// {{ 22 1 0 "cf8c2829_4204_452a_9ce0d52df95d8f23" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 23 1 0 "712b2c1e_086d_4f53_993ced5b2e2386d5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 24 1 0 "d092fc7a_c4b0_4306_bae9c4517a2e278f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccess = Hamilton_Tilt_Clamp_Module::Initialize(arrintPortNumbers.ElementAt( intSelectedIndex -1), strModuleName, blnSimulationMode, blnCommunicationTrace, intDeviceID);
+// }} ""
+// {{{ 25 1 0 "1f6c604c_0f24_40e8_b20ec05aecc59402" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_HandleFunctionSuccess(blnSuccess, "Initialize");
+// }} ""
+// {{ 26 1 0 "7f120ade_a168_44bd_b299aa4be24f0366" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+_arrIntDeviceIDs.AddAsLast(intDeviceID);
+// }} ""
+// {{{ 27 1 0 "5feef2b7_6f7d_4327_80aa32945db7baba" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccess = Hamilton_Tilt_Clamp_Module::SetTraceLevel(intDeviceID, intTraceLevel);
+// }} ""
+// {{{ 28 1 0 "fd859863_08cc_440d_94e9a7ea61e62792" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_HandleFunctionSuccess(blnSuccess, "SetTraceLevel");
+// }} ""
+// {{ 29 1 0 "0119407c_258e_4236_8e03d997dc40ec38" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+blnGoOnEnabled = ASWGLOBAL::BOOL::TRUE;
+// }} ""
+// {{ 30 1 0 "c6481543_fc6f_4c91_a4ce25249b7b534e" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 31 1 0 "2179009f_8ab0_4427_8af508a912a8acdd" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 32 1 0 "55e9913e_837f_4437_9bb7bb77341483b8" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 33 1 0 "366cd173_6ee8_4083_b15f58e011ffbdb9" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+while (ASWGLOBAL::BOOL::TRUE == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{ 34 1 0 "c1c54ac3_cfb1_4717_9218b8f6974a3f81" "{998A7CCC-4374-484D-A6ED-E8A4F0EB71BA}"
+customDialog2BC29DADCE314c5893A8DD85FF014CAF.InitCustomDialog( "c1c54ac3_cfb1_4717_9218b8f6974a3f81" );
+customDialog2BC29DADCE314c5893A8DD85FF014CAF.SetCustomDialogArrayProperty( "comboBox1.ItemsSource", _arrIntDeviceIDs );
+customDialog2BC29DADCE314c5893A8DD85FF014CAF.SetCustomDialogProperty( "Title", strDialogTitle );
+customDialog2BC29DADCE314c5893A8DD85FF014CAF.SetCustomDialogProperty( "btnCustomDialogGoOn.IsEnabled", blnGoOnEnabled );
+customDialog2BC29DADCE314c5893A8DD85FF014CAF.ShowCustomDialog();
+intDialogReturn = customDialog2BC29DADCE314c5893A8DD85FF014CAF.GetCustomDialogProperty( "ReturnValue" );
+intSelectedIndex = customDialog2BC29DADCE314c5893A8DD85FF014CAF.GetCustomDialogProperty( "comboBox1.SelectedIndex" );
+blnOpenClamp = customDialog2BC29DADCE314c5893A8DD85FF014CAF.GetCustomDialogProperty( "radioButton2.IsChecked" );
+blnCloseClamp = customDialog2BC29DADCE314c5893A8DD85FF014CAF.GetCustomDialogProperty( "radioButton3.IsChecked" );
+blnTilt = customDialog2BC29DADCE314c5893A8DD85FF014CAF.GetCustomDialogProperty( "radioButton4.IsChecked" );
+blnSway = customDialog2BC29DADCE314c5893A8DD85FF014CAF.GetCustomDialogProperty( "radioButton5.IsChecked" );
+// }} ""
+// {{{ 35 1 0 "096dd98d_997d_4687_8d2f79843a292a2e" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_HandleDialogResult(intDialogReturn, "Select Task");
+// }} ""
+// {{ 36 1 0 "1e60dde0_06c7_4e5d_888586d48af0368c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intDialogReturn == ASWGLOBAL::DIALOG::IGNORE)
+{
+// }} ""
+// {{ 37 1 0 "5dd35bad_8484_42b7_b9f15cee04ac2681" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 38 1 0 "1e60dde0_06c7_4e5d_888586d48af0368c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 39 1 0 "03c9d843_3d7c_4199_984f5d88d777f525" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intDeviceID = _arrIntDeviceIDs.ElementAt( intSelectedIndex -1);
+// }} ""
+// {{ 40 1 0 "254675d0_a365_4b80_b73ec95e6ca2fa2a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnOpenClamp == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 41 1 0 "3cb1d67c_a2ce_4e3f_ab2f2b836bdbc441" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccess = Hamilton_Tilt_Clamp_Module::ClampOpen(intDeviceID);
+// }} ""
+// {{{ 42 1 0 "5dfec58b_c6be_44af_9dd9f288443d77d5" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_HandleFunctionSuccess(blnSuccess, "ClampOpen");
+// }} ""
+// {{ 43 1 0 "254675d0_a365_4b80_b73ec95e6ca2fa2a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 44 1 0 "2e2e092b_7154_42a2_b38c612d8cdde4a3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnCloseClamp == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 45 1 0 "88616ded_db72_4d58_9564121e5076117c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccess = Hamilton_Tilt_Clamp_Module::ClampClose(intDeviceID);
+// }} ""
+// {{{ 46 1 0 "b983d9b6_902f_43e5_bbb0cee290c84367" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_HandleFunctionSuccess(blnSuccess, "ClampClose");
+// }} ""
+// {{ 47 1 0 "2e2e092b_7154_42a2_b38c612d8cdde4a3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 48 1 0 "59529f85_8d6b_418f_a7acbe6d86e087ac" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnTilt == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{ 49 1 0 "0e400142_873f_4228_9d034a95196eec19" "{998A7CCC-4374-484D-A6ED-E8A4F0EB71BA}"
+customDialogC87422E7DD624edf910DE29C19C07A94.InitCustomDialog( "0e400142_873f_4228_9d034a95196eec19" );
+customDialogC87422E7DD624edf910DE29C19C07A94.SetCustomDialogProperty( "Title", strDialogTitle );
+customDialogC87422E7DD624edf910DE29C19C07A94.SetCustomDialogProperty( "numeric1.Value", intSpeed );
+customDialogC87422E7DD624edf910DE29C19C07A94.SetCustomDialogProperty( "numeric2.Value", intAngle );
+customDialogC87422E7DD624edf910DE29C19C07A94.SetCustomDialogProperty( "btnCustomDialogGoOn.IsEnabled", blnGoOnEnabled );
+customDialogC87422E7DD624edf910DE29C19C07A94.ShowCustomDialog();
+intDialogReturn = customDialogC87422E7DD624edf910DE29C19C07A94.GetCustomDialogProperty( "ReturnValue" );
+intSpeed = customDialogC87422E7DD624edf910DE29C19C07A94.GetCustomDialogProperty( "numeric1.Value" );
+intAngle = customDialogC87422E7DD624edf910DE29C19C07A94.GetCustomDialogProperty( "numeric2.Value" );
+// }} ""
+// {{{ 50 1 0 "1066e9ef_bbcf_46c9_ad2b14f3bc1842c7" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_HandleDialogResult(blnSuccess, Translate("Tilt"));
+// }} ""
+// {{ 51 1 0 "a61dde28_d69c_4bbb_959a7917be690676" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intDialogReturn == ASWGLOBAL::DIALOG::OK)
+{
+// }} ""
+// {{{ 52 1 0 "d09b7e09_1b7a_4dd5_abb93f66ac652643" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccess = Hamilton_Tilt_Clamp_Module::Tilt(intDeviceID, intSpeed, intAngle);
+// }} ""
+// {{{ 53 1 0 "c46a5433_0c05_4dab_ba703382eb263ca6" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_HandleFunctionSuccess(blnSuccess, "Tilt");
+// }} ""
+// {{ 54 1 0 "a61dde28_d69c_4bbb_959a7917be690676" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 55 1 0 "59529f85_8d6b_418f_a7acbe6d86e087ac" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 56 1 0 "afc93488_480b_45fa_9693615e989f3493" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSway == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{ 57 1 0 "643616ff_c2ac_409d_bc7bf2522ca9d9dd" "{998A7CCC-4374-484D-A6ED-E8A4F0EB71BA}"
+customDialogB50F0DA8F1D84613BF2052F459C67CC9.InitCustomDialog( "643616ff_c2ac_409d_bc7bf2522ca9d9dd" );
+customDialogB50F0DA8F1D84613BF2052F459C67CC9.SetCustomDialogProperty( "Title", strDialogTitle );
+customDialogB50F0DA8F1D84613BF2052F459C67CC9.SetCustomDialogProperty( "btnCustomDialogGoOn.IsEnabled", blnGoOnEnabled );
+customDialogB50F0DA8F1D84613BF2052F459C67CC9.ShowCustomDialog();
+intDialogReturn = customDialogB50F0DA8F1D84613BF2052F459C67CC9.GetCustomDialogProperty( "ReturnValue" );
+intCycles = customDialogB50F0DA8F1D84613BF2052F459C67CC9.GetCustomDialogProperty( "numeric1.Value" );
+intSpeed = customDialogB50F0DA8F1D84613BF2052F459C67CC9.GetCustomDialogProperty( "numeric2.Value" );
+intStartAngle = customDialogB50F0DA8F1D84613BF2052F459C67CC9.GetCustomDialogProperty( "numeric3.Value" );
+intSwayAngle = customDialogB50F0DA8F1D84613BF2052F459C67CC9.GetCustomDialogProperty( "numeric4.Value" );
+intEndAngle = customDialogB50F0DA8F1D84613BF2052F459C67CC9.GetCustomDialogProperty( "numeric5.Value" );
+// }} ""
+// {{{ 58 1 0 "0ee85421_6e11_410c_9ce9bc79607f2c1f" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_HandleDialogResult(blnSuccess, Translate("Sway"));
+// }} ""
+// {{ 59 1 0 "8582c1a0_655f_451b_b4d62fbfc9f9ec4b" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intDialogReturn == ASWGLOBAL::DIALOG::OK)
+{
+// }} ""
+// {{{ 60 1 0 "ccdcaa49_ebaa_4d07_b6c54e8e155877a2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccess = Hamilton_Tilt_Clamp_Module::Sway(intDeviceID, intCycles, intSpeed, intStartAngle, intSwayAngle, intEndAngle);
+// }} ""
+// {{{ 61 1 0 "3859583a_3012_421c_9f4352a4e61d6e44" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_HandleFunctionSuccess(blnSuccess, "Sway");
+// }} ""
+// {{ 62 1 0 "8582c1a0_655f_451b_b4d62fbfc9f9ec4b" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 63 1 0 "afc93488_480b_45fa_9693615e989f3493" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 64 1 0 "366cd173_6ee8_4083_b15f58e011ffbdb9" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 65 1 0 "55e9913e_837f_4437_9bb7bb77341483b8" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 66 1 0 "a3c4a7aa_de7f_48f3_aa3482a7b1d68556" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 67 1 0 "5b22c479_3f18_4c99_9f9d0dc0030afad4" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_Terminate();
+// }} ""
+// {{ 68 1 0 "a3c4a7aa_de7f_48f3_aa3482a7b1d68556" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=Hamilton$$valid=0$$time=2023-12-19 15:19$$checksum=a3de9914$$length=087$$

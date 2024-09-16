@@ -1,0 +1,18 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 06/04/2011 14:34:39
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace IF_AND_IF_OR {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function If_And( variable iVar1, variable iVar2, variable iVar3, variable iVar4 ) variable {  return (0); }
+function If_Or( variable iVar1, variable iVar2, variable iVar3, variable iVar4 ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Administrator$$valid=0$$time=2011-04-06 14:34$$checksum=b5eb008a$$length=090$$

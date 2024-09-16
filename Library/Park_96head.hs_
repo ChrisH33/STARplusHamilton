@@ -1,0 +1,18 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 15/08/2011 11:42:38
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace PARK_96HEAD {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function move_COREII_96head_to_front( device & ML_STAR ) void { }
+function move_COREii_96head_to_back( device & ML_STAR ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Hamilton$$valid=0$$time=2011-08-15 11:42$$checksum=6b1fc506$$length=085$$

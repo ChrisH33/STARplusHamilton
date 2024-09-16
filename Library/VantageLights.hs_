@@ -1,0 +1,24 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 6/18/2021 1:22:22 PM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace VANTAGELIGHTS {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function LightMode( device & ML_STAR, variable i_intLightState ) void { }
+function LightOnGreen( device & ML_STAR, variable i_int_Intensity ) void { }
+function LightsOff( device & ML_STAR ) void { }
+function LightsOn( device & ML_STAR, variable i_int_Intensity ) void { }
+function LightsOnBlue( device & ML_STAR, variable i_int_Intensity ) void { }
+function LightsOnCustom( device & ML_STAR, variable i_int_PercentWhite, variable i_int_PercentRed, variable i_int_PercentGreen, variable i_int_PercentBlue ) void { }
+function LightsOnRed( device & ML_STAR, variable i_int_Intensity ) void { }
+function LightsOnWhite( device & ML_STAR, variable i_int_Intensity ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Bare_B$$valid=0$$time=2021-06-18 13:22$$checksum=6cb9784c$$length=083$$

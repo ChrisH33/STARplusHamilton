@@ -1,0 +1,22 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 27/10/2016 14:09:28
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace NTR384DIRECTUSE {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function discard_empty_racks( device & ML_STAR, sequence & tip_sequence, sequence & tiprack_sequence, sequence & tiprack_waste_sequence, variable CORE_after ) void { }
+function discard_empty_racks_96format( device & ML_STAR, sequence & tip_sequence, sequence & tiprack_sequence, sequence & tiprack_waste_sequence, variable CORE_after ) void { }
+function gettips_384head( device & ML_STAR, sequence & tip_sequence, sequence & tiprack_sequence, sequence & tiprack_waste_sequence, variable tipcounter_name, variable CORE_after, variable seq_inc_flag ) void { }
+function gettips_384head_96format( device & ML_STAR, sequence & tip_sequence, sequence & tiprack_sequence, sequence & tiprack_waste_sequence, variable tipcounter_name, variable CORE_after, variable seq_inc_flag ) void { }
+function load_GUI( device & ML_STAR, sequence & tip_sequence, sequence & tiprack_sequence, variable description_of_position, variable tip_needed, variable tipcounter_name ) void { }
+function load_GUI_96format( device & ML_STAR, sequence & tip_sequence, sequence & tiprack_sequence, variable description_of_position, variable tip_needed, variable tipcounter_name ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=automation$$valid=0$$time=2016-10-27 14:09$$checksum=1d8ce1e3$$length=087$$

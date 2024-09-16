@@ -1,0 +1,100 @@
+ namespace _Method { #include "VectorCustomDialogs\\VectorCustomDialogs.hsl" } 
+ namespace _Method { #include "HSLStrLib.hsl" } 
+ namespace _Method { #include "ASWStandard\\TraceLevel\\TraceLevel.hsl" } 
+ namespace _Method { #include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl" } 
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable strReultSelected;
+variable strReagentList;
+variable ListSelectLoopCounter;
+variable arrList[];
+variable blnSuccessfulExecuted;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{{ 1 1 0 "c2cc7eb4_6cc3_462f_ba78234ddd68f83b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::SetTraceLevel(TRACE_LEVEL_DEBUG);
+// }} ""
+// {{{ 2 1 0 "cb92dd62_fe77_426a_a4cd267edd1c871e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::Initialize();
+// }} ""
+// {{ 3 1 0 "f2df5a66_cb75_4007_a62bbe5dcdfae140" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 4 1 0 "df830435_561b_42f0_b557401797fdfb4b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'Initialize' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 5 1 0 "8ffc313f_e354_4345_9eeabbaf45367288" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 6 1 0 "f2df5a66_cb75_4007_a62bbe5dcdfae140" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 7 1 0 "fb7f4b92_bf0e_44a5_9edac016d8f380f1" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(ListSelectLoopCounter = 0; ListSelectLoopCounter < 32;)
+{
+ListSelectLoopCounter = ListSelectLoopCounter + 1;
+// }} ""
+// {{{ 8 1 0 "0ce70e03_26c7_487b_9350517db6dd7d54" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strReagentList = StrConcat2(Translate("Reagent "), ListSelectLoopCounter);
+// }} ""
+// {{ 9 1 0 "d0ef55ae_a833_48d7_81389a85a6baa058" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrList.AddAsLast(strReagentList);
+// }} ""
+// {{ 10 1 0 "fb7f4b92_bf0e_44a5_9edac016d8f380f1" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 11 1 0 "c5c55788_8dc4_4001_89863695f646c0cf" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::ListSelectDialog(Translate("Reagent selection"), VectorCustomDialogs::ButtonType::OkCancel, 900, 200, Translate("Please select a Reagent to execute"), Translate("Press 'ok' to continue"), arrList, strReultSelected);
+// }} ""
+// {{ 12 1 0 "852f7101_450f_413e_bf757d715bef09ac" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 13 1 0 "b11e5fe4_59ba_4bf3_8e2b046cd1694fc4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'ListSelectDialog' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 14 1 0 "990c3f38_b331_4e05_b2869fc76f54e1b7" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 15 1 0 "852f7101_450f_413e_bf757d715bef09ac" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 16 1 0 "ceedbd86_4a01_40d9_8ede1127448f42a3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+blnSuccessfulExecuted = VectorCustomDialogs::Terminate();
+// }} ""
+// {{ 17 1 0 "f4c58342_8929_41f9_a566030cb3944d1a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (blnSuccessfulExecuted != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 18 1 0 "4c120d9b_c8b6_419b_b345767804e9ce50" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_DEBUG, "error: The function 'Terminate' is failed!", "", "", Translate(""));
+// }} ""
+// {{ 19 1 0 "0f051f38_faa5_422c_b1924d77acdc45ad" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 20 1 0 "f4c58342_8929_41f9_a566030cb3944d1a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=MKnopp$$valid=0$$time=2019-08-06 10:49$$checksum=7a0761cd$$length=085$$

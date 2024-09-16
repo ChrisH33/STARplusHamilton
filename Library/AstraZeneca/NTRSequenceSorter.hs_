@@ -1,0 +1,17 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 16/12/2021 10:31:53
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace NTRSEQUENCESORTER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Sorting( sequence & io_seqPipetting, variable & io_arrVolumes[] ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=kdtr696$$valid=0$$time=2021-12-16 10:31$$checksum=e90100ad$$length=084$$

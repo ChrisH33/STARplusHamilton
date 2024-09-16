@@ -1,0 +1,252 @@
+ namespace _Method { #include "HSLStrLib.hsl" } 
+ namespace _Method { #include "HSLTrcLib.hsl" } 
+ namespace _Method { #include "HSLUtilLib2.hsl" } 
+ namespace _Method { #include "load_instructions.hs_" } 
+ namespace _Method { #include "load_instructions_tracking.hs_" } 
+#include "Load instructions demo method.res"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable plate_BC;
+variable load_message;
+variable plate_name;
+variable tips_needed;
+variable tube_name_array[];
+variable sample_tube_name_array[];
+global device ML_STAR ("Load instructions demo method.lay", "ML_STAR", hslTrue);
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+ namespace _Method { #include "HSLPTLLib.hsl" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+LOAD_INSTRUCTIONS::_InitLibrary();
+LOAD_INSTRUCTIONS_TRACKING::_InitLibrary();
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{ 1 1 0 "9448dd7b_9196_4ab0_883e7e0e98d72117" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("PA = Pipetting Channel\nAA = Save parameter value of parameter @@\nts# = mode for additional shaking for tip discard (0 = off, 1 = on)"));
+// }} ""
+// {{ 2 1 0 "a4723106_593b_4f7f_b5787b6d6920bafc" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("a4723106_593b_4f7f_b5787b6d6920bafc"); // FirmwareCommand
+}
+// }} ""
+// {{ 3 1 0 "1cbf3256_559c_43a2_941292191d78be21" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("zp### = PWM limiter Z drive for searching discard position"));
+// }} ""
+// {{ 4 1 0 "3c144377_0314_42f7_9416ccbb5ff0d9b2" "ML_STAR:{1FB5DA01-3ACB-11d4-AE1F-0004ACB1DCB2}"
+{
+	variable arrRetValues[];
+	arrRetValues = ML_STAR._1FB5DA01_3ACB_11d4_AE1F_0004ACB1DCB2("3c144377_0314_42f7_9416ccbb5ff0d9b2"); // FirmwareCommand
+}
+// }} ""
+// {{ 5 1 0 "2db1f525_161e_4788_bc9488418b4eb82d" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 6 1 0 "365de3b4_4632_4faf_8a80beb01da153b5" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n\n                                                                                                                Example 1 (no tracking)\n----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"));
+// }} ""
+// {{ 7 1 0 "d1b4c4d4_535b_4554_adbbdcb36c2d2eb1" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 8 1 0 "34a9a110_6a9d_499a_935a8a7b475866a6" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+plate_BC = Translate("AB1234");
+// }} ""
+// {{{ 9 1 0 "8610770e_50a1_498c_b901e3177ccb1065" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+load_message = StrConcat4(Translate("Load a 96 well  plate with barcode "), plate_BC, Translate(" in the flashing position"), Translate(""));
+// }} ""
+// {{{ 10 1 0 "60781048_bff5_4879_838329ee189f903a" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LOAD_INSTRUCTIONS::load_instructions(ML_STAR, ML_STAR.Plate_1, load_message);
+// }} ""
+// {{ 11 1 0 "d1b4c4d4_535b_4554_adbbdcb36c2d2eb1" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 12 1 0 "48404add_d57a_4781_bedc5908931f7ef3" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n\n                                                                                                                Example 2 (no tracking)\n\n----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"));
+// }} ""
+// {{ 13 1 0 "66391df6_2f91_460d_855a1f11c9dabaef" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 14 1 0 "cf76bdd9_1d2e_4073_8f205675e8534d1b" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LOAD_INSTRUCTIONS::load_instructions_one_seq_pos(ML_STAR, ML_STAR.tube_carrier_24_pos_1, 3, Translate("Load an empty 1.5 ml Eppendorf in the flashing position"));
+// }} ""
+// {{ 15 1 0 "66391df6_2f91_460d_855a1f11c9dabaef" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 16 1 0 "4347d706_b7ea_4d73_9941bb1aafc0320d" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n\n                                                                                                                Example 3\n\n----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"));
+// }} ""
+// {{ 17 1 0 "ccd6fd16_6d6b_49be_9a91a9381cc276a8" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 18 1 0 "408c1211_5c5c_41b1_aa802c354b92f28b" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+load_message = Translate("Load a 96 well plate in the flashing position");
+// }} ""
+// {{{ 19 1 0 "a1c9708b_01a2_4c90_a52293e5fd03d7eb" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LOAD_INSTRUCTIONS::load_instructions_return_double_checked_plate_name(ML_STAR, ML_STAR.Plate_2, load_message, plate_name);
+// }} ""
+// {{{ 20 1 0 "646e3c86_769c_4425_8e7c0030d6753ff3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("Returned plate name is "), plate_name);
+// }} ""
+// {{ 21 1 0 "06f1f961_cf58_447a_8d16b88cb4f7256a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 22 1 0 "a213425a_29f7_4bf6_b7092957cd4a5cdd" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LOAD_INSTRUCTIONS_TRACKING::track_plate_name(ML_STAR, ML_STAR.Plate_2, plate_name, 1);
+// }} ""
+// {{ 23 1 0 "ccd6fd16_6d6b_49be_9a91a9381cc276a8" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 24 1 0 "05bb4cf9_2a21_455b_a2454734b1cfd020" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n\n                                                                                                                Example 4\n\n----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"));
+// }} ""
+// {{ 25 1 0 "604c5125_807b_4b33_8cbc9bc4c5d2f45e" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 26 1 0 "2c4776a5_2bff_4100_9c3deafd2a24a0d4" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+load_message = Translate("Load a 96 well plate in the flashing position");
+// }} ""
+// {{{ 27 1 0 "963a63ed_fbcd_48ea_8287c7a4aa2dafc9" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LOAD_INSTRUCTIONS::load_instructions_return_double_checked_plate_name_using_password_box(ML_STAR, ML_STAR.Plate_3, load_message, plate_name);
+// }} ""
+// {{{ 28 1 0 "2514ccc4_5864_4634_90225faade2699fb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TrcTrace(Translate("Returned plate name is "), plate_name);
+// }} ""
+// {{ 29 1 0 "4db23f33_f0b3_47bc_aae8ccdd63eaac89" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 30 1 0 "37e398cb_6546_441e_a82464092bf476ae" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LOAD_INSTRUCTIONS_TRACKING::track_plate_name(ML_STAR, ML_STAR.Plate_3, plate_name, 0);
+// }} ""
+// {{ 31 1 0 "604c5125_807b_4b33_8cbc9bc4c5d2f45e" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 32 1 0 "8fd24592_2757_4320_b272b798e2cc281b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n\n                                                                                                                Example 5\n\n----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"));
+// }} ""
+// {{ 33 1 0 "881e3f58_e5db_43d9_9a109b7c9c81d04e" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 34 1 0 "1d2ce8ff_a9e0_4fb6_b7719de640406982" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+load_message = Translate("Load a tube in the flashing position");
+// }} ""
+// {{{ 35 1 0 "e3270f80_0b82_47be_99c925f2ecce6982" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LOAD_INSTRUCTIONS::load_instructions_return_double_checked_tube_name_array(ML_STAR, ML_STAR.tube_carrier_24_pos_1, load_message, tube_name_array);
+// }} ""
+// {{{ 36 1 0 "ee4a8b40_84b3_4046_84bc72561c174861" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+Util2::Debug::TraceArray(Translate("Tube name array "), tube_name_array);
+// }} ""
+// {{ 37 1 0 "177b5159_b3f1_4804_bf04eb0f9abd30ac" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 38 1 0 "1dda0f6f_ad46_47f0_bbda2270a3f51d2f" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LOAD_INSTRUCTIONS_TRACKING::track_tube_names(ML_STAR, ML_STAR.tube_carrier_24_pos_1, tube_name_array);
+// }} ""
+// {{ 39 1 0 "881e3f58_e5db_43d9_9a109b7c9c81d04e" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 40 1 0 "57b84d63_a078_44c9_97357d5b3fc6c3f0" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n\n                                                                                                                Example 6\n\n----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"));
+// }} ""
+// {{ 41 1 0 "5f4daefa_f90f_4bdd_b2a2def2392269bd" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 42 1 0 "5dbad2e9_de1c_4c31_b0ec0fdefe5f237a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+load_message = Translate("Load a tube in the flashing position");
+// }} ""
+// {{{ 43 1 0 "c981d020_9a07_4ec0_8f33cadf60ccbf01" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LOAD_INSTRUCTIONS::load_instructions_return_double_checked_tube_name_array_using_password_box(ML_STAR, ML_STAR.tube_carrier_24_pos_1, load_message, tube_name_array);
+// }} ""
+// {{{ 44 1 0 "5337d915_cc8e_4db1_8847ad3e0129b21d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+Util2::Debug::TraceArray(Translate("Tube name array "), tube_name_array);
+// }} ""
+// {{ 45 1 0 "b631e07e_141d_4c5f_b693faaf46c5f2bc" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 46 1 0 "671fcb8e_b467_4914_a9778f1fb702bd6e" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LOAD_INSTRUCTIONS_TRACKING::track_tube_names(ML_STAR, ML_STAR.tube_carrier_24_pos_1, tube_name_array);
+// }} ""
+// {{ 47 1 0 "5f4daefa_f90f_4bdd_b2a2def2392269bd" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 48 1 0 "6bf2736c_c5c7_4a31_88061aca9d6508a2" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n\n                                                                                                                Example 7 (no tracking)\n\n----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"));
+// }} ""
+// {{ 49 1 0 "91fce8f4_a1ef_4c00_9d45eb087defe902" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 50 1 0 "b9447e55_7dc8_4e61_bbbe00cb395d517f" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+tips_needed = 96;
+// }} ""
+// {{{ 51 1 0 "12bd9111_6bbc_4060_8cff389be4dad6d0" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LOAD_INSTRUCTIONS::load_instructions_tips(ML_STAR, ML_STAR.MlStar50ulTip, 50, tips_needed, Translate("50ultipcounter"), 0);
+// }} ""
+// {{{ 52 1 0 "baf5da0d_b894_4dbb_9c3961daaaa6379f" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LOAD_INSTRUCTIONS::load_instructions_tips(ML_STAR, ML_STAR.MlStar300ulStandardVolumeTipWithFilter, 300, tips_needed, Translate("300ulfiltertipcounter"), 1);
+// }} ""
+// {{ 53 1 0 "91fce8f4_a1ef_4c00_9d45eb087defe902" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 54 1 0 "ff3980b1_a565_4595_bea028ceb263a138" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n\n                                                                                                                Example 8\n\n----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"));
+// }} ""
+// {{ 55 1 0 "6b07c716_218e_454a_b1986e3e87993abc" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 56 1 0 "98db5ff8_3e17_402b_9e5324ae7e4e891c" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+sample_tube_name_array.SetSize(0);
+// }} ""
+// {{ 57 1 0 "81d338d0_c4a4_4bd1_a91da82db3e6c8fd" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+sample_tube_name_array.AddAsLast(Translate("Sample 1"));
+// }} ""
+// {{ 58 1 0 "6839470b_4b7f_4230_a9c8f6ece9f0357e" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+sample_tube_name_array.AddAsLast(Translate("Sample 2"));
+// }} ""
+// {{ 59 1 0 "e47fa82b_2af3_4b62_ab1f4808458d1a72" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+sample_tube_name_array.AddAsLast(Translate("Sample 3"));
+// }} ""
+// {{ 60 1 0 "03fbf498_5366_4cdf_8256d7a1c04839c8" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+sample_tube_name_array.AddAsLast(Translate("Sample 4"));
+// }} ""
+// {{{ 61 1 0 "e86b7ec2_208b_4d5e_a5a2649743a35480" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LOAD_INSTRUCTIONS::load_instructions_tube_IDs_from_array(ML_STAR, ML_STAR.tube_carrier_24_pos_1, sample_tube_name_array);
+// }} ""
+// {{ 62 1 0 "335db7fa_4d1d_46c4_a6539de6b25286ba" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 63 1 0 "15be9298_e675_4234_a211f746802d18d5" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LOAD_INSTRUCTIONS_TRACKING::track_tube_names(ML_STAR, ML_STAR.tube_carrier_24_pos_1, sample_tube_name_array);
+// }} ""
+// {{ 64 1 0 "6b07c716_218e_454a_b1986e3e87993abc" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+LOAD_INSTRUCTIONS::_ExitLibrary();
+LOAD_INSTRUCTIONS_TRACKING::_ExitLibrary();
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=ch33$$valid=0$$time=2022-12-13 17:38$$checksum=ca67f0a8$$length=083$$

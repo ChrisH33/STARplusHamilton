@@ -1,0 +1,111 @@
+ namespace _Method { #include "ASWStandard\\TraceLevel\\TraceLevel.hsl" } 
+ namespace _Method { #include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl" } 
+ namespace _Method { #include "HSL Sias Centrifuge\\SiasCentrifuge.hs_" } 
+ namespace _Method { #include "HSL Sias Centrifuge\\HSLSiasCentrifugeEnums.hsl" } 
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable strModuleName;
+variable intReturnValue;
+variable intModuleID;
+dialog dialogHandleF251787C0FD6410e9EB0124C0F0B03D0;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+SIASCENTRIFUGE::_InitLibrary();
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{ 1 1 0 "bf34d970_6f14_4a24_a204a0ff21a1ee8a" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 2 1 0 "4cff249a_f449_4ecb_87fa7e932a6699cc" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intModuleID = 121;
+// }} ""
+// {{ 3 1 0 "eac8cb0c_48f4_40c1_b6f0f480c99bc10b" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strModuleName = "HolaCentrifuge";
+// }} ""
+// {{ 4 1 0 "d985d948_6c10_4c51_a0c90a2e4619d77e" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intReturnValue = 0;
+// }} ""
+// {{ 5 1 0 "bf34d970_6f14_4a24_a204a0ff21a1ee8a" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 6 1 0 "9ec0ecd5_8980_4a48_9837c92c472a41d8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::SetTraceLevel(TRACE_LEVEL_DEBUG);
+// }} ""
+// {{{ 7 1 0 "7bc7c212_faac_4099_9f97d40c9d58ba0c" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+intReturnValue = SIASCENTRIFUGE::Initialize(intModuleID, strModuleName, HSLSiasCentrifuge::Enums::ErrorRecovery::Retry);
+// }} ""
+// {{ 8 1 0 "357e1b78_9699_474f_909947b3993b04e3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intReturnValue != HSLSiasCentrifuge::Enums::ErrorCode::None)
+{
+// }} ""
+// {{ 9 1 0 "86b60b8c_1459_450d_a5485380c87fc6df" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 10 1 0 "357e1b78_9699_474f_909947b3993b04e3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 11 1 0 "a76fc7d9_4127_4795_b9abaf00d3ada4a8" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+intReturnValue = SIASCENTRIFUGE::MoveToPosition(intModuleID, 3, HSLSiasCentrifuge::Enums::ErrorRecovery::Retry);
+// }} ""
+// {{ 12 1 0 "900ad591_a498_47a5_ab89e5e4fd790686" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intReturnValue != HSLSiasCentrifuge::Enums::ErrorCode::None)
+{
+// }} ""
+// {{ 13 1 0 "5bc33ce6_6bcb_413d_9cfc7aaf5d1c6025" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 14 1 0 "900ad591_a498_47a5_ab89e5e4fd790686" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 15 1 0 "dfe33717_5457_4ec4_9b29bda5c6c9d0e4" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleF251787C0FD6410e9EB0124C0F0B03D0.SetOutput(Translate("Position 3 open. Press ok to continue"));
+dialogHandleF251787C0FD6410e9EB0124C0F0B03D0.ShowOutput(Translate("Sias Centrifuge"), hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{{ 16 1 0 "1f45d5ff_66be_4f8e_ba45adfb4bfd4265" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+intReturnValue = SIASCENTRIFUGE::CloseDoor(intModuleID, HSLSiasCentrifuge::Enums::ErrorRecovery::Retry);
+// }} ""
+// {{ 17 1 0 "0e2010ee_6223_4b24_ab76dc9e79b76244" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intReturnValue != HSLSiasCentrifuge::Enums::ErrorCode::None)
+{
+// }} ""
+// {{ 18 1 0 "391840f6_5fc1_40d6_b519db0974a85ef3" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 19 1 0 "0e2010ee_6223_4b24_ab76dc9e79b76244" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 20 1 0 "3618dc63_c0ec_44de_8b9186aa76eca50b" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+intReturnValue = SIASCENTRIFUGE::Spin(intModuleID, 60, 1500, 200, HSLSiasCentrifuge::Enums::ErrorRecovery::None);
+// }} ""
+// {{ 21 1 0 "fa057b63_9b50_4788_9a2694a442910126" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intReturnValue != HSLSiasCentrifuge::Enums::ErrorCode::None)
+{
+// }} ""
+// {{ 22 1 0 "672ed4ea_e798_47a6_97021eef22ff3500" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 23 1 0 "fa057b63_9b50_4788_9a2694a442910126" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 24 1 0 "25a2345b_4765_480c_821b88bbbdf23ccb" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+SIASCENTRIFUGE::Terminate(intModuleID);
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+SIASCENTRIFUGE::_ExitLibrary();
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=DWittmer$$valid=0$$time=2011-06-08 14:28$$checksum=85698633$$length=087$$

@@ -1,0 +1,31 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 21/12/2018 13:04:21
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace STXCAROUSELMANAGER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function ClearDBData(  ) void { }
+function GetBarcodedPlate( variable iBarcode, variable iRemovePlateFromExperiment ) void { }
+function GetNewPlateFromPartition( variable iPartition, variable iRemovePlateFromExperiment ) variable {  return (0); }
+function GetPlateNoBarcode( variable iCassette, variable iShelf, variable iRemoveFromExperiment, variable & oBarcode ) void { }
+function InitializeCarousel(  ) void { }
+function InventoryCarousel(  ) void { }
+function InventoryCarousel_Partial( variable Partition ) variable {  return (0); }
+function InventoryCarousel_PartialVariableDelay( variable Partition, variable PartitionTime ) variable {  return (0); }
+function StoreNewPlate( variable iBarcode, variable & oCasette, variable & oShelf ) variable {  return (0); }
+function StoreNewPlateInPartition( variable iBarcode, variable iPartition ) void { }
+function StorePlate( variable iBarcode, variable & oCassette, variable & oShelf ) void { }
+function StorePlateAsInProcess( variable iBarcode, variable & oCassette, variable & oShelf ) void { }
+function StorePlateAsUsed( variable iBarcode, variable & oCassette, variable & oShelf ) void { }
+function TerminateCarousel(  ) void { }
+function UpdateDatabaseFromArrays( variable iStackNumber, variable iPositionInStack, variable iBarcode, variable iPlateOccupancy ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Administrator$$valid=0$$time=2018-12-21 13:04$$checksum=f41eaa87$$length=090$$

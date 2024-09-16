@@ -1,0 +1,43 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 6/27/2022 3:14:43 PM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace HAMILTONHEATERSHAKERCONTROL {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Connect( device & io_MLSTAR, variable i_intHHS, variable i_blnHHSConnectionType ) variable {  return (0); }
+function ConnectAllHHSs( device & io_MLSTAR, variable i_blnHHSConnectionType ) variable {  return (0); }
+function GetAvailableHHS( variable & o_intHHS ) variable {  return (0); }
+function GetHHSBarcode( variable i_intHHS, variable & o_strBarcode ) variable {  return (0); }
+function GetHHSBarcodes( variable & o_arrBarcodes[] ) variable {  return (0); }
+function GetHHSByBarcode( variable i_strBarcode, variable & o_intHHS ) variable {  return (0); }
+function GetHHSDeviceID( variable i_intHHS, variable & o_intHHSDeviceID ) variable {  return (0); }
+function GetHHSNodeID( variable i_intHHS, variable & o_intHHSNodeID ) variable {  return (0); }
+function GetLastError( variable & o_strErrorDescription, variable & o_intLastReturn ) variable {  return (0); }
+function GetTemperature( device & io_MLSTAR, variable i_intHHS, variable & o_fltTemperature ) variable {  return (0); }
+function RampTemperature( variable i_intHHS, variable i_fltTemperature, variable i_fltSlowDownTemp ) variable {  return (0); }
+function ReleaseHHS( variable i_intHHS ) variable {  return (0); }
+function SetErrorHandling( variable i_blnErrorDialog ) variable {  return (0); }
+function SetHHSBarcode( variable i_intHHS, variable i_strBarcode ) variable {  return (0); }
+function SetHHSDeviceID( variable i_intHHS, variable i_intHHSDeviceID ) variable {  return (0); }
+function SetPlateLock( device & io_MLSTAR, variable i_intHHS, variable i_blnHHSPlateLock ) variable {  return (0); }
+function SetSimulation( device & io_MLSTAR, variable i_blnSimulation ) variable {  return (0); }
+function ShakeStart( device & io_MLSTAR, variable i_intHHS, variable i_intHHSShakeSpeed ) variable {  return (0); }
+function ShakeTimed( device & io_MLSTAR, variable i_intHHS, variable i_intHHSShakeSpeed, variable i_intHHSShakeTime, variable i_blnWaitForTime, variable i_blnStoppableTimer ) variable {  return (0); }
+function StartTemperatureControl( device & io_MLSTAR, variable i_intHHS, variable i_fltTemperature, variable i_blnWaitForTemperature ) variable {  return (0); }
+function StopShaker( device & io_MLSTAR, variable i_intHHS ) variable {  return (0); }
+function StopTemperatureControl( device & io_MLSTAR, variable i_intHHS ) variable {  return (0); }
+function TerminateAllHHSs( device & io_MLSTAR ) variable {  return (0); }
+function WaitForShake( device & io_MLSTAR, variable i_intHHS ) variable {  return (0); }
+function WaitForTemperatureControl( variable i_intHHS, variable i_fltTemperature, variable i_intTemperaturePollingFrequency ) variable {  return (0); }
+function _README(  ) void { }
+global variable g_strHHSConfigurationFile("C:\\Program Files (x86)\\HAMILTON\\Library\\Device Sub-method Libraries\\Hamilton\\HamiltonHeaterShaker\\Advanced\\1_0\\Configuration\\hhs.json");
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Hutchens_W$$valid=0$$time=2022-06-27 15:14$$checksum=361cb9a9$$length=087$$

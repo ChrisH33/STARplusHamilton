@@ -1,0 +1,40 @@
+// ======================================================================
+// Interface of the library to control the Microsoft Excel
+//
+// Copyright (C) by HAMILTON Bonaduz AG, CH-7402 Bonaduz.
+// All rights reserved.
+// ======================================================================
+//
+// Modification History
+//		2004-11-15 Joachim Schmid, created
+//		2005-06-07 Joachim Schmid, SetCellValue and SafeFile
+// 
+// ======================================================================
+
+#ifndef __HSLMicrosoftExcel_hsl__
+#define __HSLMicrosoftExcel_hsl__	1
+
+#ifndef HSL_RUNTIME
+namespace MicrosoftExcel
+{
+	function Init() variable{return(0);}
+	function End()  variable{return(0);}
+
+	function SetCellValue(variable Col, variable Row, variable CellValue) variable{return(0);}
+	function GetCellValue(variable Col, variable Row, variable& CellValueOUT) variable{return(0);}
+	function GetSheetCount(variable& NumberOfSheetsOUT) variable{return(0);}
+	function GetSheetName(variable& SheetNameOUT) variable{return(0);}
+
+   function SelectSheet(variable SheetID) variable{return(0);}
+
+	function SafeFile() variable{return(0);}
+	function OpenFile(variable FileName) variable{return(0);}
+}
+#endif	//end edit
+
+#ifdef HSL_RUNTIME
+	//include implementation file
+	#include "HSLMicrosoftExcel.hs_"
+#endif 	//end runtime
+#endif	//end define
+// $$author=jschmid$$valid=0$$time=2005-06-07 06:49$$checksum=f7de974d$$length=084$$

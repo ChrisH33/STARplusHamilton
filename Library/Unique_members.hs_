@@ -1,0 +1,17 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 07/04/2011 10:51:46
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace UNIQUE_MEMBERS {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Unique_members( variable & io_master_array[], variable & o_unique_members_array[], variable i_trace ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Administrator$$valid=0$$time=2011-04-07 10:51$$checksum=825e7ec6$$length=090$$
