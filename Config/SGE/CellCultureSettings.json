@@ -66,14 +66,14 @@
 
     "mediachangeWorkflow": [
         "transportCORE_LoadingToTilt",
-        "pipettingTiltToWaste_20mL",
-        "pipettingMediaToTilt_20mL",
+        "pipettingTiltToWaste",
+        "pipettingMediaToTilt",
         "transportCORE_TiltToLoading",
         "increment_NextSet"
     ],
 
     "dissociationWorkflow": [
-        "pipettingTiltToWaste_20mL",
+        "pipettingTiltToWaste",
         "pipettingTrypLEToTilt_X",
         "transportCORE_TiltToHHS",
         "incubate_Start",

@@ -33,15 +33,11 @@
 #include "WSI\\STARplus_Deck.res"
 /* {{ 2 "LibraryInsertLine" "" */ // }} ""
 variable blnSimMode;
-variable arrWorklist_SourceBarcodes_Unique[];
-variable arrWorklist_DestinationBarcodes_Unique[];
 variable blnTipReload;
 variable strProcessType;
 variable strCurrentRunFolderPath;
 variable intNumberOfSourcePlates;
 variable intNumberOfDestinationPlates;
-variable intMaxSourcePlateNumber;
-variable intMaxDestinationPlateNumber;
 variable arrWorklist_SourceBarcodes[];
 variable arrWorklist_SourceWellIDs[];
 variable arrWorklist_DestinationBarcodes[];
@@ -84,7 +80,8 @@ sequence arrAllSequences[]; // 1. Stacked, 2. Active, 3. Loading, 4. Tilt, 5. HH
 variable intTrace;
 global device ML_STAR ("STARplus_Deck.lay", "ML_STAR", hslTrue);
 variable strDestinationLabwareType;
-variable intNumberOfDestinationPlates;
+sequence arrAllSequences_Source[];
+sequence arrAllSequences_Destination[];
 /* {{ 2 "VariableInsertLine" "" */ // }} ""
 // {{ 2 "TemplateIncludeBlock" ""
  namespace _Method { #include "HSLMETEDLib.hs_" } 
@@ -143,8 +140,8 @@ blnTesting = 1;
 // {{ 5 1 0 "11f17c6d_1972_4b32_88757278a6e1bab8" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
 blnAdmin = 1;
 // }} ""
-// {{ 6 1 0 "27467653_24f8_4afb_97ccdf7665a7c4a6" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
-intTrace = TRACE_LEVEL_RELEASE;
+// {{ 6 1 0 "b579a6c7_bb28_4faf_819626fddc09639d" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intTrace = TRACE_LEVEL_DEBUG;
 // }} ""
 // {{ 7 1 0 "b1f751e8_6e90_463f_8665f7f29af5caf4" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
 
@@ -361,4 +358,4 @@ FINDDBPATH::_ExitLibrary();
 // {{{ 5 "main" "End"
 } }
 // }} ""
-// $$author=Chris$$valid=0$$time=2024-09-15 21:15$$checksum=7fc34342$$length=084$$
+// $$author=ch33$$valid=0$$time=2024-09-16 17:27$$checksum=6ad7b6b3$$length=083$$
