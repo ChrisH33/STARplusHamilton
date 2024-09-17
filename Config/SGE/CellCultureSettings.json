@@ -1,7 +1,10 @@
 {
     "approvedProcessConfig": [
         "mediachange",
-        "testWorkflow"
+        "testWorkflow",
+        "mediaremoval",
+        "mediaaddition",
+        "stackedflaskprep"
     ],
     
     "approvedLabwareConfig": [
@@ -66,56 +69,38 @@
 
     "mediachangeWorkflow": [
         "transportCORE_LoadingToTilt",
-        "pipettingTiltToWaste",
-        "pipettingMediaToTilt",
+        "pipettingTiltToWaste_20mL",
+        "pipettingMediaToTilt_20mL",
         "transportCORE_TiltToLoading",
         "increment_NextSet"
     ],
 
-    "dissociationWorkflow": [
-        "pipettingTiltToWaste",
-        "pipettingTrypLEToTilt_X",
-        "transportCORE_TiltToHHS",
-        "incubate_Start",
-        "incbuate_WaitFor7min",
-        "transportCORE_HHSToTilt",
-        "pipettingMediaToTilt_X",
-        "sway_Start",
-        "sway_WaitFor1Min"
-    ],
-
-    "passage1Workflow": [
+    "mediaremovalWorkflow": [
         "transportCORE_LoadingToTilt",
-        "dissociationWorkflow_10mL",
-        "cellCount",
-        "calculateTransferVolumes",
-        "transportCORE_StorageToTilt",
-        "pipettingMediaToTilt",
-        "pipettingCellToTilt"
+        "pipettingTiltToWaste_20mL",
+        "transportCORE_TiltToLoading",
+        "increment_NextSet"
+    ],
+    
+    "mediaadditionWorkflow": [
+        "transportCORE_LoadingToTilt",
+        "pipettingMediaToTilt_20mL",
+        "transportCORE_TiltToLoading",
+        "increment_NextSet"
     ],
 
     "seedingWorkflow": [
-
+        "transportCORE_StackedToTilt",
+        "pipettingTiltToWaste_1mL",
+        "pipettingMediaToCells_UpTo1mL",
+        "pipettingCellsToTilt_1mL",
+        "transportCORE_TiltToLoading"
     ],
 
-    "passageWorkflow": [
-        "transportCORE_LoadingToTilt",
-
-        "userInput_SplitRatio",
-        "sway_WaitFor1Min",
-        "transportCORE_Tilt2ToHolding",
-        "transportCORE_ActiveToTilt",
-        "pipettingTiltToWaste_User",
-        "pipettingTiltToTilt_User",
-        "pipettingTilt1ToWaste_x",
-        "transportCORE_Tilt1ToWaste",
-        "TransportCORE_Tilt2ToLoading",
-        "transportCORE_HoldingToTilt1",
-        "transportCORE_ActivetoTilt",
-        "pipettingTiltToTilt_User",
-        "pipettingTilt1ToWaste_x",
-        "transportCORE_Tilt1ToWaste",
-        "TransportCORE_Tilt2ToLoading",
+    "stackedflaskprepWorkflow": [
+        "transportCORE_StorageToTilt",
+        "pipettingMediaToTilt_20mL",
+        "transportCORE_TiltToStacked",
         "increment_NextSet"
     ]
 }

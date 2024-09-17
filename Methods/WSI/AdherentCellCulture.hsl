@@ -63,7 +63,6 @@ variable strActiveRequestFolderPath;
 variable devTilt_1;
 variable devTilt_2;
 variable lpCounter1;
-variable strWorklistSourceLabware;
 sequence seqTransport_Stacked;
 sequence seqTransport_Active;
 sequence seqTransport_Tilt;
@@ -358,4 +357,4 @@ FINDDBPATH::_ExitLibrary();
 // {{{ 5 "main" "End"
 } }
 // }} ""
-// $$author=ch33$$valid=0$$time=2024-09-16 17:27$$checksum=6ad7b6b3$$length=083$$
+// $$author=ch33$$valid=0$$time=2024-09-17 17:07$$checksum=517a3d41$$length=083$$
