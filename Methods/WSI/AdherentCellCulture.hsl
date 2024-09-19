@@ -4,13 +4,11 @@
  namespace _Method { #include "WSI\\SangerGeneral.hs_" } 
  namespace _Method { #include "HSLFileDirectoryLib.hsl" } 
  namespace _Method { #include "HSLFilLib.hsl" } 
- namespace _Method { #include "HSLUtilLib2.hsl" } 
  namespace _Method { #include "HSLTimLib.hsl" } 
  namespace _Method { #include "Unique_members.hs_" } 
  namespace _Method { #include "HSLSeqLib.hsl" } 
  namespace _Method { #include "HSLExtensions\\Array.hsl" } 
  namespace _Method { #include "HSLDevLib.hsl" } 
- namespace _Method { #include "HSLDeckVisualize.hsl" } 
  namespace _Method { #include "WSI\\TraceArray.hs_" } 
  namespace _Method { #include "WSI\\SCAP_STARplus.hs_" } 
  namespace _Method { #include "WSI\\UV_STARplus.hs_" } 
@@ -23,14 +21,17 @@
  namespace _Method { #include "WSI\\SangerBarcoding\\HSLBarcodeReader_WSI.hsl" } 
  namespace _Method { #include "Hamilton Tilt Clamp Module\\Hamilton Tilt Clamp Module.hsl" } 
  namespace _Method { #include "VirtualLabware_V2.hsl" } 
+ namespace _Method { #include "WSI\\FindDBPath.hs_" } 
+#include "WSI\\STARplus_Deck.res"
+ namespace _Method { #include "HSLUtilLib2.hsl" } 
+ namespace _Method { #include "HSLDeckVisualize.hsl" } 
  namespace _Method { #include "MLSTARLiquidClassLib.hsl" } 
  namespace _Method { #include "HSLMthLib.hsl" } 
  namespace _Method { #include "ParallelProcessHandling.hs_" } 
  namespace _Method { #include "DataManager\\DataManagerInterface.hs_" } 
  namespace _Method { #include "HSLExtensions\\Array2D.hsl" } 
  namespace _Method { #include "Hamilton Heater Shaker\\HslHamHeaterShakerLib.hsl" } 
- namespace _Method { #include "WSI\\FindDBPath.hs_" } 
-#include "WSI\\STARplus_Deck.res"
+ namespace _Method { #include "HAMILTON\\HSLHamiltonMediaFillModule.hsl" } 
 /* {{ 2 "LibraryInsertLine" "" */ // }} ""
 variable blnSimMode;
 variable blnTipReload;
@@ -81,6 +82,28 @@ global device ML_STAR ("STARplus_Deck.lay", "ML_STAR", hslTrue);
 variable strDestinationLabwareType;
 sequence arrAllSequences_Source[];
 sequence arrAllSequences_Destination[];
+sequence seqTiltPipetting_Source;
+sequence seqTiltPipetting_Destination;
+variable intPointX;
+variable intPointZ;
+variable intAngle;
+variable intOffsetX;
+variable intOffsetZ;
+variable intNewX;
+variable intPrimeX;
+variable intNewZ;
+variable intCentreX;
+variable intPrimeZ;
+variable intCentreZ;
+variable intRotatedX;
+variable intRadian;
+variable intRotatedZ;
+variable intPosZ;
+variable intHingeX;
+variable intDistanceToHingeX;
+variable intHingeZ;
+variable intDistanceToHingeZ;
+variable intPosX;
 /* {{ 2 "VariableInsertLine" "" */ // }} ""
 // {{ 2 "TemplateIncludeBlock" ""
  namespace _Method { #include "HSLMETEDLib.hs_" } 
@@ -119,9 +142,9 @@ UV_STARPLUS::_InitLibrary();
 JSONSEARCH::_InitLibrary();
 LOAD_INSTRUCTIONS::_InitLibrary();
 LOOKUP::_InitLibrary();
+FINDDBPATH::_InitLibrary();
 PARALLELPROCESSHANDLING::_InitLibrary();
 DATAMANAGERINTERFACE::_InitLibrary();
-FINDDBPATH::_InitLibrary();
 ::RegisterAbortHandler( "OnAbort");
 // }} ""
 // {{ 1 1 0 "9857e8e4_fe92_4f03_a23f7d67cd04281b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
@@ -139,8 +162,8 @@ blnTesting = 1;
 // {{ 5 1 0 "11f17c6d_1972_4b32_88757278a6e1bab8" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
 blnAdmin = 1;
 // }} ""
-// {{ 6 1 0 "b579a6c7_bb28_4faf_819626fddc09639d" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
-intTrace = TRACE_LEVEL_DEBUG;
+// {{ 6 1 0 "2d28313c_397c_4a4f_82cc49aefad23312" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intTrace = TRACE_LEVEL_RELEASE;
 // }} ""
 // {{ 7 1 0 "b1f751e8_6e90_463f_8665f7f29af5caf4" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
 
@@ -350,11 +373,11 @@ UV_STARPLUS::_ExitLibrary();
 JSONSEARCH::_ExitLibrary();
 LOAD_INSTRUCTIONS::_ExitLibrary();
 LOOKUP::_ExitLibrary();
+FINDDBPATH::_ExitLibrary();
 PARALLELPROCESSHANDLING::_ExitLibrary();
 DATAMANAGERINTERFACE::_ExitLibrary();
-FINDDBPATH::_ExitLibrary();
 // }} ""
 // {{{ 5 "main" "End"
 } }
 // }} ""
-// $$author=ch33$$valid=0$$time=2024-09-17 17:07$$checksum=517a3d41$$length=083$$
+// $$author=ch33$$valid=0$$time=2024-09-19 09:15$$checksum=bf970496$$length=083$$

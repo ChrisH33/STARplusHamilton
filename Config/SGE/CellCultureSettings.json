@@ -55,6 +55,7 @@
         "kennyTimeout": 2,
         "kennyComport": "COM8",
         "tiltClampComport": 0,
+        "mediaComport": 5
         "scapComport1": 9,
         "scapComport2": 10,
         "hhsCount": 2
