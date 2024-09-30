@@ -2,8 +2,9 @@
 #pragma once
 // }} ""
 #include "HSLFileDirectoryLib.hsl"
-#include "HSLFilLib.hsl"
 #include "HSLStrLib.hsl"
+#include "HSLFilLib.hsl"
+#include "lookup.hs_"
 /* {{ 2 "LibraryInsertLine" "" */ // }} ""
 // {{ 2 "TemplateIncludeBlock" ""
 #include "HSLMETEDLib.hs_"
@@ -18,10 +19,12 @@ function GetFilePaths( variable & o_arrConfigFilePaths[], variable _blnAbort ) v
 // }} ""
 function _InitLibrary() {
 // {{ 2 "AutoInitBlock" ""
+LOOKUP::_InitLibrary();
 // }} ""
 }
 function _ExitLibrary() {
 // {{ 2 "AutoExitBlock" ""
+LOOKUP::_ExitLibrary();
 // }} ""
 }
 // {{{ 5 "GetFilePaths" "Begin"
@@ -32,21 +35,25 @@ private variable _strAccessDBFilePath;
 private variable _loopCounter1;
 private variable _strJSONConfigFilePath;
 private variable _rtnSuccess;
-private variable _strConfigFolderPath;
 private variable _arrConfigFilePaths[];
+private variable _strFilePath;
+private variable loopCounter1;
+private variable _strFolderPath;
+private variable _arrFolders[];
+private variable _intFound;
 // {{ 5 "GetFilePaths" "InitLocals"
 // }} ""
 // {{ 1 1 0 "c6c36c03_b2a1_4c84_a579c4ea703ffa3c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
 
 // }} ""
-// {{{ 2 1 0 "71c445fb_5c6c_4064_9ae547f90dbf7e49" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
-_strConfigFolderPath = FilGetConfigPath();
+// {{{ 2 1 0 "0487147a_da90_4540_b08e630cb1d03861" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strFolderPath = FilGetConfigPath();
 // }} ""
-// {{{ 3 1 0 "20691bad_dce7_408f_ba13aafd05fb27f0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
-_strAccessDBFilePath = StrConcat2(_strConfigFolderPath, Translate("\\SGE\\CellCultureTracking.mdb"));
+// {{{ 3 1 0 "f1e8aae4_bfef_4b7a_b4231fd83957105a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strAccessDBFilePath = StrConcat2(_strFolderPath, Translate("\\SGE\\CellCultureTracking.mdb"));
 // }} ""
-// {{{ 4 1 0 "667ad6c3_2a1d_4394_a60782bb4483800b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
-_strJSONConfigFilePath = StrConcat2(_strConfigFolderPath, Translate("\\SGE\\CellCultureSettings.json"));
+// {{{ 4 1 0 "86cf3aac_51c1_44ef_b6b48234bf07ed3c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strJSONConfigFilePath = StrConcat2(_strFolderPath, Translate("\\SGE\\CellCultureSettings.json"));
 // }} ""
 // {{ 5 1 0 "f1fed796_a479_469c_bc67e04de6e8f481" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
 
@@ -123,4 +130,4 @@ return (1);
 // {{{ 2 "LibraryNamespace" "End"
 } // library namespace
 // }} ""
-// $$author=Chris$$valid=0$$time=2024-09-01 19:42$$checksum=513d9e9c$$length=084$$
+// $$author=ch33$$valid=0$$time=2024-09-25 15:07$$checksum=5ef73b8c$$length=083$$

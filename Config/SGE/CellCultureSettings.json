@@ -4,17 +4,31 @@
         "testWorkflow",
         "mediaremoval",
         "mediaaddition",
-        "stackedflaskprep"
+        "stackedflaskprep",
+        "cellseeding"
     ],
     
-    "approvedLabwareConfig": [
-        "autoflask"
-    ],
+    "fluidxConfig": [{
+        "wellNumber": 96,
+        "labwareConfig": [{
+            "gripHeight": 8,
+            "gripWidth": 79,
+            "gripWidthOpen": 86,
+            "gripForce": 5,
+            "gripSpeed": 277.8,
+            "zSpeedGet": 127.8,
+            "zSpeedPlace": 128.7,
+            "xAcceleration": 1,
+            "platePress": 1,
+            "tolerance": 2
+        }]  
+    }],
 
     "autoflaskConfig": [{
         "wellNumber": 1,
         "pipettingMediaToWasteConfig":[{
             "4mLLC": "4mlTF_Water_DispenseJet_Empty",
+			"1mLLC": "HighVolumeFilter_Water_DispenseJet_Empty",
             "tiltAngle": 10,
             "tiltSpeed": 6,
             "labwareVolume": 20
@@ -55,11 +69,10 @@
         "kennyTimeout": 2,
         "kennyComport": "COM8",
         "tiltClampComport": 0,
-        "mediaComport": 5
+        "mediaComport": 5,
         "scapComport1": 9,
         "scapComport2": 10,
         "hhsCount": 2
-
     }],
     
     "imageFilePath": [{
@@ -76,6 +89,16 @@
         "increment_NextSet"
     ],
 
+    "cellseedingWorkflow": [
+        "transportCORE_StackedToTilt",
+        "pipettingTiltToWaste_1mL",
+        "pipettingMediaToCells_UpTo1mL",
+        "pipettingCellsToTilt_1mL",
+        "transportCORE_TiltToLoading"
+    ],
+
+
+
     "mediaremovalWorkflow": [
         "transportCORE_LoadingToTilt",
         "pipettingTiltToWaste_20mL",
@@ -88,14 +111,6 @@
         "pipettingMediaToTilt_20mL",
         "transportCORE_TiltToLoading",
         "increment_NextSet"
-    ],
-
-    "seedingWorkflow": [
-        "transportCORE_StackedToTilt",
-        "pipettingTiltToWaste_1mL",
-        "pipettingMediaToCells_UpTo1mL",
-        "pipettingCellsToTilt_1mL",
-        "transportCORE_TiltToLoading"
     ],
 
     "stackedflaskprepWorkflow": [
