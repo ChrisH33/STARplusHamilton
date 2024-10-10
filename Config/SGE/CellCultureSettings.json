@@ -29,6 +29,7 @@
         "pipettingMediaToWasteConfig":[{
             "4mLLC": "4mlTF_Water_DispenseJet_Empty",
 			"1mLLC": "HighVolumeFilter_Water_DispenseJet_Empty",
+            "aspirateHeightFromBase": 5,
             "tiltAngle": 10,
             "tiltSpeed": 6,
             "labwareVolume": 20
