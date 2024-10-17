@@ -123,7 +123,7 @@ PARALLELPROCESSHANDLING::_InitLibrary();
 DATAMANAGERINTERFACE::_InitLibrary();
 ::RegisterAbortHandler( "OnAbort");
 // }} ""
-// {{ 1 1 0 "3928ec6b_16a0_4ed2_b97c1c5a6cfa31b2" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+// {{ 1 1 0 "46e715ba_19ae_40d1_a350f34c86ae42e2" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
 MECC::TraceComment(Translate("*******************************************************************************************************************************************\n                                                            Method Details\n*******************************************************************************************************************************************\nMethod:                                            Cell Culturing for the MAVE_SGE project\nVersion:                                            0.1\nDescription:                                      Check SOPs \nSoftware:                                         Venus 4 (v 4.5.0.7977)\nAuthor:                                             Chris Henderson\nProcess Flow:                                  \n****************************************************************************************************************************************** "));
 // }} ""
 // {{ 2 1 0 "ed6f254b_f425_4804_b152d84f05da4b36" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
@@ -147,7 +147,7 @@ intTrace = TRACE_LEVEL_DEBUG;
 // {{{ 8 1 0 "267e1f24_a0d3_4748_91a7017eb5cd7fc8" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
 A_MethodInit(intTrace);
 // }} ""
-// {{ 9 1 0 "86cffbc3_6c6d_4255_94ec236dcd06fe4a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+// {{ 9 1 0 "80fc2cf0_381f_40d3_b0f077cc1260fecf" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
 
 // }} ""
 // {{ 10 1 0 "8418b09c_cbf5_4079_966f20f380042be2" "{586C3429-F931-405f-9938-928E22C90BFA}"
@@ -341,4 +341,4 @@ DATAMANAGERINTERFACE::_ExitLibrary();
 // {{{ 5 "main" "End"
 } }
 // }} ""
-// $$author=ch33$$valid=0$$time=2024-10-09 17:43$$checksum=5029bc67$$length=083$$
+// $$author=ch33$$valid=0$$time=2024-10-16 13:58$$checksum=deb538db$$length=083$$
