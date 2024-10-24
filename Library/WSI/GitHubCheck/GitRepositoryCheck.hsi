@@ -1,0 +1,139 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "HSLStrLib.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace GITREPOSITORYCHECK {
+// }} ""
+variable strReturn;
+variable strTemp;
+variable _intPosition;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function Sub1( variable _strGitRepositoryPath ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "Sub1" "Begin"
+function Sub1( variable _strGitRepositoryPath ) void {
+// }} ""
+private variable _strBatFile;
+private variable _strFilepath;
+private variable _strFolderPath;
+private variable _strReportPath;
+private file _hnd;
+private variable _strUpdate;
+private timer timer1;
+// {{ 5 "Sub1" "InitLocals"
+// }} ""
+// {{ 1 1 0 "388c1963_d787_4ed6_83ebe82af4b3cefc" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("----- Get .bat file path -----"));
+// }} ""
+_strFilepath = GetFileName();
+_strFolderPath = StrLeft(_strFilepath, StrReverseFind(_strFilepath, "\\"));
+// {{{ 3 1 0 "d8b02c1e_472d_4029_a9ea9abc35884a2e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strBatFile = StrConcat2(_strFolderPath, Translate("\\GitHubChecker.bat"));
+// }} ""
+// {{ 4 1 0 "87eedd61_a3af_4b55_8ffe81b6417667b1" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("----- Create file for .bat file -----"));
+// }} ""
+// {{{ 5 1 0 "f80f7e67_96bb_4f04_8180a7b6924813d4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strReportPath = StrConcat2(_strFolderPath, Translate("\\Report.txt"));
+// }} ""
+// {{ 6 1 0 "46642702_e107_4cb9_9fdc9d867a9a25f2" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+_hnd.SetExtendedProperties( "HDR=NO");
+_hnd.AddField("Git Folder Path", _strGitRepositoryPath, hslString, 255);
+_hnd.SetDelimiter(hslCSVDelimited);
+if( 0 == _hnd.Open(_strReportPath, hslWrite) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, _strReportPath, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 7 1 0 "bb7d310a_b75c_4815_9919a6fbf3b8d525" "{B31F3537-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == _hnd.WriteRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1473380096, MECC::IDS::stepNameFileWrite, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 8 1 0 "b2ddb38a_5e52_4b82_8ddff69adcd95077" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != _hnd.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+_hnd.RemoveFields();
+// }} ""
+// {{ 9 1 0 "5121400f_a265_45cf_ae279ab3ce8a7677" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("----- Run the .bat file -----"));
+// }} ""
+// {{ 10 1 0 "70bc2e73_2c2b_4551_9533a0ca7df68656" "{B31F3545-5D80-11d4-A5EB-0050DA737D89}"
+{
+if( 0 == Shell(_strBatFile, hslShowMinimized, hslSynchronous) )
+{
+    MECC::RaiseRuntimeErrorEx(-1238499072, MECC::IDS::stepNameShell, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+}
+// }} ""
+// {{ 11 1 0 "796f2994_238d_48ab_adb984ecbf47e573" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("----- Look for response -----"));
+// }} ""
+// {{{ 12 1 0 "c7798165_56b8_4be8_978d0c3937c0a6f0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_strReportPath = StrConcat2(_strFolderPath, Translate("\\status_check.txt"));
+// }} ""
+// {{ 13 1 0 "a1f7e8fa_ddde_4385_96b8307d9e279e1a" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+_hnd.SetExtendedProperties( "HDR=NO");
+_hnd.AddField("Response", _strUpdate, hslString, 255);
+_hnd.SetDelimiter(hslCSVDelimited);
+if( 0 == _hnd.Open(_strReportPath, hslRead) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, _strReportPath, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 14 1 0 "8fa6e514_5147_45c1_8b4928ba1698a576" "{B31F3536-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == _hnd.ReadRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1490157312, MECC::IDS::stepNameFileRead, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 15 1 0 "2a3829b8_897e_44e9_be4a3c7a16ca7199" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != _hnd.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+_hnd.RemoveFields();
+// }} ""
+// {{ 16 1 0 "c60b48b2_8684_44e0_9c4bc93299e7fbfc" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("----- Check the response -----"));
+// }} ""
+Trace("_strUpdate: ", _strUpdate);
+// {{ 18 1 0 "c95dc166_d21a_4b55_80355f58d55bc8e7" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (_strUpdate != "up to date")
+{
+// }} ""
+// {{ 19 1 0 "12490b62_99e7_4dda_9a9a64e594679784" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("Method is outdated. please update"));
+// }} ""
+// {{ 20 1 0 "3e2266b3_623e_484f_89c5a523ee339b8e" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 21 1 0 "c95dc166_d21a_4b55_80355f58d55bc8e7" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "Sub1" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=ch33$$valid=0$$time=2024-09-19 17:58$$checksum=7e7c0a22$$length=083$$

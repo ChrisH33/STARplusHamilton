@@ -1,0 +1,2 @@
+"Git Folder Path"
+"C:\Program Files (x86)\HAMILTON\STARplusGitHub"

@@ -940,8 +940,8 @@ SeqResetSequenceIndexes(_seqTips);
 // {{ 139 1 0 "0d694c55_b48a_48a4_9060c4009b179f9f" "{B31F353D-5D80-11d4-A5EB-0050DA737D89}"
 _intMaxNumberOfTips = _seqTips.GetCount();
 // }} ""
-// {{{ 140 1 0 "cd0fceeb_0890_43ee_a8ab274db912f487" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
-TRACELEVEL::Trace_02(TRACE_LEVEL_DEBUG, Translate("##### intMaxNumberOfTips = "), _intMaxNumberOfTips);
+// {{{ 140 1 0 "56c10ed1_83c0_4714_aa736924a3087c39" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_02(TRACE_LEVEL_DEBUG, Translate("-- Max tip number: "), _intMaxNumberOfTips);
 // }} ""
 // {{ 141 1 0 "bb77eff5_480e_4a1f_b4c2b49108a90d18" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
 
@@ -1052,17 +1052,18 @@ _hndTipCounter.RemoveFields();
 // {{ 165 1 0 "6589c558_fe13_4f6e_96f219736b778c66" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
 _seqTips.SetCurrentPosition(_intTipCounterValue);
 // }} ""
-// {{{ 166 1 0 "e944b7d7_e287_4564_a15341b67ef10164" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
-TRACELEVEL::Trace_02(TRACE_LEVEL_DEBUG, Translate("##### Current tip position = "), _intTipCounterValue);
+// {{{ 166 1 0 "c47b322f_359d_4388_a917a885e8c461a1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_02(TRACE_LEVEL_DEBUG, Translate("-- Current tip pos: "), _intTipCounterValue);
 // }} ""
 // {{ 167 1 0 "602ecee4_b787_4504_9d131c912741a38b" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
 
 // }} ""
-// {{ 168 1 0 "9beae656_380a_4d1f_83107c33b3debe88" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
-_intNumberOfOnDeckTips = 0;
+// {{ 168 1 0 "e474ddc9_6ac4_4dbd_92101e75314c81ef" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+_intNumberOfOnDeckTips = _intMaxNumberOfTips - _intTipCounterValue;
 // }} ""
-_intNumberOfOnDeckTips = _intMaxNumberOfTips - _intTipCounterValue + 1;
-Trace("##### Number of ", _strTipCounter, " tips on deck = ", _intNumberOfOnDeckTips);
+// {{ 169 1 0 "33d92251_07ad_4a58_8e3409815587431f" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+_intNumberOfOnDeckTips = _intNumberOfOnDeckTips + 1;
+// }} ""
 // {{ 170 1 0 "8bf69d01_343d_4b73_8b20a2b3a02bf09a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
 
 // }} ""
@@ -1085,8 +1086,8 @@ else
 if (_intTipsNeeded > _intNumberOfOnDeckTips)
 {
 // }} ""
-// {{ 176 1 0 "7edba5aa_2019_480f_820fb69b83eb27eb" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
-MECC::TraceComment(Translate("Tip requirement for this process exceeds current on-deck deck capacity. Tip reload required"));
+// {{ 176 1 0 "1376bf54_6c60_460c_823882760da7db0d" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("Tip requirement for this process exceeds current on-deck deck capacity. Tip reload required\n\nFix me later Chris"));
 // }} ""
 // {{ 177 1 0 "8fa94867_a86e_4426_943cf1400a1f1291" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
 _blnReturnValue = 1;
@@ -2120,18 +2121,13 @@ return (_int);
 // {{{ 5 "StackedLabwarePos" "Begin"
 function StackedLabwarePos( variable _blnEffect, sequence & _seq ) void {
 // }} ""
-private variable hndDB_AutoFlask;
 private variable _hnd_Position;
 private variable _intLocation;
 private variable _hnd_AutoFlask;
-private variable hndDB_Position;
 private variable _strStackType;
 private variable loopCounter1;
-private variable _rtnSuccess;
 private variable _strLabwareID;
-private file hndDB;
 private file _hnd;
-private variable arrConfigFilePaths[];
 private variable _arrConfigFiles[];
 private variable _intSeqPos;
 // {{ 5 "StackedLabwarePos" "InitLocals"
@@ -2148,8 +2144,8 @@ _strLabwareID = SeqGetLabwareId(_seq);
 // {{{ 63 1 0 "c5423020_7612_4263_85ba38eb5a0fa977" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
 StrMakeLower(_strLabwareID);
 // }} ""
-// {{{ 64 1 0 "95319211_9788_4635_987461cc0476c693" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
-_intLocation = StrFind(_strLabwareID, Translate("empty"));
+// {{{ 64 1 0 "2359ecc0_a4d6_415f_a1226b1180e1681f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+_intLocation = StrFind(_strLabwareID, Translate("storage"));
 // }} ""
 // {{ 65 1 0 "110eb10d_6940_4f4e_884df4d7aa56608e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
 if (_intLocation >= 1)
@@ -2293,4 +2289,4 @@ return;
 // {{{ 2 "LibraryNamespace" "End"
 } // library namespace
 // }} ""
-// $$author=ch33$$valid=0$$time=2024-09-25 14:12$$checksum=496e5080$$length=083$$
+// $$author=ch33$$valid=0$$time=2024-10-24 12:06$$checksum=2cbc4722$$length=083$$

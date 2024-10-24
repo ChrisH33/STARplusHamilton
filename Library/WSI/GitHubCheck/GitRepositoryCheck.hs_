@@ -1,17 +1,17 @@
 
 // this ALWAYS GENERATED file contains the sub-method library header
-// Generated at 16/12/2021 10:31:53
+// Generated at 19/09/2024 17:58:10
 
 #pragma once
 #ifndef HSL_RUNTIME
-namespace NTRSEQUENCESORTER {
+namespace GITREPOSITORYCHECK {
 function _InitLibrary() { }
 function _ExitLibrary() { }
-function Sorting( sequence & io_seqPipetting, variable & io_arrVolumes[] ) void { }
+function Sub1( variable _strGitRepositoryPath ) void { }
 } // namespace
 #endif
 
 #ifdef HSL_RUNTIME
 #include __filename__ ".hsi"
 #endif
-// $$author=kdtr696$$valid=0$$time=2021-12-16 10:31$$checksum=e90100ad$$length=084$$
+// $$author=ch33$$valid=0$$time=2024-09-19 17:58$$checksum=ef313bd5$$length=081$$
