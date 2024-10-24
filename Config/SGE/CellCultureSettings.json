@@ -59,7 +59,7 @@
     }],
   
     "starPlusConfig": [{
-        "fanSpeed": 0,
+        "fanSpeed": 50,
         "uvMaxTime": 600,
         "uvMaxTimeSim": 15,
         "uvLight": true,
