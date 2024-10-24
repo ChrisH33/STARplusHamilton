@@ -123,8 +123,8 @@ PARALLELPROCESSHANDLING::_InitLibrary();
 DATAMANAGERINTERFACE::_InitLibrary();
 ::RegisterAbortHandler( "OnAbort");
 // }} ""
-// {{ 1 1 0 "46e715ba_19ae_40d1_a350f34c86ae42e2" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
-MECC::TraceComment(Translate("*******************************************************************************************************************************************\n                                                            Method Details\n*******************************************************************************************************************************************\nMethod:                                            Cell Culturing for the MAVE_SGE project\nVersion:                                            0.1\nDescription:                                      Check SOPs \nSoftware:                                         Venus 4 (v 4.5.0.7977)\nAuthor:                                             Chris Henderson\nProcess Flow:                                  \n****************************************************************************************************************************************** "));
+// {{ 1 1 0 "9b0cfcc5_f11d_41c3_b946e5268664feec" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("*******************************************************************************************************************************************\n                                                            Method Details\n*******************************************************************************************************************************************\nMethod:                                            Cell Culturing for the MAVE_SGE project\nVersion:                                            0.2\nDescription:                                      Check SOPs \nSoftware:                                         Venus 4 (v 4.5.0.7977)\nAuthor:                                             Chris Henderson\nProcess Flow:                                  \n****************************************************************************************************************************************** "));
 // }} ""
 // {{ 2 1 0 "ed6f254b_f425_4804_b152d84f05da4b36" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
 
@@ -336,4 +336,4 @@ DATAMANAGERINTERFACE::_ExitLibrary();
 // {{{ 5 "main" "End"
 } }
 // }} ""
-// $$author=ch33$$valid=0$$time=2024-10-24 12:06$$checksum=9c2d67f5$$length=083$$
+// $$author=ch33$$valid=0$$time=2024-10-24 14:40$$checksum=9342a464$$length=083$$
