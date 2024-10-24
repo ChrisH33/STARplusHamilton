@@ -16,22 +16,22 @@
  namespace _Method { #include "ASWStandardDialogs\\ASWStandardDialogs.hsl" } 
  namespace _Method { #include "ASWStandard\\TraceLevel\\TraceLevel.hsl" } 
  namespace _Method { #include "WSI\\HSLGetSerialNumber_WSI.hsl" } 
- namespace _Method { #include "load_instructions.hs_" } 
  namespace _Method { #include "lookup.hs_" } 
  namespace _Method { #include "WSI\\SangerBarcoding\\HSLBarcodeReader_WSI.hsl" } 
  namespace _Method { #include "Hamilton Tilt Clamp Module\\Hamilton Tilt Clamp Module.hsl" } 
  namespace _Method { #include "VirtualLabware_V2.hsl" } 
  namespace _Method { #include "WSI\\FindDBPath.hs_" } 
+ namespace _Method { #include "HSLMthLib.hsl" } 
+ namespace _Method { #include "HAMILTON\\HSLHamiltonMediaFillModule.hsl" } 
+#include "STARplus_Deck.res"
+ namespace _Method { #include "load_instructions.hs_" } 
  namespace _Method { #include "HSLUtilLib2.hsl" } 
  namespace _Method { #include "HSLDeckVisualize.hsl" } 
  namespace _Method { #include "MLSTARLiquidClassLib.hsl" } 
- namespace _Method { #include "HSLMthLib.hsl" } 
  namespace _Method { #include "ParallelProcessHandling.hs_" } 
  namespace _Method { #include "DataManager\\DataManagerInterface.hs_" } 
  namespace _Method { #include "HSLExtensions\\Array2D.hsl" } 
  namespace _Method { #include "Hamilton Heater Shaker\\HslHamHeaterShakerLib.hsl" } 
- namespace _Method { #include "HAMILTON\\HSLHamiltonMediaFillModule.hsl" } 
-#include "STARplus_Deck.res"
 /* {{ 2 "LibraryInsertLine" "" */ // }} ""
 variable blnSimMode;
 variable blnTipReload;
@@ -116,9 +116,9 @@ TRACEARRAY::_InitLibrary();
 SCAP_STARPLUS::_InitLibrary();
 UV_STARPLUS::_InitLibrary();
 JSONSEARCH::_InitLibrary();
-LOAD_INSTRUCTIONS::_InitLibrary();
 LOOKUP::_InitLibrary();
 FINDDBPATH::_InitLibrary();
+LOAD_INSTRUCTIONS::_InitLibrary();
 PARALLELPROCESSHANDLING::_InitLibrary();
 DATAMANAGERINTERFACE::_InitLibrary();
 ::RegisterAbortHandler( "OnAbort");
@@ -327,13 +327,13 @@ TRACEARRAY::_ExitLibrary();
 SCAP_STARPLUS::_ExitLibrary();
 UV_STARPLUS::_ExitLibrary();
 JSONSEARCH::_ExitLibrary();
-LOAD_INSTRUCTIONS::_ExitLibrary();
 LOOKUP::_ExitLibrary();
 FINDDBPATH::_ExitLibrary();
+LOAD_INSTRUCTIONS::_ExitLibrary();
 PARALLELPROCESSHANDLING::_ExitLibrary();
 DATAMANAGERINTERFACE::_ExitLibrary();
 // }} ""
 // {{{ 5 "main" "End"
 } }
 // }} ""
-// $$author=ch33$$valid=0$$time=2024-10-24 14:40$$checksum=9342a464$$length=083$$
+// $$author=Hamilton$$valid=0$$time=2024-10-24 15:37$$checksum=de94370d$$length=087$$

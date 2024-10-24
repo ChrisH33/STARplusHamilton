@@ -45,13 +45,13 @@
             "maxDestinationPlateNumber": 10
         }],
         "labwareConfig":[{
-            "gripHeight": 8,
-            "gripWidth": 79,
-            "gripWidthOpen": 86,
+            "gripHeight": 10,
+            "gripWidth": 79.5,
+            "gripWidthOpen": 85,
             "gripForce": 5,
             "gripSpeed": 277.8,
             "zSpeedGet": 127.8,
-            "zSpeedPlace": 128.7,
+            "zSpeedPlace": 50,
             "xAcceleration": 1,
             "platePress": 1,
             "tolerance": 2
@@ -98,13 +98,13 @@
         "transportCORE_TiltToLoading"
     ],
 
-
+    "platemoveWorkflow": [
+        "transportCORE_LoadingToTilt",
+        "transportCORE_TiltToLoading"
+    ],
 
     "mediaremovalWorkflow": [
-        "transportCORE_LoadingToTilt",
-        "pipettingTiltToWaste_20mL",
-        "transportCORE_TiltToLoading",
-        "increment_NextSet"
+        "pipettingTiltToWaste_20mL"
     ],
     
     "mediaadditionWorkflow": [
